@@ -1,6 +1,11 @@
 [package]
-name = "hl7_2_5_to_xml"
+name = "hl7-2-5-to-xml"
 version = "0.1.0"
 edition = "2024"
+description = "Convert HL7 v2.5 messages (pipe-delimited ER7) to the HL7 v2.xml XML representation"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/joelparkerhenderson/hl7-2-5-to-xml-using-rust"
+keywords = ["hl7", "healthcare", "xml", "er7", "v2xml"]
+categories = ["parser-implementations", "command-line-utilities"]
 
 [dependencies]
