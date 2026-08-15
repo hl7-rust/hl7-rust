@@ -3,8 +3,8 @@ name = "hl7-2-5-to-json"
 version = "0.2.0"
 edition = "2024"
 description = "Convert HL7 v2.5 messages (pipe-delimited ER7) to a typed JSON representation"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/joelparkerhenderson/hl7-2-5-to-json-using-rust"
+license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
+repository = "https://github.com/hl7-rust/hl7-2-5-to-json-using-rust"
 keywords = ["hl7", "healthcare", "json", "er7", "v2"]
 categories = ["parser-implementations", "command-line-utilities"]
 
