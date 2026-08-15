@@ -38,25 +38,67 @@ information the v2.xml encoding preserves — including HL7's own typed
 field/component naming — while using idiomatic JSON constructs (objects,
 arrays, `null`, strings) instead of inventing an XML-shaped JSON wrapper.
 
-## 2. ER7 parsing (`src/er7.rs`)
+## 2. ER7 parsing (the [`er7`] crate)
 
-Identical to the sibling crate. Summary (see the sibling's `spec/index.md`
-§2 for the fully worked rationale; behavior here is the same):
+[`er7`]: https://crates.io/crates/er7
 
-- Input splits into lines on `\r`/`\n`, trimmed, empty lines dropped, BOM
-  stripped. The first non-empty line must be `MSH` or parsing fails
-  (`Hl7Error::MissingMsh` / `Hl7Error::Empty`).
-- The five delimiters (field `|`, component `^`, repetition `~`, escape
-  `\`, subcomponent `&` by default) are read from MSH-1 and MSH-2, never
-  hardcoded (`Hl7Error::BadMshHeader` if the field separator is missing or
-  alphanumeric).
-- Each segment splits into fields, repetitions, components, subcomponents
-  on those delimiters. MSH-1/MSH-2 (and FHS-1/2, BHS-1/2) are taken as one
-  literal value each, never split or escape-decoded.
-- The explicit HL7 null, `""`, marks a deliberately empty value (§4.5).
-- Escape sequences `\F\ \S\ \T\ \R\ \E\` decode to the delimiter
-  characters; `\Xhh..\` decodes hex bytes (UTF-8, lossy). Any other
-  sequence, and any unterminated escape character, is kept literally.
+Identical to the sibling crate. Since 0.2.0 neither crate parses ER7
+itself: the encoding layer — delimiters, the six-level value tree, escape
+sequences, batch splitting — is the [`er7`] crate, whose own
+`spec/index.md` is normative for all of it. See the sibling's
+`spec/index.md` §2 for the fully worked rationale; behavior here is the
+same.
+
+The split is deliberate: ER7 is one small, stable encoding shared by every
+HL7 v2 release, while the data-type tables and message structures below
+(§3, §4) are specific to v2.5.
+
+### 2.1 Input normalization (`normalize` in `src/lib.rs`)
+
+Before parsing, input is tidied to the shape this crate has always
+documented: BOM stripped; lines split on `\r`/`\n`; **each line trimmed**;
+empty lines dropped; the rest rejoined with `\r` and handed to
+`er7::parse`.
+
+The trimming is this crate's, not `er7`'s. `er7` deliberately trims nothing
+because it guarantees a byte-for-byte round trip and cannot know whether a
+trailing space is data (`er7` spec §4.1, rule R16). This crate makes no
+such promise — it renders JSON, where stray whitespace around a segment is
+noise, and where an indented first line would otherwise become a
+`MissingMsh` error rather than a converted document.
+
+### 2.2 What `er7` guarantees, and this crate depends on
+
+| Behavior | `er7` spec |
+|----------|-----------|
+| The first segment must be `MSH` (or `FHS`/`BHS`); nothing below the header can fail | §4.2, rules R5, R6 |
+| The five delimiters are read from MSH-1/MSH-2, never hardcoded; omitted encoding characters fall back | §3.2, rules R1, R3 |
+| A delimiter set that reuses one character for two roles is rejected | §3.3, rule R2 |
+| MSH-1/MSH-2 (and FHS/BHS equivalents) are taken literally, never split or escape-decoded | §4.4.2, rule R8 |
+| A field sent empty has no repetitions; empty positions below the field keep their places | §4.4.1, rule R7 |
+| `\F\ \S\ \T\ \R\ \E\` and a well-formed `\Xhh..\` decode; every other sequence, and an unterminated escape character, is kept literally | §6.2, rule R13 |
+| The explicit HL7 null `""` stays distinct from an empty value (§4.5) | §5.3, rules R10, R11 |
+
+Two consequences worth stating, because they shape §4:
+
+- **Decoding is on demand.** `er7` stores subcomponent text exactly as it
+  arrived; this crate decodes it with `Subcomponent::value` at the point the
+  text becomes JSON (`src/json.rs`), which is why the node builders take the
+  message's `Separators`.
+- **The explicit null is asked, not compared.** `Repetition::is_null`
+  replaces the old string comparison against `""`.
+
+### 2.3 Errors
+
+`er7::Error` is mapped onto this crate's [`Hl7Error`](src/lib.rs) by a
+`From` implementation, so the public error type is unchanged:
+
+| `er7::Error` | `Hl7Error` |
+|--------------|------------|
+| `Empty` | `Empty` |
+| `MissingHeader(name)` | `MissingMsh` |
+| `BadHeader(detail)` | `BadMshHeader(detail)` |
+| `BadPath(detail)` | `BadMshHeader(detail)` — unreachable; this crate never issues a path query |
 
 ## 3. Message-structure grouping (`src/structure.rs`)
 
@@ -194,11 +236,15 @@ default (indented XML) and is far more readable for manual inspection.
 
 ## 5. Batch / multi-message input (`split_messages` in `src/lib.rs`)
 
-Identical to the sibling crate (see its spec §5): batch envelope segments
-(`FHS`, `BHS`, `BTS`, `FTS`) are dropped unless the character right after
-the 3-letter code is alphanumeric; a new message starts at each `MSH` line;
-lines are rejoined with `\r`. Each resulting message converts to its own,
-independent JSON document (never merged into one array or one object).
+Identical to the sibling crate (see its spec §5). Input is normalized
+(§2.1) and then split by `er7::split_messages` (`er7` spec §9, rule R21):
+batch envelope segments (`FHS`, `BHS`, `BTS`, `FTS`) are dropped, matched
+by exact name so a longer local segment such as `BTSX` is kept; a new
+message starts at each `MSH` line, or at the first surviving line even if
+it is not `MSH`; segments are rejoined with `\r`.
+
+Each resulting message converts to its own, independent JSON document
+(never merged into one array or one object).
 
 ## 6. Limitations
 
@@ -222,9 +268,15 @@ Same scope boundaries as the XML sibling, restated for this crate:
   repeat) must normalize a bare value into a one-element array itself;
   this crate does not do so, to keep the common (non-repeating) case
   uncluttered.
+- **One dependency, by design.** This crate depends on [`er7`] for the
+  encoding layer and on nothing else; `er7` itself has no dependencies, so
+  the whole tree is two crates. Anything below the v2.5 dictionary belongs
+  in `er7`, not here (§2).
 
 ## 7. References
 
+- [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
+  is built on; its `spec/index.md` is normative for everything in §2
 - [HL7 v2.xml encoding](https://www.hl7.eu/refactored/encoding02xml.html) —
   the XML encoding this crate's JSON mapping is modeled on (no equivalent
   official JSON encoding exists).

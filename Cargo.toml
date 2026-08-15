@@ -1,6 +1,6 @@
 [package]
 name = "hl7-2-5-to-json"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 description = "Convert HL7 v2.5 messages (pipe-delimited ER7) to a typed JSON representation"
 license = "MIT OR Apache-2.0"
@@ -9,3 +9,7 @@ keywords = ["hl7", "healthcare", "json", "er7", "v2"]
 categories = ["parser-implementations", "command-line-utilities"]
 
 [dependencies]
+# The ER7 encoding layer: parsing, escape sequences, and writing back out.
+# This crate supplies only the HL7 v2.5 dictionary on top of it — see
+# spec/index.md §2.
+er7 = "0.1.0"

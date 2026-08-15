@@ -6,7 +6,7 @@ canonical and don't fork the content between the two.
 
 ## What this is
 
-A small, zero-dependency Rust crate + CLI that converts HL7 v2.5 messages
+A small Rust crate + CLI that converts HL7 v2.5 messages
 from pipe-delimited ER7 text to a typed JSON representation. It is the JSON
 sibling of `hl7-2-5-to-xml-using-rust` (same parser, same data-type tables,
 same message-structure grammars, different output format) — when in doubt
@@ -23,11 +23,10 @@ fix or a behavior change, check it against the spec first.
 ## Layout
 
 ```
+er7 (dependency)  ER7 parsing, delimiters, escape sequences, batch
+                   splitting. Not in this repo — see spec/index.md §2.
 src/lib.rs        Public API: convert(), convert_with_options(), Options,
-                   Hl7Error, split_messages(), root_name derivation.
-src/er7.rs         ER7 parsing: Separators, Message/Segment/Field/Repeat/
-                   Component, escape-sequence decoding. Shared verbatim
-                   with the XML sibling — it has no XML/JSON dependency.
+                   Hl7Error, split_messages(), normalize(), root_name.
 src/types.rs       Data-type tables: segment field types, composite
                    component types (drives typed JSON key naming). Shared
                    verbatim with the XML sibling.
@@ -55,8 +54,16 @@ splitting, the CLI contract) is covered in `tests/integration.rs` instead.
 
 ## Working conventions
 
-- **Rust edition 2024**, zero runtime dependencies — keep it that way
-  unless the user asks for a dependency; hand-rolling the JSON writer
+- **Rust edition 2024**, exactly one runtime dependency: the
+  [`er7`](https://crates.io/crates/er7) crate, which supplies the ER7
+  encoding layer and itself has none. Keep it that way unless the user asks
+  for another; a two-crate tree is part of this crate's value proposition
+  in a domain where dependencies get audited.
+- **The layer boundary is the point.** This crate owns the HL7 v2.5
+  dictionary — data-type tables, message structures, the JSON renderer.
+  `er7` owns the encoding. Anything about *how ER7 is written* belongs in
+  `er7`, not here; see `spec/index.md` §2 for the inherited guarantees.
+- Hand-rolling the JSON writer
   (`src/json.rs`) instead of pulling in `serde_json` is a deliberate part
   of this crate's value proposition, matching the XML sibling's zero-dep
   stance.
@@ -116,4 +123,5 @@ splitting, the CLI contract) is covered in `tests/integration.rs` instead.
   speculatively; add one when a real need (a failing test case, a user
   request) motivates it, and give it the same grammar-table treatment as
   the existing four in `src/structure.rs`.
-- Pulling in `serde`/`serde_json` — see zero-dependency note above.
+- Pulling in `serde`/`serde_json` — see the dependency note above; the
+  hand-rolled writer is deliberate.

@@ -2,12 +2,18 @@
 
 Convert HL7 version 2.5 messages from the traditional pipe-delimited ER7
 encoding to a typed **JSON** representation, as a Rust library and
-command-line tool with zero dependencies.
+command-line tool.
+
+The ER7 encoding itself comes from the
+[`er7`](https://crates.io/crates/er7) crate, which is this crate's only
+dependency and has none of its own. This crate is the layer above it: the
+HL7 v2.5 data-type tables that name JSON keys, the message-structure
+grammars that group segments, and the JSON renderer.
 
 This is the JSON sibling of
 [`hl7-2-5-to-xml-using-rust`](https://github.com/joelparkerhenderson/hl7-2-5-to-xml-using-rust):
-same ER7 parser, same HL7 v2.5 data-type tables, same message-structure
-grammars — rendered as JSON instead of the official v2.xml XML. There is no
+same ER7 parser (both read it through `er7`), same HL7 v2.5 data-type
+tables, same message-structure grammars — rendered as JSON instead of the official v2.xml XML. There is no
 official "v2.json" standard to target, so this crate defines its own JSON
 mapping, designed to preserve everything v2.xml preserves while using
 idiomatic JSON (real arrays, real `null`) instead of XML's constructs.
