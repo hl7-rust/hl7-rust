@@ -24,79 +24,71 @@ values, or data-type constraints, and it does not use or require an XSD. It
 performs a structural, name-preserving translation: whatever ER7 the input
 contains, well-formed XML comes out, with best-effort typed element names.
 
-## 2. ER7 parsing (`src/er7.rs`)
+## 2. ER7 parsing (the [`er7`] crate)
 
-### 2.1 Message and segment splitting
+[`er7`]: https://crates.io/crates/er7
 
-- Input is split into lines on `\r` or `\n`; each line is trimmed of
-  surrounding whitespace; empty lines are dropped. A leading UTF-8 BOM
-  (`\u{FEFF}`) is stripped first.
-- The first non-empty line MUST start with `MSH`, or parsing fails with
-  `Hl7Error::MissingMsh`. Input with no non-empty lines fails with
-  `Hl7Error::Empty`.
-- Every remaining line becomes one `Segment`, identified by its first three
-  characters (the segment ID, e.g. `PID`).
+Since 0.2.0 this crate does not parse ER7 itself. The encoding layer —
+delimiters, the six-level value tree, escape sequences, batch splitting — is
+the [`er7`] crate, whose own `spec/index.md` is normative for all of it.
+This section states only what *this* crate relies on, and the one place it
+differs.
 
-### 2.2 Delimiters
+The split is deliberate: ER7 is one small, stable encoding shared by every
+HL7 v2 release, while the data-type tables and message structures below
+(§3, §4) are specific to v2.5. Keeping them apart means the encoding is
+maintained and tested once, and this crate is only the v2.5 dictionary on
+top of it.
 
-The five ER7 delimiter characters are **read from the message itself**,
-never hardcoded, per `Separators` (`src/er7.rs`):
+### 2.1 Input normalization (`normalize` in `src/lib.rs`)
 
-| Delimiter    | Source              | Default | Role                        |
-|--------------|----------------------|:-------:|------------------------------|
-| field        | MSH, byte 4 (`MSH` + this char) | `\|` | separates fields in a segment |
-| component    | MSH-2, position 1   | `^`     | separates components in a repetition |
-| repetition   | MSH-2, position 2   | `~`     | separates repetitions in a field |
-| escape       | MSH-2, position 3   | `\`     | introduces/closes an escape sequence |
-| subcomponent | MSH-2, position 4   | `&`     | separates subcomponents in a component |
+Before parsing, input is tidied to the shape this crate has always
+documented:
 
-If the field separator is missing or is alphanumeric, parsing fails with
-`Hl7Error::BadMshHeader`. If MSH-2 supplies fewer than four encoding
-characters, the missing ones fall back to their default.
+- A leading UTF-8 BOM (`\u{FEFF}`) is stripped.
+- Input is split into lines on `\r` or `\n`; **each line is trimmed of
+  surrounding whitespace**; empty lines are dropped.
+- The surviving lines are rejoined with `\r` and handed to `er7::parse`.
 
-### 2.3 Field/repetition/component/subcomponent structure
+The trimming is this crate's, not `er7`'s. `er7` deliberately trims nothing
+because it guarantees a byte-for-byte round trip and cannot know whether a
+trailing space is data (`er7` spec §4.1, rule R16). This crate makes no such
+promise — it renders XML, where stray whitespace around a segment is noise,
+and where an indented first line would otherwise become a `MissingMsh`
+error rather than a converted document.
 
-Each segment line splits into fields on the field separator; each field
-splits into repetitions on the repetition separator; each repetition splits
-into components on the component separator; each component splits into
-subcomponents on the subcomponent separator. Every subcomponent string is
-then escape-decoded (§2.5).
+### 2.2 What `er7` guarantees, and this crate depends on
 
-**Exception — MSH-1 and MSH-2 (and the equivalent FHS-1/2, BHS-1/2 batch
-envelope fields):** these are taken as one literal, pre-decoded value each,
-never split on any delimiter and never escape-decoded, because MSH-1 *is*
-the field separator and MSH-2 *is* the encoding-characters string.
+| Behavior | `er7` spec |
+|----------|-----------|
+| The first segment must be `MSH` (or `FHS`/`BHS`); nothing below the header can fail | §4.2, rules R5, R6 |
+| The five delimiters are read from MSH-1/MSH-2, never hardcoded; omitted encoding characters fall back | §3.2, rules R1, R3 |
+| A delimiter set that reuses one character for two roles is rejected | §3.3, rule R2 |
+| MSH-1/MSH-2 (and FHS/BHS equivalents) are taken literally, never split or escape-decoded | §4.4.2, rule R8 |
+| A field sent empty has no repetitions; empty positions below the field keep their places | §4.4.1, rule R7 |
+| `\F\ \S\ \T\ \R\ \E\` and a well-formed `\Xhh..\` decode; every other sequence, and an unterminated escape character, is kept literally | §6.2, rule R13 |
+| The explicit HL7 null `""` stays distinct from an empty value | §5.3, rules R10, R11 |
 
-### 2.4 HL7 null
+Two consequences worth stating, because they shape §4:
 
-The explicit HL7 null, the two-character literal `""`, marks a field whose
-value is deliberately empty (as opposed to simply not sent). It is
-distinguished from an ordinary empty field and renders as an empty XML
-element (`<PID.2/>`) rather than as the literal text `""` or as an omitted
-field. See §4.4.
+- **Decoding is on demand.** `er7` stores subcomponent text exactly as it
+  arrived; this crate decodes it with `Subcomponent::value` at the point the
+  text becomes XML (`src/xml.rs`), which is why the node builders take the
+  message's `Separators`.
+- **The explicit null is asked, not compared.** `Repetition::is_null`
+  replaces the old string comparison against `""`.
 
-### 2.5 Escape sequences
+### 2.3 Errors
 
-Within subcomponent text, `\X\` sequences (where `\` is the message's escape
-character) decode as:
+`er7::Error` is mapped onto this crate's [`Hl7Error`](src/lib.rs) by a
+`From` implementation, so the public error type is unchanged:
 
-| Sequence | Decodes to |
-|----------|------------|
-| `\F\`    | the field separator |
-| `\S\`    | the component separator |
-| `\T\`    | the subcomponent separator |
-| `\R\`    | the repetition separator |
-| `\E\`    | the escape character itself |
-| `\Xhh..\`| the bytes given by the hexadecimal digits `hh..`, interpreted as UTF-8 (lossy) |
-
-Any other sequence — including formatting/highlighting commands such as
-`\.br\` or `\H\`, and locally-defined `\Z...\` sequences — is **kept
-literally**, escape characters included. An unterminated escape character
-(no matching closing `\`) is likewise kept literally. This crate does not
-map formatting escapes to `<escape/>` elements (see [Limitations](#6-limitations)).
-
-Decoded text is XML-escaped afterward at render time (§4), so a decoded `&`,
-`<`, or `>` is safe in the output.
+| `er7::Error` | `Hl7Error` |
+|--------------|------------|
+| `Empty` | `Empty` |
+| `MissingHeader(name)` | `MissingMsh` |
+| `BadHeader(detail)` | `BadMshHeader(detail)` |
+| `BadPath(detail)` | `BadMshHeader(detail)` — unreachable; this crate never issues a path query |
 
 ## 3. Message-structure grouping (`src/structure.rs`)
 
@@ -217,17 +209,24 @@ messages are never merged into one document.
 Input may hold one message, several concatenated messages, or an HL7 batch
 file:
 
-- A leading BOM is stripped; lines are split on `\r`/`\n`, trimmed, and
-  empty lines dropped, as in §2.1.
-- Batch envelope segments — `FHS`, `BHS`, `BTS`, `FTS` — are dropped,
-  **unless** the character immediately after the 3-letter code is
-  alphanumeric (which would mean it's actually a different, longer segment
-  ID that happens to start with those three letters, not a real envelope
-  segment).
-- A new message starts at each line beginning with `MSH` (or at the very
-  first surviving line, even if not `MSH` — that malformed message will
-  then fail with `Hl7Error::MissingMsh` when converted).
-- Lines belonging to one message are rejoined with `\r`.
+- Input is normalized first (§2.1): BOM stripped, lines split on `\r`/`\n`,
+  trimmed, empty lines dropped, rejoined with `\r`. Normalizing before
+  splitting matters, because `er7` identifies a segment by its leading run
+  of letters and digits, so an indented line would not be recognized as the
+  `MSH` that starts a message.
+- The normalized text is then split by `er7::split_messages` (`er7` spec
+  §9, rule R21):
+  - Batch envelope segments — `FHS`, `BHS`, `BTS`, `FTS` — are dropped. The
+    name is matched exactly, so a longer local segment such as `BTSX` is
+    kept. (Before 0.2.0 this crate reached the same answer by checking that
+    the character after the three-letter code was not alphanumeric; the two
+    rules agree on every input.)
+  - A new message starts at each `MSH` line, or at the very first surviving
+    line even if it is not `MSH` — that malformed message then fails with
+    `Hl7Error::MissingMsh` when converted, rather than being silently
+    dropped.
+- `split_messages` returns owned `String`s, one per message, with segments
+  joined by `\r`.
 
 Each resulting message is converted independently; the CLI joins the
 resulting XML documents with a blank line between them (§8).
@@ -251,9 +250,15 @@ These are intentional scope boundaries, not defects:
 - **Data-type tables are scoped to common v2.5 messages.** Segments and
   composite types outside `src/types.rs`'s tables still convert (via the
   generic fallback in §4.2), just without type-derived names.
+- **One dependency, by design.** This crate depends on [`er7`] for the
+  encoding layer and on nothing else; `er7` itself has no dependencies, so
+  the whole tree is two crates. Anything below the v2.5 dictionary belongs
+  in `er7`, not here (§2).
 
 ## 7. References
 
+- [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
+  is built on; its `spec/index.md` is normative for everything in §2
 - [HL7 v2.xml encoding](https://www.hl7.eu/refactored/encoding02xml.html)
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)
 - [Microsoft BizTalk: HL7 2.X and 2.XML schemas](https://learn.microsoft.com/en-us/biztalk/adapters-and-accelerators/accelerator-hl7/hl7-2-x-and-2-xml-schemas)

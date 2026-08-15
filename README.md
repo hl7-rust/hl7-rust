@@ -2,8 +2,13 @@
 
 Convert HL7 version 2.5 messages from the traditional pipe-delimited ER7
 encoding to the official HL7 **v2.xml** XML representation
-(`urn:hl7-org:v2xml`), as a Rust library and command-line tool with zero
-dependencies.
+(`urn:hl7-org:v2xml`), as a Rust library and command-line tool.
+
+The ER7 encoding itself comes from the
+[`er7`](https://crates.io/crates/er7) crate, which is this crate's only
+dependency and has none of its own. This crate is the layer above it: the
+HL7 v2.5 data-type tables that name XML elements, the message-structure
+grammars that group segments, and the XML renderer.
 
 This README is a tour. [`spec/index.md`](spec/index.md) is the normative,
 section-by-section specification of every conversion rule — the single

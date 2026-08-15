@@ -6,7 +6,7 @@ canonical and don't fork the content between the two.
 
 ## What this is
 
-A small, zero-dependency Rust crate + CLI that converts HL7 v2.5 messages
+A small Rust crate + CLI that converts HL7 v2.5 messages
 from pipe-delimited ER7 text to the official v2.xml XML representation. See
 `README.md` for the user-facing pitch and `spec/index.md` for the exact,
 normative conversion rules — **`spec/index.md` is the single source of
@@ -17,10 +17,10 @@ a behavior change, check it against the spec first.
 ## Layout
 
 ```
+er7 (dependency)  ER7 parsing, delimiters, escape sequences, batch
+                   splitting. Not in this repo — see spec/index.md §2.
 src/lib.rs        Public API: convert(), convert_with_options(), Options,
-                   Hl7Error, split_messages(), root_name derivation.
-src/er7.rs         ER7 parsing: Separators, Message/Segment/Field/Repeat/
-                   Component, escape-sequence decoding.
+                   Hl7Error, split_messages(), normalize(), root_name.
 src/types.rs       Data-type tables: segment field types, composite
                    component types (drives typed XML element naming).
 src/structure.rs   Message-structure grammars (ACK, ADT_A01, ORM_O01,
@@ -40,9 +40,17 @@ contract) is covered in `tests/integration.rs` instead.
 
 ## Working conventions
 
-- **Rust edition 2024**, zero runtime dependencies — keep it that way unless
-  the user asks for a dependency; this crate's value proposition includes
-  being dependency-free.
+- **Rust edition 2024**, exactly one runtime dependency: the
+  [`er7`](https://crates.io/crates/er7) crate, which supplies the ER7
+  encoding layer and itself has none. Keep it that way unless the user asks
+  for another; a two-crate tree is part of this crate's value proposition
+  in a domain where dependencies get audited.
+- **The layer boundary is the point.** This crate owns the HL7 v2.5
+  dictionary — data-type tables, message structures, the XML renderer.
+  `er7` owns the encoding — delimiters, the value tree, escape sequences,
+  batch splitting. Anything about *how ER7 is written* belongs in `er7`,
+  not here; see `spec/index.md` §2 for exactly which guarantees are
+  inherited.
 - Every public item must have a doc comment; `src/lib.rs` carries
   `#![warn(missing_docs)]` to enforce it. Run `cargo doc --no-deps` (or the
   check below) after adding public API.

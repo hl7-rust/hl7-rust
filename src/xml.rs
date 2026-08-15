@@ -1,7 +1,7 @@
 //! Building the v2.xml element tree from parsed segments, and serializing it.
 
-use crate::er7::{Component, Repeat, Segment};
 use crate::types::{composite_components, field_type};
+use er7::{Component, Repetition, Segment, Separators};
 
 /// XML namespace of the root element in every document this crate emits.
 pub const V2XML_NAMESPACE: &str = "urn:hl7-org:v2xml";
@@ -68,12 +68,17 @@ pub fn xml_name(s: &str) -> String {
 }
 
 /// Convert one segment into its `<SEG>` element with typed field children.
-pub fn segment_to_node(seg: &Segment) -> Node {
-    let seg_name = xml_name(&seg.id);
+///
+/// `separators` is the delimiter set the message declared; it is needed
+/// because `er7` stores subcomponent text exactly as it arrived and decodes
+/// escape sequences on demand, so decoding happens here, at the point the
+/// text becomes XML.
+pub fn segment_to_node(seg: &Segment, separators: &Separators) -> Node {
+    let seg_name = xml_name(&seg.name);
     let mut node = Node::group(&seg_name);
     // OBX-5 has a variable type declared by the value of OBX-2.
-    let obx_type = if seg.id == "OBX" {
-        seg.value(2, 1)
+    let obx_type = if seg.name == "OBX" {
+        first_value(seg, 2, 1, separators)
             .map(|v| v.trim().to_ascii_uppercase())
             .filter(|v| composite_components(v).is_some())
     } else {
@@ -85,27 +90,44 @@ pub fn segment_to_node(seg: &Segment) -> Node {
         }
         let n = i + 1;
         let name = format!("{seg_name}.{n}");
-        let dt = match field_type(&seg.id, n) {
+        let dt = match field_type(&seg.name, n) {
             Some("VAR") => obx_type.as_deref(),
             other => other,
         };
-        for rep in &field.repeats {
+        for rep in &field.repetitions {
             if rep.is_empty() {
                 continue;
             }
-            node.kids.push(repeat_node(&name, dt, rep));
+            node.kids.push(repeat_node(&name, dt, rep, separators));
         }
     }
     node
 }
 
+/// The decoded text of SEG-`field`.`component`, taking the first repetition
+/// and first subcomponent, and treating an empty result as absent.
+///
+/// `er7` offers this shape as a path query (`OBX-2.1`), but a query searches
+/// the whole message for the first matching segment, and here the segment is
+/// already in hand — this is the same lookup scoped to one segment.
+fn first_value(
+    seg: &Segment,
+    field: usize,
+    component: usize,
+    separators: &Separators,
+) -> Option<String> {
+    let text = seg
+        .component(field, component)?
+        .subcomponent(1)?
+        .value(separators)
+        .into_owned();
+    Some(text).filter(|t| !t.is_empty())
+}
+
 /// One field repetition -> one field element.
-fn repeat_node(name: &str, dt: Option<&str>, rep: &Repeat) -> Node {
+fn repeat_node(name: &str, dt: Option<&str>, rep: &Repetition, separators: &Separators) -> Node {
     // Explicit null for the whole field: empty field element.
-    if let [only] = rep.components.as_slice()
-        && let [sub] = only.subcomponents.as_slice()
-        && sub == "\"\""
-    {
+    if rep.is_null() {
         return Node::group(name);
     }
     if let Some(comps) = dt.and_then(composite_components) {
@@ -117,8 +139,12 @@ fn repeat_node(name: &str, dt: Option<&str>, rep: &Repeat) -> Node {
                 continue;
             }
             let cname = format!("{}.{}", dt, ci + 1);
-            node.kids
-                .push(component_node(&cname, comps.get(ci).copied(), comp));
+            node.kids.push(component_node(
+                &cname,
+                comps.get(ci).copied(),
+                comp,
+                separators,
+            ));
         }
         return node;
     }
@@ -126,7 +152,7 @@ fn repeat_node(name: &str, dt: Option<&str>, rep: &Repeat) -> Node {
         && let [sub] = only.subcomponents.as_slice()
     {
         // Primitive (or unknown) type with a single value.
-        return Node::leaf(name, sub);
+        return Node::leaf(name, &sub.value(separators));
     }
     // Unknown structure: positional generic names SEG.n.m / SEG.n.m.k.
     let mut node = Node::group(name);
@@ -135,12 +161,18 @@ fn repeat_node(name: &str, dt: Option<&str>, rep: &Repeat) -> Node {
             continue;
         }
         let cname = format!("{}.{}", name, ci + 1);
-        node.kids.push(generic_component_node(&cname, comp));
+        node.kids
+            .push(generic_component_node(&cname, comp, separators));
     }
     node
 }
 
-fn component_node(cname: &str, cdt: Option<&str>, comp: &Component) -> Node {
+fn component_node(
+    cname: &str,
+    cdt: Option<&str>,
+    comp: &Component,
+    separators: &Separators,
+) -> Node {
     if let Some(cdt) = cdt.filter(|t| composite_components(t).is_some()) {
         // Composite component: subcomponents named after its own components,
         // e.g. XPN.1 containing FN.1, or CX.4 containing HD.1/HD.2/HD.3.
@@ -149,28 +181,32 @@ fn component_node(cname: &str, cdt: Option<&str>, comp: &Component) -> Node {
             if sub.is_empty() {
                 continue;
             }
-            node.kids
-                .push(Node::leaf(format!("{}.{}", cdt, si + 1), sub));
+            node.kids.push(Node::leaf(
+                format!("{}.{}", cdt, si + 1),
+                &sub.value(separators),
+            ));
         }
         return node;
     }
     if let [sub] = comp.subcomponents.as_slice() {
-        return Node::leaf(cname, sub);
+        return Node::leaf(cname, &sub.value(separators));
     }
-    generic_component_node(cname, comp)
+    generic_component_node(cname, comp, separators)
 }
 
-fn generic_component_node(cname: &str, comp: &Component) -> Node {
+fn generic_component_node(cname: &str, comp: &Component, separators: &Separators) -> Node {
     if let [sub] = comp.subcomponents.as_slice() {
-        return Node::leaf(cname, sub);
+        return Node::leaf(cname, &sub.value(separators));
     }
     let mut node = Node::group(cname);
     for (si, sub) in comp.subcomponents.iter().enumerate() {
         if sub.is_empty() {
             continue;
         }
-        node.kids
-            .push(Node::leaf(format!("{}.{}", cname, si + 1), sub));
+        node.kids.push(Node::leaf(
+            format!("{}.{}", cname, si + 1),
+            &sub.value(separators),
+        ));
     }
     node
 }
