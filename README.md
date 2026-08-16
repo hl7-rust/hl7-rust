@@ -1,10 +1,12 @@
-# XML to HL7 2.5 using Rust
+# HL7 v2 from XML into ER7
 
-Convert HL7 version 2.5 messages from the official HL7 **v2.xml** XML
-representation (`urn:hl7-org:v2xml`) back to the traditional pipe-delimited
-**ER7** encoding, as a Rust library and command-line tool.
+Convert Health Level Seven (HL7) version 2.5 messages from the official HL7
+**v2.xml** XML representation (`urn:hl7-org:v2xml`) back to the traditional
+pipe-delimited Encoding Rules version 7 (ER7) encoding, as a Rust library
+and command-line tool.
 
-This is the inverse of the sibling
+This is one of four sibling crates in the `hl7-rust` family — see
+[Related crates](#related-crates) below. It is the inverse of the sibling
 [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
 crate, and depends only on the same [`er7`](https://crates.io/crates/er7)
 encoding layer that crate does — no HL7 v2.5 data-type dictionary is needed
@@ -146,11 +148,26 @@ cargo rustdoc --lib -- -W missing-docs    # every public item is documented
 cargo run -- samples/orm_o01.xml
 ```
 
+## Related crates
+
+Four small crates, all built on the same [`er7`](https://crates.io/crates/er7)
+encoding layer, cover ER7's two directions against both target formats:
+
+| Crate | Direction |
+|---|---|
+| [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml) | ER7 → v2.xml XML |
+| **`hl7-v2-from-xml-into-er7`** (this crate) | v2.xml XML → ER7 |
+| [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json) | ER7 → typed JSON |
+| [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7) | typed JSON → ER7 |
+
 ## References
 
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
   writes onto
 - [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
   — the forward crate this one inverts
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
+  and [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7)
+  — the JSON pair, doing the same job for the JSON mapping
 - [HL7 v2.xml encoding](https://www.hl7.eu/refactored/encoding02xml.html)
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)

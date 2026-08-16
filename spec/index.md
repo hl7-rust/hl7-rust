@@ -223,6 +223,10 @@ structure the forward crate never actually produces all reconstruct into
 - [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
   — the forward crate this one inverts; its `spec/index.md` is normative for
   exactly how v2.xml elements are named and shaped.
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
+  and [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7)
+  — the JSON pair, applying the same positional-reconstruction idea (§1.1)
+  to the typed JSON mapping instead of v2.xml.
 - [HL7 v2.xml encoding](https://www.hl7.eu/refactored/encoding02xml.html)
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)
 
