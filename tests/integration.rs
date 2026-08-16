@@ -1,6 +1,8 @@
-use xml_to_hl7_2_5::{convert, convert_with_options, er7::RenderOptions, er7::Terminator};
+use hl7_v2_from_xml_into_er7::{
+    convert, convert_with_options, er7::RenderOptions, er7::Terminator,
+};
 
-/// The exact v2.xml document the sibling `hl7-2-5-to-xml-using-rust`
+/// The exact v2.xml document the sibling `hl7-v2-from-er7-into-xml`
 /// crate's own golden test produces from
 /// `MSH|^~\&|hphis||EPIC||20131011093851||ORM^O01|14AAACVDD|P|2.5\r\
 /// PID|1||241900||MEDIANO^FOUAZ\rORC|NW|ORD1\rOBR|1|ORD1||24331-1^Lipid Panel^LN`
@@ -70,7 +72,7 @@ fn render_options_choose_the_terminator() {
 #[test]
 fn parse_returns_a_queryable_message() {
     let xml = include_str!("../samples/orm_o01.xml");
-    let message = xml_to_hl7_2_5::parse(xml).unwrap();
+    let message = hl7_v2_from_xml_into_er7::parse(xml).unwrap();
     assert_eq!(message.control_id().as_deref(), Some("14AAACVDD"));
     assert_eq!(
         message.query("PID-5.1").unwrap().as_deref(),

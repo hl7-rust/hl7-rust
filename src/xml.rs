@@ -16,7 +16,7 @@ use std::fmt;
 /// elements or a leaf holding text — never both, and an element that is
 /// empty (self-closing, or with no content) is a leaf with no text.
 ///
-/// This mirrors the `Node` shape the sibling `hl7-2-5-to-xml-using-rust`
+/// This mirrors the `Node` shape the sibling `hl7-v2-from-er7-into-xml`
 /// crate renders from, so the reconstruction logic in `src/reconstruct.rs`
 /// reads as the inverse of that crate's `src/xml.rs`.
 #[derive(Debug, Clone)]

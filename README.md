@@ -5,7 +5,7 @@ representation (`urn:hl7-org:v2xml`) back to the traditional pipe-delimited
 **ER7** encoding, as a Rust library and command-line tool.
 
 This is the inverse of the sibling
-[`hl7-2-5-to-xml-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-xml-using-rust)
+[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
 crate, and depends only on the same [`er7`](https://crates.io/crates/er7)
 encoding layer that crate does — no HL7 v2.5 data-type dictionary is needed
 to reverse the conversion, because the forward crate's element names always
@@ -69,23 +69,23 @@ let xml = r#"<ORM_O01 xmlns="urn:hl7-org:v2xml">
     <PID><PID.5><XPN.1><FN.1>TEST</FN.1></XPN.1><XPN.2>FOUAZ</XPN.2></PID.5></PID>
   </ORM_O01.PATIENT>
 </ORM_O01>"#;
-let er7 = xml_to_hl7_2_5::convert(xml)?;
+let er7 = hl7_v2_from_xml_into_er7::convert(xml)?;
 ```
 
 See also `convert_with_options` for the segment terminator
-(`er7::RenderOptions`, re-exported as `xml_to_hl7_2_5::er7::RenderOptions`),
+(`er7::RenderOptions`, re-exported as `hl7_v2_from_xml_into_er7::er7::RenderOptions`),
 and `parse` when the caller wants the full `er7::Message` — to query or
 edit it — rather than just its ER7 text:
 
 ```rust
-use xml_to_hl7_2_5::parse;
+use hl7_v2_from_xml_into_er7::parse;
 
 let message = parse(xml)?;
 assert_eq!(message.query("PID-5.1")?.as_deref(), Some("TEST"));
 ```
 
 `convert`/`convert_with_options`/`parse` return
-`Result<_, xml_to_hl7_2_5::Hl7Error>`; an `Err` only ever means the input
+`Result<_, hl7_v2_from_xml_into_er7::Hl7Error>`; an `Err` only ever means the input
 isn't well-formed XML, or the message has no usable `MSH`/`FHS`/`BHS`
 header — everything else converts, falling back gracefully rather than
 failing (`spec/index.md` §5).
@@ -150,7 +150,7 @@ cargo run -- samples/orm_o01.xml
 
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
   writes onto
-- [`hl7-2-5-to-xml-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-xml-using-rust)
+- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
   — the forward crate this one inverts
 - [HL7 v2.xml encoding](https://www.hl7.eu/refactored/encoding02xml.html)
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)

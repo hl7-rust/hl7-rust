@@ -1,6 +1,6 @@
 //! Rebuilding the ER7 value tree from the parsed XML [`Node`] tree.
 //!
-//! This is the inverse of the sibling `hl7-2-5-to-xml-using-rust` crate's
+//! This is the inverse of the sibling `hl7-v2-from-er7-into-xml` crate's
 //! `src/xml.rs`. That crate names every element after either an HL7 v2.5
 //! data type (`<XPN.1>`) or a bare position (`<PID.5.1>`) — but in both
 //! cases, the number after the element name's *last* dot is always the
@@ -43,7 +43,7 @@ pub fn reconstruct(root: &Node) -> Result<Message, Hl7Error> {
 /// A child is a group, not a segment, exactly when its name contains a
 /// `.` — real segment IDs never do, while every group element the sibling
 /// crate emits is named `{message-structure}.{group}` regardless of how
-/// deeply it is nested (`hl7-2-5-to-xml-using-rust` spec §3.2). This is why
+/// deeply it is nested (`hl7-v2-from-er7-into-xml` spec §3.2). This is why
 /// reconstruction needs no message-structure grammar either: it flattens
 /// every group away, which is exactly what that crate's own `--flat` option
 /// produces, and a flat segment sequence is all ER7 needs.

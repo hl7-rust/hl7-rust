@@ -2,7 +2,7 @@
 //! (`urn:hl7-org:v2xml`) back to ER7 (pipe-delimited) encoding.
 //!
 //! This is the inverse of the sibling
-//! [`hl7-2-5-to-xml-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-xml-using-rust)
+//! [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
 //! crate. That crate names every XML element after either an HL7 v2.5 data
 //! type or a bare position, but in both cases the number after an element
 //! name's *last* dot is always the 1-based position at that level — field
@@ -22,7 +22,7 @@
 //!     <PID><PID.5><XPN.1><FN.1>TEST</FN.1></XPN.1><XPN.2>FOUAZ</XPN.2></PID.5></PID>
 //!   </ORM_O01.PATIENT>
 //! </ORM_O01>"#;
-//! let er7 = xml_to_hl7_2_5::convert(xml).unwrap();
+//! let er7 = hl7_v2_from_xml_into_er7::convert(xml).unwrap();
 //! assert!(er7.starts_with(r"MSH|^~\&|"));
 //! assert!(er7.contains("PID|||||TEST^FOUAZ"));
 //! ```

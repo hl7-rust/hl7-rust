@@ -6,7 +6,7 @@ implemented, the module is named so the two stay in sync. `README.md`
 summarizes this document for newcomers — if the two disagree, this document
 wins and the README should be corrected to match.
 
-Status: describes the behavior of `xml_to_hl7_2_5` as implemented. Every rule
+Status: describes the behavior of `hl7_v2_from_xml_into_er7` as implemented. Every rule
 below is exercised by a unit test (next to the code that implements it) or an
 integration test (`tests/integration.rs`). A change to this document that
 isn't backed by a test, or a code change that isn't reflected here, is a bug.
@@ -19,7 +19,7 @@ pipe-delimited **ER7** ("Encoding Rule 7") syntax, as described in HL7's XML
 encoding rules (see [References](#7-references)).
 
 This crate is the inverse of the sibling
-[`hl7-2-5-to-xml-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-xml-using-rust)
+[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
 crate, and is intended primarily to read documents that one produced. It is
 **not a validator**: it does not check cardinality, table values, or
 data-type constraints, and it does not use or require an XSD.
@@ -32,7 +32,7 @@ type (`<XPN.1>`) or, when the type is unknown, a bare position
 (`<PID.5.1>`) — but in **both** cases, the number after the element name's
 *last* `.` is always the 1-based position at that level: field number under
 a segment, component number under a field repetition, subcomponent number
-under a component (`hl7-2-5-to-xml-using-rust` spec §4.1–§4.2). Reading that
+under a component (`hl7-v2-from-er7-into-xml` spec §4.1–§4.2). Reading that
 one number back out, at every level, is enough to rebuild the value tree
 exactly — the data-type name that precedes it (`XPN`, `CX`, or nothing at
 all) is decoration this crate never has to interpret. See §3.
@@ -74,7 +74,7 @@ about what the XML means as HL7.
 
 The forward crate nests segments into message-structure group elements for
 the few structures it has a grammar for, e.g. `<ORM_O01.PATIENT>` or
-`<ORU_R01.ORDER_OBSERVATION>` (`hl7-2-5-to-xml-using-rust` spec §3). This
+`<ORU_R01.ORDER_OBSERVATION>` (`hl7-v2-from-er7-into-xml` spec §3). This
 crate does not know any message-structure grammar, and does not need one:
 every group element is named `{message-structure}.{group}`, so a child
 element is a segment when its name contains no `.`, and a group — to be
@@ -185,7 +185,7 @@ crate's own philosophy:
   losing the value silently.
 - **Blank (non-null) repetitions cannot be recovered.** The forward crate
   drops a field repetition that is present but entirely blank instead of
-  rendering an element for it (`hl7-2-5-to-xml-using-rust` spec §4.1) — for
+  rendering an element for it (`hl7-v2-from-er7-into-xml` spec §4.1) — for
   example `A~~B` becomes only two elements, not three. Reconstruction from
   XML has no way to know a blank repetition was ever there, so a field's
   repetition *count* after a round trip through both crates may be lower
@@ -220,7 +220,7 @@ structure the forward crate never actually produces all reconstruct into
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
   writes onto; its `spec/index.md` is normative for delimiters, the value
   tree, escape sequences, and rendering.
-- [`hl7-2-5-to-xml-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-xml-using-rust)
+- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
   — the forward crate this one inverts; its `spec/index.md` is normative for
   exactly how v2.xml elements are named and shaped.
 - [HL7 v2.xml encoding](https://www.hl7.eu/refactored/encoding02xml.html)
@@ -231,7 +231,7 @@ structure the forward crate never actually produces all reconstruct into
 Documented here because it is spec-level (input/output contract), not an
 implementation detail:
 
-- `xml_to_hl7_2_5 [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
+- `hl7_v2_from_xml_into_er7 [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
   omitted or `-`. The input holds one v2.xml document.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
 - `-t, --terminator <cr|lf|crlf>` chooses the segment terminator; `cr` (a
@@ -241,4 +241,4 @@ implementation detail:
   which the default does not (see `er7` spec §6.1 for why).
 - Exit code 0 on success; 1 on any error (bad arguments, I/O failure, or a
   conversion error), with a message on stderr prefixed
-  `xml_to_hl7_2_5: error:`.
+  `hl7_v2_from_xml_into_er7: error:`.

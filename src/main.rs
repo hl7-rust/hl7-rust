@@ -4,7 +4,7 @@ use std::process::ExitCode;
 const USAGE: &str = "\
 Convert HL7 v2.xml XML documents back to HL7 v2.5 ER7 (pipe-delimited).
 
-Usage: xml_to_hl7_2_5 [OPTIONS] [FILE]
+Usage: hl7_v2_from_xml_into_er7 [OPTIONS] [FILE]
 
 Arguments:
   [FILE]  Input file holding one v2.xml document; \"-\" or omitted reads stdin
@@ -29,7 +29,7 @@ fn main() -> ExitCode {
                 return ExitCode::SUCCESS;
             }
             "-V" | "--version" => {
-                println!("xml_to_hl7_2_5 {}", env!("CARGO_PKG_VERSION"));
+                println!("hl7_v2_from_xml_into_er7 {}", env!("CARGO_PKG_VERSION"));
                 return ExitCode::SUCCESS;
             }
             "--trailing-terminator" => trailing_terminator = true,
@@ -73,7 +73,7 @@ fn main() -> ExitCode {
         terminator,
         trailing_terminator,
     };
-    let er7_text = match xml_to_hl7_2_5::convert_with_options(&text, options) {
+    let er7_text = match hl7_v2_from_xml_into_er7::convert_with_options(&text, options) {
         Ok(er7_text) => er7_text,
         Err(e) => return fail(&e.to_string()),
     };
@@ -94,6 +94,6 @@ fn main() -> ExitCode {
 }
 
 fn fail(message: &str) -> ExitCode {
-    eprintln!("xml_to_hl7_2_5: error: {message}");
+    eprintln!("hl7_v2_from_xml_into_er7: error: {message}");
     ExitCode::FAILURE
 }
