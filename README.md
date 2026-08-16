@@ -1,14 +1,23 @@
-# HL7 2.5 to XML using Rust
+# HL7 v2 from ER7 into XML
 
-Convert HL7 version 2.5 messages from the traditional pipe-delimited ER7
-encoding to the official HL7 **v2.xml** XML representation
-(`urn:hl7-org:v2xml`), as a Rust library and command-line tool.
+Convert Health Level Seven (HL7) version 2.5 messages from the traditional
+pipe-delimited Encoding Rules version 7 (ER7) encoding to the official HL7
+**v2.xml** XML representation (`urn:hl7-org:v2xml`), as a Rust library and
+command-line tool.
 
 The ER7 encoding itself comes from the
 [`er7`](https://crates.io/crates/er7) crate, which is this crate's only
 dependency and has none of its own. This crate is the layer above it: the
 HL7 v2.5 data-type tables that name XML elements, the message-structure
 grammars that group segments, and the XML renderer.
+
+This is one of four sibling crates in the `hl7-rust` family — see
+[Related crates](#related-crates) below. Its JSON counterpart is
+[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
+(same parser, same data-type tables, same grammars, rendered as JSON
+instead); its inverse is
+[`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7),
+which reads this crate's own v2.xml output back into ER7.
 
 This README is a tour. [`spec/index.md`](spec/index.md) is the normative,
 section-by-section specification of every conversion rule — the single
@@ -157,9 +166,40 @@ cargo rustdoc --lib -- -W missing-docs    # every public item is documented
 cargo run -- samples/orm_o01.hl7
 ```
 
+## Related crates
+
+Four small crates, all built on the same [`er7`](https://crates.io/crates/er7)
+encoding layer, cover ER7's two directions against both target formats:
+
+| Crate | Direction |
+|---|---|
+| **`hl7-v2-from-er7-into-xml`** (this crate) | ER7 → v2.xml XML |
+| [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7) | v2.xml XML → ER7 |
+| [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json) | ER7 → typed JSON |
+| [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7) | typed JSON → ER7 |
+
+## Round trip with the reverse crate
+
+Because [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
+reads back exactly what this crate writes, the two compose into a lossless
+round trip you can run from the shell (with both repositories checked out
+as siblings, as they are in the `hl7-rust` GitHub organization):
+
+```sh
+cargo run -- samples/orm_o01.hl7 \
+  | (cd ../hl7-v2-from-xml-into-er7 && cargo run --)
+```
+
+The output is the original ER7 message, canonicalized (see
+[`spec/index.md`](spec/index.md) §2.1) — a good smoke test after changing
+either crate's naming rules, since a drift in one breaks the other's
+assumptions (`AGENTS.md` explains why).
+
 ## References
 
 - [HL7 v2.xml encoding](https://www.hl7.eu/refactored/encoding02xml.html)
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)
 - [Microsoft BizTalk: HL7 2.X and 2.XML schemas](https://learn.microsoft.com/en-us/biztalk/adapters-and-accelerators/accelerator-hl7/hl7-2-x-and-2-xml-schemas)
 - [InterSystems Healthcare HL7 XML](https://github.com/intersystems-ib/Healthcare-HL7-XML)
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json) — this crate's JSON sibling
+- [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7) — reads this crate's v2.xml output back into ER7

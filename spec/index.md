@@ -263,6 +263,14 @@ These are intentional scope boundaries, not defects:
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)
 - [Microsoft BizTalk: HL7 2.X and 2.XML schemas](https://learn.microsoft.com/en-us/biztalk/adapters-and-accelerators/accelerator-hl7/hl7-2-x-and-2-xml-schemas)
 - [InterSystems Healthcare HL7 XML](https://github.com/intersystems-ib/Healthcare-HL7-XML)
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json) —
+  this crate's JSON sibling; §0 of its own `spec/index.md` states exactly
+  where the two are meant to diverge
+- [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
+  — reads this crate's v2.xml output back into ER7. Its `spec/index.md` §1.1
+  documents the positional naming convention (§4.2 below) it depends on —
+  changing that convention here without checking there breaks the round
+  trip.
 
 ## 8. Command-line behavior (`src/main.rs`)
 
