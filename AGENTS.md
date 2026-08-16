@@ -8,11 +8,23 @@ canonical and don't fork the content between the two.
 
 A small Rust crate + CLI that converts HL7 v2.5 messages
 from pipe-delimited ER7 text to a typed JSON representation. It is the JSON
-sibling of `hl7-v2-from-er7-into-xml` (same parser, same data-type tables,
-same message-structure grammars, different output format) — when in doubt
-about a shared-logic question, check how the sibling repo handles it, and
-keep the two consistent unless there's a JSON-specific reason not to
+sibling of
+[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+(same parser, same data-type tables, same message-structure grammars,
+different output format) — when in doubt about a shared-logic question,
+check how the sibling repo handles it, and keep the two consistent unless
+there's a JSON-specific reason not to
 (`spec/index.md` §0 documents exactly where they're meant to diverge).
+
+**This crate's key-naming convention is load-bearing for a fourth crate.**
+[`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7)
+reverses this crate's output without an HL7 v2.5 dictionary of its own,
+relying entirely on the rule that the number after a key's last `.` is
+always that level's position (`src/json.rs`, `src/types.rs`; see that
+crate's `spec/index.md` §1.1). If you change how fields, components, or
+subcomponents are keyed — not just what they're keyed, but where the
+positional number appears — check that crate before merging, or its round
+trip silently breaks.
 
 See `README.md` for the user-facing pitch and `spec/index.md` for the
 exact, normative conversion rules — **`spec/index.md` is the single source
