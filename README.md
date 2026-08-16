@@ -1,0 +1,156 @@
+# XML to HL7 2.5 using Rust
+
+Convert HL7 version 2.5 messages from the official HL7 **v2.xml** XML
+representation (`urn:hl7-org:v2xml`) back to the traditional pipe-delimited
+**ER7** encoding, as a Rust library and command-line tool.
+
+This is the inverse of the sibling
+[`hl7-2-5-to-xml-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-xml-using-rust)
+crate, and depends only on the same [`er7`](https://crates.io/crates/er7)
+encoding layer that crate does — no HL7 v2.5 data-type dictionary is needed
+to reverse the conversion, because the forward crate's element names always
+carry the field/component/subcomponent *position* as the number after the
+name's last `.`, whether or not the name in front of it is a recognized
+data type. See [`spec/index.md`](spec/index.md) for exactly how that works
+and its limits — it is the normative specification this crate implements.
+
+A v2.xml fragment such as:
+
+```xml
+<PID>
+  <PID.1>1</PID.1>
+  <PID.3>
+    <CX.1>241900</CX.1>
+  </PID.3>
+  <PID.5>
+    <XPN.1>
+      <FN.1>TEST</FN.1>
+    </XPN.1>
+    <XPN.2>FOUAZ</XPN.2>
+  </PID.5>
+</PID>
+```
+
+converts back to:
+
+```
+PID|1||241900||TEST^FOUAZ
+```
+
+## Usage
+
+### Command line
+
+```sh
+# From a file to stdout
+cargo run -- samples/orm_o01.xml
+
+# From stdin, to a file
+cat samples/oru_r01.xml | cargo run -- -o out.hl7
+
+# Choose the segment terminator
+cargo run -- --terminator crlf samples/orm_o01.xml
+```
+
+Message-structure group elements (`<ORM_O01.PATIENT>`,
+`<ORU_R01.ORDER_OBSERVATION>`, …) are flattened automatically; grouped and
+`--flat` input from the forward crate both reconstruct the same message.
+
+### Library
+
+```rust
+let xml = r#"<ORM_O01 xmlns="urn:hl7-org:v2xml">
+  <MSH>
+    <MSH.1>|</MSH.1>
+    <MSH.2>^~\&amp;</MSH.2>
+    <MSH.9><MSG.1>ORM</MSG.1><MSG.2>O01</MSG.2></MSH.9>
+  </MSH>
+  <ORM_O01.PATIENT>
+    <PID><PID.5><XPN.1><FN.1>TEST</FN.1></XPN.1><XPN.2>FOUAZ</XPN.2></PID.5></PID>
+  </ORM_O01.PATIENT>
+</ORM_O01>"#;
+let er7 = xml_to_hl7_2_5::convert(xml)?;
+```
+
+See also `convert_with_options` for the segment terminator
+(`er7::RenderOptions`, re-exported as `xml_to_hl7_2_5::er7::RenderOptions`),
+and `parse` when the caller wants the full `er7::Message` — to query or
+edit it — rather than just its ER7 text:
+
+```rust
+use xml_to_hl7_2_5::parse;
+
+let message = parse(xml)?;
+assert_eq!(message.query("PID-5.1")?.as_deref(), Some("TEST"));
+```
+
+`convert`/`convert_with_options`/`parse` return
+`Result<_, xml_to_hl7_2_5::Hl7Error>`; an `Err` only ever means the input
+isn't well-formed XML, or the message has no usable `MSH`/`FHS`/`BHS`
+header — everything else converts, falling back gracefully rather than
+failing (`spec/index.md` §5).
+
+## What it does
+
+- **A minimal, dependency-free XML reader** (`src/xml.rs`) for exactly the
+  subset v2.xml uses: nested elements, text, the predefined entities and
+  numeric character references, with attributes, comments, and the XML
+  declaration recognized and skipped.
+- **Position-based reconstruction, no data-type dictionary** (`src/reconstruct.rs`):
+  every field, component, and subcomponent element's *position* comes from
+  the number after its name's last `.`, so this crate reconstructs a
+  message correctly whether the forward crate rendered typed names
+  (`<XPN.1>`) or fell back to generic ones (`<PID.5.1>`).
+- **Group flattening**: message-structure group elements are recognized by
+  their dotted name and flattened back into a plain segment sequence — no
+  message-structure grammar is needed in this direction.
+- **Delimiter recovery**: the header's `.1`/`.2` fields are reassembled into
+  a synthetic header line and handed to `er7::Separators::from_header`,
+  reusing `er7`'s own delimiter parsing.
+- **Faithful re-escaping**: decoded leaf text is retokenized against `er7`'s
+  own escape-sequence vocabulary, so delimiter characters are re-escaped
+  while formatting sequences the forward crate never decoded (`\.br\`,
+  `\H\`, …) are written back exactly as they were.
+- **HL7 null**: a self-closing (or empty) element reconstructs as the
+  explicit null `""` at that position.
+
+## Limitations
+
+See [`spec/index.md`](spec/index.md) §5 for the full list; the two worth
+knowing up front:
+
+- A field repetition that was present but entirely blank (not the explicit
+  null) is dropped by the *forward* crate's own encoding and cannot be
+  recovered here — this is a property of v2.xml as that crate writes it,
+  not something this crate's reversal introduces.
+- One v2.xml document converts to one ER7 message; there is no batch-file
+  convention on the XML side to split.
+
+## Documentation
+
+- [`spec/index.md`](spec/index.md) — the normative specification (source of
+  truth for behavior).
+- `cargo doc --no-deps --open` — rustdoc for the library API.
+- [`AGENTS.md`](AGENTS.md) — conventions and required checks for anyone
+  (human or agent) changing this code; `CLAUDE.md` points here too.
+- [`samples/`](samples/) — example v2.xml input files, including the exact
+  documents the sibling crate's own golden tests produce.
+
+## Development
+
+```sh
+cargo test                                # unit + integration tests, incl. round trips through real samples
+cargo clippy --all-targets -- -D warnings # lint-clean
+cargo fmt --check                         # formatting
+cargo rustdoc --lib -- -W missing-docs    # every public item is documented
+cargo run -- samples/orm_o01.xml
+```
+
+## References
+
+- [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
+  writes onto
+- [`hl7-2-5-to-xml-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-xml-using-rust)
+  — the forward crate this one inverts
+- [HL7 v2.xml encoding](https://www.hl7.eu/refactored/encoding02xml.html)
+- [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)

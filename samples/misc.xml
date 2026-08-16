@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XXX_X01 xmlns="urn:hl7-org:v2xml">
+  <MSH>
+    <MSH.1>|</MSH.1>
+    <MSH.2>^~\&amp;</MSH.2>
+    <MSH.3>
+      <HD.1>APP</HD.1>
+    </MSH.3>
+    <MSH.7>
+      <TS.1>20260814</TS.1>
+    </MSH.7>
+    <MSH.9>
+      <MSG.1>XXX</MSG.1>
+      <MSG.2>X01</MSG.2>
+    </MSH.9>
+    <MSH.10>1</MSH.10>
+    <MSH.11>
+      <PT.1>P</PT.1>
+    </MSH.11>
+    <MSH.12>
+      <VID.1>2.5</VID.1>
+    </MSH.12>
+  </MSH>
+  <PID>
+    <PID.1>1</PID.1>
+    <PID.3>
+      <CX.1>111</CX.1>
+    </PID.3>
+    <PID.3>
+      <CX.1>222</CX.1>
+    </PID.3>
+    <PID.5/>
+  </PID>
+  <NTE>
+    <NTE.1>1</NTE.1>
+    <NTE.3>A&amp;B | C^D\.br\next</NTE.3>
+  </NTE>
+  <ZDS>
+    <ZDS.1>
+      <ZDS.1.1>1.2.840</ZDS.1.1>
+      <ZDS.1.2>app</ZDS.1.2>
+      <ZDS.1.3>DICOM</ZDS.1.3>
+    </ZDS.1>
+  </ZDS>
+</XXX_X01>
