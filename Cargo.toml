@@ -1,8 +1,9 @@
 [package]
 name = "hl7-v2-from-er7-into-xml"
-version = "0.3.0"
+version = "0.4.0"
+authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
-description = "Convert HL7 v2.5 messages (pipe-delimited ER7) to the HL7 v2.xml XML representation"
+description = "HL7 v2 from ER7 into XML: Convert Health Level Seven (HL7) version 2 (v2) messages from Encoding Rules version 7 (ER7) a.k.a. pipe-hat into Extensible Markup Language (XML)."
 license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
 repository = "https://github.com/hl7-rust/hl7-v2-from-er7-into-xml"
 keywords = ["hl7", "healthcare", "xml", "er7", "v2xml"]
