@@ -1,6 +1,6 @@
 [package]
 name = "hl7-v2-from-er7-into-json"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 description = "HL7 v2 from ER7 into JSON: Convert Health Level Seven (HL7) version 2 (v2) messages from Encoding Rules version 7 (ER7) a.k.a. pipe-delimited into JavaScript Object Notation (JSON)."
