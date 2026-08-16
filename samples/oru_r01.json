@@ -1,0 +1,148 @@
+{
+  "ORU_R01": {
+    "MSH": {
+      "MSH.1": "|",
+      "MSH.2": "^~\\&",
+      "MSH.3": {
+        "HD.1": "LAB"
+      },
+      "MSH.4": {
+        "HD.1": "ACME"
+      },
+      "MSH.5": {
+        "HD.1": "EHR"
+      },
+      "MSH.6": {
+        "HD.1": "CLINIC"
+      },
+      "MSH.7": {
+        "TS.1": "20260814080000"
+      },
+      "MSH.9": {
+        "MSG.1": "ORU",
+        "MSG.2": "R01"
+      },
+      "MSH.10": "MSG00042",
+      "MSH.11": {
+        "PT.1": "P"
+      },
+      "MSH.12": {
+        "VID.1": "2.5"
+      }
+    },
+    "ORU_R01.PATIENT_RESULT": {
+      "ORU_R01.PATIENT": {
+        "PID": {
+          "PID.1": "1",
+          "PID.3": {
+            "CX.1": "444333222",
+            "CX.4": {
+              "HD.1": "ACME",
+              "HD.2": "1.2.3.4",
+              "HD.3": "ISO"
+            },
+            "CX.5": "MR"
+          },
+          "PID.5": {
+            "XPN.1": {
+              "FN.1": "EVERYWOMAN"
+            },
+            "XPN.2": "EVE",
+            "XPN.3": "E"
+          },
+          "PID.7": {
+            "TS.1": "19620320"
+          },
+          "PID.8": "F",
+          "PID.11": {
+            "XAD.1": {
+              "SAD.1": "2222 HOME ST"
+            },
+            "XAD.3": "ANN ARBOR",
+            "XAD.4": "MI",
+            "XAD.5": "48104"
+          }
+        },
+        "ORU_R01.VISIT": {
+          "PV1": {
+            "PV1.1": "1",
+            "PV1.2": "O",
+            "PV1.3": {
+              "PL.1": "OP",
+              "PL.4": {
+                "HD.1": "ACME"
+              }
+            }
+          }
+        }
+      },
+      "ORU_R01.ORDER_OBSERVATION": {
+        "ORC": {
+          "ORC.1": "RE",
+          "ORC.2": {
+            "EI.1": "ORD776655"
+          }
+        },
+        "OBR": {
+          "OBR.1": "1",
+          "OBR.2": {
+            "EI.1": "ORD776655"
+          },
+          "OBR.3": {
+            "EI.1": "LAB2233"
+          },
+          "OBR.4": {
+            "CE.1": "24331-1",
+            "CE.2": "Lipid Panel",
+            "CE.3": "LN"
+          },
+          "OBR.7": {
+            "TS.1": "20260813071500"
+          }
+        },
+        "ORU_R01.OBSERVATION": [
+          {
+            "OBX": {
+              "OBX.1": "1",
+              "OBX.2": "NM",
+              "OBX.3": {
+                "CE.1": "2093-3",
+                "CE.2": "Cholesterol",
+                "CE.3": "LN"
+              },
+              "OBX.5": "187",
+              "OBX.6": {
+                "CE.1": "mg/dL"
+              },
+              "OBX.7": "<200",
+              "OBX.8": "N",
+              "OBX.11": "F"
+            }
+          },
+          {
+            "OBX": {
+              "OBX.1": "2",
+              "OBX.2": "CE",
+              "OBX.3": {
+                "CE.1": "10331-7",
+                "CE.2": "Rh Type",
+                "CE.3": "LN"
+              },
+              "OBX.5": {
+                "CE.1": "D",
+                "CE.2": "Rh positive",
+                "CE.3": "LN"
+              },
+              "OBX.8": "N",
+              "OBX.11": "F"
+            },
+            "NTE": {
+              "NTE.1": "1",
+              "NTE.3": "Fasting sample."
+            }
+          }
+        ]
+      }
+    }
+  }
+}
