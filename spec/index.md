@@ -6,15 +6,15 @@ implemented, the module is named so the two stay in sync. `README.md`
 summarizes this document for newcomers — if the two disagree, this document
 wins and the README should be corrected to match.
 
-Status: describes the behavior of `hl7_2_5_to_json` as implemented. Every
+Status: describes the behavior of `hl7_v2_from_er7_into_json` as implemented. Every
 rule below is exercised by a unit test (next to the code that implements
 it, e.g. `src/er7.rs`'s `#[cfg(test)]` module) or an integration test
 (`tests/integration.rs`). A change to this document that isn't backed by a
 test, or a code change that isn't reflected here, is a bug.
 
-## 0. Relationship to `hl7-2-5-to-xml-using-rust`
+## 0. Relationship to `hl7-v2-from-er7-into-xml`
 
-This crate is the JSON sibling of `hl7-2-5-to-xml-using-rust`. Sections 1–3
+This crate is the JSON sibling of `hl7-v2-from-er7-into-xml`. Sections 1–3
 below (ER7 parsing and message-structure grouping) are identical between
 the two crates — same grammar, same delimiter rules, same escape rules,
 same message-structure grammars — and `src/er7.rs`, `src/types.rs` are
@@ -282,12 +282,12 @@ Same scope boundaries as the XML sibling, restated for this crate:
   official JSON encoding exists).
 - [RFC 8259 — The JavaScript Object Notation (JSON) Data Interchange Format](https://www.rfc-editor.org/rfc/rfc8259)
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)
-- `hl7-2-5-to-xml-using-rust` — this crate's XML sibling; its `spec/index.md`
+- `hl7-v2-from-er7-into-xml` — this crate's XML sibling; its `spec/index.md`
   documents §1–3 in full depth.
 
 ## 8. Command-line behavior (`src/main.rs`)
 
-- `hl7_2_5_to_json [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
+- `hl7_v2_from_er7_into_json [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
   omitted or `-`.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
 - `--flat` forces flat rendering for every message in the input (§3).
@@ -301,4 +301,4 @@ Same scope boundaries as the XML sibling, restated for this crate:
   parseable JSON value when there is more than one message).
 - Exit code 0 on success; 1 on any error (bad arguments, I/O failure, or a
   conversion error), with a message on stderr prefixed
-  `hl7_2_5_to_json: error:`.
+  `hl7_v2_from_er7_into_json: error:`.

@@ -1,7 +1,7 @@
 //! Convert HL7 v2.5 messages from ER7 (pipe-delimited) encoding to a typed
 //! JSON representation.
 //!
-//! This is the JSON sibling of `hl7-2-5-to-xml-using-rust`: both read ER7
+//! This is the JSON sibling of `hl7-v2-from-er7-into-xml`: both read ER7
 //! through the [`er7`] crate and use the same HL7 v2.5 data-type tables to
 //! name output keys, but this one renders JSON instead of the official
 //! v2.xml XML. See `spec/index.md` for the exact mapping rules (source of
@@ -15,7 +15,7 @@
 //! let er7 = "MSH|^~\\&|hphis||EPIC||20131011093851||ORM^O01|14AAACVDD|P|2.5\r\
 //!            PID|1||241900||MEDIANO^FOUAZ\r\
 //!            ORC|NW|ORD1";
-//! let json = hl7_2_5_to_json::convert(er7).unwrap();
+//! let json = hl7_v2_from_er7_into_json::convert(er7).unwrap();
 //! assert!(json.contains("\"ORM_O01\""));
 //! assert!(json.contains("\"XPN.1\""));
 //! ```

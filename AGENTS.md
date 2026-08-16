@@ -8,7 +8,7 @@ canonical and don't fork the content between the two.
 
 A small Rust crate + CLI that converts HL7 v2.5 messages
 from pipe-delimited ER7 text to a typed JSON representation. It is the JSON
-sibling of `hl7-2-5-to-xml-using-rust` (same parser, same data-type tables,
+sibling of `hl7-v2-from-er7-into-xml` (same parser, same data-type tables,
 same message-structure grammars, different output format) — when in doubt
 about a shared-logic question, check how the sibling repo handles it, and
 keep the two consistent unless there's a JSON-specific reason not to

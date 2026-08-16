@@ -2,7 +2,7 @@
 //!
 //! This crate's JSON encoding nests segments inside group objects keyed
 //! `"ORM_O01.PATIENT"` or `"ORU_R01.ORDER_OBSERVATION"` (the official HL7
-//! group names, same keys the sibling `hl7-2-5-to-xml-using-rust` crate
+//! group names, same keys the sibling `hl7-v2-from-er7-into-xml` crate
 //! uses as XML element names). This module holds grammars for a handful of
 //! common message structures and a greedy recursive-descent matcher that
 //! arranges a message's segments into those groups. If a message does not

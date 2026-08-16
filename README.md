@@ -11,7 +11,7 @@ HL7 v2.5 data-type tables that name JSON keys, the message-structure
 grammars that group segments, and the JSON renderer.
 
 This is the JSON sibling of
-[`hl7-2-5-to-xml-using-rust`](https://github.com/joelparkerhenderson/hl7-2-5-to-xml-using-rust):
+[`hl7-v2-from-er7-into-xml`](https://github.com/joelparkerhenderson/hl7-v2-from-er7-into-xml):
 same ER7 parser (both read it through `er7`), same HL7 v2.5 data-type
 tables, same message-structure grammars — rendered as JSON instead of the official v2.xml XML. There is no
 official "v2.json" standard to target, so this crate defines its own JSON
@@ -74,14 +74,14 @@ envelopes are dropped); each message becomes one independent JSON document.
 let er7 = "MSH|^~\\&|hphis||EPIC||20131011093851||ORM^O01|14AAACVDD|P|2.5\r\
            PID|1||241900||MEDIANO^FOUAZ\r\
            ORC|NW|ORD1";
-let json = hl7_2_5_to_json::convert(er7)?;
+let json = hl7_v2_from_er7_into_json::convert(er7)?;
 ```
 
 See also `convert_with_options` (e.g. `Options { flat: true, compact: true }`)
 and `split_messages` for batch input:
 
 ```rust
-use hl7_2_5_to_json::{convert, split_messages};
+use hl7_v2_from_er7_into_json::{convert, split_messages};
 
 let batch = "MSH|^~\\&|A||||1||ACK|1|P|2.5\rMSA|AA|1\r\
              MSH|^~\\&|B||||2||ACK|2|P|2.5\rMSA|AA|2";
@@ -93,7 +93,7 @@ for message in split_messages(batch) {
 }
 ```
 
-`convert`/`convert_with_options` return `Result<String, hl7_2_5_to_json::Hl7Error>`;
+`convert`/`convert_with_options` return `Result<String, hl7_v2_from_er7_into_json::Hl7Error>`;
 an `Err` only ever means the message has no usable MSH header (empty input,
 missing MSH, or a malformed MSH header) — everything below that always
 converts, falling back to generic keys or a flat layout rather than failing
@@ -184,4 +184,4 @@ cargo run -- samples/orm_o01.hl7
   the XML encoding this crate's JSON mapping is modeled on.
 - [RFC 8259 — The JSON Data Interchange Format](https://www.rfc-editor.org/rfc/rfc8259)
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)
-- [`hl7-2-5-to-xml-using-rust`](https://github.com/joelparkerhenderson/hl7-2-5-to-xml-using-rust) — this crate's XML sibling.
+- [`hl7-v2-from-er7-into-xml`](https://github.com/joelparkerhenderson/hl7-v2-from-er7-into-xml) — this crate's XML sibling.

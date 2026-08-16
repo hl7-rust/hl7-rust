@@ -1,7 +1,7 @@
 //! Building the typed JSON tree from parsed segments, and serializing it.
 //!
 //! Building (§4.1) proceeds in two stages, mirroring this crate's sibling
-//! `hl7-2-5-to-xml-using-rust`:
+//! `hl7-v2-from-er7-into-xml`:
 //!
 //! 1. [`segment_to_node`] turns one [`Segment`] into a [`Node`] tree keyed
 //!    the same way the sibling crate names XML elements (`PID.5`, `XPN.1`,

@@ -4,7 +4,7 @@ use std::process::ExitCode;
 const USAGE: &str = "\
 Convert HL7 v2.5 messages (pipe-delimited ER7) to JSON.
 
-Usage: hl7_2_5_to_json [OPTIONS] [FILE]
+Usage: hl7_v2_from_er7_into_json [OPTIONS] [FILE]
 
 Arguments:
   [FILE]  Input file holding one or more ER7 messages; \"-\" or omitted reads stdin
@@ -29,7 +29,7 @@ fn main() -> ExitCode {
                 return ExitCode::SUCCESS;
             }
             "-V" | "--version" => {
-                println!("hl7_2_5_to_json {}", env!("CARGO_PKG_VERSION"));
+                println!("hl7_v2_from_er7_into_json {}", env!("CARGO_PKG_VERSION"));
                 return ExitCode::SUCCESS;
             }
             "--flat" => flat = true,
@@ -63,14 +63,14 @@ fn main() -> ExitCode {
         },
     };
 
-    let messages = hl7_2_5_to_json::split_messages(&text);
+    let messages = hl7_v2_from_er7_into_json::split_messages(&text);
     if messages.is_empty() {
         return fail("no HL7 message found in input");
     }
-    let options = hl7_2_5_to_json::Options { flat, compact };
+    let options = hl7_v2_from_er7_into_json::Options { flat, compact };
     let mut documents = Vec::with_capacity(messages.len());
     for (i, message) in messages.iter().enumerate() {
-        match hl7_2_5_to_json::convert_with_options(message, options) {
+        match hl7_v2_from_er7_into_json::convert_with_options(message, options) {
             Ok(json) => documents.push(json),
             Err(e) => return fail(&format!("message {}: {e}", i + 1)),
         }
@@ -93,6 +93,6 @@ fn main() -> ExitCode {
 }
 
 fn fail(message: &str) -> ExitCode {
-    eprintln!("hl7_2_5_to_json: error: {message}");
+    eprintln!("hl7_v2_from_er7_into_json: error: {message}");
     ExitCode::FAILURE
 }
