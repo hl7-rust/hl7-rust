@@ -11,7 +11,7 @@
 //! let er7 = "MSH|^~\\&|hphis||EPIC||20131011093851||ORM^O01|14AAACVDD|P|2.5\r\
 //!            PID|1||241900||MEDIANO^FOUAZ\r\
 //!            ORC|NW|ORD1";
-//! let xml = hl7_2_5_to_xml::convert(er7).unwrap();
+//! let xml = hl7_v2_from_er7_into_xml::convert(er7).unwrap();
 //! assert!(xml.contains("<ORM_O01 xmlns=\"urn:hl7-org:v2xml\">"));
 //! assert!(xml.contains("<XPN.1>"));
 //! ```

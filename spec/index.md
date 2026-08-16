@@ -6,7 +6,7 @@ implemented, the module is named so the two stay in sync. `README.md`
 summarizes this document for newcomers — if the two disagree, this document
 wins and the README should be corrected to match.
 
-Status: describes the behavior of `hl7_2_5_to_xml` as implemented. Every rule
+Status: describes the behavior of `hl7_v2_from_er7_into_xml` as implemented. Every rule
 below is exercised by a unit test (next to the code that implements it, e.g.
 `src/er7.rs`'s `#[cfg(test)]` module) or an integration test
 (`tests/integration.rs`). A change to this document that isn't backed by a
@@ -269,7 +269,7 @@ These are intentional scope boundaries, not defects:
 Documented here because it is spec-level (input/output contract), not an
 implementation detail:
 
-- `hl7_2_5_to_xml [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
+- `hl7_v2_from_er7_into_xml [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
   omitted or `-`.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
 - `--flat` forces flat rendering for every message in the input (§3.3).
@@ -279,4 +279,4 @@ implementation detail:
   output documents are joined with a blank line.
 - Exit code 0 on success; 1 on any error (bad arguments, I/O failure, or a
   conversion error), with a message on stderr prefixed
-  `hl7_2_5_to_xml: error:`.
+  `hl7_v2_from_er7_into_xml: error:`.

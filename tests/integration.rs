@@ -1,4 +1,4 @@
-use hl7_2_5_to_xml::{Options, convert, convert_with_options, split_messages};
+use hl7_v2_from_er7_into_xml::{Options, convert, convert_with_options, split_messages};
 
 /// The spec's ORM^O01 example (with an ORC/OBR order so the message is a
 /// complete ORM_O01), checked against the exact expected v2.xml document,

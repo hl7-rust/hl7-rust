@@ -64,14 +64,14 @@ envelopes are dropped); each message becomes one XML document.
 let er7 = "MSH|^~\\&|hphis||EPIC||20131011093851||ORM^O01|14AAACVDD|P|2.5\r\
            PID|1||241900||MEDIANO^FOUAZ\r\
            ORC|NW|ORD1";
-let xml = hl7_2_5_to_xml::convert(er7)?;
+let xml = hl7_v2_from_er7_into_xml::convert(er7)?;
 ```
 
 See also `convert_with_options` (e.g. `Options { flat: true }`) and
 `split_messages` for batch input:
 
 ```rust
-use hl7_2_5_to_xml::{convert, split_messages};
+use hl7_v2_from_er7_into_xml::{convert, split_messages};
 
 let batch = "MSH|^~\\&|A||||1||ACK|1|P|2.5\rMSA|AA|1\r\
              MSH|^~\\&|B||||2||ACK|2|P|2.5\rMSA|AA|2";
@@ -83,7 +83,7 @@ for message in split_messages(batch) {
 }
 ```
 
-`convert`/`convert_with_options` return `Result<String, hl7_2_5_to_xml::Hl7Error>`;
+`convert`/`convert_with_options` return `Result<String, hl7_v2_from_er7_into_xml::Hl7Error>`;
 an `Err` only ever means the message has no usable MSH header (empty input,
 missing MSH, or a malformed MSH header) — everything below that always
 converts, falling back to generic names or a flat layout rather than

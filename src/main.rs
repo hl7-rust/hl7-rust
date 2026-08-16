@@ -4,7 +4,7 @@ use std::process::ExitCode;
 const USAGE: &str = "\
 Convert HL7 v2.5 messages (pipe-delimited ER7) to HL7 v2.xml.
 
-Usage: hl7_2_5_to_xml [OPTIONS] [FILE]
+Usage: hl7_v2_from_er7_into_xml [OPTIONS] [FILE]
 
 Arguments:
   [FILE]  Input file holding one or more ER7 messages; \"-\" or omitted reads stdin
@@ -27,7 +27,7 @@ fn main() -> ExitCode {
                 return ExitCode::SUCCESS;
             }
             "-V" | "--version" => {
-                println!("hl7_2_5_to_xml {}", env!("CARGO_PKG_VERSION"));
+                println!("hl7_v2_from_er7_into_xml {}", env!("CARGO_PKG_VERSION"));
                 return ExitCode::SUCCESS;
             }
             "--flat" => flat = true,
@@ -60,14 +60,14 @@ fn main() -> ExitCode {
         },
     };
 
-    let messages = hl7_2_5_to_xml::split_messages(&text);
+    let messages = hl7_v2_from_er7_into_xml::split_messages(&text);
     if messages.is_empty() {
         return fail("no HL7 message found in input");
     }
-    let options = hl7_2_5_to_xml::Options { flat };
+    let options = hl7_v2_from_er7_into_xml::Options { flat };
     let mut documents = Vec::with_capacity(messages.len());
     for (i, message) in messages.iter().enumerate() {
-        match hl7_2_5_to_xml::convert_with_options(message, options) {
+        match hl7_v2_from_er7_into_xml::convert_with_options(message, options) {
             Ok(xml) => documents.push(xml),
             Err(e) => return fail(&format!("message {}: {e}", i + 1)),
         }
@@ -90,6 +90,6 @@ fn main() -> ExitCode {
 }
 
 fn fail(message: &str) -> ExitCode {
-    eprintln!("hl7_2_5_to_xml: error: {message}");
+    eprintln!("hl7_v2_from_er7_into_xml: error: {message}");
     ExitCode::FAILURE
 }
