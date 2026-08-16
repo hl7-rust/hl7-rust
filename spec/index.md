@@ -6,7 +6,7 @@ implemented, the module is named so the two stay in sync. `README.md`
 summarizes this document for newcomers — if the two disagree, this document
 wins and the README should be corrected to match.
 
-Status: describes the behavior of `json_to_hl7_2_5` as implemented. Every
+Status: describes the behavior of `hl7_v2_from_json_into_er7` as implemented. Every
 rule below is exercised by a unit test (next to the code that implements it)
 or an integration test (`tests/integration.rs`). A change to this document
 that isn't backed by a test, or a code change that isn't reflected here, is
@@ -16,7 +16,7 @@ a bug.
 
 Convert one HL7 v2.5 message, encoded in the typed JSON representation the
 sibling
-[`hl7-2-5-to-json-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-json-using-rust)
+[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
 crate defines (its own `spec/index.md` §4), back to the traditional
 pipe-delimited **ER7** ("Encoding Rule 7") syntax.
 
@@ -37,7 +37,7 @@ number under a field repetition, subcomponent number under a component
 level, is enough to rebuild the value tree exactly — the data-type name
 that precedes it (`XPN`, `CX`, or nothing at all) is decoration this crate
 never has to interpret. This is exactly the same insight the sibling
-[`xml-to-hl7-2-5-using-rust`](https://github.com/hl7-rust/xml-to-hl7-2-5-using-rust)
+[`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
 crate applies to v2.xml; see §3.
 
 ## 2. JSON parsing (`src/json.rs`)
@@ -249,10 +249,10 @@ structure the forward crate never actually produces all reconstruct into
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
   writes onto; its `spec/index.md` is normative for delimiters, the value
   tree, escape sequences, and rendering.
-- [`hl7-2-5-to-json-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-json-using-rust)
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
   — the forward crate this one inverts; its `spec/index.md` is normative
   for exactly how JSON keys are named and values shaped.
-- [`xml-to-hl7-2-5-using-rust`](https://github.com/hl7-rust/xml-to-hl7-2-5-using-rust)
+- [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
   — the XML sibling of this crate; same positional-reconstruction idea,
   applied to v2.xml instead.
 - [RFC 8259 — The JavaScript Object Notation (JSON) Data Interchange Format](https://www.rfc-editor.org/rfc/rfc8259)
@@ -262,7 +262,7 @@ structure the forward crate never actually produces all reconstruct into
 Documented here because it is spec-level (input/output contract), not an
 implementation detail:
 
-- `json_to_hl7_2_5 [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
+- `hl7_v2_from_json_into_er7 [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
   omitted or `-`. The input holds one converted-JSON document.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
 - `-t, --terminator <cr|lf|crlf>` chooses the segment terminator; `cr` (a
@@ -272,4 +272,4 @@ implementation detail:
   which the default does not (see `er7` spec §6.1 for why).
 - Exit code 0 on success; 1 on any error (bad arguments, I/O failure, or a
   conversion error), with a message on stderr prefixed
-  `json_to_hl7_2_5: error:`.
+  `hl7_v2_from_json_into_er7: error:`.

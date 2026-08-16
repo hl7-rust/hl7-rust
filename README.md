@@ -2,7 +2,7 @@
 
 Convert HL7 version 2.5 messages from the typed JSON representation the
 sibling
-[`hl7-2-5-to-json-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-json-using-rust)
+[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
 crate produces back to the traditional pipe-delimited **ER7** encoding, as
 a Rust library and command-line tool.
 
@@ -63,23 +63,23 @@ let json = r#"{
     }
   }
 }"#;
-let er7 = json_to_hl7_2_5::convert(json)?;
+let er7 = hl7_v2_from_json_into_er7::convert(json)?;
 ```
 
 See also `convert_with_options` for the segment terminator
-(`er7::RenderOptions`, re-exported as `json_to_hl7_2_5::er7::RenderOptions`),
+(`er7::RenderOptions`, re-exported as `hl7_v2_from_json_into_er7::er7::RenderOptions`),
 and `parse` when the caller wants the full `er7::Message` — to query or
 edit it — rather than just its ER7 text:
 
 ```rust
-use json_to_hl7_2_5::parse;
+use hl7_v2_from_json_into_er7::parse;
 
 let message = parse(json)?;
 assert_eq!(message.query("PID-5.1")?.as_deref(), Some("TEST"));
 ```
 
 `convert`/`convert_with_options`/`parse` return
-`Result<_, json_to_hl7_2_5::Hl7Error>`; an `Err` only ever means the input
+`Result<_, hl7_v2_from_json_into_er7::Hl7Error>`; an `Err` only ever means the input
 isn't well-formed JSON, isn't shaped like a converted message (a single-key
 object over an object of segments), or the message has no usable
 `MSH`/`FHS`/`BHS` header — everything else converts, falling back
@@ -147,8 +147,8 @@ cargo run -- samples/orm_o01.json
 
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
   writes onto
-- [`hl7-2-5-to-json-using-rust`](https://github.com/hl7-rust/hl7-2-5-to-json-using-rust)
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
   — the forward crate this one inverts
-- [`xml-to-hl7-2-5-using-rust`](https://github.com/hl7-rust/xml-to-hl7-2-5-using-rust)
+- [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
   — the XML sibling of this crate
 - [RFC 8259 — The JavaScript Object Notation (JSON) Data Interchange Format](https://www.rfc-editor.org/rfc/rfc8259)

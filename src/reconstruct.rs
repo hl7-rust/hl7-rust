@@ -1,6 +1,6 @@
 //! Rebuilding the ER7 value tree from the parsed JSON [`Value`] tree.
 //!
-//! This is the inverse of the sibling `hl7-2-5-to-json-using-rust` crate's
+//! This is the inverse of the sibling `hl7-v2-from-er7-into-json` crate's
 //! `src/json.rs`. That crate names every key after either an HL7 v2.5 data
 //! type (`"XPN.1"`) or a bare position (`"PID.5.1"`) — but in both cases,
 //! the number after the key's *last* dot is always the 1-based position at
@@ -70,7 +70,7 @@ fn occurrences(value: &Value) -> Vec<&Value> {
 /// An entry is a group, not a segment, exactly when its key contains a
 /// `.` — real segment IDs never do, while every group key the sibling
 /// crate emits is `{message-structure}.{group}` regardless of how deeply it
-/// is nested (`hl7-2-5-to-json-using-rust` spec §4.7). This is why
+/// is nested (`hl7-v2-from-er7-into-json` spec §4.7). This is why
 /// reconstruction needs no message-structure grammar either: it flattens
 /// every group away, which is exactly what that crate's own `--flat`
 /// option produces.

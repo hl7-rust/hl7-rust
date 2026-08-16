@@ -1,5 +1,5 @@
 //! Convert HL7 v2.5 messages from the typed JSON representation the
-//! sibling `hl7-2-5-to-json-using-rust` crate produces back to ER7
+//! sibling `hl7-v2-from-er7-into-json` crate produces back to ER7
 //! (pipe-delimited) encoding.
 //!
 //! This is the inverse of that crate. It names every JSON key after either
@@ -19,7 +19,7 @@
 //!     }
 //!   }
 //! }"#;
-//! let er7 = json_to_hl7_2_5::convert(json).unwrap();
+//! let er7 = hl7_v2_from_json_into_er7::convert(json).unwrap();
 //! assert!(er7.starts_with(r"MSH|^~\&|"));
 //! assert!(er7.contains("PID|||||TEST^FOUAZ"));
 //! ```

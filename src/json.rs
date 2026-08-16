@@ -3,7 +3,7 @@
 //!
 //! It reads the whole grammar — objects, arrays, strings, numbers,
 //! `true`/`false`/`null` — because the input may be hand-edited even though
-//! the forward `hl7-2-5-to-json-using-rust` crate never emits a number or a
+//! the forward `hl7-v2-from-er7-into-json` crate never emits a number or a
 //! boolean itself (its own spec §4.2, §6). Numbers and booleans are kept
 //! (as their literal source text) rather than rejected, so that a
 //! hand-edited document with an unexpected scalar still converts; see

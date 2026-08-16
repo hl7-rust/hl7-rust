@@ -1,10 +1,10 @@
 [package]
-name = "json-to-hl7-2-5"
+name = "hl7-v2-from-json-into-er7"
 version = "0.1.0"
 edition = "2024"
 description = "Convert the typed JSON representation back to HL7 v2.5 messages (pipe-delimited ER7)"
 license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
-repository = "https://github.com/hl7-rust/json-to-hl7-2-5-using-rust"
+repository = "https://github.com/hl7-rust/hl7-v2-from-json-into-er7"
 keywords = ["hl7", "healthcare", "json", "er7", "v2"]
 categories = ["parser-implementations", "command-line-utilities"]
 
