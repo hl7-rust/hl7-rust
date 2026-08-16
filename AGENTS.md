@@ -10,6 +10,23 @@ A small Rust crate + CLI that converts HL7 v2.5 messages from the typed
 JSON representation the sibling
 [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
 crate produces back to pipe-delimited ER7 text — the inverse of that crate.
+It has an XML counterpart pair,
+[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+and
+[`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7),
+applying the same positional-reconstruction approach (§1.1 below) to
+v2.xml — worth a look if a bug here turns out to be conceptual rather than
+JSON-specific, since the fix likely applies there too.
+
+**This crate depends on the forward crate's naming convention holding.**
+If `hl7-v2-from-er7-into-json` ever stops guaranteeing that the number
+after a key's last `.` is that level's position, this crate's
+reconstruction breaks silently rather than erroring (it has no dictionary
+to fall back on — see "No HL7 v2.5 data-type dictionary, on purpose"
+below). The forward crate's `AGENTS.md` has a matching note asking changes
+there to check here first; if you land a naming change from this side of
+the pair, open an issue against the forward crate too.
+
 See `README.md` for the user-facing pitch and `spec/index.md` for the
 exact, normative conversion rules — **`spec/index.md` is the single source
 of truth for behavior.** If you change what the converter does, update that

@@ -255,6 +255,9 @@ structure the forward crate never actually produces all reconstruct into
 - [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
   — the XML sibling of this crate; same positional-reconstruction idea,
   applied to v2.xml instead.
+- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+  — the forward crate `hl7-v2-from-xml-into-er7` inverts; not a direct
+  dependency of this crate, but the fourth member of the family.
 - [RFC 8259 — The JavaScript Object Notation (JSON) Data Interchange Format](https://www.rfc-editor.org/rfc/rfc8259)
 
 ## 8. Command-line behavior (`src/main.rs`)
