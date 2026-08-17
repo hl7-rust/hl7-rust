@@ -4,7 +4,7 @@
 //! so these are integration tests rather than unit tests: each one defines
 //! a struct, derives, and checks what the generated code does.
 
-use hl7_v2::{Raw, Version};
+use hl7::v2::{Raw, Version};
 use hl7_v2_derive::{FromHl7 as DeriveFromHl7, ToHl7 as DeriveToHl7};
 
 const ADT: &str = "MSH|^~\\&|EPIC|CLINIC|LAB|ACME|20260814080000||ADT^A01|MSG1|P|2.5\r\
@@ -29,7 +29,7 @@ struct Patient {
 
 #[test]
 fn reads_each_annotated_field_from_its_path() {
-    let patient: Patient = hl7_v2::parse(ADT).unwrap().decode().unwrap();
+    let patient: Patient = hl7::v2::parse(ADT).unwrap().decode().unwrap();
     assert_eq!(patient.sequence, 1);
     assert_eq!(patient.identifiers, ["444333222", "99887766"]);
     assert_eq!(patient.family_name, "EVERYWOMAN");
@@ -46,7 +46,7 @@ fn writes_each_annotated_field_back_to_its_path() {
         middle_name: None,
         sex: Some("M".to_string()),
     };
-    let message = hl7_v2::Builder::new(Version::V2_5)
+    let message = hl7::v2::Builder::new(Version::V2_5)
         .message_type("ADT", "A01")
         .control_id("1")
         .timestamp("20260814080000")
@@ -79,7 +79,7 @@ struct Admission {
 
 #[test]
 fn nests_structs_and_keeps_the_raw_message() {
-    let admission: Admission = hl7_v2::parse(ADT).unwrap().decode().unwrap();
+    let admission: Admission = hl7::v2::parse(ADT).unwrap().decode().unwrap();
     assert_eq!(admission.event, "A01");
     assert_eq!(admission.patient.family_name, "EVERYWOMAN");
     assert!(!admission.processed, "an unannotated field is defaulted");
@@ -100,12 +100,12 @@ struct Required {
 
 #[test]
 fn a_missing_required_field_names_its_path() {
-    let error = hl7_v2::parse(ADT)
+    let error = hl7::v2::parse(ADT)
         .unwrap()
         .decode::<Required>()
         .unwrap_err();
     assert!(
-        matches!(&error, hl7_v2::Error::MissingField { path } if path == "PID-99"),
+        matches!(&error, hl7::v2::Error::MissingField { path } if path == "PID-99"),
         "{error}"
     );
 }
@@ -113,7 +113,7 @@ fn a_missing_required_field_names_its_path() {
 #[derive(Debug, DeriveFromHl7, DeriveToHl7)]
 struct Generic<T>
 where
-    T: hl7_v2::FromHl7Value + hl7_v2::ToHl7Value,
+    T: hl7::v2::FromHl7Value + hl7::v2::ToHl7Value,
 {
     #[hl7("PID-1")]
     value: T,
@@ -121,8 +121,8 @@ where
 
 #[test]
 fn generic_structs_carry_their_bounds_through() {
-    let typed: Generic<u32> = hl7_v2::parse(ADT).unwrap().decode().unwrap();
+    let typed: Generic<u32> = hl7::v2::parse(ADT).unwrap().decode().unwrap();
     assert_eq!(typed.value, 1);
-    let text: Generic<String> = hl7_v2::parse(ADT).unwrap().decode().unwrap();
+    let text: Generic<String> = hl7::v2::parse(ADT).unwrap().decode().unwrap();
     assert_eq!(text.value, "1");
 }

@@ -1,20 +1,20 @@
-//! Derive macros for [`hl7-v2`](https://crates.io/crates/hl7-v2): map a
+//! Derive macros for [`hl7-rust`](https://crates.io/crates/hl7-rust): map a
 //! struct's fields to HL7 v2 message paths once, in the type definition,
 //! instead of writing the same accessor calls at every call site.
 //!
-//! This crate is not used directly. `hl7-v2` re-exports both macros behind
+//! This crate is not used directly. `hl7-rust` re-exports both macros behind
 //! its `derive` feature, so the dependency to add is:
 //!
 //! ```toml
-//! hl7-v2 = { version = "0.1", features = ["derive"] }
+//! hl7-rust = { version = "0.1", features = ["derive"] }
 //! ```
 //!
 //! Keeping the macros in a crate of their own is what lets the default
-//! build of `hl7-v2` keep exactly one dependency: `syn` and `quote` are
+//! build of `hl7-rust` keep exactly one dependency: `syn` and `quote` are
 //! compiled only for callers who ask for the macros.
 //!
 //! ```ignore
-//! use hl7_v2::{FromHl7, ToHl7, Raw};
+//! use hl7::v2::{FromHl7, ToHl7, Raw};
 //!
 //! #[derive(FromHl7, ToHl7)]
 //! struct Result {
@@ -58,7 +58,7 @@ pub fn derive_from_hl7(input: TokenStream) -> TokenStream {
 /// Derive `ToHl7`: write each annotated field back to its path.
 ///
 /// Writing needs the segments to exist already; build the message with
-/// `hl7_v2::Builder` (whose `encode` method takes a `ToHl7`) or add them
+/// `hl7::v2::Builder` (whose `encode` method takes a `ToHl7`) or add them
 /// with `Message::append_segment`.
 #[proc_macro_derive(ToHl7, attributes(hl7))]
 pub fn derive_to_hl7(input: TokenStream) -> TokenStream {
@@ -90,13 +90,13 @@ fn from_hl7(input: &DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
         let ty = &field.ty;
         reads.push(match mapping(field)? {
             Mapping::Path(path) => quote! {
-                #ident: <#ty as ::hl7_v2::FromHl7Value>::from_hl7_value(message, #path)?
+                #ident: <#ty as ::hl7::v2::FromHl7Value>::from_hl7_value(message, #path)?
             },
             Mapping::Nested => quote! {
-                #ident: <#ty as ::hl7_v2::FromHl7>::from_hl7(message)?
+                #ident: <#ty as ::hl7::v2::FromHl7>::from_hl7(message)?
             },
             Mapping::Raw => quote! {
-                #ident: ::hl7_v2::Raw::new(::core::clone::Clone::clone(message)).into()
+                #ident: ::hl7::v2::Raw::new(::core::clone::Clone::clone(message)).into()
             },
             Mapping::None => quote! {
                 #ident: ::core::default::Default::default()
@@ -105,8 +105,8 @@ fn from_hl7(input: &DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
     }
     Ok(quote! {
         #[automatically_derived]
-        impl #impl_generics ::hl7_v2::FromHl7 for #name #type_generics #where_clause {
-            fn from_hl7(message: &::hl7_v2::Message) -> ::core::result::Result<Self, ::hl7_v2::Error> {
+        impl #impl_generics ::hl7::v2::FromHl7 for #name #type_generics #where_clause {
+            fn from_hl7(message: &::hl7::v2::Message) -> ::core::result::Result<Self, ::hl7::v2::Error> {
                 ::core::result::Result::Ok(#name { #(#reads),* })
             }
         }
@@ -122,10 +122,10 @@ fn to_hl7(input: &DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
         let ty = &field.ty;
         match mapping(field)? {
             Mapping::Path(path) => writes.push(quote! {
-                <#ty as ::hl7_v2::ToHl7Value>::to_hl7_value(&self.#ident, message, #path)?;
+                <#ty as ::hl7::v2::ToHl7Value>::to_hl7_value(&self.#ident, message, #path)?;
             }),
             Mapping::Nested => writes.push(quote! {
-                <#ty as ::hl7_v2::ToHl7>::to_hl7(&self.#ident, message)?;
+                <#ty as ::hl7::v2::ToHl7>::to_hl7(&self.#ident, message)?;
             }),
             // The raw message is where the struct came from, not something
             // to write back over it.
@@ -134,11 +134,11 @@ fn to_hl7(input: &DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
     }
     Ok(quote! {
         #[automatically_derived]
-        impl #impl_generics ::hl7_v2::ToHl7 for #name #type_generics #where_clause {
+        impl #impl_generics ::hl7::v2::ToHl7 for #name #type_generics #where_clause {
             fn to_hl7(
                 &self,
-                message: &mut ::hl7_v2::Message,
-            ) -> ::core::result::Result<(), ::hl7_v2::Error> {
+                message: &mut ::hl7::v2::Message,
+            ) -> ::core::result::Result<(), ::hl7::v2::Error> {
                 #(#writes)*
                 ::core::result::Result::Ok(())
             }
