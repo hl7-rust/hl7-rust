@@ -13,17 +13,20 @@
 use std::collections::BTreeSet;
 use std::fs;
 
-/// Every test function defined in this crate and in `hl7-v2-derive`, as
-/// `module::tests::name` for unit tests and bare `name` for the rest.
+/// Every test function defined in this crate and in `hl7-v2-derive`, named
+/// the way `cargo test` prints it: `v2::message::tests::name` for a unit
+/// test, bare `name` for an integration test.
 fn defined_tests() -> BTreeSet<String> {
     let mut found = BTreeSet::new();
+    // (directory, module path prefix for a unit test in it)
     let sources = [
-        "src",
-        "tests",
-        "../hl7-v2-derive/src",
-        "../hl7-v2-derive/tests",
+        ("src", Some("")),
+        ("src/v2", Some("v2::")),
+        ("tests", None),
+        ("../hl7-v2-derive/src", Some("")),
+        ("../hl7-v2-derive/tests", None),
     ];
-    for directory in sources {
+    for (directory, prefix) in sources {
         let Ok(entries) = fs::read_dir(directory) else {
             continue;
         };
@@ -34,7 +37,7 @@ fn defined_tests() -> BTreeSet<String> {
             }
             let module = path.file_stem().unwrap().to_string_lossy().to_string();
             let text = fs::read_to_string(&path).unwrap();
-            let unit = directory == "src" || directory == "../hl7-v2-derive/src";
+
             for (index, line) in text.lines().enumerate() {
                 let previous = index.checked_sub(1).map(|i| text.lines().nth(i).unwrap());
                 if !previous.is_some_and(|line| line.trim_start().starts_with("#[test]")) {
@@ -44,10 +47,13 @@ fn defined_tests() -> BTreeSet<String> {
                     continue;
                 };
                 let name = rest.split('(').next().unwrap().trim();
-                found.insert(if unit {
-                    format!("{module}::tests::{name}")
-                } else {
-                    name.to_string()
+                found.insert(match prefix {
+                    // `mod.rs` is the module itself, so its tests are
+                    // `v2::tests::name`, not `v2::mod::tests::name`.
+                    Some(prefix) if module == "mod" => format!("{prefix}tests::{name}"),
+                    Some(prefix) if module == "lib" => format!("{prefix}tests::{name}"),
+                    Some(prefix) => format!("{prefix}{module}::tests::{name}"),
+                    None => name.to_string(),
                 });
             }
         }
@@ -94,12 +100,10 @@ fn every_test_the_specification_names_exists() {
     let mut missing = Vec::new();
 
     for reference in referenced_tests(&spec) {
-        // `lib.rs`'s unit tests are `tests::name` to Rust but read better as
-        // `lib::tests::name` in prose; `integration::` and `derive::` prefix
-        // the file a bare test name lives in.
+        // `integration::` and `derive::` in the table name the file a bare
+        // test name lives in; Rust does not use them.
         let candidates = [
             reference.clone(),
-            reference.replace("lib::tests::", "lib::"),
             reference.replace("integration::", ""),
             reference.replace("derive::", ""),
         ];
@@ -139,7 +143,7 @@ fn every_bundled_release_the_specification_lists_is_shipped() {
         spec.contains("2.7.1, 2.8.1, 2.8.2"),
         "§3.4 lists the shared files"
     );
-    for version in hl7_v2::version::ALL {
+    for version in hl7::v2::version::ALL {
         let dictionary = version.dictionary();
         assert!(
             dictionary.segment_fields("MSH").is_some(),

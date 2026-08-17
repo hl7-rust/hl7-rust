@@ -15,15 +15,22 @@ data-type tables, the message structures, and the three ways to apply them.
 er7                      the ER7 encoding: delimiters, escapes, paths,
                          byte-for-byte rendering, batch splitting
   |
-hl7-v2                   the HL7 v2 dictionary: releases 2.1-2.9, data
-                         types, message structures; three modes;
-                         mutation; validation
+hl7-rust                 this crate: the HL7 v2 dictionary — releases
+  (imported as `hl7`)    2.1-2.9, data types, message structures; three
+                         modes; mutation; validation
   |
+  +-- hl7-v2-mllp                  transport (MLLP over TCP)
   +-- hl7-v2-from-er7-into-json    format conversions
   +-- hl7-v2-from-er7-into-xml
   +-- hl7-v2-from-json-into-er7
   +-- hl7-v2-from-xml-into-er7
 ```
+
+**The crate is published as `hl7-rust` and imported as `hl7`.** Each HL7
+standard gets a module of its own — HL7 v2 lives in `hl7::v2`, leaving room
+for `hl7::v3` and `hl7::fhir` — because a "message", a "segment", and a
+"code" mean different things in each, and one flat namespace would only
+invite mixing them up. The command-line tool is `hl7-v2`.
 
 This README is a tour. [`spec/index.md`](spec/index.md) is the normative,
 section-by-section specification of every rule — the single source of truth
@@ -38,7 +45,7 @@ dropped, and what the dictionary recognises gets a name from HL7's own
 vocabulary.
 
 ```rust
-let message = hl7_v2::parse(text)?;
+let message = hl7::v2::parse(text)?;
 let tree = message.tree();
 
 assert_eq!(tree.name(), "ORU_R01");
@@ -60,13 +67,13 @@ Write the shape as JSON, load it at runtime, and adding a field is a
 configuration change rather than a release.
 
 ```rust
-let dictionary = hl7_v2::Dictionary::from_json(r#"{
+let dictionary = hl7::v2::Dictionary::from_json(r#"{
   "inherits": "2.5",
   "segments": { "ZAC": ["SI", "XPN", "DT"] }
 }"#, "acme")?;
 
-let options = hl7_v2::Options::new().with_dictionary(std::sync::Arc::new(dictionary));
-let message = hl7_v2::parse_with_options(text, &options)?;
+let options = hl7::v2::Options::new().with_dictionary(std::sync::Arc::new(dictionary));
+let message = hl7::v2::parse_with_options(text, &options)?;
 
 // The vendor's own segment now reads like any standard one.
 assert_eq!(message.tree().find("XPN.2").unwrap().text(), "JOHN");
@@ -78,7 +85,7 @@ and state only its dialect.
 ### Struct-based — for the feed that does not change
 
 ```rust
-use hl7_v2::{FromHl7, Raw};
+use hl7::v2::{FromHl7, Raw};
 
 #[derive(FromHl7)]
 struct Admission {
@@ -88,7 +95,7 @@ struct Admission {
     #[hl7(raw)]        raw: Raw,
 }
 
-let admission: Admission = hl7_v2::parse(text)?.decode()?;
+let admission: Admission = hl7::v2::parse(text)?.decode()?;
 assert_eq!(admission.patient_id, "241900");
 
 // The one vendor field no struct models — same object, no second parse.
@@ -101,7 +108,7 @@ the library. A `Raw` field keeps the whole parsed message beside the typed
 data, so the fallback is a method call. Requires the `derive` feature:
 
 ```toml
-hl7-v2 = { version = "0.1", features = ["derive"] }
+hl7-rust = { version = "0.1", features = ["derive"] }
 ```
 
 ## Walkthrough: from a message you have never seen to a typed struct
@@ -182,7 +189,7 @@ the same object, with no re-parse and no rewrite.
 A system that reads HL7 usually has to answer in it.
 
 ```rust
-let mut message = hl7_v2::parse(text)?;
+let mut message = hl7::v2::parse(text)?;
 message.set("PID-5.2", "EVELYN")?;      // escapes delimiters in the value
 message.append_segment("NTE");
 message.set("NTE[2]-3", "Amended.")?;
@@ -190,7 +197,7 @@ let er7 = message.to_er7();             // valid ER7, ready to send
 ```
 
 ```rust
-let ack = hl7_v2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")
+let ack = hl7::v2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")
     .build_valid()?;
 assert_eq!(ack.get("MSA-2")?.as_deref(), Some("MSG00042"));
 ```
@@ -217,9 +224,9 @@ the message: an unknown segment, a structure with no grammar yet. Strict
 mode rejects the first and allows the second:
 
 ```rust
-let options = hl7_v2::Options::new().strict();
-match hl7_v2::parse_with_options(text, &options) {
-    Err(hl7_v2::Error::Invalid(diagnostics)) => { /* every error-level finding */ }
+let options = hl7::v2::Options::new().strict();
+match hl7::v2::parse_with_options(text, &options) {
+    Err(hl7::v2::Error::Invalid(diagnostics)) => { /* every error-level finding */ }
     Ok(message) => { /* conformant */ }
     Err(other) => { /* not a message at all */ }
 }
@@ -277,9 +284,9 @@ lines. Enabling the `derive` feature adds `hl7-v2-derive`, and with it
 ## Install
 
 ```sh
-cargo add hl7-v2                          # library
-cargo add hl7-v2 --features derive        # library with the derive macros
-cargo install hl7-v2                      # command-line tool
+cargo add hl7-rust                          # library
+cargo add hl7-rust --features derive        # library with the derive macros
+cargo install hl7-rust                      # command-line tool
 ```
 
 ## See also
@@ -287,6 +294,8 @@ cargo install hl7-v2                      # command-line tool
 - [`spec/index.md`](spec/index.md) — the normative specification
 - [`er7`](https://github.com/hl7-rust/er7) — the ER7 encoding layer
 - [`hl7-v2-derive`](https://github.com/hl7-rust/hl7-v2-derive) — the derive macros
+- [`hl7-v2-mllp`](https://github.com/hl7-rust/hl7-v2-mllp) — MLLP: sending and
+  receiving these messages over TCP
 - [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json),
   [`-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml),
   [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7),

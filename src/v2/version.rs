@@ -5,7 +5,7 @@
 //! disagree about the details — MSH-9 grew a third component, MSH-12 turned
 //! from a plain string into a composite, ERR grew from one field to twelve.
 //! A parser that assumes one release reads the others slightly wrong, so
-//! this crate carries the release around ([`crate::Message::version`]) and
+//! this crate carries the release around ([`crate::v2::Message::version`]) and
 //! looks every field type up through it.
 //!
 //! The release comes from MSH-12.1. When it is missing, unreadable, or
@@ -14,7 +14,7 @@
 //! than failing: a message that says `2.5.2` is far better read as 2.5.1
 //! than not at all.
 
-use crate::dictionary::Dictionary;
+use crate::v2::dictionary::Dictionary;
 use std::sync::{Arc, OnceLock};
 
 /// A published release of HL7 v2.
@@ -71,17 +71,17 @@ pub const DEFAULT: Version = V2_5;
 /// Several releases can share one file: a point release that changed
 /// nothing this crate models does not need a dictionary of its own.
 const FILES: &[(&str, &str)] = &[
-    ("2.1", include_str!("../schemas/v2.1.json")),
-    ("2.2", include_str!("../schemas/v2.2.json")),
-    ("2.3", include_str!("../schemas/v2.3.json")),
-    ("2.3.1", include_str!("../schemas/v2.3.1.json")),
-    ("2.4", include_str!("../schemas/v2.4.json")),
-    ("2.5", include_str!("../schemas/v2.5.json")),
-    ("2.5.1", include_str!("../schemas/v2.5.1.json")),
-    ("2.6", include_str!("../schemas/v2.6.json")),
-    ("2.7", include_str!("../schemas/v2.7.json")),
-    ("2.8", include_str!("../schemas/v2.8.json")),
-    ("2.9", include_str!("../schemas/v2.9.json")),
+    ("2.1", include_str!("../../schemas/v2.1.json")),
+    ("2.2", include_str!("../../schemas/v2.2.json")),
+    ("2.3", include_str!("../../schemas/v2.3.json")),
+    ("2.3.1", include_str!("../../schemas/v2.3.1.json")),
+    ("2.4", include_str!("../../schemas/v2.4.json")),
+    ("2.5", include_str!("../../schemas/v2.5.json")),
+    ("2.5.1", include_str!("../../schemas/v2.5.1.json")),
+    ("2.6", include_str!("../../schemas/v2.6.json")),
+    ("2.7", include_str!("../../schemas/v2.7.json")),
+    ("2.8", include_str!("../../schemas/v2.8.json")),
+    ("2.9", include_str!("../../schemas/v2.9.json")),
 ];
 
 /// One lazily parsed dictionary per bundled file. Parsing v2.5 takes long
@@ -145,7 +145,7 @@ impl Version {
     /// The bundled dictionary for this release.
     ///
     /// Parsed on first use and shared thereafter; the returned `Arc` is
-    /// cheap to clone and is what a [`crate::Message`] holds.
+    /// cheap to clone and is what a [`crate::v2::Message`] holds.
     pub fn dictionary(self) -> Arc<Dictionary> {
         let index = self.file_index();
         LOADED[index]

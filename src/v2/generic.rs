@@ -21,9 +21,9 @@
 //! Alongside the name, every node carries the `er7` path that locates it
 //! ([`Node::path`]) — `PID[1]-5[1].1.2` — which is what turns "I found
 //! something here" into "…and here is how to read or write it", including
-//! for [`crate::Message::set`] and for validation diagnostics.
+//! for [`crate::v2::Message::set`] and for validation diagnostics.
 
-use crate::dictionary::{Dictionary, VARIABLE};
+use crate::v2::dictionary::{Dictionary, VARIABLE};
 use er7::{Component, Repetition, Segment, Separators};
 
 /// Which level of the HL7 tree a node sits at.
@@ -66,8 +66,8 @@ impl Node {
     }
 
     /// The `er7` path that locates this node in the message, e.g.
-    /// `PID[1]-5[1].1.2`. Pass it to [`crate::Message::get`],
-    /// [`crate::Message::set`], or `er7`'s own query API.
+    /// `PID[1]-5[1].1.2`. Pass it to [`crate::v2::Message::get`],
+    /// [`crate::v2::Message::set`], or `er7`'s own query API.
     ///
     /// The root node has an empty path: it is the message itself.
     pub fn path(&self) -> &str {
@@ -105,11 +105,11 @@ impl Node {
     /// The first child named `name`.
     ///
     /// ```
-    /// let message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||9||SMITH^JOHN")?;
+    /// let message = hl7::v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||9||SMITH^JOHN")?;
     /// let tree = message.tree();
     /// let pid = tree.find("PID").unwrap();
     /// assert_eq!(pid.child("PID.5").unwrap().child("XPN.2").unwrap().text(), "JOHN");
-    /// # Ok::<(), hl7_v2::Error>(())
+    /// # Ok::<(), hl7::v2::Error>(())
     /// ```
     pub fn child(&self, name: &str) -> Option<&Node> {
         self.children.iter().find(|child| child.name == name)
@@ -158,7 +158,7 @@ impl<'a> Iterator for Descendants<'a> {
 }
 
 /// Build the root node for a message whose segments have already been
-/// arranged by [`crate::structure`], or left flat.
+/// arranged by [`crate::v2::structure`], or left flat.
 pub(crate) fn root(name: &str, children: Vec<Node>) -> Node {
     let text = children
         .iter()
@@ -343,7 +343,7 @@ mod tests {
     use super::*;
 
     fn tree(text: &str) -> Node {
-        crate::parse(text).unwrap().tree()
+        crate::v2::parse(text).unwrap().tree()
     }
 
     const HEADER: &str = "MSH|^~\\&|hphis||EPIC||20131011093851||ORU^R01|14AAACVDD|P|2.5";
@@ -372,7 +372,7 @@ mod tests {
 
     #[test]
     fn every_node_carries_the_path_that_reads_it_back() {
-        let message = crate::parse(&format!("{HEADER}\rPID|1||241900||TEST^FOUAZ")).unwrap();
+        let message = crate::v2::parse(&format!("{HEADER}\rPID|1||241900||TEST^FOUAZ")).unwrap();
         let tree = message.tree();
         let given = tree.find("XPN.2").unwrap();
         assert_eq!(given.path(), "PID[1]-5[1].2");

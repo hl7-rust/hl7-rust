@@ -1,13 +1,25 @@
 [package]
-name = "hl7-v2"
+name = "hl7-rust"
 version = "0.1.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
-description = "HL7 v2: parse, navigate, validate, modify, and render Health Level Seven (HL7) version 2 (v2) messages, in three modes: generic, schema-based, and struct-based."
+description = "HL7 for Rust: parse, navigate, validate, modify, and render Health Level Seven (HL7) messages. Imported as `hl7`; HL7 v2 (releases 2.1-2.9) lives in `hl7::v2`, in three modes: generic, schema-based, and struct-based."
 license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
 repository = "https://github.com/hl7-rust/hl7-v2"
 keywords = ["hl7", "healthcare", "er7", "v2", "parser"]
 categories = ["parser-implementations", "command-line-utilities"]
+
+# Published as `hl7-rust` because `hl7-v2` on crates.io belongs to an
+# unrelated project, and imported as `hl7` so each standard gets a module of
+# its own: `hl7::v2` today, room for `hl7::v3` and `hl7::fhir` later.
+[lib]
+name = "hl7"
+path = "src/lib.rs"
+
+# The command keeps the name it documents, and the one the repository has.
+[[bin]]
+name = "hl7-v2"
+path = "src/main.rs"
 
 [dependencies]
 # The ER7 encoding layer: parsing, delimiters, escape sequences, paths,
@@ -17,7 +29,7 @@ er7 = "0.1.0"
 # The `#[derive(FromHl7)]` / `#[derive(ToHl7)]` macros for struct mode. Off
 # by default so the dependency-free build stays dependency-free; enabling
 # `derive` pulls in syn and quote through this crate only.
-hl7-v2-derive = { version = "0.1.0", path = "../hl7-v2-derive", optional = true }
+hl7-v2-derive = { version = "0.1.1", path = "../hl7-v2-derive", optional = true }
 
 [features]
 default = []

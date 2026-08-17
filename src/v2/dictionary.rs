@@ -16,7 +16,7 @@
 //! `schemas/` and are embedded at compile time; v2.5 is complete and every
 //! other release is expressed as a delta of it via `"inherits"`.
 
-use crate::json::{self, Value};
+use crate::v2::json::{self, Value};
 use std::collections::BTreeMap;
 use std::fmt;
 
@@ -107,7 +107,7 @@ impl Item {
 /// Segment field types, composite component types, and message structures
 /// for one HL7 release or one vendor dialect.
 ///
-/// Build one with [`crate::Version::dictionary`] for a bundled release, or
+/// Build one with [`crate::v2::Version::dictionary`] for a bundled release, or
 /// [`Dictionary::from_json`] for schema mode.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Dictionary {
@@ -252,7 +252,7 @@ impl Dictionary {
     /// when the business adds a field.
     ///
     /// ```
-    /// let dictionary = hl7_v2::Dictionary::from_json(r#"{
+    /// let dictionary = hl7::v2::Dictionary::from_json(r#"{
     ///   "inherits": "2.5",
     ///   "segments": { "ZPD": ["ST", "XPN", "TS"] }
     /// }"#, "acme").unwrap();
@@ -261,7 +261,7 @@ impl Dictionary {
     /// ```
     pub fn from_json(text: &str, name: impl Into<String>) -> Result<Dictionary, Error> {
         Dictionary::from_json_resolving(text, name, |version| {
-            crate::Version::parse(version).map(crate::Version::dictionary)
+            crate::v2::Version::parse(version).map(crate::v2::Version::dictionary)
         })
     }
 
@@ -547,7 +547,7 @@ impl std::error::Error for Error {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Version;
+    use crate::v2::Version;
 
     #[test]
     fn reads_the_base_release() {

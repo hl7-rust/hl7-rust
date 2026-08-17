@@ -16,8 +16,8 @@
 //! already have:
 //!
 //! ```
-//! # #[cfg(feature = "derive")] fn main() -> Result<(), hl7_v2::Error> {
-//! use hl7_v2::{FromHl7, Raw};
+//! # #[cfg(feature = "derive")] fn main() -> Result<(), hl7::v2::Error> {
+//! use hl7::v2::{FromHl7, Raw};
 //!
 //! #[derive(FromHl7)]
 //! struct Admission {
@@ -32,7 +32,7 @@
 //! }
 //!
 //! let text = "MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||241900~99~7||SMITH\rZPD|local";
-//! let admission: Admission = hl7_v2::parse(text)?.decode()?;
+//! let admission: Admission = hl7::v2::parse(text)?.decode()?;
 //! assert_eq!(admission.patient_id, "241900");
 //! assert_eq!(admission.all_identifiers.len(), 3);
 //! assert_eq!(admission.birth_date, None);
@@ -43,7 +43,7 @@
 //! # #[cfg(not(feature = "derive"))] fn main() {}
 //! ```
 
-use crate::{Error, Message};
+use crate::v2::{Error, Message};
 
 /// A type that can be read out of a message — struct mode's entry point.
 ///
@@ -65,7 +65,7 @@ pub trait FromHl7: Sized {
 /// attributes and skips `raw` fields.
 pub trait ToHl7 {
     /// Write `self` into `message`, creating fields as needed. Segments
-    /// must already exist — see [`crate::Builder`].
+    /// must already exist — see [`crate::v2::Builder`].
     fn to_hl7(&self, message: &mut Message) -> Result<(), Error>;
 }
 
@@ -229,7 +229,7 @@ macro_rules! scalars {
                 // Repetitions are written as `path[n]`, so the path must
                 // not already fix one.
                 for (index, value) in self.iter().enumerate() {
-                    let path = crate::typed::with_repetition(path, index + 1)?;
+                    let path = crate::v2::typed::with_repetition(path, index + 1)?;
                     value.to_hl7_value(message, &path)?;
                 }
                 Ok(())
@@ -294,7 +294,7 @@ impl Raw {
     }
 
     /// The message as a navigable tree; see [`Message::tree`].
-    pub fn tree(&self) -> crate::generic::Node {
+    pub fn tree(&self) -> crate::v2::generic::Node {
         self.message.tree()
     }
 
@@ -335,7 +335,7 @@ mod tests {
 
     #[test]
     fn reads_scalars_repetitions_and_absences() {
-        let patient: Patient = crate::parse(TEXT).unwrap().decode().unwrap();
+        let patient: Patient = crate::v2::parse(TEXT).unwrap().decode().unwrap();
         assert_eq!(patient.id, "241900");
         assert_eq!(patient.all_ids, ["241900", "99"]);
         assert_eq!(patient.sequence, 1);
@@ -346,7 +346,7 @@ mod tests {
 
     #[test]
     fn a_required_field_that_is_absent_is_an_error() {
-        let message = crate::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1").unwrap();
+        let message = crate::v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1").unwrap();
         let error = Patient::from_hl7(&message).unwrap_err();
         assert!(
             matches!(&error, Error::MissingField { path } if path == "PID-3.1"),
@@ -356,7 +356,7 @@ mod tests {
 
     #[test]
     fn a_value_of_the_wrong_shape_names_the_path() {
-        let message = crate::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|x||9").unwrap();
+        let message = crate::v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|x||9").unwrap();
         let error = Patient::from_hl7(&message).unwrap_err();
         assert!(
             matches!(&error, Error::BadValue { path, .. } if path == "PID-1"),
@@ -367,7 +367,7 @@ mod tests {
 
     #[test]
     fn writes_scalars_options_and_repetitions_back() {
-        let mut message = crate::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1").unwrap();
+        let mut message = crate::v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1").unwrap();
         "SMITH"
             .to_string()
             .to_hl7_value(&mut message, "PID-5.1")

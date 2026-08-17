@@ -6,7 +6,7 @@ implemented, the module is named so the two stay in sync. `README.md`
 summarizes this document for newcomers — if the two disagree, this document
 wins and the README should be corrected to match.
 
-Status: describes the behavior of `hl7_v2` as implemented. Every rule below
+Status: describes the behavior of `hl7::v2` as implemented. Every rule below
 is exercised by a unit test (next to the code that implements it, in that
 module's `#[cfg(test)]` block) or an integration test
 (`tests/integration.rs`, `../hl7-v2-derive/tests/derive.rs`). A change to
@@ -21,10 +21,11 @@ Four layers, each owning exactly one thing:
 er7                      the ER7 encoding: delimiters, escapes, paths,
                          byte-for-byte rendering, batch splitting
   |
-hl7-v2                   the HL7 v2 dictionary: releases 2.1-2.9, data
-                         types, message structures; three parsing modes;
-                         mutation; validation
+hl7-rust                 this crate: the HL7 v2 dictionary — releases
+  (imported as `hl7`)    2.1-2.9, data types, message structures; three
+                         parsing modes; mutation; validation
   |
+  +-- hl7-v2-mllp                  transport (MLLP over TCP)
   +-- hl7-v2-from-er7-into-json    format conversions
   +-- hl7-v2-from-er7-into-xml
   +-- hl7-v2-from-json-into-er7
@@ -44,6 +45,11 @@ crate's output, and an element in the XML crate's output all read the same.
 
 ## 1. Scope
 
+The crate is published as `hl7-rust`, and its library is named `hl7`, so
+everything below is reached through `hl7::v2` — one module per HL7
+standard, leaving `hl7::v3` and `hl7::fhir` free for later. Sources live
+under `src/v2/`. The command-line tool is `hl7-v2`.
+
 Read one or more HL7 v2 messages in the pipe-delimited **ER7** encoding
 and, through a dictionary for the release the sender speaks:
 
@@ -59,9 +65,11 @@ and, through a dictionary for the release the sender speaks:
 - **Validation** (§8) — check a message against its dictionary and report;
   optionally refuse.
 
-Out of scope: transport (MLLP, files, queues), HL7 vocabulary tables,
-conformance profiles, and any conversion to JSON or XML — that last is what
-the four sibling crates are for.
+Out of scope: transport, HL7 vocabulary tables, conformance profiles, and
+conversion to JSON or XML. Those have owners of their own —
+`hl7-v2-mllp` frames messages for a network, and the four conversion
+crates translate formats — which is why this crate can be about meaning
+alone.
 
 ## 2. The ER7 layer (the [`er7`] crate)
 
@@ -81,7 +89,7 @@ and inherits its guarantees:
 5. **Round trip**: a message parsed and not modified writes back byte for
    byte, after the normalization in §2.1.
 
-### 2.1 Input normalization (`normalize` in `src/lib.rs`)
+### 2.1 Input normalization (`normalize` in `src/v2/mod.rs`)
 
 Before parsing, input is tidied: a leading byte-order mark is dropped,
 lines are split on `\r` or `\n` (or both), each line is trimmed, blank
@@ -96,11 +104,11 @@ Only a message with no usable MSH header fails to parse: `Error::Empty`,
 degrades (§4.2, §8) rather than failing. `er7::Error::BadPath` surfaces as
 `Error::Path` from the call that used the path, not from parsing.
 
-## 3. The dictionary (`src/dictionary.rs`, `schemas/`)
+## 3. The dictionary (`src/v2/dictionary.rs`, `schemas/`)
 
 A **dictionary** is what a release, or a vendor dialect, says about
 segments, data types, and message structures. It is JSON, read by the
-hand-written reader in `src/json.rs`, and the same format serves the
+hand-written reader in `src/v2/json.rs`, and the same format serves the
 bundled releases and schema mode.
 
 ### 3.1 Format
@@ -190,7 +198,7 @@ known release no newer than what was declared (so `2.5.2` reads as `2.5.1`
 and `3.0` as `2.9`). A version older than 2.1, an unreadable one, or an
 absent MSH-12 falls back to the default, v2.5, and §8 reports a warning.
 
-## 4. Generic mode (`src/generic.rs`, `src/structure.rs`)
+## 4. Generic mode (`src/v2/generic.rs`, `src/v2/structure.rs`)
 
 `Message::tree` returns a `Node` tree. Nothing in the message is dropped
 and nothing is an error.
@@ -279,7 +287,7 @@ A schema that inherits a bundled release gets the standard segments for
 free and states only its dialect. A schema that inherits nothing describes
 the world by itself, and everything it omits reads positionally (§4.2).
 
-## 6. Struct mode (`src/typed.rs`, `hl7-v2-derive`)
+## 6. Struct mode (`src/v2/typed.rs`, `hl7-v2-derive`)
 
 `FromHl7` reads a caller's type from a message; `ToHl7` writes one back.
 `#[derive(FromHl7)]` and `#[derive(ToHl7)]` (feature `derive`) generate
@@ -318,7 +326,7 @@ whole point of having three modes rather than three libraries.
 `Message::raw` is the same escape hatch one level down, reaching the
 `er7::Message` itself.
 
-## 7. Mutation and building (`src/message.rs`, `src/builder.rs`)
+## 7. Mutation and building (`src/v2/message.rs`, `src/v2/builder.rs`)
 
 ### 7.1 Writing values
 
@@ -360,7 +368,7 @@ untraceable and untestable. `builder::acknowledge` builds an `ACK` for a
 received message, echoing its control ID into MSA-2 and swapping sender and
 receiver.
 
-## 8. Validation (`src/validate.rs`)
+## 8. Validation (`src/v2/validate.rs`)
 
 `Message::validate` checks a message against its dictionary and returns
 diagnostics. It never fails and never changes the message.
@@ -405,7 +413,7 @@ strict mode useless.
 `Severity::Error` into `Error::Invalid`, carrying the diagnostics. Warnings
 never fail a parse: a coverage gap in this crate is not the sender's error.
 
-## 9. Batches and multiple messages (`split_messages` in `src/lib.rs`)
+## 9. Batches and multiple messages (`split_messages` in `src/v2/mod.rs`)
 
 `split_messages` splits input into one string per MSH segment. Batch
 envelope segments (FHS, BHS, BTS, FTS) are dropped; each message is then
@@ -448,7 +456,8 @@ are ordinary readings with a diagnostic attached.
   conformance profiles, no cardinality beyond what a structure states.
 - **Grouping is all-or-nothing** (§4.5), including for messages carrying
   Z-segments.
-- **No transport.** MLLP framing, files, and queues are the caller's.
+- **No transport.** MLLP framing is `hl7-v2-mllp`'s; files and queues are
+  the caller's.
 - **`Node::text` decodes escape sequences** that stand for characters;
   formatting escapes (`\.br\`, `\H\`) are left as sent, as `er7` leaves
   them.
@@ -496,34 +505,34 @@ tests in `tests/integration.rs`; derive tests in
 
 | § | rule | test |
 |---|---|---|
-| 2.1 | input normalization | `lib::tests::normalizes_before_parsing` |
-| 2.2 | only a bad header fails | `lib::tests::maps_er7_errors_onto_this_crates_type` |
-| 3.1 | dictionary format, structure shorthand | `dictionary::tests::reads_structures_including_the_string_shorthand` |
-| 3.2 | list replaces, object overrides positions | `dictionary::tests::a_sparse_delta_restates_one_position_and_keeps_the_rest` |
-| 3.3 | `inherits`: replace, remove, inherit | `dictionary::tests::a_delta_adds_removes_and_inherits`, `dictionary::tests::layering_over_an_explicit_base_ignores_inherits` |
-| 3.4 | every bundled release loads and reads | `version::tests::bundled_dictionaries_all_load`, `integration::every_bundled_release_reads_a_message_that_declares_it`, `integration::a_release_difference_changes_how_a_field_reads` |
-| 3.5 | release choice and nearest-older fallback | `version::tests::falls_back_to_the_nearest_older_release`, `message::tests::defaults_the_version_when_msh_12_is_missing_or_odd`, `lib::tests::forcing_a_version_overrides_the_header` |
-| 4.1 | structure ID, aliases, MSH-9.3 | `message::tests::reads_version_and_structure_off_the_header` |
-| 4.2 | node names, typed and positional | `generic::tests::names_known_types_after_the_type_and_the_rest_positionally` |
-| 4.2 | every node carries its path | `generic::tests::every_node_carries_the_path_that_reads_it_back` |
-| 4.3 | repetitions are siblings; `repetitions` vs `get_all` | `generic::tests::repetitions_are_separate_siblings`, and the doc test on `Message::repetitions` |
-| 4.3 | the explicit null survives | `generic::tests::the_explicit_null_survives` |
-| 4.4 | OBX-5 typed by OBX-2 | `generic::tests::obx_5_takes_its_type_from_obx_2`, `dictionary::tests::resolves_obx_5_through_obx_2` |
-| 4.5 | grouping, and its all-or-nothing fallback | `structure::tests::*`, `generic::tests::groups_nest_under_the_structure_id`, `message::tests::falls_back_to_a_flat_tree_when_the_structure_does_not_fit` |
+| 2.1 | input normalization | `v2::tests::normalizes_before_parsing` |
+| 2.2 | only a bad header fails | `v2::tests::maps_er7_errors_onto_this_crates_type` |
+| 3.1 | dictionary format, structure shorthand | `v2::dictionary::tests::reads_structures_including_the_string_shorthand` |
+| 3.2 | list replaces, object overrides positions | `v2::dictionary::tests::a_sparse_delta_restates_one_position_and_keeps_the_rest` |
+| 3.3 | `inherits`: replace, remove, inherit | `v2::dictionary::tests::a_delta_adds_removes_and_inherits`, `v2::dictionary::tests::layering_over_an_explicit_base_ignores_inherits` |
+| 3.4 | every bundled release loads and reads | `v2::version::tests::bundled_dictionaries_all_load`, `integration::every_bundled_release_reads_a_message_that_declares_it`, `integration::a_release_difference_changes_how_a_field_reads` |
+| 3.5 | release choice and nearest-older fallback | `v2::version::tests::falls_back_to_the_nearest_older_release`, `v2::message::tests::defaults_the_version_when_msh_12_is_missing_or_odd`, `v2::tests::forcing_a_version_overrides_the_header` |
+| 4.1 | structure ID, aliases, MSH-9.3 | `v2::message::tests::reads_version_and_structure_off_the_header` |
+| 4.2 | node names, typed and positional | `v2::generic::tests::names_known_types_after_the_type_and_the_rest_positionally` |
+| 4.2 | every node carries its path | `v2::generic::tests::every_node_carries_the_path_that_reads_it_back` |
+| 4.3 | repetitions are siblings; `repetitions` vs `get_all` | `v2::generic::tests::repetitions_are_separate_siblings`, and the doc test on `Message::repetitions` |
+| 4.3 | the explicit null survives | `v2::generic::tests::the_explicit_null_survives` |
+| 4.4 | OBX-5 typed by OBX-2 | `v2::generic::tests::obx_5_takes_its_type_from_obx_2`, `v2::dictionary::tests::resolves_obx_5_through_obx_2` |
+| 4.5 | grouping, and its all-or-nothing fallback | `v2::structure::tests::*`, `v2::generic::tests::groups_nest_under_the_structure_id`, `v2::message::tests::falls_back_to_a_flat_tree_when_the_structure_does_not_fit` |
 | 5 | schema mode end to end | `integration::schema_mode_teaches_the_parser_one_vendors_dialect` |
 | 6 | the four attributes | `derive::reads_each_annotated_field_from_its_path`, `derive::nests_structs_and_keeps_the_raw_message` |
-| 6.1 | required, optional, repeating, bad values | `typed::tests::reads_scalars_repetitions_and_absences`, `typed::tests::a_required_field_that_is_absent_is_an_error`, `typed::tests::a_value_of_the_wrong_shape_names_the_path`, `typed::tests::booleans_read_the_spellings_senders_use` |
+| 6.1 | required, optional, repeating, bad values | `v2::typed::tests::reads_scalars_repetitions_and_absences`, `v2::typed::tests::a_required_field_that_is_absent_is_an_error`, `v2::typed::tests::a_value_of_the_wrong_shape_names_the_path`, `v2::typed::tests::booleans_read_the_spellings_senders_use` |
 | 6.2 | the raw escape hatch | `integration::struct_mode_keeps_the_generic_escape_hatch_on_the_same_object` |
-| 7.1 | set escapes, `set_er7` does not; creation | `message::tests::set_escapes_and_set_er7_does_not`, `message::tests::writes_values_creating_what_is_missing`, `integration::escaped_text_survives_the_whole_trip` |
-| 7.2 | clearing versus nulling | `message::tests::distinguishes_clearing_from_nulling` |
-| 7.3 | segment add and remove; MSH is kept | `message::tests::adds_and_removes_segments` |
-| 7.4 | building, and `acknowledge` | `builder::tests::*`, `integration::building_a_reply_to_a_message`, `integration::a_builder_makes_a_message_from_nothing_that_parses_back` |
-| 8 | every diagnostic kind | `validate::tests::*` |
-| 8.1 | Z-segment leniency | `validate::tests::unknown_segments_and_fields_are_warnings_not_errors`, `integration::the_samples_parse_and_report_what_they_should` |
-| 8.2 | strict mode | `lib::tests::strict_mode_turns_diagnostics_into_a_failure`, `integration::strict_mode_is_the_difference_between_reporting_and_refusing` |
-| 9 | batch splitting | `lib::tests::splits_batches_into_messages`, `integration::a_batch_file_becomes_one_message_each` |
-| 10 | error variants | `message::tests::reads_values_by_path`, `message::tests::writes_values_creating_what_is_missing`, `dictionary::tests::reports_where_a_malformed_dictionary_is_wrong` |
-| 2, 7 | round trip after parse and after edit | `message::tests::round_trips_an_unmodified_message`, `integration::reading_modifying_and_writing_round_trips` |
+| 7.1 | set escapes, `set_er7` does not; creation | `v2::message::tests::set_escapes_and_set_er7_does_not`, `v2::message::tests::writes_values_creating_what_is_missing`, `integration::escaped_text_survives_the_whole_trip` |
+| 7.2 | clearing versus nulling | `v2::message::tests::distinguishes_clearing_from_nulling` |
+| 7.3 | segment add and remove; MSH is kept | `v2::message::tests::adds_and_removes_segments` |
+| 7.4 | building, and `acknowledge` | `v2::builder::tests::*`, `integration::building_a_reply_to_a_message`, `integration::a_builder_makes_a_message_from_nothing_that_parses_back` |
+| 8 | every diagnostic kind | `v2::validate::tests::*` |
+| 8.1 | Z-segment leniency | `v2::validate::tests::unknown_segments_and_fields_are_warnings_not_errors`, `integration::the_samples_parse_and_report_what_they_should` |
+| 8.2 | strict mode | `v2::tests::strict_mode_turns_diagnostics_into_a_failure`, `integration::strict_mode_is_the_difference_between_reporting_and_refusing` |
+| 9 | batch splitting | `v2::tests::splits_batches_into_messages`, `integration::a_batch_file_becomes_one_message_each` |
+| 10 | error variants | `v2::message::tests::reads_values_by_path`, `v2::message::tests::writes_values_creating_what_is_missing`, `v2::dictionary::tests::reports_where_a_malformed_dictionary_is_wrong` |
+| 2, 7 | round trip after parse and after edit | `v2::message::tests::round_trips_an_unmodified_message`, `integration::reading_modifying_and_writing_round_trips` |
 | 12 | the CLI contract | `integration::the_cli_*` |
 
 ## 14. References
@@ -531,4 +540,5 @@ tests in `tests/integration.rs`; derive tests in
 - HL7 v2 standards: <https://www.hl7.org/implement/standards/>
 - `er7` crate (the encoding layer): <https://crates.io/crates/er7>
 - `hl7-v2-derive` (the macros): <https://github.com/hl7-rust/hl7-v2-derive>
+- `hl7-v2-mllp` (MLLP transport): <https://github.com/hl7-rust/hl7-v2-mllp>
 - Sibling conversion crates: <https://github.com/hl7-rust>

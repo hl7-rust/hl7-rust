@@ -15,9 +15,11 @@ whole point of its existence:
 ```
 er7            the ER7 encoding (delimiters, escapes, paths, rendering)
   |
-hl7-v2         this crate: releases 2.1-2.9, data types, message
-               structures, three modes, mutation, validation
+hl7-rust       this crate (imported as `hl7`, API in `hl7::v2`):
+               releases 2.1-2.9, data types, message structures,
+               three modes, mutation, validation
   |
+  +-- hl7-v2-mllp    transport (MLLP over TCP)
   +-- hl7-v2-from-er7-into-json / -into-xml / from-json / from-xml
 ```
 
@@ -42,19 +44,19 @@ er7 (dependency)   ER7 parsing, delimiters, escapes, paths, rendering,
                    batch splitting. Not in this repo — see spec/index.md §2.
 src/lib.rs         Public API: parse(), parse_with_options(), Options,
                    Error, split_messages(), normalize(), re-exports.
-src/version.rs     Version (2.1 ... 2.9), MSH-12 resolution, nearest-older
+src/v2/version.rs     Version (2.1 ... 2.9), MSH-12 resolution, nearest-older
                    fallback, and the bundled-dictionary cache.
-src/dictionary.rs  Dictionary: segment field types, composite component
+src/v2/dictionary.rs  Dictionary: segment field types, composite component
                    types, structures, aliases; the JSON format, including
                    `inherits` deltas and sparse position overrides.
-src/json.rs        The hand-written JSON reader dictionaries load through.
-src/generic.rs     Generic mode: the Node tree and its naming rules.
-src/structure.rs   The greedy matcher that groups segments into a structure.
-src/message.rs     Message: version, structure ID, get/set/clear, segments,
+src/v2/json.rs        The hand-written JSON reader dictionaries load through.
+src/v2/generic.rs     Generic mode: the Node tree and its naming rules.
+src/v2/structure.rs   The greedy matcher that groups segments into a structure.
+src/v2/message.rs     Message: version, structure ID, get/set/clear, segments,
                    tree, layout, round-tripping.
-src/typed.rs       Struct mode: FromHl7/ToHl7, value conversion, Raw.
-src/validate.rs    Diagnostics, severities, and the format checks.
-src/builder.rs     Builder and acknowledge().
+src/v2/typed.rs       Struct mode: FromHl7/ToHl7, value conversion, Raw.
+src/v2/validate.rs    Diagnostics, severities, and the format checks.
+src/v2/builder.rs     Builder and acknowledge().
 src/main.rs        CLI: tree / query / check / er7, edits, schema, strict.
 schemas/*.json     Bundled dictionaries. v2.5 is complete; the rest are
                    deltas of it (spec/index.md §3.4).
@@ -82,7 +84,7 @@ round trips, the CLI contract — goes in `tests/integration.rs` instead.
   way unless the user asks otherwise; a two-crate tree is part of this
   crate's value proposition in a domain where dependencies get audited. The
   `derive` feature is the one sanctioned exception, and it is opt-in.
-- Hand-rolling the JSON reader (`src/json.rs`) instead of pulling in
+- Hand-rolling the JSON reader (`src/v2/json.rs`) instead of pulling in
   `serde_json` is deliberate, matching the family's zero-dependency stance.
 - **Fallback-first.** Reading never fails below the MSH header: unknown
   segments, unknown types, unmodelled releases, and structure mismatches
@@ -159,9 +161,10 @@ When adding to it:
 
 - Becoming a conformance validator: HL7 vocabulary tables, field lengths,
   and conformance profiles are out of scope (`spec/index.md` §11).
-- Transport: MLLP framing, files, and queues belong to the caller.
+- Transport: MLLP framing belongs to `hl7-v2-mllp`; files and queues to the
+  caller.
 - Converting to JSON or XML — that is what the four sibling crates do.
-  `src/json.rs` reads dictionaries; it is not a message renderer, and it
+  `src/v2/json.rs` reads dictionaries; it is not a message renderer, and it
   should not grow into one.
 - Partial message-structure grouping. It is all-or-nothing on purpose
   (`spec/index.md` §4.5): a partial match would have to guess where an

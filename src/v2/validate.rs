@@ -2,12 +2,12 @@
 //!
 //! The sibling conversion crates are explicitly not validators, and this
 //! crate does not become one by accident: parsing stays fallback-first, and
-//! [`crate::Message::validate`] is a separate call that reports and never
+//! [`crate::v2::Message::validate`] is a separate call that reports and never
 //! refuses. What makes it worth having here is that schema mode already
 //! requires the caller to state the shape of their messages — once that
 //! shape exists, "does this message match it?" is a question with an
 //! answer, and an ingest pipeline that wants the answer as a hard failure
-//! can ask for it with [`crate::Options::strict`].
+//! can ask for it with [`crate::v2::Options::strict`].
 //!
 //! The two severities divide along whose problem it is:
 //!
@@ -19,8 +19,8 @@
 //!   crate has no grammar for. These are usually a local extension or a
 //!   coverage gap, not a malformed message, so strict mode allows them.
 
-use crate::Message;
-use crate::dictionary::{Dictionary, Item, VARIABLE};
+use crate::v2::Message;
+use crate::v2::dictionary::{Dictionary, Item, VARIABLE};
 use er7::{Segment, Separators};
 use std::fmt;
 
@@ -108,7 +108,7 @@ impl Diagnostic {
     }
 }
 
-/// Check `message` against its dictionary. See [`crate::Message::validate`].
+/// Check `message` against its dictionary. See [`crate::v2::Message::validate`].
 pub fn validate(message: &Message) -> Vec<Diagnostic> {
     let dictionary = message.dictionary();
     let mut found = Vec::new();
@@ -158,7 +158,7 @@ fn header(message: &Message, found: &mut Vec<Diagnostic>) {
                 message.version()
             ),
         ));
-    } else if crate::Version::parse(declared.trim()).is_none() {
+    } else if crate::v2::Version::parse(declared.trim()).is_none() {
         found.push(Diagnostic::warning(
             Kind::Header,
             "MSH-12",
@@ -218,7 +218,7 @@ fn structure(message: &Message, dictionary: &Dictionary, found: &mut Vec<Diagnos
             .filter(|name| !name.starts_with('Z'))
             .collect();
         let extensions = standard.len() < message.segments().count();
-        if extensions && crate::structure::group(items, &standard).is_some() {
+        if extensions && crate::v2::structure::group(items, &standard).is_some() {
             found.push(Diagnostic::warning(
                 Kind::StructureMismatch,
                 "",
@@ -457,7 +457,7 @@ mod tests {
     use super::*;
 
     fn diagnostics(text: &str) -> Vec<Diagnostic> {
-        crate::parse(text).unwrap().validate()
+        crate::v2::parse(text).unwrap().validate()
     }
 
     fn kinds(text: &str) -> Vec<Kind> {

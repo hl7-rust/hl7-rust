@@ -6,8 +6,8 @@
 //! an unfamiliar HL7 message is look at it, and that should not require
 //! writing a program.
 
-use hl7_v2::generic::Node;
-use hl7_v2::{Dictionary, Message, Options, Severity, Version};
+use hl7::v2::generic::Node;
+use hl7::v2::{Dictionary, Message, Options, Severity, Version};
 use std::io::{Read, Write};
 use std::process::ExitCode;
 use std::sync::Arc;
@@ -178,12 +178,12 @@ fn run() -> Result<ExitCode, String> {
     let output = output.unwrap_or(Output::Tree);
     let mut text = String::new();
     let mut found_problems = false;
-    let messages = hl7_v2::split_messages(&input);
+    let messages = hl7::v2::split_messages(&input);
     if messages.is_empty() {
         return Err("input contains no HL7 messages".to_string());
     }
     for (index, one) in messages.iter().enumerate() {
-        let mut message = hl7_v2::parse_with_options(one, &options).map_err(|error| {
+        let mut message = hl7::v2::parse_with_options(one, &options).map_err(|error| {
             found_problems = true;
             format!("message {}: {error}", index + 1)
         })?;

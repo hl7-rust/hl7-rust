@@ -2,7 +2,7 @@
 //!
 //! HL7 sends a flat list of segments and expects the receiver to know that
 //! in an `ORU_R01` the third `OBX` belongs to the second `OBR`. The
-//! grammars that say so live in the dictionary ([`crate::dictionary::Item`]);
+//! grammars that say so live in the dictionary ([`crate::v2::dictionary::Item`]);
 //! this module is the greedy recursive-descent matcher that applies one to
 //! a segment list and reports the nesting it found.
 //!
@@ -10,11 +10,11 @@
 //! whole segment list fits the grammar, or the caller keeps the flat list
 //! it already has. That is deliberate — a partial match would have to guess
 //! where an unexpected Z-segment belongs, and a wrong guess is worse than
-//! no grouping at all. [`crate::Message::tree`] takes exactly this fallback,
-//! and [`crate::Message::validate`] reports the failure as a diagnostic
+//! no grouping at all. [`crate::v2::Message::tree`] takes exactly this fallback,
+//! and [`crate::v2::Message::validate`] reports the failure as a diagnostic
 //! instead of hiding it.
 
-use crate::dictionary::Item;
+use crate::v2::dictionary::Item;
 
 /// Where one segment, or one group of segments, sits in the matched
 /// structure. Segments are named by their index into the list that was
@@ -109,7 +109,7 @@ fn match_items(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Version;
+    use crate::v2::Version;
 
     fn layout(structure: &str, segments: &[&str]) -> Option<Vec<Layout>> {
         let dictionary = Version::V2_5.dictionary();

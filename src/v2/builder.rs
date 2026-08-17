@@ -11,13 +11,13 @@
 //! both are the caller's, because a message that made up its own would be
 //! untraceable and untestable.
 
-use crate::{Error, Message, Options, Version};
+use crate::v2::{Error, Message, Options, Version};
 use std::sync::Arc;
 
 /// Assemble a message segment by segment; see the module documentation.
 ///
 /// ```
-/// use hl7_v2::{Builder, Version};
+/// use hl7::v2::{Builder, Version};
 ///
 /// let message = Builder::new(Version::V2_5)
 ///     .message_type("ADT", "A01")
@@ -35,7 +35,7 @@ use std::sync::Arc;
 ///
 /// assert_eq!(message.structure_id(), "ADT_A01");
 /// assert!(message.to_er7().contains("PID|||241900||SMITH^JOHN"));
-/// # Ok::<(), hl7_v2::Error>(())
+/// # Ok::<(), hl7::v2::Error>(())
 /// ```
 #[derive(Debug)]
 pub struct Builder {
@@ -53,7 +53,7 @@ impl Builder {
     /// says so rather than looking finished.
     pub fn new(version: Version) -> Builder {
         let header = format!("MSH|^~\\&|||||||||P|{version}");
-        let message = crate::parse_with_options(&header, &Options::new().with_version(version))
+        let message = crate::v2::parse_with_options(&header, &Options::new().with_version(version))
             .expect("a builder's own header is always well formed");
         Builder {
             message,
@@ -63,12 +63,12 @@ impl Builder {
 
     /// Start a message for `version`, read through `dictionary` — the
     /// schema-mode counterpart of [`Builder::new`].
-    pub fn with_dictionary(version: Version, dictionary: Arc<crate::Dictionary>) -> Builder {
+    pub fn with_dictionary(version: Version, dictionary: Arc<crate::v2::Dictionary>) -> Builder {
         let header = format!("MSH|^~\\&|||||||||P|{version}");
         let options = Options::new()
             .with_version(version)
             .with_dictionary(dictionary);
-        let message = crate::parse_with_options(&header, &options)
+        let message = crate::v2::parse_with_options(&header, &options)
             .expect("a builder's own header is always well formed");
         Builder {
             message,
@@ -148,9 +148,9 @@ impl Builder {
         self
     }
 
-    /// Write a [`crate::ToHl7`] value's fields into the message being
+    /// Write a [`crate::v2::ToHl7`] value's fields into the message being
     /// built — struct mode's other direction.
-    pub fn encode(mut self, value: &impl crate::ToHl7) -> Builder {
+    pub fn encode(mut self, value: &impl crate::v2::ToHl7) -> Builder {
         if let Err(error) = value.to_hl7(&mut self.message) {
             self.failures.push(error);
         }
@@ -170,10 +170,10 @@ impl Builder {
     /// more than noticing here.
     pub fn build_valid(self) -> Result<Message, Error> {
         let message = self.build()?;
-        let failures: Vec<crate::Diagnostic> = message
+        let failures: Vec<crate::v2::Diagnostic> = message
             .validate()
             .into_iter()
-            .filter(|diagnostic| diagnostic.severity == crate::Severity::Error)
+            .filter(|diagnostic| diagnostic.severity == crate::v2::Severity::Error)
             .collect();
         if failures.is_empty() {
             Ok(message)
@@ -190,12 +190,12 @@ impl Builder {
 /// control ID and timestamp are the caller's to supply.
 ///
 /// ```
-/// let message = hl7_v2::parse("MSH|^~\\&|LAB|L|EPIC|E|20240101||ORU^R01|99|P|2.5\rPID|1")?;
-/// let ack = hl7_v2::builder::acknowledge(&message, "AA", "ACK00001", "20240101093900").build()?;
+/// let message = hl7::v2::parse("MSH|^~\\&|LAB|L|EPIC|E|20240101||ORU^R01|99|P|2.5\rPID|1")?;
+/// let ack = hl7::v2::builder::acknowledge(&message, "AA", "ACK00001", "20240101093900").build()?;
 /// assert_eq!(ack.get("MSA-2")?.as_deref(), Some("99"));
 /// // The answer goes back where it came from.
 /// assert_eq!(ack.get("MSH-5.1")?.as_deref(), Some("LAB"));
-/// # Ok::<(), hl7_v2::Error>(())
+/// # Ok::<(), hl7::v2::Error>(())
 /// ```
 pub fn acknowledge(message: &Message, code: &str, control_id: &str, timestamp: &str) -> Builder {
     let value = |path: &str| message.get(path).ok().flatten().unwrap_or_default();
@@ -237,7 +237,7 @@ mod tests {
         assert_eq!(message.validate(), []);
         // And they parse back to themselves.
         let text = message.to_er7();
-        assert_eq!(crate::parse(&text).unwrap().to_er7(), text);
+        assert_eq!(crate::v2::parse(&text).unwrap().to_er7(), text);
     }
 
     #[test]
@@ -270,7 +270,7 @@ mod tests {
 
     #[test]
     fn acknowledges_a_message() {
-        let message = crate::parse(
+        let message = crate::v2::parse(
             "MSH|^~\\&|LAB|LAB1|EPIC|CLINIC|20240101||ORU^R01|99|P|2.5\rPID|1\rOBR|1\rOBX|1|NM|X||7",
         )
         .unwrap();
@@ -288,7 +288,7 @@ mod tests {
     #[test]
     fn acknowledges_in_the_senders_release() {
         let message =
-            crate::parse("MSH|^~\\&|LAB|L|EPIC|E|20240101||ORU^R01|99|P|2.3\rPID|1").unwrap();
+            crate::v2::parse("MSH|^~\\&|LAB|L|EPIC|E|20240101||ORU^R01|99|P|2.3\rPID|1").unwrap();
         let ack = acknowledge(&message, "AE", "1", "20240101")
             .build()
             .unwrap();
