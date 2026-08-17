@@ -1,0 +1,31 @@
+[package]
+name = "hl7-v2-derive"
+version = "0.1.0"
+authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
+edition = "2024"
+description = "Derive macros for the hl7-v2 crate: #[derive(FromHl7)] and #[derive(ToHl7)] map struct fields to Health Level Seven (HL7) version 2 (v2) message paths."
+license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
+repository = "https://github.com/hl7-rust/hl7-v2-derive"
+keywords = ["hl7", "healthcare", "derive", "v2", "macro"]
+categories = ["parser-implementations", "development-tools::procedural-macro-helpers"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+# The two crates every derive macro is built on. They are this crate's only
+# dependencies, and they are compiled only when a caller opts in to the
+# `derive` feature of `hl7-v2` — the default build of that crate still has
+# exactly one dependency.
+proc-macro2 = "1"
+quote = "1"
+syn = { version = "2", features = ["derive", "parsing", "printing", "proc-macro"], default-features = false }
+
+[dev-dependencies]
+# Path only, deliberately: a proc-macro crate can only be tested by
+# compiling code that uses it, so the tests need `hl7-v2` — but `hl7-v2`
+# depends on this crate for its `derive` feature. Cargo allows that cycle
+# through dev-dependencies, and a dev-dependency with no version is
+# stripped when publishing, which is what stops the cycle from making
+# either crate unpublishable.
+hl7-v2 = { path = "../hl7-v2" }
