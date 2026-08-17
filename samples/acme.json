@@ -1,0 +1,7 @@
+{
+  "description": "An example vendor dialect: the ACME interface's own ZAC segment, layered over standard v2.5. This is what schema mode reads — see README.md and spec/index.md section 5.",
+  "inherits": "2.5",
+  "segments": {
+    "ZAC": ["SI", "XPN", "DT"]
+  }
+}

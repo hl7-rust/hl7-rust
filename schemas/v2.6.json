@@ -1,0 +1,5 @@
+{
+  "version": "2.6",
+  "description": "HL7 v2.6 as a delta of the v2.5 base. Nothing this crate models changed in v2.6, so everything is inherited; see spec/index.md section 3.4 on coverage.",
+  "inherits": "2.5"
+}

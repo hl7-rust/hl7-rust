@@ -1,0 +1,31 @@
+{
+  "version": "2.4",
+  "description": "HL7 v2.4 as a delta of the v2.5 base: the one-field ERR, and no SFT or SPM segment (both arrived in v2.5).",
+  "inherits": "2.5",
+  "segments": {
+    "SFT": null,
+    "SPM": null,
+    "ERR": [
+      "ELD"
+    ]
+  },
+  "structures": {
+    "ACK": [
+      {
+        "segment": "MSH",
+        "required": true,
+        "repeats": false
+      },
+      {
+        "segment": "MSA",
+        "required": true,
+        "repeats": false
+      },
+      {
+        "segment": "ERR",
+        "required": false,
+        "repeats": true
+      }
+    ]
+  }
+}
