@@ -7,14 +7,17 @@ and command-line tool.
 
 This is one of four sibling crates in the `hl7-rust` family — see
 [Related crates](#related-crates) below. It is the inverse of the sibling
-[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
-crate, and depends only on the same [`er7`](https://crates.io/crates/er7)
-encoding layer that crate does — no HL7 v2.5 data-type dictionary is needed
-to reverse the conversion, because the forward crate's element names always
-carry the field/component/subcomponent *position* as the number after the
-name's last `.`, whether or not the name in front of it is a recognized
-data type. See [`spec/index.md`](spec/index.md) for exactly how that works
-and its limits — it is the normative specification this crate implements.
+[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml)
+crate. No HL7 v2.5 data-type dictionary is needed to reverse the
+conversion, because the forward crate's element names always carry the
+field/component/subcomponent *position* as the number after the name's
+last `.`, whether or not the name in front of it is a recognized data
+type — so this crate depends on [`er7`](https://crates.io/crates/er7) for
+the encoding layer and, since 0.5.0, on `hl7-v2-xml-lite-helper` for
+reading the XML itself (it used to carry its own minimal XML reader; see
+`src/lib.rs`'s crate docs for the change). See [`spec/index.md`](spec/index.md)
+for exactly how reconstruction works and its limits — it is the normative
+specification this crate implements.
 
 A v2.xml fragment such as:
 
@@ -94,10 +97,12 @@ failing (`spec/index.md` §5).
 
 ## What it does
 
-- **A minimal, dependency-free XML reader** (`src/xml.rs`) for exactly the
-  subset v2.xml uses: nested elements, text, the predefined entities and
-  numeric character references, with attributes, comments, and the XML
-  declaration recognized and skipped.
+- **XML reading via `hl7-v2-xml-lite-helper`** (re-exported as `xml`), for
+  exactly the subset v2.xml uses: nested elements, text, the predefined
+  entities and numeric character references, with attributes, comments, and
+  the XML declaration recognized and skipped. The helper has no
+  dependencies of its own, and is shared with two other crates in this
+  family that need the same subset (see the helper's own `spec/index.md`).
 - **Position-based reconstruction, no data-type dictionary** (`src/reconstruct.rs`):
   every field, component, and subcomponent element's *position* comes from
   the number after its name's last `.`, so this crate reconstructs a
@@ -155,19 +160,19 @@ encoding layer, cover ER7's two directions against both target formats:
 
 | Crate | Direction |
 |---|---|
-| [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml) | ER7 → v2.xml XML |
+| [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml) | ER7 → v2.xml XML |
 | **`hl7-v2-from-xml-into-er7`** (this crate) | v2.xml XML → ER7 |
-| [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json) | ER7 → typed JSON |
-| [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7) | typed JSON → ER7 |
+| [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json) | ER7 → typed JSON |
+| [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7) | typed JSON → ER7 |
 
 ## References
 
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
   writes onto
-- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml)
   — the forward crate this one inverts
-- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
-  and [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7)
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json)
+  and [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7)
   — the JSON pair, doing the same job for the JSON mapping
 - [HL7 v2.xml encoding](https://www.hl7.eu/refactored/encoding02xml.html)
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)

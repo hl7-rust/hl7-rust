@@ -19,7 +19,7 @@ pipe-delimited **ER7** ("Encoding Rule 7") syntax, as described in HL7's XML
 encoding rules (see [References](#7-references)).
 
 This crate is the inverse of the sibling
-[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml)
 crate, and is intended primarily to read documents that one produced. It is
 **not a validator**: it does not check cardinality, table values, or
 data-type constraints, and it does not use or require an XSD.
@@ -37,11 +37,15 @@ one number back out, at every level, is enough to rebuild the value tree
 exactly — the data-type name that precedes it (`XPN`, `CX`, or nothing at
 all) is decoration this crate never has to interpret. See §3.
 
-## 2. XML parsing (`src/xml.rs`)
+## 2. XML parsing (`hl7-v2-xml-lite-helper`)
 
-This crate includes its own minimal XML reader rather than depending on one,
-matching its sibling crates' one-dependency policy. It reads exactly the
+Since 0.5.0 this crate does not read XML itself: the [`hl7-v2-xml-lite-helper`]
+crate does, re-exported here as [`crate::xml`], and its own `spec/index.md`
+is normative for what it reads. Until 0.5.0 this crate carried its own
+minimal, hand-written XML reader (`src/xml.rs`); the helper reads the same
 subset a v2.xml document uses:
+
+[`hl7-v2-xml-lite-helper`]: https://crates.io/crates/hl7-v2-xml-lite-helper
 
 - One root element, arbitrarily nested child elements, and character data.
 - The five predefined entities (`&amp; &lt; &gt; &quot; &apos;`) and numeric
@@ -59,14 +63,19 @@ subset a v2.xml document uses:
   kept) otherwise. An element with neither text nor children is a leaf with
   no text — see §4.4.
 
-Parsing produces a tree of [`xml::Node`](src/xml.rs): each node is an
-element name plus either child nodes or optional text, mirroring the `Node`
-type the forward crate renders from.
+Parsing produces a tree of [`xml::Element`] (§2.1): each element carries a
+name plus either `children` or a (possibly empty) `text: String`, mirroring
+the element the forward crate renders to.
 
-Anything that isn't well-formed XML by this reader's rules — an unclosed
+Anything that isn't well-formed XML by the helper's rules — an unclosed
 element, a mismatched close tag, a malformed attribute — is
 `Hl7Error::Xml`, the only category of failure this crate reports that isn't
 about what the XML means as HL7.
+
+It is shared rather than owned because three crates in this family needed
+the same XML subset and each had written it; `hl7-v2-xml-lite-helper` has
+no dependencies of its own, so the audit surface is unchanged from before
+it existed.
 
 ## 3. Reconstructing the value tree (`src/reconstruct.rs`)
 
@@ -206,7 +215,7 @@ crate's own philosophy:
 
 | `Hl7Error` variant | When |
 |---------------------|------|
-| `Xml(XmlError)`      | the input is not well-formed XML by `src/xml.rs`'s rules |
+| `Xml(xml::Error)`    | the input is not well-formed XML by `hl7-v2-xml-lite-helper`'s rules |
 | `Empty`              | the document has no segment elements at all |
 | `MissingMsh`         | the first segment element is not `MSH`, `FHS`, or `BHS` |
 | `BadMshHeader(detail)` | the header's `.1`/`.2` fields don't declare a usable delimiter set |
@@ -220,11 +229,11 @@ structure the forward crate never actually produces all reconstruct into
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
   writes onto; its `spec/index.md` is normative for delimiters, the value
   tree, escape sequences, and rendering.
-- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml)
   — the forward crate this one inverts; its `spec/index.md` is normative for
   exactly how v2.xml elements are named and shaped.
-- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
-  and [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7)
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json)
+  and [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7)
   — the JSON pair, applying the same positional-reconstruction idea (§1.1)
   to the typed JSON mapping instead of v2.xml.
 - [HL7 v2.xml encoding](https://www.hl7.eu/refactored/encoding02xml.html)

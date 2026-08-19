@@ -147,7 +147,9 @@ counted in the XML.
 
 ### 4.2 Typed element names
 
-Two lookup tables in `src/types.rs` drive typed naming:
+Two lookup tables, read from the `hl7-v2` dictionary (`hl7_v2::Dictionary`;
+until 0.5.0 these were hand-written here in `src/types.rs`), drive typed
+naming:
 
 - `segment_fields(seg)` — the ordered list of field data types for a known
   segment (MSH, EVN, PID, PV1, PV2, NK1, ORC, OBR, OBX, NTE, AL1, DG1, IN1,
@@ -291,12 +293,20 @@ These are intentional scope boundaries, not defects:
   `\Z...\`, etc.) are preserved as literal text, not mapped to `<escape/>`
   elements as some v2.xml producers do.
 - **Data-type tables are scoped to common v2.5 messages.** Segments and
-  composite types outside `src/types.rs`'s tables still convert (via the
-  generic fallback in §4.2), just without type-derived names.
-- **One dependency, by design.** This crate depends on [`er7`] for the
-  encoding layer and on nothing else; `er7` itself has no dependencies, so
-  the whole tree is two crates. Anything below the v2.5 dictionary belongs
-  in `er7`, not here (§2).
+  composite types outside the bundled `hl7-v2` dictionary's tables still
+  convert (via the generic fallback in §4.2), just without type-derived
+  names. A caller with a fuller or different dictionary — for example one
+  built by `hl7-v2-from-xsd-into-json-dictionary` from a vendor's own XSDs
+  — can pass it to `convert_with_dictionary` (or `--dictionary` on the
+  CLI) instead of the bundled release.
+- **Two dependencies, by design.** This crate depends on [`er7`] for the
+  encoding layer and on `hl7-v2` (`default-features = false`) for the HL7
+  v2.5 dictionary — data-type tables, message structures — that it used to
+  carry as hand-written tables in `src/types.rs` before 0.5.0. Reading the
+  dictionary rather than hard-coding it is what makes `--dictionary` and
+  `--schema-shape` (§4a) possible. Anything about ER7 itself belongs in
+  `er7`; anything about what a v2.5 field or structure means belongs in
+  `hl7-v2`; not here (§2).
 
 ## 7. References
 
@@ -306,10 +316,10 @@ These are intentional scope boundaries, not defects:
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)
 - [Microsoft BizTalk: HL7 2.X and 2.XML schemas](https://learn.microsoft.com/en-us/biztalk/adapters-and-accelerators/accelerator-hl7/hl7-2-x-and-2-xml-schemas)
 - [InterSystems Healthcare HL7 XML](https://github.com/intersystems-ib/Healthcare-HL7-XML)
-- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json) —
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json) —
   this crate's JSON sibling; §0 of its own `spec/index.md` states exactly
   where the two are meant to diverge
-- [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
+- [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7)
   — reads this crate's v2.xml output back into ER7. Its `spec/index.md` §1.1
   documents the positional naming convention (§4.2 below) it depends on —
   changing that convention here without checking there breaks the round
@@ -324,6 +334,12 @@ implementation detail:
   omitted or `-`.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
 - `--flat` forces flat rendering for every message in the input (§3.3).
+- `--dictionary <FILE>` converts against the JSON dictionary at `FILE`
+  instead of the bundled HL7 v2.5 tables (§4a); `FILE` is read with
+  `hl7_v2::Dictionary::from_json`, and a build failure aborts the run.
+- `--schema-shape` sets `Options::schema_shape`, switching the dictionary
+  (bundled or `--dictionary`-supplied) from a table of what fields *are*
+  to a schema that also decides what the document *contains* (§4a).
 - Input is split into messages per §5; each converts independently, and a
   conversion failure on any one message aborts the whole run (exit code 1,
   an error naming that message's 1-based position on stderr). Multiple

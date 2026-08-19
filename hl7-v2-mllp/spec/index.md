@@ -297,5 +297,5 @@ a rule nobody is holding.
 
 - HL7 v2 standards, including the transport specification that defines
   MLLP: <https://www.hl7.org/implement/standards/>
-- `hl7-v2` (HL7 v2 itself): <https://github.com/hl7-rust/hl7-v2>
+- `hl7-v2` (HL7 v2 itself): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2>
 - `er7` (the ER7 encoding): <https://crates.io/crates/er7>

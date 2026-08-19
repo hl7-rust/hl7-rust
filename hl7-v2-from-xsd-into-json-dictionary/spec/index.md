@@ -64,7 +64,7 @@ declare a `<ID>.CONTENT` complexType or conversion fails.
 carries no meaning. A directory where no structure schema includes one is an
 error: the base files cannot be found.
 
-### 2.1 The XML this crate reads (`src/xml.rs`)
+### 2.1 The XML this crate reads (`hl7-v2-xml-lite-helper`, re-exported as `xml`)
 
 Elements, attributes, and nesting are retained; character data, comments,
 processing instructions, CDATA, and a `DOCTYPE` are skipped, because no
@@ -177,10 +177,12 @@ artifact; the schemas are the source.
 
 ## 6. Dependencies
 
-None, deliberately. Reading XSD needs an XML reader (§2.1) and writing a
-dictionary needs a JSON writer (§5); both are small, both are specific to
-the shapes involved, and healthcare integration code gets audited. `hl7-v2`
-is a dev-dependency only, for §7.
+One: `hl7-v2-xml-lite-helper`, the small, dependency-free XML reader shared
+with `hl7-v2-soap` and `hl7-v2-from-xml-into-er7` (§2.1), re-exported as
+`xml`. Writing a dictionary needs a JSON writer (§5), which is small and
+specific enough to the one shape involved to live here rather than pull in
+a general-purpose one. `hl7-v2` is a dev-dependency only, for §7 — it is
+not needed to build this crate.
 
 ## 7. Testing
 

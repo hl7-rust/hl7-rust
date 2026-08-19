@@ -16,7 +16,7 @@ a bug.
 
 Convert one HL7 v2.5 message, encoded in the typed JSON representation the
 sibling
-[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
+[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json)
 crate defines (its own `spec/index.md` §4), back to the traditional
 pipe-delimited **ER7** ("Encoding Rule 7") syntax.
 
@@ -37,7 +37,7 @@ number under a field repetition, subcomponent number under a component
 level, is enough to rebuild the value tree exactly — the data-type name
 that precedes it (`XPN`, `CX`, or nothing at all) is decoration this crate
 never has to interpret. This is exactly the same insight the sibling
-[`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
+[`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7)
 crate applies to v2.xml; see §3.
 
 ## 2. JSON parsing (`src/json.rs`)
@@ -249,13 +249,13 @@ structure the forward crate never actually produces all reconstruct into
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
   writes onto; its `spec/index.md` is normative for delimiters, the value
   tree, escape sequences, and rendering.
-- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json)
   — the forward crate this one inverts; its `spec/index.md` is normative
   for exactly how JSON keys are named and values shaped.
-- [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
+- [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7)
   — the XML sibling of this crate; same positional-reconstruction idea,
   applied to v2.xml instead.
-- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml)
   — the forward crate `hl7-v2-from-xml-into-er7` inverts; not a direct
   dependency of this crate, but the fourth member of the family.
 - [RFC 8259 — The JavaScript Object Notation (JSON) Data Interchange Format](https://www.rfc-editor.org/rfc/rfc8259)

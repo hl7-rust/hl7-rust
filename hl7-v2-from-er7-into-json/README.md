@@ -12,14 +12,14 @@ grammars that group segments, and the JSON renderer.
 
 This is one of four sibling crates in the `hl7-rust` family — see
 [Related crates](#related-crates) below. Its XML counterpart is
-[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml):
+[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml):
 same ER7 parser (both read it through `er7`), same HL7 v2.5 data-type
 tables, same message-structure grammars — rendered as JSON instead of the
 official v2.xml XML. There is no official "v2.json" standard to target, so
 this crate defines its own JSON mapping, designed to preserve everything
 v2.xml preserves while using idiomatic JSON (real arrays, real `null`)
 instead of XML's constructs. Its inverse is
-[`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7),
+[`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7),
 which reads this crate's own JSON output back into ER7.
 
 This README is a tour. [`spec/index.md`](spec/index.md) is the normative,
@@ -189,21 +189,21 @@ encoding layer, cover ER7's two directions against both target formats:
 
 | Crate | Direction |
 |---|---|
-| [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml) | ER7 → v2.xml XML |
-| [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7) | v2.xml XML → ER7 |
+| [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml) | ER7 → v2.xml XML |
+| [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7) | v2.xml XML → ER7 |
 | **`hl7-v2-from-er7-into-json`** (this crate) | ER7 → typed JSON |
-| [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7) | typed JSON → ER7 |
+| [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7) | typed JSON → ER7 |
 
 ## Round trip with the reverse crate
 
-Because [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7)
+Because [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7)
 reads back exactly what this crate writes, the two compose into a lossless
-round trip you can run from the shell (with both repositories checked out
-as siblings, as they are in the `hl7-rust` GitHub organization):
+round trip you can run from the shell — both crates live in this workspace,
+so no `cd` is needed:
 
 ```sh
 cargo run -- samples/orm_o01.hl7 \
-  | (cd ../hl7-v2-from-json-into-er7 && cargo run --)
+  | cargo run -p hl7-v2-from-json-into-er7 --
 ```
 
 The output is the original ER7 message, canonicalized (see
@@ -217,5 +217,5 @@ assumptions (`AGENTS.md` explains why).
   the XML encoding this crate's JSON mapping is modeled on.
 - [RFC 8259 — The JSON Data Interchange Format](https://www.rfc-editor.org/rfc/rfc8259)
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)
-- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml) — this crate's XML sibling.
-- [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7) — reads this crate's JSON output back into ER7.
+- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml) — this crate's XML sibling.
+- [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7) — reads this crate's JSON output back into ER7.

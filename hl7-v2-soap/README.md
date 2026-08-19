@@ -95,10 +95,16 @@ its own sender.
 
 ## Dependencies
 
-None. The XML this crate reads is envelopes, and the XML it writes is
-envelopes; both are small enough to do here rather than pull a
-general-purpose parser into a stack that healthcare integration code gets
-audited for.
+One: `hl7-v2-xml-lite-helper`, re-exported here as `xml`. It reads the
+envelopes this crate carries, matching elements on their local name so
+`soapenv:Body`, `soap:Body`, `SOAP-ENV:Body` and `Body` are all read alike.
+
+It is shared rather than owned because three crates in this family needed
+the same XML subset and each had written its own copy: this crate,
+`hl7-v2-from-xml-into-er7`, and `hl7-v2-from-xsd-into-json-dictionary`. One
+reader that keeps both text and attributes replaced all three. The helper
+has no dependencies of its own, so the audit surface is unchanged from
+before it existed, and there is one parser to read instead of three.
 
 ## Specification
 

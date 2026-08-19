@@ -576,6 +576,6 @@ tests in `tests/integration.rs`; derive tests in
 
 - HL7 v2 standards: <https://www.hl7.org/implement/standards/>
 - `er7` crate (the encoding layer): <https://crates.io/crates/er7>
-- `hl7-v2-derive` (the macros): <https://github.com/hl7-rust/hl7-v2-derive>
-- `hl7-v2-mllp` (MLLP transport): <https://github.com/hl7-rust/hl7-v2-mllp>
+- `hl7-v2-derive` (the macros): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-derive>
+- `hl7-v2-mllp` (MLLP transport): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-mllp>
 - Sibling conversion crates: <https://github.com/hl7-rust>

@@ -2,7 +2,7 @@
 //! (`urn:hl7-org:v2xml`) back to ER7 (pipe-delimited) encoding.
 //!
 //! This is the inverse of the sibling
-//! [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+//! [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml)
 //! crate. That crate names every XML element after either an HL7 v2.5 data
 //! type or a bare position, but in both cases the number after an element
 //! name's *last* dot is always the 1-based position at that level — field

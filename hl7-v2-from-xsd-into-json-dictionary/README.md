@@ -2,7 +2,8 @@
 
 Read a directory of HL7 version 2 XML Schema Definition (XSD) files — the
 v2.xml encoding, as HL7 published it or as a vendor customised it — and write
-the JSON dictionary the [`hl7-v2`](https://github.com/hl7-rust/hl7-v2)
+the JSON dictionary the
+[`hl7-v2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2)
 crates read.
 
 HL7 publishes v2.xml as schemas. `hl7-v2` reads a dictionary, because one
@@ -90,10 +91,16 @@ std::fs::write("paris.json", document.to_json())?;
 
 ## Dependencies
 
-None. Reading XSD needs an XML reader and writing a dictionary needs a JSON
-writer; both are small enough, and specific enough to the shapes involved,
-to live here rather than pull a general-purpose parser into a stack that
-healthcare integration code gets audited for.
+One:
+[`hl7-v2-xml-lite-helper`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-xml-lite-helper),
+the small, dependency-free XML reader shared with `hl7-v2-soap` and
+`hl7-v2-from-xml-into-er7`, re-exported here as `xml` so a caller can name
+`xml::Element` without adding its own dependency on it. Reading XSD needs
+an XML reader; writing a dictionary needs a JSON writer, which is small and
+specific enough to the one shape involved to live here rather than pull in
+a general-purpose one. `hl7-v2` itself is a dev-dependency only, used to
+check that a generated dictionary loads (see `spec/index.md` §7) — it is
+not needed to build this crate.
 
 ## Specification
 

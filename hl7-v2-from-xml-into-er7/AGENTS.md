@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Instructions for coding agents (Claude Code, Codex, or any other) working in
-this repository. `CLAUDE.md` is a pointer to this file — keep this one
+this crate. `CLAUDE.md` is a pointer to this file — keep this one
 canonical and don't fork the content between the two.
 
 ## What this is
@@ -9,14 +9,16 @@ canonical and don't fork the content between the two.
 A small Rust crate + CLI that converts HL7 v2.5 messages from the official
 v2.xml XML representation back to pipe-delimited ER7 text — the inverse of
 the sibling
-[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml)
 crate. It has a JSON counterpart pair,
-[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
+[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json)
 and
-[`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7),
+[`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7),
 applying the same positional-reconstruction approach (§1.1 below) to the
 JSON mapping — worth a look if a bug here turns out to be conceptual
-rather than XML-specific, since the fix likely applies there too.
+rather than XML-specific, since the fix likely applies there too. When in
+doubt about a shared-logic question, check how the sibling crate handles
+it.
 
 **This crate depends on the forward crate's naming convention holding.**
 If `hl7-v2-from-er7-into-xml` ever stops guaranteeing that the number
@@ -37,13 +39,14 @@ a behavior change, check it against the spec first.
 
 ```
 er7 (dependency)     ER7 parsing, the value tree, escape sequences,
-                      rendering. Not in this repo — see spec/index.md §7.
+                      rendering. Not in this crate — see spec/index.md §7.
+hl7-v2-xml-lite-helper (dependency)  XML reading, re-exported as `xml`
+                      (`xml::Element`, `xml::Error`). Not in this crate —
+                      see spec/index.md §2.
 src/lib.rs            Public API: parse(), convert(), convert_with_options(),
                        Hl7Error.
-src/xml.rs             A minimal, dependency-free XML reader producing a
-                       Node tree (name, text, kids) — spec §2.
-src/reconstruct.rs      Rebuilds the er7::Message value tree from a Node
-                       tree: group flattening, delimiter recovery, the
+src/reconstruct.rs      Rebuilds the er7::Message value tree from an
+                       xml::Element tree: group flattening, delimiter recovery, the
                        positional field/component/subcomponent rules, and
                        re-escaping — spec §3–§4.
 src/main.rs            CLI: argument parsing, stdin/file I/O,
@@ -62,12 +65,16 @@ CLI contract) is covered in `tests/integration.rs` instead.
 
 ## Working conventions
 
-- **Rust edition 2024**, exactly one runtime dependency: the
-  [`er7`](https://crates.io/crates/er7) crate. Keep it that way unless the
+- **Rust edition 2024**, two runtime dependencies: [`er7`](https://crates.io/crates/er7)
+  for the ER7 encoding layer, and, since 0.5.0, `hl7-v2-xml-lite-helper`
+  (re-exported as `xml`) for reading v2.xml. This crate used to carry its
+  own hand-written XML reader (`src/xml.rs`); it now shares a reader with
+  two other crates in this family that needed the same subset, which has
+  no dependencies of its own, so the audit surface is unchanged (see
+  `spec/index.md` §2). Keep the dependency list to these two unless the
   user asks for another — this crate's whole value proposition is reversing
-  v2.xml with nothing beyond the ER7 encoding layer itself, not even an XML
-  parsing dependency (`src/xml.rs` is hand-written for exactly this
-  purpose).
+  v2.xml with nothing beyond the ER7 encoding layer and that shared XML
+  reader.
 - **No HL7 v2.5 data-type dictionary, on purpose.** Reconstruction is
   positional: the number after an element name's last `.` is always that
   level's 1-based position, regardless of whether the name in front of it

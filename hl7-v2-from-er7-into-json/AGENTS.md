@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Instructions for coding agents (Claude Code, Codex, or any other) working in
-this repository. `CLAUDE.md` is a pointer to this file — keep this one
+this crate. `CLAUDE.md` is a pointer to this file — keep this one
 canonical and don't fork the content between the two.
 
 ## What this is
@@ -9,15 +9,15 @@ canonical and don't fork the content between the two.
 A small Rust crate + CLI that converts HL7 v2.5 messages
 from pipe-delimited ER7 text to a typed JSON representation. It is the JSON
 sibling of
-[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml)
 (same parser, same data-type tables, same message-structure grammars,
 different output format) — when in doubt about a shared-logic question,
-check how the sibling repo handles it, and keep the two consistent unless
+check how the sibling crate handles it, and keep the two consistent unless
 there's a JSON-specific reason not to
 (`spec/index.md` §0 documents exactly where they're meant to diverge).
 
 **This crate's key-naming convention is load-bearing for a fourth crate.**
-[`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7)
+[`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7)
 reverses this crate's output without an HL7 v2.5 dictionary of its own,
 relying entirely on the rule that the number after a key's last `.` is
 always that level's position (`src/json.rs`, `src/types.rs`; see that
@@ -36,7 +36,7 @@ fix or a behavior change, check it against the spec first.
 
 ```
 er7 (dependency)  ER7 parsing, delimiters, escape sequences, batch
-                   splitting. Not in this repo — see spec/index.md §2.
+                   splitting. Not in this crate — see spec/index.md §2.
 src/lib.rs        Public API: convert(), convert_with_options(), Options,
                    Hl7Error, split_messages(), normalize(), root_name.
 src/types.rs       Data-type tables: segment field types, composite
@@ -112,7 +112,8 @@ splitting, the CLI contract) is covered in `tests/integration.rs` instead.
 1. Update `spec/index.md` first (or alongside the code) so it states the
    new intended behavior precisely. If the change also applies to the XML
    sibling's shared logic (ER7 parsing, data types, grammars), consider
-   whether it should be made in both repos.
+   whether it should be made in both crates (one PR, since it's one
+   workspace).
 2. Implement it, matching the module boundaries above.
 3. Add/update tests that pin the new behavior.
 4. Update `README.md` only if the change affects the user-facing summary or

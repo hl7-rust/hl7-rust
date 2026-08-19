@@ -284,7 +284,7 @@ Same scope boundaries as the XML sibling, restated for this crate:
 - [XML schemas for HL7 v2.5 and earlier (Australian Digital Health Agency)](https://implementer.digitalhealth.gov.au/standards/v2-xml-xml-schemas-for-hl7-version-2-5-and-earlier)
 - `hl7-v2-from-er7-into-xml` — this crate's XML sibling; its `spec/index.md`
   documents §1–3 in full depth.
-- [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-v2-from-json-into-er7)
+- [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7)
   — reads this crate's JSON output back into ER7. Its `spec/index.md` §1.1
   documents the positional key-naming convention (§4.2 above) it depends
   on — changing that convention here without checking there breaks the

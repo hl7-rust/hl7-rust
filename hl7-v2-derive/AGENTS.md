@@ -7,7 +7,7 @@ canonical and don't fork the content between the two.
 ## What this is
 
 The `#[derive(FromHl7)]` and `#[derive(ToHl7)]` macros for the
-[`hl7-v2`](https://github.com/hl7-rust/hl7-v2) crate, which re-exports them
+[`hl7-v2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2) crate, which re-exports them
 behind its optional `derive` feature. Nobody depends on this crate directly.
 
 It exists as a separate crate for one reason: `hl7-v2` advertises exactly
@@ -45,11 +45,11 @@ allows that; don't try to "fix" it by vendoring types.
   offending tokens, not a panic and not a confusing type error a hundred
   lines later. Test the message.
 - Every public item needs a doc comment.
-- Before finishing a change, run — in this repo and in `hl7-v2`, because
-  the macros and the traits move together:
+- Before finishing a change, run — in this crate and in `hl7-v2`, from the
+  workspace root, because the macros and the traits move together:
   ```sh
-  cargo test
-  cargo clippy --all-targets -- -D warnings
+  cargo test -p hl7-v2-derive -p hl7-v2
+  cargo clippy -p hl7-v2-derive -p hl7-v2 --all-targets -- -D warnings
   cargo fmt --check
   ```
 

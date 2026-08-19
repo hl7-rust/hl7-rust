@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Instructions for coding agents (Claude Code, Codex, or any other) working in
-this repository. `CLAUDE.md` is a pointer to this file — keep this one
+this crate. `CLAUDE.md` is a pointer to this file — keep this one
 canonical and don't fork the content between the two.
 
 ## What this is
@@ -9,18 +9,18 @@ canonical and don't fork the content between the two.
 A small Rust crate + CLI that converts HL7 v2.5 messages
 from pipe-delimited ER7 text to the official v2.xml XML representation. It
 is the XML sibling of
-[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
+[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json)
 (same parser, same data-type tables, same message-structure grammars,
 different output format) — when in doubt about a shared-logic question,
-check how the sibling repo handles it, and keep the two consistent unless
+check how the sibling crate handles it, and keep the two consistent unless
 there's an XML-specific reason not to.
 
 **This crate's element-naming convention is load-bearing for a fourth
-crate.** [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
+crate.** [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7)
 reverses this crate's output without an HL7 v2.5 dictionary of its own,
 relying entirely on the rule that the number after an element name's last
-`.` is always that level's position (`src/xml.rs`, `src/types.rs`;
-see that crate's `spec/index.md` §1.1). If you change how fields,
+`.` is always that level's position (`src/xml.rs`, driven by `hl7-v2`'s
+dictionary; see that crate's `spec/index.md` §1.1). If you change how fields,
 components, or subcomponents are named — not just what they're named,
 but where the positional number appears — check that crate before
 merging, or its round trip silently breaks.
@@ -35,15 +35,19 @@ a behavior change, check it against the spec first.
 
 ```
 er7 (dependency)  ER7 parsing, delimiters, escape sequences, batch
-                   splitting. Not in this repo — see spec/index.md §2.
-src/lib.rs        Public API: convert(), convert_with_options(), Options,
-                   Hl7Error, split_messages(), normalize(), root_name.
-src/types.rs       Data-type tables: segment field types, composite
-                   component types (drives typed XML element naming).
+                   splitting. Not in this crate — see spec/index.md §2.
+hl7-v2 (dependency)  The HL7 v2.5 dictionary: data-type tables, message
+                   structures, and the matcher that groups segments (used
+                   with `default-features = false`, dropping MLLP). Not in
+                   this crate — see spec/index.md §2 and §4a.
+src/lib.rs        Public API: convert(), convert_with_options(),
+                   convert_with_dictionary(), Options, Hl7Error,
+                   split_messages(), normalize(), root_name.
 src/structure.rs   Message-structure grammars (ACK, ADT_A01, ORM_O01,
                    ORU_R01) and the greedy matcher that groups segments.
 src/xml.rs         The Node tree, element-name sanitizing, XML rendering.
-src/main.rs        CLI: argument parsing, stdin/file I/O, --flat/-o.
+src/main.rs        CLI: argument parsing, stdin/file I/O,
+                   --flat/--dictionary/--schema-shape/-o.
 tests/integration.rs  Black-box tests through the public API, incl. one
                    golden full-document comparison.
 spec/index.md      Normative specification (source of truth).
@@ -57,17 +61,31 @@ contract) is covered in `tests/integration.rs` instead.
 
 ## Working conventions
 
-- **Rust edition 2024**, exactly one runtime dependency: the
-  [`er7`](https://crates.io/crates/er7) crate, which supplies the ER7
-  encoding layer and itself has none. Keep it that way unless the user asks
-  for another; a two-crate tree is part of this crate's value proposition
-  in a domain where dependencies get audited.
-- **The layer boundary is the point.** This crate owns the HL7 v2.5
-  dictionary — data-type tables, message structures, the XML renderer.
-  `er7` owns the encoding — delimiters, the value tree, escape sequences,
-  batch splitting. Anything about *how ER7 is written* belongs in `er7`,
-  not here; see `spec/index.md` §2 for exactly which guarantees are
-  inherited.
+- **Rust edition 2024**, two runtime dependencies: the
+  [`er7`](https://crates.io/crates/er7) crate for the ER7 encoding layer,
+  and, since 0.5.0, `hl7-v2` (with `default-features = false`, dropping
+  MLLP) for the HL7 v2.5 data-type tables and message-structure grammars
+  this crate used to hand-write in `src/types.rs`. Reading those tables
+  from `hl7-v2`'s dictionary is what lets a caller supply
+  `--dictionary`/`convert_with_dictionary` with a vendor dialect instead
+  of the bundled release — see `spec/index.md` §2 and §4a. Keep the
+  dependency list to these two unless the user asks for another; a small,
+  named tree is part of this crate's value proposition in a domain where
+  dependencies get audited.
+- **The layer boundary is the point.** This crate owns the XML renderer
+  and the CLI. `hl7-v2` owns the HL7 v2.5 dictionary — data-type tables,
+  message structures. `er7` owns the encoding — delimiters, the value
+  tree, escape sequences, batch splitting. Anything about *how ER7 is
+  written* belongs in `er7`; anything about *what a v2.5 field or
+  structure is* belongs in `hl7-v2`; not here. See `spec/index.md` §2 for
+  exactly which guarantees are inherited.
+- **CLI options beyond `--flat`.** `--dictionary <FILE>` converts against a
+  JSON dictionary (e.g. one built by `hl7-v2-from-xsd-into-json-dictionary`
+  from XSDs) instead of the bundled v2.5 tables; `--schema-shape` changes
+  how that dictionary is read — from a table of what fields *are* to a
+  schema that also decides what the document *contains* (`spec/index.md`
+  §4a). Both are implemented in `src/main.rs` and exercised by
+  `Options::schema_shape` / `convert_with_dictionary` in `src/lib.rs`.
 - Every public item must have a doc comment; `src/lib.rs` carries
   `#![warn(missing_docs)]` to enforce it. Run `cargo doc --no-deps` (or the
   check below) after adding public API.

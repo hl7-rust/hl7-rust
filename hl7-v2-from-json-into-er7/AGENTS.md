@@ -1,19 +1,19 @@
 # AGENTS.md
 
 Instructions for coding agents (Claude Code, Codex, or any other) working in
-this repository. `CLAUDE.md` is a pointer to this file — keep this one
+this crate. `CLAUDE.md` is a pointer to this file — keep this one
 canonical and don't fork the content between the two.
 
 ## What this is
 
 A small Rust crate + CLI that converts HL7 v2.5 messages from the typed
 JSON representation the sibling
-[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
+[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json)
 crate produces back to pipe-delimited ER7 text — the inverse of that crate.
 It has an XML counterpart pair,
-[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
+[`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml)
 and
-[`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7),
+[`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7),
 applying the same positional-reconstruction approach (§1.1 below) to
 v2.xml — worth a look if a bug here turns out to be conceptual rather than
 JSON-specific, since the fix likely applies there too.
@@ -37,7 +37,7 @@ a behavior change, check it against the spec first.
 
 ```
 er7 (dependency)     ER7 parsing, the value tree, escape sequences,
-                      rendering. Not in this repo — see spec/index.md §7.
+                      rendering. Not in this crate — see spec/index.md §7.
 src/lib.rs            Public API: parse(), convert(), convert_with_options(),
                        Hl7Error.
 src/json.rs             A minimal, dependency-free JSON reader (RFC 8259)

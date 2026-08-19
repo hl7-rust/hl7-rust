@@ -2,7 +2,7 @@
 
 Convert Health Level Seven (HL7) version 2.5 messages from the typed JSON
 representation the sibling
-[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
+[`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json)
 crate produces back to the traditional pipe-delimited Encoding Rules
 version 7 (ER7) encoding, as a Rust library and command-line tool.
 
@@ -153,18 +153,18 @@ encoding layer, cover ER7's two directions against both target formats:
 
 | Crate | Direction |
 |---|---|
-| [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml) | ER7 → v2.xml XML |
-| [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7) | v2.xml XML → ER7 |
-| [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json) | ER7 → typed JSON |
+| [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml) | ER7 → v2.xml XML |
+| [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7) | v2.xml XML → ER7 |
+| [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json) | ER7 → typed JSON |
 | **`hl7-v2-from-json-into-er7`** (this crate) | typed JSON → ER7 |
 
 ## References
 
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
   writes onto
-- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-v2-from-er7-into-json)
+- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json)
   — the forward crate this one inverts
-- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-v2-from-er7-into-xml)
-  and [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-v2-from-xml-into-er7)
+- [`hl7-v2-from-er7-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml)
+  and [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7)
   — the XML pair, doing the same job for v2.xml
 - [RFC 8259 — The JavaScript Object Notation (JSON) Data Interchange Format](https://www.rfc-editor.org/rfc/rfc8259)
