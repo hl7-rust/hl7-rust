@@ -34,11 +34,12 @@
 //!
 //! ## What this crate is, and is not
 //!
-//! It is: the RIM backbone classes as Rust types ([`rim`]), the two data
-//! types every RIM attribute is built from ([`vocabulary::Ii`],
-//! [`vocabulary::Cd`]), and a reader for the three-level message envelope
-//! every interaction shares ([`message`]) — transport wrapper, control act
-//! wrapper, domain payload.
+//! It is: the RIM backbone classes as Rust types ([`rim`]), the data types
+//! RIM attributes are built from — identifiers, coded values, intervals,
+//! quantities, encapsulated data, and the explicit-null mechanism any of
+//! them can carry instead of a value ([`vocabulary`]) — and a reader for
+//! the three-level message envelope every interaction shares ([`message`])
+//! — transport wrapper, control act wrapper, domain payload.
 //!
 //! It is not: a validator against any of HL7 v3's vocabulary domains or
 //! interaction schemas, a CDA document model, or a decoder for any
@@ -66,7 +67,7 @@ pub mod vocabulary;
 
 pub use message::{ControlAct, Message};
 pub use typed::{FromElement, FromElementValue};
-pub use vocabulary::{Cd, Ii};
+pub use vocabulary::{Cd, Ed, Ii, Ivl, NullFlavor, Pq};
 
 /// The `#[derive(FromElement)]` macro, re-exported so the `hl7-3-derive`
 /// crate does not have to be named as a dependency. Requires the `derive`

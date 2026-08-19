@@ -6,10 +6,12 @@ and don't fork the content between the two.
 
 ## What this is
 
-The Reference Information Model (RIM) backbone classes, the `II`/`CD` data
-types, and the three-level message envelope for HL7 v3 — **a foundation,
-not a complete implementation**. Read `spec/index.md` §1 before assuming
-anything is missing is a bug; it almost certainly is documented scope.
+The Reference Information Model (RIM) backbone classes, the six data
+types RIM attributes are built from (`II`, `CD`, `IVL`, `PQ`, `ED`,
+`NullFlavor`), and the three-level message envelope for HL7 v3 — **a
+foundation, not a complete implementation**. Read `spec/index.md` §1
+before assuming anything is missing is a bug; it almost certainly is
+documented scope.
 
 Unlike the `hl7-2` family, this crate has no sibling transport or format
 crates (no `hl7-3-mllp`, nothing like `hl7-2-from-er7-into-json`) and no
@@ -25,8 +27,8 @@ for behavior.**
 
 ```
 src/lib.rs           Crate docs, the Error type, the xml re-export.
-src/vocabulary.rs     II and CD: the two data types every RIM attribute
-                     reads through — spec/index.md §3.
+src/vocabulary.rs     II, CD, IVL, PQ, ED, NullFlavor: the data types RIM
+                     attributes are built from — spec/index.md §3.
 src/rim.rs            The six backbone classes and their from_element
                      readers — spec/index.md §4.
 src/message.rs        Message, ControlAct, and parse() — the three-level
@@ -81,13 +83,15 @@ than one module's types together (nothing has, so far).
 
 ## Non-goals (don't "fix" these without discussion)
 
-- **Modeling HL7 v3's full data type hierarchy** (`PQ`, `IVL<T>`, `ED`,
-  and the rest). Two data types (§3) cover every RIM backbone attribute
-  this crate currently reads; adding a third means a real caller needs it,
-  not that the table looks incomplete.
-- **Parsing `effective_time` and other raw-string timestamp fields** into
-  a structured time or interval type. Read as written until a caller's
-  need shapes what "parsed" should mean here.
+- **Modeling HL7 v3's full data type hierarchy** (generic `IVL<T>`, `RTO`,
+  `BL`/`BN`, `SC`, and the rest). `IVL`/`PQ`/`ED`/`NullFlavor` (§3) cover
+  what shows up often enough in real messages to be worth a type; adding
+  another means a real caller needs it, not that the table looks
+  incomplete.
+- **Parsing `IVL`/`PQ` values, units, or bounds** (`effective_time` and
+  friends) into a structured time, interval arithmetic, or a checked
+  numeric type. Read as written until a caller's need shapes what "parsed"
+  should mean here.
 - **Vocabulary domain validation** — see spec/index.md §6.
 - **A CDA document model.** CDA reuses the RIM but has its own
   section/entry/narrative structure; that's a different crate's job if it

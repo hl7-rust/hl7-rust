@@ -127,6 +127,41 @@ numbers!(
     i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize, f32, f64
 );
 
+/// Absent, or a code this crate doesn't recognize as one of its
+/// [`crate::vocabulary::NullFlavor`] variants, both read as `None` — the
+/// same "not every code needs a named variant" choice
+/// [`crate::vocabulary::NullFlavor::Unrecognized`] makes, one level up.
+/// Prefer `element.attribute("nullFlavor")` directly, or
+/// [`crate::vocabulary::NullFlavor::of`], when you need the code even for
+/// values this type doesn't name.
+impl FromElementValue for Option<crate::vocabulary::NullFlavor> {
+    fn from_attribute(value: Option<&str>) -> Option<crate::vocabulary::NullFlavor> {
+        value.map(crate::vocabulary::NullFlavor::parse)
+    }
+
+    fn from_child_text(text: Option<&str>) -> Option<crate::vocabulary::NullFlavor> {
+        text.map(crate::vocabulary::NullFlavor::parse)
+    }
+}
+
+impl FromElement for crate::vocabulary::Ivl {
+    fn from_element(element: &Element) -> Self {
+        crate::vocabulary::Ivl::from_element(element)
+    }
+}
+
+impl FromElement for crate::vocabulary::Pq {
+    fn from_element(element: &Element) -> Self {
+        crate::vocabulary::Pq::from_element(element)
+    }
+}
+
+impl FromElement for crate::vocabulary::Ed {
+    fn from_element(element: &Element) -> Self {
+        crate::vocabulary::Ed::from_element(element)
+    }
+}
+
 impl FromElement for crate::rim::Act {
     fn from_element(element: &Element) -> Self {
         crate::rim::Act::from_element(element)

@@ -1,9 +1,11 @@
 # HL7 v3
 
-The Reference Information Model (RIM) backbone classes, coded values, and
-the three-level message envelope for Health Level Seven (HL7) version 3
-(V3) — a **foundation**, not a complete implementation of the standard.
-See [`spec/index.md`](spec/index.md) §1 for the exact, current scope.
+The Reference Information Model (RIM) backbone classes, the data types
+they're built from (identifiers, coded values, intervals, quantities,
+encapsulated data, explicit null), and the three-level message envelope
+for Health Level Seven (HL7) version 3 (V3) — a **foundation**, not a
+complete implementation of the standard. See
+[`spec/index.md`](spec/index.md) §1 for the exact, current scope.
 
 ## Why a foundation, not a full implementation
 
@@ -89,6 +91,37 @@ assert_eq!(act.mood_code, "EVN");
 `Entity`, `Role`, `Participation`, `ActRelationship`, and `RoleLink` all
 work the same way — see [`spec/index.md`](spec/index.md) §4 for exactly
 which attributes and children each reads.
+
+## The other data types: intervals, quantities, encapsulated data, null
+
+Beyond `II` and `CD`, four more of HL7 v3's data types are modeled — kept
+as shallow as `CD` is (raw text, no parsing, no validation), but real:
+
+```rust
+use hl7_3::{Ed, Ivl, NullFlavor, Pq};
+
+let range = hl7_3::xml::parse(
+    r#"<effectiveTime><low value="20260101"/><high value="20261231"/></effectiveTime>"#,
+)?;
+let ivl = Ivl::from_element(&range); // IVL: an interval
+assert_eq!(ivl.low.as_deref(), Some("20260101"));
+
+let dose = hl7_3::xml::parse(r#"<doseQuantity value="5" unit="mg"/>"#)?;
+let pq = Pq::from_element(&dose); // PQ: a quantity with a unit
+assert_eq!(pq.unit.as_deref(), Some("mg"));
+
+let note = hl7_3::xml::parse(r#"<text mediaType="text/plain">Reports pain.</text>"#)?;
+let ed = Ed::from_element(&note); // ED: encapsulated content
+assert_eq!(ed.text.as_deref(), Some("Reports pain."));
+
+// NullFlavor: why a value is explicitly absent, not just missing.
+let value = hl7_3::xml::parse(r#"<value nullFlavor="ASKU"/>"#)?;
+assert_eq!(NullFlavor::of(&value), Some(NullFlavor::AskedButUnknown));
+# Ok::<(), hl7_2_xml_lite_helper::Error>(())
+```
+
+See [`spec/index.md`](spec/index.md) §3 for exactly what each reads and
+why `NullFlavor` is an open enum rather than a validated domain.
 
 ## Dependencies
 
