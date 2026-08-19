@@ -27,7 +27,7 @@ Unlike the `hl7-2` family, HL7 v3 has no sibling transport or format
 crates yet — no `hl7-3-mllp`, nothing analogous to
 `hl7-2-from-er7-into-json`. HL7 v3 is XML natively, so there is no
 encoding-layer crate underneath this one the way `er7` sits under
-`hl7-v2`; `hl7-2-xml-lite-helper` fills that role instead.
+`hl7-2`; `hl7-2-xml-lite-helper` fills that role instead.
 
 ## 1. Scope — read this before filing anything as a bug
 

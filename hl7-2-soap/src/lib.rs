@@ -22,7 +22,7 @@
 //! No HTTP client and no HTTP server: this crate turns bytes into meaning
 //! and back, and leaves the socket to whatever the caller already uses.
 //! No HL7 validation and no format conversion either — `hl7-rust` and the
-//! `hl7-v2-from-*` crates own those, and a transport that also converted
+//! `hl7-2-from-*` crates own those, and a transport that also converted
 //! formats would be two crates in a trench coat.
 //!
 //! # Receiving

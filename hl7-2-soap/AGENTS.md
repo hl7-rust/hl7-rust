@@ -21,7 +21,7 @@ hl7-2                 the HL7 v2 dictionary and message model
   |
   +-- hl7-2-mllp      transport: HL7 v2 over TCP
   +-- hl7-2-soap      transport: HL7 v2 over HTTP   (this crate)
-  +-- hl7-v2-from-*    format conversions
+  +-- hl7-2-from-*    format conversions
 ```
 
 Both `hl7-2-mllp` and this crate answer the same question — how does a
@@ -104,7 +104,7 @@ anything crossing module boundaries goes in `tests/integration.rs`.
 - **HTTP itself.** No client, no server, no TLS, no retries. This crate
   turns bytes into meaning and back; the socket is the caller's.
 - **HL7 validation and format conversion.** Those belong to `hl7-2` and
-  the `hl7-v2-from-*` crates.
+  the `hl7-2-from-*` crates.
 - **SOAP 1.2, WS-Security, WS-Addressing, MTOM, and attachments.** None of
   them appear in the HL7 v2 interfaces this crate was built from, and
   guessing at them would be worse than not having them.

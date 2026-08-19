@@ -20,7 +20,7 @@ hl7-2                 the HL7 v2 dictionary and message model
   |
   +-- hl7-2-mllp      transport: HL7 v2 over TCP
   +-- hl7-2-soap      transport: HL7 v2 over HTTP   (this crate)
-  +-- hl7-v2-from-*    format conversions
+  +-- hl7-2-from-*    format conversions
 ```
 
 This crate sits beside `hl7-2-mllp`, not above it. Both answer the same
@@ -40,7 +40,7 @@ sender reads one, and the WSDL that describes the endpoint.
 
 **Out of scope:** HTTP itself — no client, no server, no TLS, no retries.
 HL7 validation and format conversion, which belong to `hl7-2` and the
-`hl7-v2-from-*` crates. SOAP 1.2, WS-Security, WS-Addressing, MTOM, and
+`hl7-2-from-*` crates. SOAP 1.2, WS-Security, WS-Addressing, MTOM, and
 attachments: none of them appear in the HL7 v2 interfaces this was built
 from, and guessing at them would be worse than not having them.
 
