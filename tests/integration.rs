@@ -5,7 +5,7 @@
 //! version machinery over real dictionaries, round trips, and the CLI
 //! contract.
 
-use hl7::v2::{Builder, Dictionary, Options, Severity, Version};
+use hl7_v2::{Builder, Dictionary, Options, Severity, Version};
 use std::sync::Arc;
 
 /// A lab result message: two results, a specimen, and a note.
@@ -20,7 +20,7 @@ const ORU: &str = "MSH|^~\\&|LAB|ACME|EHR|CLINIC|20260814080000||ORU^R01|MSG0004
 
 #[test]
 fn generic_mode_reads_a_message_nobody_described_in_advance() {
-    let message = hl7::v2::parse(ORU).unwrap();
+    let message = hl7_v2::parse(ORU).unwrap();
     let tree = message.tree();
 
     assert_eq!(tree.name(), "ORU_R01");
@@ -53,7 +53,7 @@ fn schema_mode_teaches_the_parser_one_vendors_dialect() {
                 ZAC|7|SMITH^JOHN|20260814";
 
     // Without a schema the vendor's segment is still readable, positionally.
-    let message = hl7::v2::parse(text).unwrap();
+    let message = hl7_v2::parse(text).unwrap();
     let zac = message.tree().find("ZAC").unwrap().clone();
     assert_eq!(
         zac.child("ZAC.2").unwrap().child("ZAC.2.1").unwrap().text(),
@@ -81,7 +81,7 @@ fn schema_mode_teaches_the_parser_one_vendors_dialect() {
     )
     .unwrap();
     let options = Options::new().with_dictionary(Arc::new(dictionary));
-    let message = hl7::v2::parse_with_options(text, &options).unwrap();
+    let message = hl7_v2::parse_with_options(text, &options).unwrap();
 
     assert_eq!(message.type_of("ZAC-2").unwrap().as_deref(), Some("XPN"));
     assert_eq!(message.tree().find("XPN.2").unwrap().text(), "JOHN");
@@ -96,20 +96,20 @@ fn struct_mode_keeps_the_generic_escape_hatch_on_the_same_object() {
     struct Result {
         code: String,
         value: Option<String>,
-        raw: hl7::v2::Raw,
+        raw: hl7_v2::Raw,
     }
 
-    impl hl7::v2::FromHl7 for Result {
-        fn from_hl7(message: &hl7::v2::Message) -> std::result::Result<Result, hl7::v2::Error> {
+    impl hl7_v2::FromHl7 for Result {
+        fn from_hl7(message: &hl7_v2::Message) -> std::result::Result<Result, hl7_v2::Error> {
             Ok(Result {
-                code: hl7::v2::FromHl7Value::from_hl7_value(message, "OBX-3.1")?,
-                value: hl7::v2::FromHl7Value::from_hl7_value(message, "OBX-5")?,
-                raw: hl7::v2::Raw::new(message.clone()),
+                code: hl7_v2::FromHl7Value::from_hl7_value(message, "OBX-3.1")?,
+                value: hl7_v2::FromHl7Value::from_hl7_value(message, "OBX-5")?,
+                raw: hl7_v2::Raw::new(message.clone()),
             })
         }
     }
 
-    let result: Result = hl7::v2::parse(ORU).unwrap().decode().unwrap();
+    let result: Result = hl7_v2::parse(ORU).unwrap().decode().unwrap();
     assert_eq!(result.code, "2093-3");
     assert_eq!(result.value.as_deref(), Some("187"));
     // The field the struct does not model, without a second parse.
@@ -122,9 +122,9 @@ fn struct_mode_keeps_the_generic_escape_hatch_on_the_same_object() {
 
 #[test]
 fn every_bundled_release_reads_a_message_that_declares_it() {
-    for &version in hl7::v2::version::ALL {
+    for &version in hl7_v2::version::ALL {
         let text = format!("MSH|^~\\&|A||||20260814||ACK^A01|1|P|{version}\rMSA|AA|1");
-        let message = hl7::v2::parse(&text).unwrap();
+        let message = hl7_v2::parse(&text).unwrap();
         assert_eq!(message.version(), version, "MSH-12 said {version}");
         assert_eq!(message.structure_id(), "ACK");
         assert_eq!(message.get("MSA-1").unwrap().as_deref(), Some("AA"));
@@ -137,11 +137,11 @@ fn a_release_difference_changes_how_a_field_reads() {
     // MSH-12 is a plain ID before v2.3.1 and the VID composite after, so
     // the same header reads differently under each.
     let text = "MSH|^~\\&|A||||20260814||ACK^A01|1|P|2.5\rMSA|AA|1";
-    let modern = hl7::v2::parse(text).unwrap();
+    let modern = hl7_v2::parse(text).unwrap();
     assert_eq!(modern.type_of("MSH-12").unwrap().as_deref(), Some("VID"));
 
     let options = Options::new().with_version(Version::V2_3);
-    let old = hl7::v2::parse_with_options(text, &options).unwrap();
+    let old = hl7_v2::parse_with_options(text, &options).unwrap();
     assert_eq!(old.type_of("MSH-12").unwrap().as_deref(), Some("ID"));
     // And v2.3 has no SFT segment at all, where v2.5 does.
     assert!(modern.dictionary().segment_fields("SFT").is_some());
@@ -150,7 +150,7 @@ fn a_release_difference_changes_how_a_field_reads() {
 
 #[test]
 fn reading_modifying_and_writing_round_trips() {
-    let message = hl7::v2::parse(ORU).unwrap();
+    let message = hl7_v2::parse(ORU).unwrap();
     assert_eq!(message.to_er7(), ORU, "an untouched message is unchanged");
 
     let mut message = message;
@@ -159,7 +159,7 @@ fn reading_modifying_and_writing_round_trips() {
     message.set("NTE[2]-3", "Amended.").unwrap();
     let written = message.to_er7();
 
-    let reread = hl7::v2::parse(&written).unwrap();
+    let reread = hl7_v2::parse(&written).unwrap();
     assert_eq!(reread.get("PID-5.2").unwrap().as_deref(), Some("EVELYN"));
     assert_eq!(reread.get_all("NTE-3").unwrap().len(), 2);
     assert_eq!(reread.to_er7(), written, "and the change round-trips too");
@@ -167,7 +167,7 @@ fn reading_modifying_and_writing_round_trips() {
 
 #[test]
 fn escaped_text_survives_the_whole_trip() {
-    let mut message = hl7::v2::parse(ORU).unwrap();
+    let mut message = hl7_v2::parse(ORU).unwrap();
     // Every delimiter at once, in one value.
     let awkward = "a|b^c~d\\e&f";
     message.set("NTE-3", awkward).unwrap();
@@ -176,14 +176,14 @@ fn escaped_text_survives_the_whole_trip() {
         !written.contains("a|b"),
         "delimiters must be escaped on the wire"
     );
-    let reread = hl7::v2::parse(&written).unwrap();
+    let reread = hl7_v2::parse(&written).unwrap();
     assert_eq!(reread.get("NTE-3").unwrap().as_deref(), Some(awkward));
 }
 
 #[test]
 fn building_a_reply_to_a_message() {
-    let message = hl7::v2::parse(ORU).unwrap();
-    let ack = hl7::v2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")
+    let message = hl7_v2::parse(ORU).unwrap();
+    let ack = hl7_v2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")
         .build_valid()
         .unwrap();
     assert_eq!(ack.structure_id(), "ACK");
@@ -201,25 +201,31 @@ fn strict_mode_is_the_difference_between_reporting_and_refusing() {
     // MSA-4 is an NM; "many" is not a number.
     let text = "MSH|^~\\&|A||||20260814||ACK^A01|1|P|2.5\rMSA|AA|1||many";
 
-    let lenient = hl7::v2::parse(text).unwrap();
+    let lenient = hl7_v2::parse(text).unwrap();
     let diagnostics = lenient.validate();
     assert_eq!(diagnostics.len(), 1);
     assert_eq!(diagnostics[0].severity, Severity::Error);
     // ... and the value is still readable, because reporting is not refusing.
     assert_eq!(lenient.get("MSA-4").unwrap().as_deref(), Some("many"));
 
-    let strict = hl7::v2::parse_with_options(text, &Options::new().strict());
-    assert!(matches!(strict, Err(hl7::v2::Error::Invalid(_))));
+    let strict = hl7_v2::parse_with_options(text, &Options::new().strict());
+    assert!(matches!(strict, Err(hl7_v2::Error::Invalid(_))));
 }
 
 #[test]
 fn a_batch_file_becomes_one_message_each() {
     let batch = std::fs::read_to_string("samples/batch.hl7").unwrap();
-    let messages = hl7::v2::split_messages(&batch);
+    let messages = hl7_v2::split_messages(&batch);
     assert_eq!(messages.len(), 2);
     let control_ids: Vec<String> = messages
         .iter()
-        .map(|text| hl7::v2::parse(text).unwrap().get("MSH-10").unwrap().unwrap())
+        .map(|text| {
+            hl7_v2::parse(text)
+                .unwrap()
+                .get("MSH-10")
+                .unwrap()
+                .unwrap()
+        })
         .collect();
     assert_eq!(control_ids, ["MSG00001", "MSG00002"]);
 }
@@ -228,12 +234,12 @@ fn a_batch_file_becomes_one_message_each() {
 fn the_samples_parse_and_report_what_they_should() {
     for name in ["orm_o01", "oru_r01", "adt_a01"] {
         let text = std::fs::read_to_string(format!("samples/{name}.hl7")).unwrap();
-        let message = hl7::v2::parse(&text).unwrap();
-        assert_eq!(message.to_er7(), hl7::v2::split_messages(&text)[0]);
+        let message = hl7_v2::parse(&text).unwrap();
+        assert_eq!(message.to_er7(), hl7_v2::split_messages(&text)[0]);
         // The ADT sample carries a Z-segment on purpose: a local extension
         // must not make an otherwise conformant message fail.
         let diagnostics = message.validate();
-        let errors: Vec<&hl7::v2::Diagnostic> = diagnostics
+        let errors: Vec<&hl7_v2::Diagnostic> = diagnostics
             .iter()
             .filter(|diagnostic| diagnostic.severity == Severity::Error)
             .collect();
@@ -262,7 +268,7 @@ fn a_builder_makes_a_message_from_nothing_that_parses_back() {
         .unwrap();
 
     let text = message.to_er7();
-    let reread = hl7::v2::parse(&text).unwrap();
+    let reread = hl7_v2::parse(&text).unwrap();
     assert_eq!(reread.structure_id(), "ORU_R01");
     assert_eq!(reread.tree().find("XPN.1").unwrap().text(), "EVERYWOMAN");
     assert_eq!(reread.to_er7(), text);

@@ -21,9 +21,9 @@
 //! Alongside the name, every node carries the `er7` path that locates it
 //! ([`Node::path`]) — `PID[1]-5[1].1.2` — which is what turns "I found
 //! something here" into "…and here is how to read or write it", including
-//! for [`crate::v2::Message::set`] and for validation diagnostics.
+//! for [`crate::Message::set`] and for validation diagnostics.
 
-use crate::v2::dictionary::{Dictionary, VARIABLE};
+use crate::dictionary::{Dictionary, VARIABLE};
 use er7::{Component, Repetition, Segment, Separators};
 
 /// Which level of the HL7 tree a node sits at.
@@ -61,26 +61,30 @@ pub struct Node {
 
 impl Node {
     /// This node's dictionary-derived name, e.g. `PID.5` or `XPN.1`.
+    #[must_use]
     pub fn name(&self) -> &str {
         &self.name
     }
 
     /// The `er7` path that locates this node in the message, e.g.
-    /// `PID[1]-5[1].1.2`. Pass it to [`crate::v2::Message::get`],
-    /// [`crate::v2::Message::set`], or `er7`'s own query API.
+    /// `PID[1]-5[1].1.2`. Pass it to [`crate::Message::get`],
+    /// [`crate::Message::set`], or `er7`'s own query API.
     ///
     /// The root node has an empty path: it is the message itself.
+    #[must_use]
     pub fn path(&self) -> &str {
         &self.path
     }
 
     /// Which level of the tree this node sits at.
+    #[must_use]
     pub fn kind(&self) -> Kind {
         self.kind
     }
 
     /// The decoded text of this node and everything beneath it, with
     /// structural delimiters intact.
+    #[must_use]
     pub fn text(&self) -> &str {
         &self.text
     }
@@ -88,16 +92,19 @@ impl Node {
     /// True when the sender wrote the HL7 explicit null `""` here, meaning
     /// "clear this value" rather than "I have nothing to say". The
     /// difference matters on the way to a database, so it survives parsing.
+    #[must_use]
     pub fn is_null(&self) -> bool {
         self.null
     }
 
     /// True when this node has no children: a value, not a container.
+    #[must_use]
     pub fn is_leaf(&self) -> bool {
         self.children.is_empty()
     }
 
     /// This node's children, in message order.
+    #[must_use]
     pub fn children(&self) -> &[Node] {
         &self.children
     }
@@ -105,12 +112,13 @@ impl Node {
     /// The first child named `name`.
     ///
     /// ```
-    /// let message = hl7::v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||9||SMITH^JOHN")?;
+    /// let message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||9||SMITH^JOHN")?;
     /// let tree = message.tree();
     /// let pid = tree.find("PID").unwrap();
     /// assert_eq!(pid.child("PID.5").unwrap().child("XPN.2").unwrap().text(), "JOHN");
-    /// # Ok::<(), hl7::v2::Error>(())
+    /// # Ok::<(), hl7_v2::Error>(())
     /// ```
+    #[must_use]
     pub fn child(&self, name: &str) -> Option<&Node> {
         self.children.iter().find(|child| child.name == name)
     }
@@ -124,6 +132,7 @@ impl Node {
     /// The first node named `name` anywhere beneath this one, searched
     /// depth-first. Handy for reaching a segment without knowing which
     /// groups a structure nests it in.
+    #[must_use]
     pub fn find(&self, name: &str) -> Option<&Node> {
         self.descendants().find(|node| node.name == name)
     }
@@ -134,6 +143,7 @@ impl Node {
     }
 
     /// Every node beneath this one, depth-first, excluding this node.
+    #[must_use]
     pub fn descendants(&self) -> Descendants<'_> {
         Descendants {
             stack: self.children.iter().rev().collect(),
@@ -158,7 +168,7 @@ impl<'a> Iterator for Descendants<'a> {
 }
 
 /// Build the root node for a message whose segments have already been
-/// arranged by [`crate::v2::structure`], or left flat.
+/// arranged by [`crate::structure`], or left flat.
 pub(crate) fn root(name: &str, children: Vec<Node>) -> Node {
     let text = children
         .iter()
@@ -343,7 +353,7 @@ mod tests {
     use super::*;
 
     fn tree(text: &str) -> Node {
-        crate::v2::parse(text).unwrap().tree()
+        crate::parse(text).unwrap().tree()
     }
 
     const HEADER: &str = "MSH|^~\\&|hphis||EPIC||20131011093851||ORU^R01|14AAACVDD|P|2.5";
@@ -372,7 +382,7 @@ mod tests {
 
     #[test]
     fn every_node_carries_the_path_that_reads_it_back() {
-        let message = crate::v2::parse(&format!("{HEADER}\rPID|1||241900||TEST^FOUAZ")).unwrap();
+        let message = crate::parse(&format!("{HEADER}\rPID|1||241900||TEST^FOUAZ")).unwrap();
         let tree = message.tree();
         let given = tree.find("XPN.2").unwrap();
         assert_eq!(given.path(), "PID[1]-5[1].2");

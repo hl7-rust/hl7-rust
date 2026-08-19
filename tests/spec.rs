@@ -143,7 +143,7 @@ fn every_bundled_release_the_specification_lists_is_shipped() {
         spec.contains("2.7.1, 2.8.1, 2.8.2"),
         "§3.4 lists the shared files"
     );
-    for version in hl7::v2::version::ALL {
+    for version in hl7_v2::version::ALL {
         let dictionary = version.dictionary();
         assert!(
             dictionary.segment_fields("MSH").is_some(),

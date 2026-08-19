@@ -9,17 +9,17 @@
 //! still reach [`Message::raw`] for the one vendor field the struct does
 //! not model, without re-parsing.
 
-use crate::v2::dictionary::Dictionary;
-use crate::v2::generic::Node;
-use crate::v2::structure::{self, Layout};
-use crate::v2::validate::{Diagnostic, Severity};
-use crate::v2::{Error, Options, Version, generic};
+use crate::dictionary::Dictionary;
+use crate::generic::Node;
+use crate::structure::{self, Layout};
+use crate::validate::{Diagnostic, Severity};
+use crate::{Error, Options, Version, generic};
 use er7::{Path, Segment, Separators};
 use std::sync::Arc;
 
 /// One parsed HL7 v2 message.
 ///
-/// Built by [`crate::v2::parse`] or [`crate::v2::parse_with_options`]; see the
+/// Built by [`crate::parse`] or [`crate::parse_with_options`]; see the
 /// crate documentation for the three modes that read it.
 #[derive(Debug, Clone)]
 pub struct Message {
@@ -29,10 +29,10 @@ pub struct Message {
 }
 
 impl Message {
-    /// Parse `text` under `options`. See [`crate::v2::parse_with_options`],
+    /// Parse `text` under `options`. See [`crate::parse_with_options`],
     /// which is the same call under the name callers reach for.
     pub(crate) fn parse(text: &str, options: &Options) -> Result<Message, Error> {
-        let raw = er7::parse(&crate::v2::normalize(text))?;
+        let raw = er7::parse(&crate::normalize(text))?;
         let version = options
             .version
             .or_else(|| Version::from_message(&raw))
@@ -61,11 +61,13 @@ impl Message {
 
     /// The HL7 release this message is read as: MSH-12 resolved through
     /// [`Version::nearest`], or whatever [`Options::version`] forced.
+    #[must_use]
     pub fn version(&self) -> Version {
         self.version
     }
 
     /// The dictionary this message is read through.
+    #[must_use]
     pub fn dictionary(&self) -> &Dictionary {
         &self.dictionary
     }
@@ -76,7 +78,8 @@ impl Message {
     ///
     /// Read from the message each time rather than cached at parse, so a
     /// message whose header was changed — by [`Message::set`] or by
-    /// [`crate::v2::Builder`] — reports what it now says it is.
+    /// [`crate::Builder`] — reports what it now says it is.
+    #[must_use]
     pub fn structure_id(&self) -> String {
         match self.raw.message_structure().filter(|id| !id.is_empty()) {
             Some(id) => id,
@@ -88,6 +91,7 @@ impl Message {
     }
 
     /// The delimiters this message declared in MSH-1 and MSH-2.
+    #[must_use]
     pub fn separators(&self) -> &Separators {
         &self.raw.separators
     }
@@ -97,6 +101,7 @@ impl Message {
     /// Everything this crate knows is derived from here, and nothing is
     /// lost on the way in, so a caller who needs a field no mode models
     /// reads it here rather than parsing the text a second time.
+    #[must_use]
     pub fn raw(&self) -> &er7::Message {
         &self.raw
     }
@@ -108,6 +113,7 @@ impl Message {
     }
 
     /// Take the underlying `er7` message, dropping the dictionary.
+    #[must_use]
     pub fn into_raw(self) -> er7::Message {
         self.raw
     }
@@ -118,11 +124,13 @@ impl Message {
     }
 
     /// The first segment named `name`.
+    #[must_use]
     pub fn segment(&self, name: &str) -> Option<&Segment> {
         self.raw.segment(name)
     }
 
     /// The `occurrence`-th (1-based) segment named `name`.
+    #[must_use]
     pub fn segment_at(&self, name: &str, occurrence: usize) -> Option<&Segment> {
         self.raw.segment_at(name, occurrence)
     }
@@ -133,12 +141,14 @@ impl Message {
     /// differing only where the input was not canonical (other segment
     /// terminators, blank lines, leading whitespace) — that guarantee is
     /// `er7`'s, and this crate does not weaken it.
+    #[must_use]
     pub fn to_er7(&self) -> String {
         self.raw.to_er7()
     }
 
     /// Write the message back as ER7, choosing the segment terminator; see
     /// [`er7::RenderOptions`].
+    #[must_use]
     pub fn to_er7_with(&self, options: er7::RenderOptions) -> String {
         self.raw.to_er7_with(options)
     }
@@ -147,7 +157,8 @@ impl Message {
 
     /// The whole message as a navigable tree, with segments grouped into
     /// the message structure when they fit it and left flat when they do
-    /// not. See [`crate::v2::generic`] for the naming rules.
+    /// not. See [`crate::generic`] for the naming rules.
+    #[must_use]
     pub fn tree(&self) -> Node {
         self.tree_with_options(true)
     }
@@ -155,10 +166,12 @@ impl Message {
     /// The message as a tree, with message-structure grouping optionally
     /// suppressed. A flat tree is one node per segment under the root, and
     /// is what a caller who navigates by segment name wants.
+    #[must_use]
     pub fn tree_with_options(&self, grouped: bool) -> Node {
         let separators = &self.raw.separators;
         let mut occurrences: Vec<usize> = Vec::with_capacity(self.raw.segments.len());
-        let mut counts: std::collections::BTreeMap<&str, usize> = Default::default();
+        let mut counts: std::collections::BTreeMap<&str, usize> =
+            std::collections::BTreeMap::default();
         for segment in &self.raw.segments {
             let count = counts.entry(segment.name.as_str()).or_default();
             *count += 1;
@@ -183,6 +196,7 @@ impl Message {
 
     /// How this message's segments fit its structure, or `None` when the
     /// dictionary has no grammar for it or the segments do not fit.
+    #[must_use]
     pub fn layout(&self) -> Option<Vec<Layout>> {
         let items = self.dictionary.structure(&self.structure_id())?;
         let names: Vec<&str> = self
@@ -201,6 +215,9 @@ impl Message {
     /// Returns the decoded text of the first match, or `None` when the path
     /// names nothing in this message. Path syntax is `er7`'s; see
     /// [`er7::Path`].
+    /// # Errors
+    ///
+    /// [`Error::Path`] when `path` is not a valid HL7 path.
     pub fn get(&self, path: &str) -> Result<Option<String>, Error> {
         Ok(self.raw.query(path)?)
     }
@@ -208,6 +225,9 @@ impl Message {
     /// Every value matching `path`. A path that omits an occurrence or a
     /// repetition matches all of them, so `OBX-5` reads every result in the
     /// message in one call.
+    /// # Errors
+    ///
+    /// [`Error::Path`] when `path` is not a valid HL7 path.
     pub fn get_all(&self, path: &str) -> Result<Vec<String>, Error> {
         Ok(self.raw.query_all(path)?)
     }
@@ -223,11 +243,14 @@ impl Message {
     /// repetition or a component behave as [`Message::get_all`].
     ///
     /// ```
-    /// let message = hl7::v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||241900~99~7")?;
+    /// let message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||241900~99~7")?;
     /// assert_eq!(message.repetitions("PID-3")?, ["241900", "99", "7"]);
     /// assert_eq!(message.get("PID-3")?.as_deref(), Some("241900~99~7"));
-    /// # Ok::<(), hl7::v2::Error>(())
+    /// # Ok::<(), hl7_v2::Error>(())
     /// ```
+    /// # Errors
+    ///
+    /// [`Error::Path`] when `path` is not a valid HL7 path.
     pub fn repetitions(&self, path: &str) -> Result<Vec<String>, Error> {
         let parsed = Path::parse(path)?;
         let Some(number) = parsed.field else {
@@ -260,6 +283,9 @@ impl Message {
 
     /// The data type the dictionary gives the field at `path`, resolving
     /// OBX-5 through OBX-2. `None` when the segment or field is unknown.
+    /// # Errors
+    ///
+    /// [`Error::Path`] when `path` is not a valid HL7 path.
     pub fn type_of(&self, path: &str) -> Result<Option<String>, Error> {
         let path = Path::parse(path)?;
         let Some(field) = path.field else {
@@ -270,7 +296,7 @@ impl Message {
             return Ok(None);
         };
         Ok(match self.dictionary.field_type(&path.segment, field) {
-            Some(crate::v2::dictionary::VARIABLE) => self.dictionary.variable_type(segment),
+            Some(crate::dictionary::VARIABLE) => self.dictionary.variable_type(segment),
             other => other,
         }
         .map(str::to_string))
@@ -288,15 +314,19 @@ impl Message {
     /// it — `set("PID-5", ...)` discards the components PID-5 had.
     ///
     /// The segment must already exist; [`Message::append_segment`] and
-    /// [`crate::v2::Builder`] create segments.
+    /// [`crate::Builder`] create segments.
     ///
     /// ```
-    /// let mut message = hl7::v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1")?;
+    /// let mut message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1")?;
     /// message.set("PID-5.1", "SMITH")?;
     /// message.set("PID-5.2", "JOHN")?;
     /// assert_eq!(message.get("PID-5")?.as_deref(), Some("SMITH^JOHN"));
-    /// # Ok::<(), hl7::v2::Error>(())
+    /// # Ok::<(), hl7_v2::Error>(())
     /// ```
+    /// # Errors
+    ///
+    /// [`Error::Path`] when `path` is not a valid HL7 path, or names a
+    /// position that cannot be written.
     pub fn set(&mut self, path: &str, value: &str) -> Result<(), Error> {
         let separators = self.raw.separators;
         let encoded = er7::escape::escape(value, &separators).into_owned();
@@ -310,6 +340,10 @@ impl Message {
     /// The text is parsed only down to the levels the path leaves open —
     /// writing to `PID-5.1.2` treats the text as a single subcomponent
     /// value, because there is no level left for a delimiter to divide.
+    /// # Errors
+    ///
+    /// [`Error::Path`] when `path` is not a valid HL7 path, or names a
+    /// position that cannot be written.
     pub fn set_er7(&mut self, path: &str, er7_text: &str) -> Result<(), Error> {
         self.write(path, er7_text, Create::Yes)
     }
@@ -317,6 +351,10 @@ impl Message {
     /// Set the value at `path` to the HL7 explicit null `""`, which tells
     /// the receiver to clear the value rather than leave it alone. This is
     /// not the same as [`Message::clear`].
+    /// # Errors
+    ///
+    /// [`Error::Path`] when `path` is not a valid HL7 path, or names a
+    /// position that cannot be written.
     pub fn set_null(&mut self, path: &str) -> Result<(), Error> {
         self.write(path, er7::message::NULL, Create::Yes)
     }
@@ -329,6 +367,10 @@ impl Message {
     /// not fail on a missing segment. That is what makes writing an
     /// `Option::None` in struct mode a no-op rather than a message full of
     /// empty components.
+    /// # Errors
+    ///
+    /// [`Error::Path`] when `path` is not a valid HL7 path, or names a
+    /// position that cannot be written.
     pub fn clear(&mut self, path: &str) -> Result<(), Error> {
         self.write(path, "", Create::No)
     }
@@ -403,11 +445,11 @@ impl Message {
     /// Append an empty segment named `name` and return it for populating.
     ///
     /// ```
-    /// let mut message = hl7::v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5")?;
+    /// let mut message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5")?;
     /// message.append_segment("PID");
     /// message.set("PID-3.1", "241900")?;
     /// assert!(message.to_er7().ends_with("\rPID|||241900"));
-    /// # Ok::<(), hl7::v2::Error>(())
+    /// # Ok::<(), hl7_v2::Error>(())
     /// ```
     pub fn append_segment(&mut self, name: &str) -> &mut Segment {
         self.insert_segment(self.raw.segments.len(), name)
@@ -458,20 +500,21 @@ impl Message {
 
     // ---- validation and struct mode -------------------------------------
 
-    /// Check this message against its dictionary; see [`crate::v2::validate`].
+    /// Check this message against its dictionary; see [`crate::validate`].
     ///
     /// Never fails and never changes the message: it reports. Parsing with
     /// [`Options::strict`] runs the same check and turns any
     /// [`Severity::Error`] into a parse failure.
+    #[must_use]
     pub fn validate(&self) -> Vec<Diagnostic> {
-        crate::v2::validate::validate(self)
+        crate::validate::validate(self)
     }
 
-    /// Decode into a type that implements [`crate::v2::FromHl7`] — struct mode.
+    /// Decode into a type that implements [`crate::FromHl7`] — struct mode.
     ///
     /// ```
-    /// # #[cfg(feature = "derive")] fn main() -> Result<(), hl7::v2::Error> {
-    /// use hl7::v2::FromHl7;
+    /// # #[cfg(feature = "derive")] fn main() -> Result<(), hl7_v2::Error> {
+    /// use hl7_v2::FromHl7;
     ///
     /// #[derive(FromHl7)]
     /// struct Patient {
@@ -481,7 +524,7 @@ impl Message {
     ///     family_name: String,
     /// }
     ///
-    /// let message = hl7::v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||241900||SMITH^JOHN")?;
+    /// let message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||241900||SMITH^JOHN")?;
     /// let patient: Patient = message.decode()?;
     /// assert_eq!(patient.id, "241900");
     /// assert_eq!(patient.family_name, "SMITH");
@@ -489,7 +532,11 @@ impl Message {
     /// # }
     /// # #[cfg(not(feature = "derive"))] fn main() {}
     /// ```
-    pub fn decode<T: crate::v2::FromHl7>(&self) -> Result<T, Error> {
+    /// # Errors
+    ///
+    /// Whatever the type's [`FromHl7`](crate::FromHl7) implementation
+    /// reports: a path it could not read, or a value it could not convert.
+    pub fn decode<T: crate::FromHl7>(&self) -> Result<T, Error> {
         T::from_hl7(self)
     }
 }
@@ -553,7 +600,7 @@ mod tests {
     const HEADER: &str = "MSH|^~\\&|hphis||EPIC||20131011093851||ADT^A01|14AAACVDD|P|2.5";
 
     fn message() -> Message {
-        crate::v2::parse(&format!("{HEADER}\rPID|1||241900||TEST^FOUAZ\rNK1|1")).unwrap()
+        crate::parse(&format!("{HEADER}\rPID|1||241900||TEST^FOUAZ\rNK1|1")).unwrap()
     }
 
     #[test]
@@ -564,21 +611,21 @@ mod tests {
         // A trigger event that shares a structure resolves through the
         // dictionary's aliases.
         let other =
-            crate::v2::parse("MSH|^~\\&|A||||1||ADT^A08|1|P|2.5\rEVN|A08\rPID|1\rPV1|1").unwrap();
+            crate::parse("MSH|^~\\&|A||||1||ADT^A08|1|P|2.5\rEVN|A08\rPID|1\rPV1|1").unwrap();
         assert_eq!(other.structure_id(), "ADT_A01");
         // MSH-9.3 wins when the sender supplies one.
-        let explicit = crate::v2::parse("MSH|^~\\&|A||||1||ADT^A08^ADT_A08|1|P|2.5").unwrap();
+        let explicit = crate::parse("MSH|^~\\&|A||||1||ADT^A08^ADT_A08|1|P|2.5").unwrap();
         assert_eq!(explicit.structure_id(), "ADT_A08");
     }
 
     #[test]
     fn defaults_the_version_when_msh_12_is_missing_or_odd() {
-        let message = crate::v2::parse("MSH|^~\\&|A||||1||ACK|1|P|\rMSA|AA|1").unwrap();
+        let message = crate::parse("MSH|^~\\&|A||||1||ACK|1|P|\rMSA|AA|1").unwrap();
         assert_eq!(message.version(), Version::V2_5);
-        let message = crate::v2::parse("MSH|^~\\&|A||||1||ACK|1|P|2.3.1\rMSA|AA|1").unwrap();
+        let message = crate::parse("MSH|^~\\&|A||||1||ACK|1|P|2.3.1\rMSA|AA|1").unwrap();
         assert_eq!(message.version(), Version::V2_3_1);
         // An unmodelled point release reads as the nearest older one.
-        let message = crate::v2::parse("MSH|^~\\&|A||||1||ACK|1|P|2.5.2\rMSA|AA|1").unwrap();
+        let message = crate::parse("MSH|^~\\&|A||||1||ACK|1|P|2.5.2\rMSA|AA|1").unwrap();
         assert_eq!(message.version(), Version::V2_5_1);
     }
 
@@ -636,7 +683,7 @@ mod tests {
     }
 
     fn message2() -> Message {
-        crate::v2::parse(&format!("{HEADER}\rPID|1")).unwrap()
+        crate::parse(&format!("{HEADER}\rPID|1")).unwrap()
     }
 
     #[test]
@@ -673,7 +720,7 @@ mod tests {
     #[test]
     fn round_trips_an_unmodified_message() {
         let text = format!("{HEADER}\rPID|1||241900||TEST^FOUAZ\rNK1|1");
-        assert_eq!(crate::v2::parse(&text).unwrap().to_er7(), text);
+        assert_eq!(crate::parse(&text).unwrap().to_er7(), text);
     }
 
     #[test]

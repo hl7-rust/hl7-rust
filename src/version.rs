@@ -5,7 +5,7 @@
 //! disagree about the details — MSH-9 grew a third component, MSH-12 turned
 //! from a plain string into a composite, ERR grew from one field to twelve.
 //! A parser that assumes one release reads the others slightly wrong, so
-//! this crate carries the release around ([`crate::v2::Message::version`]) and
+//! this crate carries the release around ([`crate::Message::version`]) and
 //! looks every field type up through it.
 //!
 //! The release comes from MSH-12.1. When it is missing, unreadable, or
@@ -14,7 +14,7 @@
 //! than failing: a message that says `2.5.2` is far better read as 2.5.1
 //! than not at all.
 
-use crate::v2::dictionary::Dictionary;
+use crate::dictionary::Dictionary;
 use std::sync::{Arc, OnceLock};
 
 /// A published release of HL7 v2.
@@ -55,7 +55,9 @@ pub enum Version {
     V2_9,
 }
 
-use Version::*;
+use Version::{
+    V2_1, V2_2, V2_3, V2_3_1, V2_4, V2_5, V2_5_1, V2_6, V2_7, V2_7_1, V2_8, V2_8_1, V2_8_2, V2_9,
+};
 
 /// Every release this crate knows, in release order.
 pub const ALL: &[Version] = &[
@@ -71,17 +73,17 @@ pub const DEFAULT: Version = V2_5;
 /// Several releases can share one file: a point release that changed
 /// nothing this crate models does not need a dictionary of its own.
 const FILES: &[(&str, &str)] = &[
-    ("2.1", include_str!("../../schemas/v2.1.json")),
-    ("2.2", include_str!("../../schemas/v2.2.json")),
-    ("2.3", include_str!("../../schemas/v2.3.json")),
-    ("2.3.1", include_str!("../../schemas/v2.3.1.json")),
-    ("2.4", include_str!("../../schemas/v2.4.json")),
-    ("2.5", include_str!("../../schemas/v2.5.json")),
-    ("2.5.1", include_str!("../../schemas/v2.5.1.json")),
-    ("2.6", include_str!("../../schemas/v2.6.json")),
-    ("2.7", include_str!("../../schemas/v2.7.json")),
-    ("2.8", include_str!("../../schemas/v2.8.json")),
-    ("2.9", include_str!("../../schemas/v2.9.json")),
+    ("2.1", include_str!("../schemas/v2.1.json")),
+    ("2.2", include_str!("../schemas/v2.2.json")),
+    ("2.3", include_str!("../schemas/v2.3.json")),
+    ("2.3.1", include_str!("../schemas/v2.3.1.json")),
+    ("2.4", include_str!("../schemas/v2.4.json")),
+    ("2.5", include_str!("../schemas/v2.5.json")),
+    ("2.5.1", include_str!("../schemas/v2.5.1.json")),
+    ("2.6", include_str!("../schemas/v2.6.json")),
+    ("2.7", include_str!("../schemas/v2.7.json")),
+    ("2.8", include_str!("../schemas/v2.8.json")),
+    ("2.9", include_str!("../schemas/v2.9.json")),
 ];
 
 /// One lazily parsed dictionary per bundled file. Parsing v2.5 takes long
@@ -91,6 +93,7 @@ static LOADED: [OnceLock<Arc<Dictionary>>; FILES.len()] = [const { OnceLock::new
 
 impl Version {
     /// The release string as MSH-12.1 spells it, e.g. `"2.5.1"`.
+    #[must_use]
     pub fn as_str(self) -> &'static str {
         match self {
             V2_1 => "2.1",
@@ -113,6 +116,7 @@ impl Version {
     /// The release named exactly by `text`, or `None`. Use
     /// [`Version::nearest`] when reading a real message, where a version
     /// string this crate does not know should degrade rather than fail.
+    #[must_use]
     pub fn parse(text: &str) -> Option<Version> {
         let text = text.trim();
         ALL.iter().copied().find(|v| v.as_str() == text)
@@ -126,6 +130,7 @@ impl Version {
     /// point releases are additive, so the older dictionary names what it
     /// knows and the rest degrades to generic positional names, which is
     /// exactly the fallback the unknown-segment case already takes.
+    #[must_use]
     pub fn nearest(text: &str) -> Option<Version> {
         if let Some(version) = Version::parse(text) {
             return Some(version);
@@ -138,6 +143,7 @@ impl Version {
 
     /// The release a parsed message declares in MSH-12.1, resolved through
     /// [`Version::nearest`]. `None` when MSH-12 is absent or unreadable.
+    #[must_use]
     pub fn from_message(message: &er7::Message) -> Option<Version> {
         Version::nearest(&message.version()?)
     }
@@ -145,7 +151,12 @@ impl Version {
     /// The bundled dictionary for this release.
     ///
     /// Parsed on first use and shared thereafter; the returned `Arc` is
-    /// cheap to clone and is what a [`crate::v2::Message`] holds.
+    /// cheap to clone and is what a [`crate::Message`] holds.
+    /// # Panics
+    ///
+    /// Never in practice: the bundled dictionaries are embedded at compile
+    /// time and parsed on first use, so a failure here would mean this
+    /// crate shipped a malformed one.
     pub fn dictionary(self) -> Arc<Dictionary> {
         let index = self.file_index();
         LOADED[index]

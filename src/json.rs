@@ -42,6 +42,7 @@ impl Value {
     ///
     /// A duplicate key returns the first occurrence, matching the "first
     /// wins" reading most JSON tooling settles on.
+    #[must_use]
     pub fn get(&self, key: &str) -> Option<&Value> {
         match self {
             Value::Object(members) => members.iter().find(|(k, _)| k == key).map(|(_, v)| v),
@@ -50,6 +51,7 @@ impl Value {
     }
 
     /// The string, if this is a string.
+    #[must_use]
     pub fn as_str(&self) -> Option<&str> {
         match self {
             Value::String(s) => Some(s),
@@ -58,6 +60,7 @@ impl Value {
     }
 
     /// The members, if this is an object.
+    #[must_use]
     pub fn as_object(&self) -> Option<&[(String, Value)]> {
         match self {
             Value::Object(members) => Some(members),
@@ -66,6 +69,7 @@ impl Value {
     }
 
     /// The elements, if this is an array.
+    #[must_use]
     pub fn as_array(&self) -> Option<&[Value]> {
         match self {
             Value::Array(items) => Some(items),
@@ -74,6 +78,7 @@ impl Value {
     }
 
     /// The boolean, if this is one.
+    #[must_use]
     pub fn as_bool(&self) -> Option<bool> {
         match self {
             Value::Bool(b) => Some(*b),
@@ -82,11 +87,13 @@ impl Value {
     }
 
     /// True when this is `null`.
+    #[must_use]
     pub fn is_null(&self) -> bool {
         matches!(self, Value::Null)
     }
 
     /// The name of this value's kind, for error messages.
+    #[must_use]
     pub fn kind(&self) -> &'static str {
         match self {
             Value::Null => "null",
@@ -119,6 +126,9 @@ impl std::error::Error for Error {}
 /// Read a complete JSON document. Trailing content after the top-level
 /// value is an error, so a truncated or double-pasted file is caught here
 /// rather than silently half-read.
+/// # Errors
+///
+/// [`Error`] when the text is not valid JSON, with where parsing gave up.
 pub fn parse(text: &str) -> Result<Value, Error> {
     let mut reader = Reader {
         bytes: text.as_bytes(),
@@ -239,9 +249,8 @@ impl Reader<'_> {
         self.pos += 1; // opening quote
         let mut out = String::new();
         loop {
-            let byte = match self.peek() {
-                Some(byte) => byte,
-                None => return Err(self.error("unterminated string")),
+            let Some(byte) = self.peek() else {
+                return Err(self.error("unterminated string"));
             };
             match byte {
                 b'"' => {
@@ -272,9 +281,8 @@ impl Reader<'_> {
     }
 
     fn escape(&mut self, out: &mut String) -> Result<(), Error> {
-        let byte = match self.peek() {
-            Some(byte) => byte,
-            None => return Err(self.error("unterminated escape sequence")),
+        let Some(byte) = self.peek() else {
+            return Err(self.error("unterminated escape sequence"));
         };
         self.pos += 1;
         out.push(match byte {
@@ -348,12 +356,11 @@ impl Reader<'_> {
             self.pos += 1;
         }
         let text = std::str::from_utf8(&self.bytes[start..self.pos]).unwrap_or("");
-        match text.parse::<f64>() {
-            Ok(number) => Ok(Value::Number(number)),
-            Err(_) => {
-                self.pos = start;
-                Err(self.error("expected a value"))
-            }
+        if let Ok(number) = text.parse::<f64>() {
+            Ok(Value::Number(number))
+        } else {
+            self.pos = start;
+            Err(self.error("expected a value"))
         }
     }
 }

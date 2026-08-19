@@ -16,7 +16,7 @@
 //! `schemas/` and are embedded at compile time; v2.5 is complete and every
 //! other release is expressed as a delta of it via `"inherits"`.
 
-use crate::v2::json::{self, Value};
+use crate::json::{self, Value};
 use std::collections::BTreeMap;
 use std::fmt;
 
@@ -61,6 +61,7 @@ pub enum Item {
 
 impl Item {
     /// The segment or group name.
+    #[must_use]
     pub fn name(&self) -> &str {
         match self {
             Item::Segment { name, .. } | Item::Group { name, .. } => name,
@@ -68,6 +69,7 @@ impl Item {
     }
 
     /// Whether the structure requires this item.
+    #[must_use]
     pub fn required(&self) -> bool {
         match self {
             Item::Segment { required, .. } | Item::Group { required, .. } => *required,
@@ -75,6 +77,7 @@ impl Item {
     }
 
     /// Whether this item may appear more than once in a row.
+    #[must_use]
     pub fn repeats(&self) -> bool {
         match self {
             Item::Segment { repeats, .. } | Item::Group { repeats, .. } => *repeats,
@@ -86,6 +89,7 @@ impl Item {
     /// For a group this walks its leading optional items plus the first
     /// required one — the group's FIRST set — because an optional leading
     /// segment means a group can start at more than one segment name.
+    #[must_use]
     pub fn can_start(&self, segment: &str) -> bool {
         match self {
             Item::Segment { name, .. } => name == segment,
@@ -107,7 +111,7 @@ impl Item {
 /// Segment field types, composite component types, and message structures
 /// for one HL7 release or one vendor dialect.
 ///
-/// Build one with [`crate::v2::Version::dictionary`] for a bundled release, or
+/// Build one with [`crate::Version::dictionary`] for a bundled release, or
 /// [`Dictionary::from_json`] for schema mode.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Dictionary {
@@ -115,8 +119,26 @@ pub struct Dictionary {
     version: Option<String>,
     types: BTreeMap<String, Vec<String>>,
     segments: BTreeMap<String, Vec<String>>,
+    cardinality: BTreeMap<String, Vec<Cardinality>>,
     structures: BTreeMap<String, Vec<Item>>,
     aliases: BTreeMap<String, String>,
+}
+
+/// How many times a field may appear, and whether it has to.
+///
+/// A dictionary generated from XML Schema knows a field's `minOccurs` and
+/// `maxOccurs` as well as its data type, and both change what a conversion
+/// should emit: a required field is written even when the message leaves it
+/// empty, so the position stays visible, and a field that cannot repeat
+/// keeps its repetition separator as ordinary text rather than being split
+/// into several elements. Hand-written dictionaries usually say nothing
+/// about either, and then both default to false — see `spec/index.md` §3.2.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Cardinality {
+    /// The schema requires this field to be present.
+    pub required: bool,
+    /// The schema lets this field appear more than once.
+    pub repeats: bool,
 }
 
 impl Dictionary {
@@ -132,12 +154,14 @@ impl Dictionary {
 
     /// Where this dictionary came from, for error and diagnostic messages:
     /// `"v2.5"` for a bundled release, or whatever name the caller gave.
+    #[must_use]
     pub fn name(&self) -> &str {
         &self.name
     }
 
     /// The HL7 release this dictionary declares in its `"version"` member,
     /// if any. A vendor dialect need not declare one.
+    #[must_use]
     pub fn version(&self) -> Option<&str> {
         self.version.as_deref()
     }
@@ -151,6 +175,7 @@ impl Dictionary {
     }
 
     /// True when `data_type` is a composite this dictionary can break apart.
+    #[must_use]
     pub fn is_composite(&self, data_type: &str) -> bool {
         self.types.contains_key(data_type)
     }
@@ -174,6 +199,20 @@ impl Dictionary {
         }
     }
 
+    /// What the schema says about how often `segment`-`field` (1-based) may
+    /// appear.
+    ///
+    /// Defaults to optional and non-repeating, which is both the XML Schema
+    /// default for an unstated `maxOccurs` and the honest answer for a
+    /// dictionary that never mentioned cardinality at all.
+    #[must_use]
+    pub fn field_cardinality(&self, segment: &str, field: usize) -> Cardinality {
+        field
+            .checked_sub(1)
+            .and_then(|index| self.cardinality.get(segment)?.get(index).copied())
+            .unwrap_or_default()
+    }
+
     /// Resolve a [`VARIABLE`] field's real type from the message.
     ///
     /// Only OBX-5 works this way: OBX-2 names the data type of the value in
@@ -181,6 +220,7 @@ impl Dictionary {
     /// carries a coded element. Returns `None` when OBX-2 is empty or names
     /// a type this dictionary does not know as a composite, in which case
     /// the value is treated as a scalar.
+    #[must_use]
     pub fn variable_type(&self, segment: &er7::Segment) -> Option<&str> {
         let named = segment
             .component(2, 1)?
@@ -208,6 +248,7 @@ impl Dictionary {
     /// `CODE_TRIGGER`, then one named `CODE` (which is how `ACK^A01`
     /// reaches `ACK`), then `CODE_TRIGGER` unresolved, so an unknown
     /// message type still gets the name HL7 would give it.
+    #[must_use]
     pub fn structure_id(&self, code: &str, trigger: &str) -> String {
         if code.is_empty() {
             return "HL7Message".to_string();
@@ -252,21 +293,33 @@ impl Dictionary {
     /// when the business adds a field.
     ///
     /// ```
-    /// let dictionary = hl7::v2::Dictionary::from_json(r#"{
+    /// let dictionary = hl7_v2::Dictionary::from_json(r#"{
     ///   "inherits": "2.5",
     ///   "segments": { "ZPD": ["ST", "XPN", "TS"] }
     /// }"#, "acme").unwrap();
     /// assert_eq!(dictionary.field_type("ZPD", 2), Some("XPN"));
     /// assert_eq!(dictionary.field_type("PID", 5), Some("XPN")); // inherited
     /// ```
+    /// # Errors
+    ///
+    /// [`Error::Json`] when the text is not valid JSON, [`Error::Field`] or
+    /// [`Error::Missing`] when a member is the wrong shape or absent, and
+    /// [`Error::UnknownBase`] when `inherits` names a release this crate has
+    /// no dictionary for.
     pub fn from_json(text: &str, name: impl Into<String>) -> Result<Dictionary, Error> {
         Dictionary::from_json_resolving(text, name, |version| {
-            crate::v2::Version::parse(version).map(crate::v2::Version::dictionary)
+            crate::Version::parse(version).map(crate::Version::dictionary)
         })
     }
 
     /// Load a dictionary from JSON, layering it over `base` rather than
     /// over a bundled release. An `"inherits"` member is ignored.
+    /// # Errors
+    ///
+    /// [`Error::Json`] when the text is not valid JSON, [`Error::Field`] or
+    /// [`Error::Missing`] when a member is the wrong shape or absent, and
+    /// [`Error::UnknownBase`] when `inherits` names a release this crate has
+    /// no dictionary for.
     pub fn from_json_over(
         text: &str,
         name: impl Into<String>,
@@ -285,6 +338,12 @@ impl Dictionary {
     /// `resolve`. Used internally to load the bundled releases (where
     /// resolution must not recurse back through the public entry point) and
     /// available to callers who keep their own set of base dictionaries.
+    /// # Errors
+    ///
+    /// [`Error::Json`] when the text is not valid JSON, [`Error::Field`] or
+    /// [`Error::Missing`] when a member is the wrong shape or absent, and
+    /// [`Error::UnknownBase`] when `inherits` names a release this crate has
+    /// no dictionary for.
     pub fn from_json_resolving(
         text: &str,
         name: impl Into<String>,
@@ -331,17 +390,38 @@ impl Dictionary {
                 .as_object()
                 .ok_or_else(|| Error::field(section, "an object", members))?;
             for (key, entry) in members {
-                let table = match section {
-                    "types" => &mut self.types,
-                    _ => &mut self.segments,
+                let is_segments = section == "segments";
+                let table = if is_segments {
+                    &mut self.segments
+                } else {
+                    &mut self.types
                 };
                 if entry.is_null() {
                     table.remove(key);
+                    if is_segments {
+                        self.cardinality.remove(key);
+                    }
                     continue;
                 }
                 let inherited = table.get(key).cloned().unwrap_or_default();
-                let names = positions(entry, inherited, &format!("{section}.{key}"))?;
+                let inherited_cardinality = if is_segments {
+                    self.cardinality.get(key).cloned().unwrap_or_default()
+                } else {
+                    Vec::new()
+                };
+                let (names, cardinality) = positions(
+                    entry,
+                    inherited,
+                    inherited_cardinality,
+                    &format!("{section}.{key}"),
+                )?;
                 table.insert(key.clone(), names);
+                // Composite components do not repeat and are not
+                // individually required, so cardinality is kept for
+                // segments only.
+                if is_segments {
+                    self.cardinality.insert(key.clone(), cardinality);
+                }
             }
         }
         if let Some(aliases) = value.get("aliases") {
@@ -384,22 +464,30 @@ impl Dictionary {
 /// inherited list alone — `{"12": "ID"}` is how v2.1 says "MSH-12 is a
 /// plain ID here" without restating the other twenty fields, and without
 /// claiming anything about which fields that release did or did not have.
-fn positions(value: &Value, inherited: Vec<String>, path: &str) -> Result<Vec<String>, Error> {
+///
+/// Either form may write a position as an object rather than a bare name
+/// when the schema says more than the type — see [`entry_of`].
+fn positions(
+    value: &Value,
+    inherited: Vec<String>,
+    inherited_cardinality: Vec<Cardinality>,
+    path: &str,
+) -> Result<(Vec<String>, Vec<Cardinality>), Error> {
     if let Some(list) = value.as_array() {
-        return list
-            .iter()
-            .enumerate()
-            .map(|(index, item)| {
-                item.as_str().map(str::to_string).ok_or_else(|| {
-                    Error::field(&format!("{path}[{index}]"), "a data type name", item)
-                })
-            })
-            .collect();
+        let mut names = Vec::with_capacity(list.len());
+        let mut cardinality = Vec::with_capacity(list.len());
+        for (index, item) in list.iter().enumerate() {
+            let (name, card) = entry_of(item, &format!("{path}[{index}]"))?;
+            names.push(name);
+            cardinality.push(card);
+        }
+        return Ok((names, cardinality));
     }
     let members = value
         .as_object()
         .ok_or_else(|| Error::field(path, "an array, or an object of position overrides", value))?;
     let mut names = inherited;
+    let mut cardinality = inherited_cardinality;
     for (key, entry) in members {
         let path = format!("{path}.{key}");
         let position: usize = key
@@ -411,15 +499,55 @@ fn positions(value: &Value, inherited: Vec<String>, path: &str) -> Result<Vec<St
                 expected: "a 1-based position number".to_string(),
                 found: format!("{key:?}"),
             })?;
-        let name = entry
-            .as_str()
-            .ok_or_else(|| Error::field(&path, "a data type name", entry))?;
+        let (name, card) = entry_of(entry, &path)?;
         if names.len() < position {
             names.resize(position, UNSTATED.to_string());
         }
-        names[position - 1] = name.to_string();
+        if cardinality.len() < position {
+            cardinality.resize(position, Cardinality::default());
+        }
+        names[position - 1] = name;
+        cardinality[position - 1] = card;
     }
-    Ok(names)
+    // A sparse delta may state a position past the end of what it inherited,
+    // and the two tables are indexed together, so they stay the same length.
+    cardinality.resize(names.len(), Cardinality::default());
+    Ok((names, cardinality))
+}
+
+/// Read one position: a bare data type name, or an object that also carries
+/// what the schema said about how often the field may appear.
+///
+/// `"XPN"` and `{"type": "XPN"}` mean the same thing. The object form exists
+/// for dictionaries generated from XML Schema, which know `minOccurs` and
+/// `maxOccurs` as well: `{"type": "XTN", "repeats": true}`.
+fn entry_of(value: &Value, path: &str) -> Result<(String, Cardinality), Error> {
+    if let Some(name) = value.as_str() {
+        return Ok((name.to_string(), Cardinality::default()));
+    }
+    // Anything that is neither a name nor an object cannot be either form,
+    // so it is reported against the commoner one.
+    if value.as_object().is_none() {
+        return Err(Error::field(path, "a data type name", value));
+    }
+    let name = value
+        .get("type")
+        .ok_or_else(|| Error::missing(&format!("{path}.type")))?
+        .as_str()
+        .ok_or_else(|| {
+            Error::field(
+                &format!("{path}.type"),
+                "a data type name",
+                value.get("type").unwrap_or(value),
+            )
+        })?;
+    Ok((
+        name.to_string(),
+        Cardinality {
+            required: flag(value, "required", path)?,
+            repeats: flag(value, "repeats", path)?,
+        },
+    ))
 }
 
 /// Read a structure's item list: an array of segment names, segment
@@ -547,7 +675,7 @@ impl std::error::Error for Error {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::v2::Version;
+    use crate::Version;
 
     #[test]
     fn reads_the_base_release() {
@@ -658,6 +786,83 @@ mod tests {
         assert_eq!(
             dictionary.variable_type(message.segment("OBX").unwrap()),
             None
+        );
+    }
+
+    #[test]
+    fn a_field_may_state_its_cardinality_as_well_as_its_type() {
+        let dictionary = Dictionary::from_json(
+            r#"{"segments": {"PID": [
+                 "SI",
+                 {"type": "CX", "required": true},
+                 {"type": "XTN", "repeats": true},
+                 {"type": "ST", "required": true, "repeats": true}
+               ]}}"#,
+            "x",
+        )
+        .unwrap();
+        // The bare name and the object form name the same data type.
+        assert_eq!(dictionary.field_type("PID", 1), Some("SI"));
+        assert_eq!(dictionary.field_type("PID", 2), Some("CX"));
+        assert_eq!(
+            dictionary.field_cardinality("PID", 1),
+            Cardinality::default()
+        );
+        assert_eq!(
+            dictionary.field_cardinality("PID", 2),
+            Cardinality {
+                required: true,
+                repeats: false
+            }
+        );
+        assert_eq!(
+            dictionary.field_cardinality("PID", 3),
+            Cardinality {
+                required: false,
+                repeats: true
+            }
+        );
+        assert_eq!(
+            dictionary.field_cardinality("PID", 4),
+            Cardinality {
+                required: true,
+                repeats: true
+            }
+        );
+        // Off the end, and a segment that was never mentioned, both default.
+        assert_eq!(
+            dictionary.field_cardinality("PID", 99),
+            Cardinality::default()
+        );
+        assert_eq!(
+            dictionary.field_cardinality("ZZZ", 1),
+            Cardinality::default()
+        );
+        assert_eq!(
+            dictionary.field_cardinality("PID", 0),
+            Cardinality::default()
+        );
+    }
+
+    #[test]
+    fn cardinality_layers_and_is_removed_like_everything_else() {
+        // A sparse override states one position and leaves the rest alone.
+        let dictionary = Dictionary::from_json(
+            r#"{"inherits": "2.5", "segments": {"PID": {"13": {"type": "XTN", "repeats": true}}}}"#,
+            "x",
+        )
+        .unwrap();
+        assert!(dictionary.field_cardinality("PID", 13).repeats);
+        assert!(!dictionary.field_cardinality("PID", 5).repeats);
+        assert_eq!(dictionary.field_type("PID", 5), Some("XPN")); // still inherited
+
+        // Removing the segment removes what was said about its fields too.
+        let dictionary =
+            Dictionary::from_json(r#"{"inherits": "2.5", "segments": {"PID": null}}"#, "x")
+                .unwrap();
+        assert_eq!(
+            dictionary.field_cardinality("PID", 13),
+            Cardinality::default()
         );
     }
 

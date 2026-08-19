@@ -10,14 +10,16 @@ A Rust crate + CLI that reads, navigates, validates, modifies, and writes
 HL7 v2 messages in three modes: generic, schema-based, and struct-based.
 
 It is the **dictionary layer** of the `hl7-rust` family, and that is the
-whole point of its existence:
+whole point of its existence. Published standalone as `hl7-v2` (crate name
+`hl7_v2` in code); most users reach it through the `hl7` umbrella crate's
+`hl7::v2` re-export instead:
 
 ```
 er7            the ER7 encoding (delimiters, escapes, paths, rendering)
   |
-hl7-rust       this crate (imported as `hl7`, API in `hl7::v2`):
-               releases 2.1-2.9, data types, message structures,
-               three modes, mutation, validation
+hl7-v2         this crate (`hl7_v2::...` directly, or `hl7::v2::...` via
+               the umbrella): releases 2.1-2.9, data types, message
+               structures, three modes, mutation, validation
   |
   +-- hl7-v2-mllp    transport (MLLP over TCP)
   +-- hl7-v2-from-er7-into-json / -into-xml / from-json / from-xml
