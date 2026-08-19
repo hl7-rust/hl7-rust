@@ -19,11 +19,11 @@ hl7-2                   this crate: the HL7 v2 dictionary — releases
                          2.1-2.9, data types, message structures; three
                          modes; mutation; validation
   |
-  +-- hl7-v2-mllp                  transport (MLLP over TCP)
-  +-- hl7-v2-from-er7-into-json    format conversions
-  +-- hl7-v2-from-er7-into-xml
-  +-- hl7-v2-from-json-into-er7
-  +-- hl7-v2-from-xml-into-er7
+  +-- hl7-2-mllp                  transport (MLLP over TCP)
+  +-- hl7-2-from-er7-into-json    format conversions
+  +-- hl7-2-from-er7-into-xml
+  +-- hl7-2-from-json-into-er7
+  +-- hl7-2-from-xml-into-er7
 ```
 
 **This crate is published standalone as `hl7-2`.** Most users get it
@@ -281,7 +281,7 @@ One: [`er7`](https://crates.io/crates/er7), which has none of its own. The
 JSON reader that loads dictionaries is hand-written here for the same
 reason the sibling crates hand-write their writers — in a domain where
 dependency trees get audited, a two-crate tree is worth a few hundred
-lines. Enabling the `derive` feature adds `hl7-v2-derive`, and with it
+lines. Enabling the `derive` feature adds `hl7-2-derive`, and with it
 `syn` and `quote`, for callers who want the macros.
 
 ## Install
@@ -299,13 +299,13 @@ umbrella crate (`cargo add hl7`), which re-exports this crate as `hl7::v2`.
 
 - [`spec/index.md`](spec/index.md) — the normative specification
 - [`er7`](https://github.com/hl7-rust/er7) — the ER7 encoding layer
-- [`hl7-v2-derive`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-derive) — the derive macros
-- [`hl7-v2-mllp`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-mllp) — MLLP: sending and
+- [`hl7-2-derive`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-derive) — the derive macros
+- [`hl7-2-mllp`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-mllp) — MLLP: sending and
   receiving these messages over TCP
-- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json),
-  [`-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml),
-  [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7),
-  [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7)
+- [`hl7-2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-json),
+  [`-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-xml),
+  [`hl7-2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-json-into-er7),
+  [`hl7-2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-xml-into-er7)
   — format conversions
 
 ## License

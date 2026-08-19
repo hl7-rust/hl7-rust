@@ -49,25 +49,43 @@
 //! a typed message. `spec/index.md` is the exact, current statement of
 //! scope; where this comment and that document disagree, the document is
 //! right.
+//!
+//! For a stable, long-lived interaction, [`typed::FromElement`] — derived
+//! with `#[derive(FromElement)]` behind the `derive` feature
+//! ([`hl7-3-derive`](https://crates.io/crates/hl7-3-derive)) — maps a
+//! struct's fields onto an element's attributes and children once, the way
+//! `hl7-2`'s struct mode does for v2 paths. See [`typed`] for the
+//! attributes and an example.
 
 #![warn(missing_docs, clippy::pedantic)]
 
 pub mod message;
 pub mod rim;
+pub mod typed;
 pub mod vocabulary;
 
 pub use message::{ControlAct, Message};
+pub use typed::{FromElement, FromElementValue};
 pub use vocabulary::{Cd, Ii};
+
+/// The `#[derive(FromElement)]` macro, re-exported so the `hl7-3-derive`
+/// crate does not have to be named as a dependency. Requires the `derive`
+/// feature. (Same name as the [`typed::FromElement`] trait, deliberately —
+/// like `hl7-2`'s `FromHl7`, Rust keeps a derive macro and a trait of the
+/// same name in separate namespaces, so `#[derive(FromElement)]` and `impl
+/// FromElement` never conflict.)
+#[cfg(feature = "derive")]
+pub use hl7_3_derive::FromElement;
 
 /// The XML reader this crate reads HL7 v3 messages through, re-exported so
 /// callers can name [`xml::Element`] without adding their own dependency.
-pub use hl7_v2_xml_lite_helper as xml;
+pub use hl7_2_xml_lite_helper as xml;
 
 /// What can go wrong.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Error {
     /// The input is not well-formed XML.
-    Xml(hl7_v2_xml_lite_helper::Error),
+    Xml(hl7_2_xml_lite_helper::Error),
 }
 
 impl std::fmt::Display for Error {
@@ -80,8 +98,8 @@ impl std::fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-impl From<hl7_v2_xml_lite_helper::Error> for Error {
-    fn from(error: hl7_v2_xml_lite_helper::Error) -> Error {
+impl From<hl7_2_xml_lite_helper::Error> for Error {
+    fn from(error: hl7_2_xml_lite_helper::Error) -> Error {
         Error::Xml(error)
     }
 }

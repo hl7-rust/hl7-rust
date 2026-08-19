@@ -93,10 +93,10 @@ pub use validate::{Diagnostic, Severity};
 pub use version::Version;
 
 /// The `#[derive(FromHl7)]` and `#[derive(ToHl7)]` macros, re-exported so
-/// the `hl7-v2-derive` crate does not have to be named as a dependency.
+/// the `hl7-2-derive` crate does not have to be named as a dependency.
 /// Requires the `derive` feature.
 #[cfg(feature = "derive")]
-pub use hl7_v2_derive::{FromHl7, ToHl7};
+pub use hl7_2_derive::{FromHl7, ToHl7};
 
 /// The ER7 encoding layer this crate is built on, re-exported so callers
 /// can name [`er7::Message`], [`er7::Separators`], [`er7::Path`] and the

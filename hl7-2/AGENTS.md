@@ -21,8 +21,8 @@ hl7-2         this crate (`hl7_2::...` directly, or `hl7::v2::...` via
                the umbrella): releases 2.1-2.9, data types, message
                structures, three modes, mutation, validation
   |
-  +-- hl7-v2-mllp    transport (MLLP over TCP)
-  +-- hl7-v2-from-er7-into-json / -into-xml / from-json / from-xml
+  +-- hl7-2-mllp    transport (MLLP over TCP)
+  +-- hl7-2-from-er7-into-json / -into-xml / from-json / from-xml
 ```
 
 Anything about *how ER7 is written* belongs in `er7`, not here. Anything
@@ -71,7 +71,7 @@ samples/acme.json  A vendor dialect, for the README's schema-mode example
 spec/index.md      Normative specification (source of truth).
 ```
 
-The derive macros live in the sibling crate `hl7-v2-derive`, behind this
+The derive macros live in the sibling crate `hl7-2-derive`, behind this
 crate's optional `derive` feature, so the default build keeps exactly one
 dependency.
 
@@ -163,7 +163,7 @@ When adding to it:
 
 - Becoming a conformance validator: HL7 vocabulary tables, field lengths,
   and conformance profiles are out of scope (`spec/index.md` §11).
-- Transport: MLLP framing belongs to `hl7-v2-mllp`; files and queues to the
+- Transport: MLLP framing belongs to `hl7-2-mllp`; files and queues to the
   caller.
 - Converting to JSON or XML — that is what the four sibling crates do.
   `src/json.rs` reads dictionaries; it is not a message renderer, and it

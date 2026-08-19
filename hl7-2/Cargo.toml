@@ -22,8 +22,8 @@ er7 = "0.1.0"
 # The `#[derive(FromHl7)]` / `#[derive(ToHl7)]` macros for struct mode. Off
 # by default so the dependency-free build stays dependency-free; enabling
 # `derive` pulls in syn and quote through this crate only.
-hl7-v2-derive = { version = "0.1.2", path = "../hl7-v2-derive", optional = true }
+hl7-2-derive = { version = "0.1.2", path = "../hl7-2-derive", optional = true }
 
 [features]
 default = []
-derive = ["dep:hl7-v2-derive"]
+derive = ["dep:hl7-2-derive"]

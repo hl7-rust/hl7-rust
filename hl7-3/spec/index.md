@@ -15,7 +15,7 @@ test, or a code change that isn't reflected here, is a bug.
 ## 0. Relationship to the rest of the family
 
 ```
-hl7-v2-xml-lite-helper    the XML reader this crate reads through
+hl7-2-xml-lite-helper    the XML reader this crate reads through
   |
 hl7-3                     this crate: RIM backbone classes, the II and CD
                           data types, the three-level message envelope
@@ -23,11 +23,11 @@ hl7-3                     this crate: RIM backbone classes, the II and CD
 hl7                       the umbrella crate — hl7::v3 re-exports this
 ```
 
-Unlike the `hl7-v2` family, HL7 v3 has no sibling transport or format
+Unlike the `hl7-2` family, HL7 v3 has no sibling transport or format
 crates yet — no `hl7-3-mllp`, nothing analogous to
-`hl7-v2-from-er7-into-json`. HL7 v3 is XML natively, so there is no
+`hl7-2-from-er7-into-json`. HL7 v3 is XML natively, so there is no
 encoding-layer crate underneath this one the way `er7` sits under
-`hl7-v2`; `hl7-v2-xml-lite-helper` fills that role instead.
+`hl7-v2`; `hl7-2-xml-lite-helper` fills that role instead.
 
 ## 1. Scope — read this before filing anything as a bug
 
@@ -66,11 +66,11 @@ Deliberately out of scope, for now:
   narrative blocks) is its own thing, not modeled here.
 - **A `V3` equivalent of `hl7-2`'s CLI.** No binary ships with this crate.
 
-## 2. The XML layer (the [`hl7-v2-xml-lite-helper`] crate)
+## 2. The XML layer (the [`hl7-2-xml-lite-helper`] crate)
 
-[`hl7-v2-xml-lite-helper`]: https://crates.io/crates/hl7-v2-xml-lite-helper
+[`hl7-2-xml-lite-helper`]: https://crates.io/crates/hl7-2-xml-lite-helper
 
-HL7 v3 is XML; this crate reads it through `hl7-v2-xml-lite-helper`,
+HL7 v3 is XML; this crate reads it through `hl7-2-xml-lite-helper`,
 re-exported as [`xml`](../src/lib.rs) so callers can name `xml::Element`
 without adding their own dependency. That crate's own rules apply
 here — most importantly, namespace prefixes are matched by local name only
@@ -158,7 +158,7 @@ Message                          level 1: transport wrapper
     common shape (`<subject><registrationEvent>...`), covering the
     single-subject case. A message with more than one `subject` (a batch
     of results in one control act) only yields the first; reading the rest
-    needs the raw `xml::Element` tree via `hl7-v2-xml-lite-helper::parse`
+    needs the raw `xml::Element` tree via `hl7-2-xml-lite-helper::parse`
     directly, not this crate's `Message` shape.
 
 ### 5.2 Nothing here fails on a missing wrapper

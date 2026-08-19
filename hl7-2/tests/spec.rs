@@ -13,7 +13,7 @@
 use std::collections::BTreeSet;
 use std::fs;
 
-/// Every test function defined in this crate and in `hl7-v2-derive`, named
+/// Every test function defined in this crate and in `hl7-2-derive`, named
 /// the way `cargo test` prints it: `v2::message::tests::name` for a unit
 /// test, bare `name` for an integration test.
 fn defined_tests() -> BTreeSet<String> {
@@ -23,8 +23,8 @@ fn defined_tests() -> BTreeSet<String> {
         ("src", Some("")),
         ("src/v2", Some("v2::")),
         ("tests", None),
-        ("../hl7-v2-derive/src", Some("")),
-        ("../hl7-v2-derive/tests", None),
+        ("../hl7-2-derive/src", Some("")),
+        ("../hl7-2-derive/tests", None),
     ];
     for (directory, prefix) in sources {
         let Ok(entries) = fs::read_dir(directory) else {

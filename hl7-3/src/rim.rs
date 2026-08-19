@@ -25,14 +25,14 @@
 //!
 //! Every attribute below is read straight off the matching XML element or
 //! attribute by [`crate::message::parse`]'s domain-payload walk, or can be
-//! read directly from a [`hl7_v2_xml_lite_helper::Element`] with the
+//! read directly from a [`hl7_2_xml_lite_helper::Element`] with the
 //! `from_element` methods here. Nothing here validates that a `classCode`
 //! or `moodCode` is one of the values its vocabulary domain actually
 //! allows — see `spec/index.md` §6 for why that is future work, not a
 //! missing check.
 
 use crate::vocabulary::{Cd, Ii};
-use hl7_v2_xml_lite_helper::Element;
+use hl7_2_xml_lite_helper::Element;
 
 /// Something that happened, is happening, or is intended to happen.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -264,7 +264,7 @@ mod tests {
 
     #[test]
     fn act_reads_class_mood_id_code_status_and_time() {
-        let element = hl7_v2_xml_lite_helper::parse(
+        let element = hl7_2_xml_lite_helper::parse(
             r#"<observation classCode="OBS" moodCode="EVN">
                  <id root="2.16.840.1.113883.19.5" extension="1"/>
                  <code code="8302-2" codeSystem="2.16.840.1.113883.6.1" displayName="Height"/>
@@ -286,7 +286,7 @@ mod tests {
     #[test]
     fn act_with_no_optional_children_still_reads() {
         let element =
-            hl7_v2_xml_lite_helper::parse(r#"<act classCode="ACT" moodCode="EVN"/>"#).unwrap();
+            hl7_2_xml_lite_helper::parse(r#"<act classCode="ACT" moodCode="EVN"/>"#).unwrap();
         let act = Act::from_element(&element);
         assert_eq!(act.id, Vec::new());
         assert_eq!(act.code, None);
@@ -297,7 +297,7 @@ mod tests {
 
     #[test]
     fn entity_reads_class_determiner_and_name() {
-        let element = hl7_v2_xml_lite_helper::parse(
+        let element = hl7_2_xml_lite_helper::parse(
             r#"<representedOrganization classCode="ORG" determinerCode="INSTANCE">
                  <id root="2.16.840.1.113883.19.5"/>
                  <name>Acme Clinic</name>
@@ -312,7 +312,7 @@ mod tests {
 
     #[test]
     fn role_reads_class_and_status() {
-        let element = hl7_v2_xml_lite_helper::parse(
+        let element = hl7_2_xml_lite_helper::parse(
             r#"<patient classCode="PAT">
                  <id root="2.16.840.1.113883.19.5" extension="12345"/>
                  <statusCode code="active"/>
@@ -327,7 +327,7 @@ mod tests {
 
     #[test]
     fn participation_reads_type_and_function() {
-        let element = hl7_v2_xml_lite_helper::parse(
+        let element = hl7_2_xml_lite_helper::parse(
             r#"<author typeCode="AUT"><time value="20260101"/></author>"#,
         )
         .unwrap();
@@ -339,7 +339,7 @@ mod tests {
     #[test]
     fn act_relationship_reads_type_and_inversion() {
         let element =
-            hl7_v2_xml_lite_helper::parse(r#"<component typeCode="COMP" inversionInd="true"/>"#)
+            hl7_2_xml_lite_helper::parse(r#"<component typeCode="COMP" inversionInd="true"/>"#)
                 .unwrap();
         let relationship = ActRelationship::from_element(&element);
         assert_eq!(relationship.type_code, "COMP");
@@ -348,7 +348,7 @@ mod tests {
 
     #[test]
     fn role_link_reads_type() {
-        let element = hl7_v2_xml_lite_helper::parse(r#"<roleLink typeCode="REPL"/>"#).unwrap();
+        let element = hl7_2_xml_lite_helper::parse(r#"<roleLink typeCode="REPL"/>"#).unwrap();
         assert_eq!(RoleLink::from_element(&element).type_code, "REPL");
     }
 }

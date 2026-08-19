@@ -36,7 +36,7 @@ There is no `spec/index.md` here — this crate is too thin to need one.
   wiring up a `pub use`, it almost certainly belongs in the crate being
   re-exported instead.
 - The `derive` feature does nothing but forward to `hl7-2`'s own `derive`
-  feature (which in turn pulls in `hl7-v2-derive`). Don't grow it into
+  feature (which in turn pulls in `hl7-2-derive`). Don't grow it into
   anything else.
 - No tests of its own beyond the doctest in the crate-level doc comment —
   that's intentional, not a gap. Behavior gets tested where it lives, in

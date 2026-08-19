@@ -11,10 +11,10 @@ types, and the three-level message envelope for HL7 v3 — **a foundation,
 not a complete implementation**. Read `spec/index.md` §1 before assuming
 anything is missing is a bug; it almost certainly is documented scope.
 
-Unlike the `hl7-v2` family, this crate has no sibling transport or format
-crates (no `hl7-3-mllp`, nothing like `hl7-v2-from-er7-into-json`) and no
+Unlike the `hl7-2` family, this crate has no sibling transport or format
+crates (no `hl7-3-mllp`, nothing like `hl7-2-from-er7-into-json`) and no
 encoding-layer crate underneath it — HL7 v3 is XML natively, so
-`hl7-v2-xml-lite-helper` (a sibling crate, not something this one wraps in
+`hl7-2-xml-lite-helper` (a sibling crate, not something this one wraps in
 its own module) fills the role `er7` plays for `hl7-2`.
 
 See `README.md` for the user-facing pitch and `spec/index.md` for the
@@ -40,11 +40,11 @@ than one module's types together (nothing has, so far).
 
 ## Working conventions
 
-- **Rust edition 2024.** One dependency: `hl7-v2-xml-lite-helper`. Don't
+- **Rust edition 2024.** One dependency: `hl7-2-xml-lite-helper`. Don't
   add another without discussion — the whole reason this crate reads
   through the shared helper instead of writing its own XML parser is to
-  keep this crate's audit surface as small as `hl7-v2-soap`'s or
-  `hl7-v2-from-xml-into-er7`'s.
+  keep this crate's audit surface as small as `hl7-2-soap`'s or
+  `hl7-2-from-xml-into-er7`'s.
 - **Every `from_element` reader is infallible and total.** A missing
   optional attribute or child reads as `None` or an empty `Vec`, never a
   panic and never an error — matching `hl7-2` generic mode's "degrade,

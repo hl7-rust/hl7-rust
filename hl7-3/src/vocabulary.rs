@@ -50,7 +50,7 @@ impl Ii {
     /// `None` when the element has no `root` — an `II` with no root names
     /// nothing.
     #[must_use]
-    pub(crate) fn from_element(element: &hl7_v2_xml_lite_helper::Element) -> Option<Ii> {
+    pub(crate) fn from_element(element: &hl7_2_xml_lite_helper::Element) -> Option<Ii> {
         let root = element.attribute("root")?.to_string();
         let extension = element.attribute("extension").map(str::to_string);
         Some(Ii { root, extension })
@@ -62,7 +62,7 @@ impl Cd {
     /// attributes. `None` when the element has no `code` — a `CD` with no
     /// code names nothing.
     #[must_use]
-    pub(crate) fn from_element(element: &hl7_v2_xml_lite_helper::Element) -> Option<Cd> {
+    pub(crate) fn from_element(element: &hl7_2_xml_lite_helper::Element) -> Option<Cd> {
         let code = element.attribute("code")?.to_string();
         let code_system = element.attribute("codeSystem").map(str::to_string);
         let display_name = element.attribute("displayName").map(str::to_string);
@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn ii_reads_root_and_extension() {
-        let element = hl7_v2_xml_lite_helper::parse(
+        let element = hl7_2_xml_lite_helper::parse(
             r#"<id root="2.16.840.1.113883.19.5" extension="12345"/>"#,
         )
         .unwrap();
@@ -92,20 +92,20 @@ mod tests {
     #[test]
     fn ii_extension_is_optional() {
         let element =
-            hl7_v2_xml_lite_helper::parse(r#"<id root="2.16.840.1.113883.19.5"/>"#).unwrap();
+            hl7_2_xml_lite_helper::parse(r#"<id root="2.16.840.1.113883.19.5"/>"#).unwrap();
         let ii = Ii::from_element(&element).unwrap();
         assert_eq!(ii.extension, None);
     }
 
     #[test]
     fn ii_with_no_root_is_none() {
-        let element = hl7_v2_xml_lite_helper::parse(r#"<id extension="12345"/>"#).unwrap();
+        let element = hl7_2_xml_lite_helper::parse(r#"<id extension="12345"/>"#).unwrap();
         assert_eq!(Ii::from_element(&element), None);
     }
 
     #[test]
     fn cd_reads_code_system_and_display_name() {
-        let element = hl7_v2_xml_lite_helper::parse(
+        let element = hl7_2_xml_lite_helper::parse(
             r#"<code code="OBS" codeSystem="2.16.840.1.113883.5.6" displayName="Observation"/>"#,
         )
         .unwrap();
@@ -117,8 +117,7 @@ mod tests {
 
     #[test]
     fn cd_with_no_code_is_none() {
-        let element =
-            hl7_v2_xml_lite_helper::parse(r#"<code displayName="Observation"/>"#).unwrap();
+        let element = hl7_2_xml_lite_helper::parse(r#"<code displayName="Observation"/>"#).unwrap();
         assert_eq!(Cd::from_element(&element), None);
     }
 }

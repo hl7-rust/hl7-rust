@@ -8,8 +8,8 @@
 //!
 //! Node names follow the same rules as the sibling conversion crates, so a
 //! path through this tree reads the same as a key in
-//! `hl7-v2-from-er7-into-json`'s output or an element in
-//! `hl7-v2-from-er7-into-xml`'s:
+//! `hl7-2-from-er7-into-json`'s output or an element in
+//! `hl7-2-from-er7-into-xml`'s:
 //!
 //! | level | known type | unknown type |
 //! |---|---|---|

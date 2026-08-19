@@ -6,7 +6,7 @@
 //! keeps this crate's runtime dependency list at exactly one entry
 //! (`er7`, which itself has none), which is worth more in a domain where
 //! dependency trees get audited than the few hundred lines it costs. The
-//! sibling `hl7-v2-from-er7-into-json` crate hand-rolls its JSON *writer*
+//! sibling `hl7-2-from-er7-into-json` crate hand-rolls its JSON *writer*
 //! for the same reason; this is the mirror of it.
 //!
 //! The reader is deliberately plain: it accepts RFC 8259 JSON, keeps object

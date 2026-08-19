@@ -10,7 +10,7 @@ Status: describes the behavior of `hl7-2` (reached as `hl7_2::...` directly,
 or `hl7::v2::...` through the `hl7` umbrella crate) as implemented. Every rule below
 is exercised by a unit test (next to the code that implements it, in that
 module's `#[cfg(test)]` block) or an integration test
-(`tests/integration.rs`, `../hl7-v2-derive/tests/derive.rs`). A change to
+(`tests/integration.rs`, `../hl7-2-derive/tests/derive.rs`). A change to
 this document that isn't backed by a test, or a code change that isn't
 reflected here, is a bug.
 
@@ -26,26 +26,26 @@ hl7-2                   this crate: the HL7 v2 dictionary — releases
                          2.1-2.9, data types, message structures; three
                          parsing modes; mutation; validation
   |
-  +-- hl7-v2-mllp                  transport (MLLP over TCP)
-  +-- hl7-v2-from-er7-into-json    format conversions
-  +-- hl7-v2-from-er7-into-xml
-  +-- hl7-v2-from-json-into-er7
-  +-- hl7-v2-from-xml-into-er7
+  +-- hl7-2-mllp                  transport (MLLP over TCP)
+  +-- hl7-2-from-er7-into-json    format conversions
+  +-- hl7-2-from-er7-into-xml
+  +-- hl7-2-from-json-into-er7
+  +-- hl7-2-from-xml-into-er7
 
-hl7-v2-from-xsd-into-json-dictionary     writes the dictionaries this
+hl7-2-from-xsd-into-json-dictionary     writes the dictionaries this
                                          crate reads, from HL7 v2.xml XSDs
 ```
 
 Anything about *how ER7 is written* belongs in `er7`, not here (§2).
 Anything about *what a segment or field means* belongs here.
-`hl7-v2-from-er7-into-xml` reads its data types and message structures from
+`hl7-2-from-er7-into-xml` reads its data types and message structures from
 this crate as of its 0.5.0; the other three conversion crates still carry
 their own copies of the v2.5 tables. This crate's `schemas/v2.5.json` was
 generated from those copies and is table-for-table identical to them, which
 is what lets each of them move across in turn.
 
 A dictionary need not be hand-written or bundled:
-`hl7-v2-from-xsd-into-json-dictionary` generates one from a directory of HL7
+`hl7-2-from-xsd-into-json-dictionary` generates one from a directory of HL7
 v2.xml schemas, which is how a site that has schemas rather than
 dictionaries gets a dialect this crate can read (§3.2.1).
 
@@ -78,7 +78,7 @@ and, through a dictionary for the release the sender speaks:
 
 Out of scope: transport, HL7 vocabulary tables, conformance profiles, and
 conversion to JSON or XML. Those have owners of their own —
-`hl7-v2-mllp` frames messages for a network, and the four conversion
+`hl7-2-mllp` frames messages for a network, and the four conversion
 crates translate formats — which is why this crate can be about meaning
 alone.
 
@@ -177,7 +177,7 @@ both change what a faithful conversion emits: a **required** field is written
 even when the message leaves it empty, so the position stays visible to a
 validator, and a field that does **not** repeat keeps its repetition
 separator as ordinary text instead of being split into several elements
-(`hl7-v2-from-er7-into-xml`, its `spec/index.md` §4).
+(`hl7-2-from-er7-into-xml`, its `spec/index.md` §4).
 
 The exact upper bound is not modelled — "at most 10" and "unbounded" both
 read as `"repeats": true`, because nothing downstream distinguishes them.
@@ -185,7 +185,7 @@ Cardinality is kept for `segments` only: composite components neither repeat
 nor are individually required, so an object form under `types` states a type
 and nothing more.
 
-The `hl7-v2-from-xsd-into-json-dictionary` crate generates this form from a
+The `hl7-2-from-xsd-into-json-dictionary` crate generates this form from a
 directory of HL7 v2.xml XSD files, which is how a site with schemas rather
 than dictionaries gets one.
 
@@ -324,7 +324,7 @@ A schema that inherits a bundled release gets the standard segments for
 free and states only its dialect. A schema that inherits nothing describes
 the world by itself, and everything it omits reads positionally (§4.2).
 
-## 6. Struct mode (`src/typed.rs`, `hl7-v2-derive`)
+## 6. Struct mode (`src/typed.rs`, `hl7-2-derive`)
 
 `FromHl7` reads a caller's type from a message; `ToHl7` writes one back.
 `#[derive(FromHl7)]` and `#[derive(ToHl7)]` (feature `derive`) generate
@@ -493,7 +493,7 @@ are ordinary readings with a diagnostic attached.
   conformance profiles, no cardinality beyond what a structure states.
 - **Grouping is all-or-nothing** (§4.5), including for messages carrying
   Z-segments.
-- **No transport.** MLLP framing is `hl7-v2-mllp`'s; files and queues are
+- **No transport.** MLLP framing is `hl7-2-mllp`'s; files and queues are
   the caller's.
 - **`Node::text` decodes escape sequences** that stand for characters;
   formatting escapes (`\.br\`, `\H\`) are left as sent, as `er7` leaves
@@ -538,7 +538,7 @@ is a rule that has quietly changed.
 
 Unit tests live in their module's `#[cfg(test)] mod tests`; integration
 tests in `tests/integration.rs`; derive tests in
-`../hl7-v2-derive/tests/derive.rs`.
+`../hl7-2-derive/tests/derive.rs`.
 
 | § | rule | test |
 |---|---|---|
@@ -576,6 +576,6 @@ tests in `tests/integration.rs`; derive tests in
 
 - HL7 v2 standards: <https://www.hl7.org/implement/standards/>
 - `er7` crate (the encoding layer): <https://crates.io/crates/er7>
-- `hl7-v2-derive` (the macros): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-derive>
-- `hl7-v2-mllp` (MLLP transport): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-mllp>
+- `hl7-2-derive` (the macros): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-derive>
+- `hl7-2-mllp` (MLLP transport): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-mllp>
 - Sibling conversion crates: <https://github.com/hl7-rust>

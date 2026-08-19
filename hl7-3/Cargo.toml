@@ -21,4 +21,12 @@ include = [
 # The XML reader this crate reads HL7 v3 messages through — HL7 v3 is XML,
 # unlike v2's pipe-delimited ER7. Same shared, dependency-free reader the
 # v2.xml-facing crates use; see spec/index.md §2.
-hl7-v2-xml-lite-helper = { version = "0.1", path = "../hl7-v2-xml-lite-helper" }
+hl7-2-xml-lite-helper = { version = "0.1", path = "../hl7-2-xml-lite-helper" }
+# The `#[derive(FromElement)]` macro for struct mode. Off by default so the
+# dependency-free build stays dependency-free; enabling `derive` pulls in
+# syn and quote through this crate only.
+hl7-3-derive = { version = "0.1.0", path = "../hl7-3-derive", optional = true }
+
+[features]
+default = []
+derive = ["dep:hl7-3-derive"]

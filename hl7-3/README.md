@@ -83,7 +83,7 @@ let element = hl7_3::xml::parse(
 let act = Act::from_element(&element);
 assert_eq!(act.class_code, "OBS");
 assert_eq!(act.mood_code, "EVN");
-# Ok::<(), hl7_v2_xml_lite_helper::Error>(())
+# Ok::<(), hl7_2_xml_lite_helper::Error>(())
 ```
 
 `Entity`, `Role`, `Participation`, `ActRelationship`, and `RoleLink` all
@@ -92,7 +92,7 @@ which attributes and children each reads.
 
 ## Dependencies
 
-One: [`hl7-v2-xml-lite-helper`](https://crates.io/crates/hl7-v2-xml-lite-helper),
+One: [`hl7-2-xml-lite-helper`](https://crates.io/crates/hl7-2-xml-lite-helper),
 the small dependency-free XML reader the `hl7-2`-family XML-facing crates
 also use — HL7 v3 is XML natively, unlike v2's pipe-delimited ER7, so this
 crate reads through the XML layer instead of `er7`.
@@ -104,7 +104,7 @@ crate reads through the XML layer instead of `er7`.
   `hl7::v3`
 - [`hl7-2`](https://crates.io/crates/hl7-2) — HL7 v2, this crate's sibling
   standard
-- [`hl7-v2-xml-lite-helper`](https://crates.io/crates/hl7-v2-xml-lite-helper) —
+- [`hl7-2-xml-lite-helper`](https://crates.io/crates/hl7-2-xml-lite-helper) —
   the XML reader this crate is built on
 
 ## License

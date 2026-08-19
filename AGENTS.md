@@ -8,13 +8,14 @@ this repository.
 A Cargo workspace holding every crate in the HL7-for-Rust project — see
 `README.md` for the crate table and how they depend on each other. Most
 crate directories are former standalone repositories, merged in with
-`git subtree` so their commit history survived the move (`hl7-3` is the
-exception so far — born directly in this workspace, no prior repo). Each
-crate has its own `README.md`, `AGENTS.md`, `CLAUDE.md`, and `LICENSE.md`,
-and — for behavior that's normative rather than incidental — a
-`spec/index.md`, which remains the single source of truth for that crate's
-behavior. **Read the crate's own `AGENTS.md` before working in it**; this
-file only covers workspace-wide concerns.
+`git subtree` so their commit history survived the move (`hl7-3` and
+`hl7-3-derive` are the exceptions so far — born directly in this
+workspace, no prior repo). Each crate has its own `README.md`, `AGENTS.md`,
+`CLAUDE.md`, and `LICENSE.md`, and — for behavior that's normative rather
+than incidental — a `spec/index.md` (the two `*-derive` crates don't have
+one; see their own `AGENTS.md` for why), which remains the single source
+of truth for that crate's behavior. **Read the crate's own `AGENTS.md`
+before working in it**; this file only covers workspace-wide concerns.
 
 ## Layout
 
@@ -29,7 +30,7 @@ There is one `Cargo.lock` at the workspace root, not one per crate. Don't
 add one back inside a member directory.
 
 Member crates still depend on each other by relative path
-(`hl7-v2-mllp/Cargo.toml`'s `hl7-2 = { path = "../hl7-2" }`, for
+(`hl7-2-mllp/Cargo.toml`'s `hl7-2 = { path = "../hl7-2" }`, for
 example) exactly as they did as sibling repositories — the flat,
 one-directory-per-crate layout was kept specifically so those paths did
 not need to change.

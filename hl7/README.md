@@ -47,14 +47,14 @@ for the normative specification.
 
 - [`hl7-2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2) — the HL7 v2 implementation
   this crate re-exports
-- [`hl7-v2-derive`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-derive) — the derive
+- [`hl7-2-derive`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-derive) — the derive
   macros behind the `derive` feature
-- [`hl7-v2-mllp`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-mllp) — MLLP: sending
+- [`hl7-2-mllp`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-mllp) — MLLP: sending
   and receiving HL7 v2 messages over TCP
-- [`hl7-v2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-json),
-  [`-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-er7-into-xml),
-  [`hl7-v2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-json-into-er7),
-  [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7)
+- [`hl7-2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-json),
+  [`-into-xml`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-xml),
+  [`hl7-2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-json-into-er7),
+  [`hl7-2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-xml-into-er7)
   — format conversions
 
 ## License

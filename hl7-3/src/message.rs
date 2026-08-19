@@ -29,7 +29,7 @@
 
 use crate::Error;
 use crate::vocabulary::{Cd, Ii};
-use hl7_v2_xml_lite_helper::Element;
+use hl7_2_xml_lite_helper::Element;
 
 /// Level 1: the transport wrapper.
 ///
@@ -98,7 +98,7 @@ pub struct ControlAct {
 /// same way [`hl7-2`](https://crates.io/crates/hl7-2)'s generic mode
 /// degrades rather than rejecting; see `spec/index.md` §3.
 pub fn parse(xml_text: &str) -> Result<Message, Error> {
-    let root = hl7_v2_xml_lite_helper::parse(xml_text).map_err(Error::Xml)?;
+    let root = hl7_2_xml_lite_helper::parse(xml_text).map_err(Error::Xml)?;
     Ok(Message {
         id: root.child("id").and_then(Ii::from_element),
         creation_time: root
