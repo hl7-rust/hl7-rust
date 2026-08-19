@@ -1,6 +1,6 @@
 [package]
 name = "hl7-2-mllp"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 description = "HL7 v2 MLLP: the Minimal Lower Layer Protocol that frames Health Level Seven (HL7) version 2 (v2) messages on a TCP stream. Framing, streaming, acknowledgements, and a transport trait."
