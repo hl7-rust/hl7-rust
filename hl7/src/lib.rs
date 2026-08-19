@@ -39,7 +39,7 @@
 //! See [`v2`] for everything HL7 v2, and `hl7-2`'s `spec/index.md` for the
 //! normative specification of it.
 
-#![warn(missing_docs)]
+#![warn(missing_docs, clippy::pedantic)]
 
 pub use hl7_2 as v2;
 pub use hl7_3 as v3;

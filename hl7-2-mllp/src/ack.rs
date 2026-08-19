@@ -186,6 +186,12 @@ pub fn acknowledge_message(
 
 /// Build the acknowledgement for a received message, timestamped from the
 /// system clock. Requires the `clock` feature.
+/// # Errors
+///
+/// Same as [`acknowledge`]: [`Error::NotText`] when the payload is not
+/// UTF-8, [`Error::NotHl7`] when it is text but not a readable HL7
+/// message, and [`Error::Build`] when the acknowledgement could not be
+/// assembled from it.
 #[cfg(feature = "clock")]
 pub fn acknowledge_now(payload: &[u8], code: AckCode, control_id: &str) -> Result<Vec<u8>, Error> {
     acknowledge(payload, code, control_id, &now())
@@ -197,6 +203,7 @@ pub fn acknowledge_now(payload: &[u8], code: AckCode, control_id: &str) -> Resul
 /// base does — an interface engine comparing timestamps expects the wall
 /// clock of the machine that sent them. Requires the `clock` feature.
 #[cfg(feature = "clock")]
+#[must_use]
 pub fn now() -> String {
     chrono::Local::now().format("%Y%m%d%H%M%S").to_string()
 }

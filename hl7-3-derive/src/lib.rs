@@ -42,6 +42,8 @@
 //! capability yet (see its `spec/index.md` §1), so a write-direction macro
 //! would have nothing real to generate.
 
+#![warn(missing_docs, clippy::pedantic)]
+
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::spanned::Spanned;

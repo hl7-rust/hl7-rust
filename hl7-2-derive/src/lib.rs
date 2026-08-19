@@ -36,6 +36,8 @@
 //! | `#[hl7(raw)]` | the whole message | skipped |
 //! | none | `Default::default()` | skipped |
 
+#![warn(missing_docs, clippy::pedantic)]
+
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::spanned::Spanned;
