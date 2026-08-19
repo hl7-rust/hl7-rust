@@ -16,7 +16,7 @@ isn't backed by a test, or a code change that isn't reflected here, is a bug.
 ```
 er7                    the ER7 encoding
   |
-hl7-v2                 the HL7 v2 dictionary and message model
+hl7-2                 the HL7 v2 dictionary and message model
   |
   +-- hl7-v2-mllp      transport: HL7 v2 over TCP
   +-- hl7-v2-soap      transport: HL7 v2 over HTTP   (this crate)
@@ -27,7 +27,7 @@ This crate sits beside `hl7-v2-mllp`, not above it. Both answer the same
 question — how does a message get from one system to another, and how does
 the receiver say what became of it — for two different answers.
 
-It depends on neither `er7` nor `hl7-v2`, and that is deliberate: a SOAP
+It depends on neither `er7` nor `hl7-2`, and that is deliberate: a SOAP
 envelope is XML, and reading one requires no HL7 knowledge beyond the names
 of a few elements (§4). A caller that needs the message parsed reaches for
 those crates itself.
@@ -39,7 +39,7 @@ ways HL7 v2 is carried in a body, the response a receiver returns and how a
 sender reads one, and the WSDL that describes the endpoint.
 
 **Out of scope:** HTTP itself — no client, no server, no TLS, no retries.
-HL7 validation and format conversion, which belong to `hl7-v2` and the
+HL7 validation and format conversion, which belong to `hl7-2` and the
 `hl7-v2-from-*` crates. SOAP 1.2, WS-Security, WS-Addressing, MTOM, and
 attachments: none of them appear in the HL7 v2 interfaces this was built
 from, and guessing at them would be worse than not having them.

@@ -9,7 +9,7 @@ The ER7 encoding itself comes from the [`er7`](https://crates.io/crates/er7)
 crate. This crate is the layer above it: the HL7 v2.5 data-type tables that
 name XML elements, the message-structure grammars that group segments, and
 the XML renderer. Since 0.5.0 those tables and grammars come from the
-[`hl7-v2`](https://crates.io/crates/hl7-v2) dictionary rather than being
+[`hl7-2`](https://crates.io/crates/hl7-2) dictionary rather than being
 hand-written here, which is also what lets a caller pass `--dictionary` to
 convert against a vendor's own XML Schema instead of the bundled v2.5
 release (see `spec/index.md` §2 and §4a).

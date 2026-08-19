@@ -9,24 +9,24 @@ canonical and don't fork the content between the two.
 A Rust crate (and command-line tool) that reads a directory of HL7 version 2
 XML Schema Definition (XSD) files — the v2.xml encoding, as HL7 published it
 or as a vendor customised it — and writes the JSON dictionary format that
-`hl7-v2` reads. It runs at authoring time and produces a build artifact; it
+`hl7-2` reads. It runs at authoring time and produces a build artifact; it
 is the tool that generates a dictionary from schemas, not something a
 runtime message-processing pipeline links against.
 
-It sits at the schema-authoring end of the `hl7-v2` family:
+It sits at the schema-authoring end of the `hl7-2` family:
 
 ```
 hl7-v2-from-xsd-into-json-dictionary     schemas -> dictionary (this crate)
               |
               v
-hl7-v2       reads the dictionary (its spec/index.md §3)
+hl7-2       reads the dictionary (its spec/index.md §3)
               |
               +-- hl7-v2-from-er7-into-xml     converts against it, e.g. in
                                                 schema mode
               +-- ...
 ```
 
-This crate does not depend on `hl7-v2` to build. It depends on it only as a
+This crate does not depend on `hl7-2` to build. It depends on it only as a
 dev-dependency, to test that a dictionary it writes actually loads in the
 crate meant to read it (spec/index.md §0, §7).
 
@@ -60,10 +60,10 @@ caller can name `xml::Element` without adding its own dependency on it.
 There is no `src/xml.rs` — do not reintroduce a hand-written XML reader
 here; the shared helper is the reader (spec/index.md §2.1).
 
-`hl7-v2` is a **dev-dependency only**, used to check that a generated
+`hl7-2` is a **dev-dependency only**, used to check that a generated
 dictionary loads (spec/index.md §6, §7). Do not promote it to a normal
 dependency without discussion — the point of §0 is that this crate does
-not need `hl7-v2` to build.
+not need `hl7-2` to build.
 
 Writing the dictionary needs a JSON writer, which lives in `src/dictionary.rs`
 because it writes one document shape and nothing else — not worth a crate,
@@ -113,5 +113,5 @@ and not worth a dependency, per spec/index.md §5–§6.
 - **A general-purpose XML reader.** `hl7-v2-xml-lite-helper` is scoped to
   the documents this family reads; extend it there, in that crate, not by
   adding a second reader here.
-- **Adding `hl7-v2` as a normal dependency.** It stays a dev-dependency; see
+- **Adding `hl7-2` as a normal dependency.** It stays a dev-dependency; see
   spec/index.md §0.

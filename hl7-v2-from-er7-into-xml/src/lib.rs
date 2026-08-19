@@ -141,7 +141,7 @@ pub fn convert(er7_text: &str) -> Result<String, Hl7Error> {
 /// cannot be read. Everything below the header degrades rather than
 /// failing.
 pub fn convert_with_options(er7_text: &str, options: Options) -> Result<String, Hl7Error> {
-    convert_with_dictionary(er7_text, &hl7_v2::Version::V2_5.dictionary(), options)
+    convert_with_dictionary(er7_text, &hl7_2::Version::V2_5.dictionary(), options)
 }
 
 /// Convert one ER7 message to a v2.xml document against a given dictionary.
@@ -154,7 +154,7 @@ pub fn convert_with_options(er7_text: &str, options: Options) -> Result<String, 
 /// against those same schemas.
 ///
 /// ```
-/// let dictionary = hl7_v2::Version::V2_5.dictionary();
+/// let dictionary = hl7_2::Version::V2_5.dictionary();
 /// let xml = hl7_v2_from_er7_into_xml::convert_with_dictionary(
 ///     "MSH|^~\\&|APP||||1||ACK|1|P|2.5\rMSA|AA|1",
 ///     &dictionary,
@@ -170,7 +170,7 @@ pub fn convert_with_options(er7_text: &str, options: Options) -> Result<String, 
 /// failing.
 pub fn convert_with_dictionary(
     er7_text: &str,
-    dictionary: &hl7_v2::Dictionary,
+    dictionary: &hl7_2::Dictionary,
     options: Options,
 ) -> Result<String, Hl7Error> {
     let message = er7::parse(&normalize(er7_text))?;
@@ -239,7 +239,7 @@ pub fn split_messages(text: &str) -> Vec<String> {
 /// Which trigger events share a structure is dictionary knowledge — an A04
 /// admit and an A08 update are both carried by `ADT_A01` — so it comes from
 /// the `"aliases"` section rather than from a match arm here.
-fn root_name(message: &er7::Message, dictionary: &hl7_v2::Dictionary) -> String {
+fn root_name(message: &er7::Message, dictionary: &hl7_2::Dictionary) -> String {
     if let Some(structure_id) = message.message_structure() {
         return structure_id;
     }

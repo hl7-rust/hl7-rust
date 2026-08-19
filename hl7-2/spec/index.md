@@ -6,7 +6,7 @@ implemented, the module is named so the two stay in sync. `README.md`
 summarizes this document for newcomers — if the two disagree, this document
 wins and the README should be corrected to match.
 
-Status: describes the behavior of `hl7-v2` (reached as `hl7_v2::...` directly,
+Status: describes the behavior of `hl7-2` (reached as `hl7_2::...` directly,
 or `hl7::v2::...` through the `hl7` umbrella crate) as implemented. Every rule below
 is exercised by a unit test (next to the code that implements it, in that
 module's `#[cfg(test)]` block) or an integration test
@@ -22,7 +22,7 @@ Four layers, each owning exactly one thing:
 er7                      the ER7 encoding: delimiters, escapes, paths,
                          byte-for-byte rendering, batch splitting
   |
-hl7-v2                   this crate: the HL7 v2 dictionary — releases
+hl7-2                   this crate: the HL7 v2 dictionary — releases
                          2.1-2.9, data types, message structures; three
                          parsing modes; mutation; validation
   |
@@ -55,8 +55,8 @@ crate's output, and an element in the XML crate's output all read the same.
 
 ## 1. Scope
 
-The crate is published standalone as `hl7-v2`, and its library is named
-`hl7_v2`. Most users instead reach it through the `hl7` umbrella crate,
+The crate is published standalone as `hl7-2`, and its library is named
+`hl7_2`. Most users instead reach it through the `hl7` umbrella crate,
 whose library re-exports it as `hl7::v2` — one module per HL7 standard,
 leaving `hl7::v3` and `hl7::fhir` free for later. Sources live under `src/`.
 The command-line tool is `hl7-v2`.

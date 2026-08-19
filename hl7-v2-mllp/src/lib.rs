@@ -89,9 +89,9 @@ pub use framer::{Framer, Tolerance};
 pub use transport::{IoTransport, Transport};
 
 /// The HL7 v2 crate acknowledgements are built with, re-exported so callers
-/// can name [`hl7_v2::Message`] without adding their own dependency.
+/// can name [`hl7_2::Message`] without adding their own dependency.
 #[cfg(feature = "ack")]
-pub use hl7_v2;
+pub use hl7_2;
 
 use std::fmt;
 
@@ -194,7 +194,7 @@ pub fn decode_with(frame: &[u8], tolerance: Tolerance) -> Result<&[u8], Error> {
 ///
 /// Every variant means the bytes on the wire are not MLLP. None of them
 /// means the *message* is wrong — that question belongs one layer up, to
-/// `hl7_v2::Message::validate`, and can only be asked once framing has
+/// `hl7_2::Message::validate`, and can only be asked once framing has
 /// succeeded.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Error {

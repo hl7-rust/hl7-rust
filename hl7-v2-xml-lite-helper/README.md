@@ -1,6 +1,6 @@
 # hl7-v2-xml-lite-helper
 
-The small, dependency-free XML reader the `hl7-v2` crates share.
+The small, dependency-free XML reader the `hl7-2` crates share.
 
 It reads the subset that carries meaning in a data document — elements,
 attributes, text, and nesting — and skips the rest. No validation, no

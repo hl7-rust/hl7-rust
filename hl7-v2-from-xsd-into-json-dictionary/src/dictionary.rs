@@ -1,6 +1,6 @@
 //! The dictionary document this crate writes, and how it is written.
 //!
-//! The shape is `hl7-v2`'s dictionary format (its `spec/index.md` §3):
+//! The shape is `hl7-2`'s dictionary format (its `spec/index.md` §3):
 //! composite data types, segment field lists, trigger-event aliases, and
 //! message structures. This module models exactly that and serializes it;
 //! it knows nothing about XML Schema, which is `crate::schema`'s job.

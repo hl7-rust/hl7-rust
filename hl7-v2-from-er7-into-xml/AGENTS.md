@@ -19,7 +19,7 @@ there's an XML-specific reason not to.
 crate.** [`hl7-v2-from-xml-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2-from-xml-into-er7)
 reverses this crate's output without an HL7 v2.5 dictionary of its own,
 relying entirely on the rule that the number after an element name's last
-`.` is always that level's position (`src/xml.rs`, driven by `hl7-v2`'s
+`.` is always that level's position (`src/xml.rs`, driven by `hl7-2`'s
 dictionary; see that crate's `spec/index.md` §1.1). If you change how fields,
 components, or subcomponents are named — not just what they're named,
 but where the positional number appears — check that crate before
@@ -36,7 +36,7 @@ a behavior change, check it against the spec first.
 ```
 er7 (dependency)  ER7 parsing, delimiters, escape sequences, batch
                    splitting. Not in this crate — see spec/index.md §2.
-hl7-v2 (dependency)  The HL7 v2.5 dictionary: data-type tables, message
+hl7-2 (dependency)  The HL7 v2.5 dictionary: data-type tables, message
                    structures, and the matcher that groups segments (used
                    with `default-features = false`, dropping MLLP). Not in
                    this crate — see spec/index.md §2 and §4a.
@@ -63,21 +63,21 @@ contract) is covered in `tests/integration.rs` instead.
 
 - **Rust edition 2024**, two runtime dependencies: the
   [`er7`](https://crates.io/crates/er7) crate for the ER7 encoding layer,
-  and, since 0.5.0, `hl7-v2` (with `default-features = false`, dropping
+  and, since 0.5.0, `hl7-2` (with `default-features = false`, dropping
   MLLP) for the HL7 v2.5 data-type tables and message-structure grammars
   this crate used to hand-write in `src/types.rs`. Reading those tables
-  from `hl7-v2`'s dictionary is what lets a caller supply
+  from `hl7-2`'s dictionary is what lets a caller supply
   `--dictionary`/`convert_with_dictionary` with a vendor dialect instead
   of the bundled release — see `spec/index.md` §2 and §4a. Keep the
   dependency list to these two unless the user asks for another; a small,
   named tree is part of this crate's value proposition in a domain where
   dependencies get audited.
 - **The layer boundary is the point.** This crate owns the XML renderer
-  and the CLI. `hl7-v2` owns the HL7 v2.5 dictionary — data-type tables,
+  and the CLI. `hl7-2` owns the HL7 v2.5 dictionary — data-type tables,
   message structures. `er7` owns the encoding — delimiters, the value
   tree, escape sequences, batch splitting. Anything about *how ER7 is
   written* belongs in `er7`; anything about *what a v2.5 field or
-  structure is* belongs in `hl7-v2`; not here. See `spec/index.md` §2 for
+  structure is* belongs in `hl7-2`; not here. See `spec/index.md` §2 for
   exactly which guarantees are inherited.
 - **CLI options beyond `--flat`.** `--dictionary <FILE>` converts against a
   JSON dictionary (e.g. one built by `hl7-v2-from-xsd-into-json-dictionary`

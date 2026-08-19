@@ -8,6 +8,9 @@
 //!
 //! - [`v2`] — HL7 v2, releases 2.1 through 2.9. The format most healthcare
 //!   data still moves in.
+//! - [`v3`] — HL7 v3: the Reference Information Model, and the
+//!   three-level message envelope built from it. A foundation, not a full
+//!   implementation — see that module's own documentation for scope.
 //!
 //! ```
 //! use hl7::v2;
@@ -19,22 +22,24 @@
 //! # Ok::<(), v2::Error>(())
 //! ```
 //!
-//! Each module is its own crate underneath — `hl7::v2` is the `hl7-v2`
-//! crate, re-exported here — so a caller who wants only one standard can
-//! depend on that crate directly instead of this umbrella:
+//! Each module is its own crate underneath — `hl7::v2` is the `hl7-2`
+//! crate, `hl7::v3` is `hl7-3`, both re-exported here — so a caller who
+//! wants only one standard can depend on that crate directly instead of
+//! this umbrella:
 //!
 //! ```toml
 //! [dependencies]
-//! hl7-v2 = "0.2"
+//! hl7-2 = "0.2"
 //! ```
 //!
 //! Nothing lives at the root but the modules. A name that means one thing
 //! in v2 means another in FHIR — a "message", a "segment", a "code" — and
 //! flattening them into one namespace would only invite mixing them up.
 //!
-//! See [`v2`] for everything HL7 v2, and `hl7-v2`'s `spec/index.md` for the
+//! See [`v2`] for everything HL7 v2, and `hl7-2`'s `spec/index.md` for the
 //! normative specification of it.
 
 #![warn(missing_docs)]
 
-pub use hl7_v2 as v2;
+pub use hl7_2 as v2;
+pub use hl7_3 as v3;

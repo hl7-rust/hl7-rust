@@ -1,6 +1,6 @@
 [package]
 name = "hl7-v2-mllp"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 description = "HL7 v2 MLLP: the Minimal Lower Layer Protocol that frames Health Level Seven (HL7) version 2 (v2) messages on a TCP stream. Framing, streaming, acknowledgements, and a transport trait."
@@ -14,7 +14,7 @@ categories = ["network-programming", "parser-implementations"]
 # expects back (see spec/index.md §5). Optional, and default-on: framing is
 # useful without it, and `default-features = false` gives a build with no
 # dependencies at all.
-hl7-v2 = { version = "0.2.0", path = "../hl7-v2", optional = true }
+hl7-2 = { version = "0.2.0", path = "../hl7-2", optional = true }
 # Wall-clock timestamps for generated acknowledgements. Off by default: a
 # message that invents its own timestamp is untestable, so the clock is
 # opt-in and the explicit-timestamp call is always there.
@@ -32,7 +32,7 @@ required-features = ["ack"]
 [features]
 default = ["ack"]
 # Generate HL7 acknowledgements from received frames.
-ack = ["dep:hl7-v2"]
+ack = ["dep:hl7-2"]
 # `acknowledge_now`: take the timestamp from the system clock.
 clock = ["ack", "dep:chrono"]
 # Accept the two framing sins real senders commit: a missing carriage

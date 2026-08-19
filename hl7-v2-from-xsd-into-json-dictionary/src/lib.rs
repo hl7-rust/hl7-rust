@@ -1,10 +1,10 @@
 //! Convert HL7 v2.xml XML Schema files into the JSON dictionary the
-//! `hl7-v2` crates read.
+//! `hl7-2` crates read.
 //!
 //! HL7 publishes the v2.xml encoding as a set of XML Schema documents, and
 //! sites that customise HL7 customise those documents: a hospital's `PID`
 //! is the standard's `PID` plus or minus whatever the local system actually
-//! sends. `hl7-v2` reads a dictionary rather than a schema, which is what
+//! sends. `hl7-2` reads a dictionary rather than a schema, which is what
 //! lets one build serve every release and every dialect — so this crate is
 //! the bridge between the two. Point it at a directory of schemas and it
 //! writes the dictionary that describes them.

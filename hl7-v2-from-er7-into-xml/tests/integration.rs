@@ -226,8 +226,8 @@ fn splits_batches_into_messages() {
 // --------------------------------------------------------------------------
 
 /// A dictionary that states cardinality the way a generated one does.
-fn schema_dictionary() -> hl7_v2::Dictionary {
-    hl7_v2::Dictionary::from_json(
+fn schema_dictionary() -> hl7_2::Dictionary {
+    hl7_2::Dictionary::from_json(
         r#"{
              "inherits": "2.5",
              "segments": {
@@ -329,7 +329,7 @@ fn without_schema_shape_the_message_still_decides() {
 fn a_dialect_dictionary_names_elements_its_own_way() {
     // A vendor that redefines PID-3 as a plain string gets a leaf where the
     // standard would have nested CX components.
-    let dictionary = hl7_v2::Dictionary::from_json(
+    let dictionary = hl7_2::Dictionary::from_json(
         r#"{"inherits": "2.5", "segments": {"PID": {"3": "ST"}}}"#,
         "vendor",
     )

@@ -3,18 +3,20 @@ name = "hl7"
 version = "0.1.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
-description = "HL7 for Rust: parse, navigate, validate, modify, and render Health Level Seven (HL7) messages. HL7 v2 (releases 2.1-2.9) lives in `hl7::v2`; room for `hl7::v3` and `hl7::fhir` as those standards are implemented."
+description = "HL7 for Rust: parse, navigate, validate, modify, and render Health Level Seven (HL7) messages. HL7 v2 (releases 2.1-2.9) lives in `hl7::v2`; the HL7 v3 RIM and message envelope in `hl7::v3`; room for `hl7::fhir` as that standard is implemented."
 license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
 repository = "https://github.com/hl7-rust/hl7-rust"
 keywords = ["hl7", "healthcare", "v2", "parser", "fhir"]
 categories = ["parser-implementations"]
 
 [dependencies]
-# HL7 v2, re-exported as `hl7::v2`. Depend on `hl7-v2` directly instead if
+# HL7 v2, re-exported as `hl7::v2`. Depend on `hl7-2` directly instead if
 # you specifically want v2 with no umbrella indirection.
-hl7-v2 = { version = "0.2.0", path = "../hl7-v2" }
+hl7-2 = { version = "0.2.0", path = "../hl7-2" }
+# HL7 v3, re-exported as `hl7::v3`, same reasoning.
+hl7-3 = { version = "0.1.0", path = "../hl7-3" }
 
 [features]
-# Forwards to `hl7-v2`'s `derive` feature, so callers don't need to know
+# Forwards to `hl7-2`'s `derive` feature, so callers don't need to know
 # the lean crate exists.
-derive = ["hl7-v2/derive"]
+derive = ["hl7-2/derive"]

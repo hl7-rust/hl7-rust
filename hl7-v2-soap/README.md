@@ -24,7 +24,7 @@ protocol and nothing else.
 
 No HTTP client and no HTTP server: it turns bytes into meaning and back, and
 leaves the socket to whatever you already use. No HL7 validation and no
-format conversion either — `hl7-v2` and the `hl7-v2-from-*` crates own
+format conversion either — `hl7-2` and the `hl7-v2-from-*` crates own
 those.
 
 ## Receiving

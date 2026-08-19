@@ -39,7 +39,7 @@
 //! messages are called.
 
 use crate::{Error as FrameError, encode};
-use hl7_v2 as v2;
+use hl7_2 as v2;
 use std::fmt;
 
 /// What an acknowledgement says happened, in MSA-1.
@@ -162,14 +162,14 @@ pub fn acknowledge(
 /// ```
 /// use hl7_v2_mllp::{AckCode, ack, encode};
 ///
-/// let message = hl7_v2::parse("MSH|^~\\&|LAB|ACME|EHR|CLINIC|20260814||ORU^R01|99|P|2.5")?;
+/// let message = hl7_2::parse("MSH|^~\\&|LAB|ACME|EHR|CLINIC|20260814||ORU^R01|99|P|2.5")?;
 ///
 /// // Say what was wrong, not merely that something was.
 /// let mut nack = ack::acknowledge_message(&message, AckCode::Error, "N1", "20260814080100")?;
 /// nack.set("MSA-3", "OBR-4 is required")?;
 /// let frame = encode(nack.to_er7().as_bytes());
 /// # assert!(String::from_utf8(frame).unwrap().contains("MSA|AE|99|OBR-4 is required"));
-/// # Ok::<(), hl7_v2::Error>(())
+/// # Ok::<(), hl7_2::Error>(())
 /// ```
 /// # Errors
 ///

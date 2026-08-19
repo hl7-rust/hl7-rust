@@ -90,7 +90,7 @@ Two consequences worth stating, because they shape §4:
 | `BadHeader(detail)` | `BadMshHeader(detail)` |
 | `BadPath(detail)` | `BadMshHeader(detail)` — unreachable; this crate never issues a path query |
 
-## 3. Message-structure grouping (`src/structure.rs`, `hl7_v2::structure`)
+## 3. Message-structure grouping (`src/structure.rs`, `hl7_2::structure`)
 
 ### 3.1 Root element name
 
@@ -147,7 +147,7 @@ counted in the XML.
 
 ### 4.2 Typed element names
 
-Two lookup tables, read from the `hl7-v2` dictionary (`hl7_v2::Dictionary`;
+Two lookup tables, read from the `hl7-2` dictionary (`hl7_2::Dictionary`;
 until 0.5.0 these were hand-written here in `src/types.rs`), drive typed
 naming:
 
@@ -293,20 +293,20 @@ These are intentional scope boundaries, not defects:
   `\Z...\`, etc.) are preserved as literal text, not mapped to `<escape/>`
   elements as some v2.xml producers do.
 - **Data-type tables are scoped to common v2.5 messages.** Segments and
-  composite types outside the bundled `hl7-v2` dictionary's tables still
+  composite types outside the bundled `hl7-2` dictionary's tables still
   convert (via the generic fallback in §4.2), just without type-derived
   names. A caller with a fuller or different dictionary — for example one
   built by `hl7-v2-from-xsd-into-json-dictionary` from a vendor's own XSDs
   — can pass it to `convert_with_dictionary` (or `--dictionary` on the
   CLI) instead of the bundled release.
 - **Two dependencies, by design.** This crate depends on [`er7`] for the
-  encoding layer and on `hl7-v2` (`default-features = false`) for the HL7
+  encoding layer and on `hl7-2` (`default-features = false`) for the HL7
   v2.5 dictionary — data-type tables, message structures — that it used to
   carry as hand-written tables in `src/types.rs` before 0.5.0. Reading the
   dictionary rather than hard-coding it is what makes `--dictionary` and
   `--schema-shape` (§4a) possible. Anything about ER7 itself belongs in
   `er7`; anything about what a v2.5 field or structure means belongs in
-  `hl7-v2`; not here (§2).
+  `hl7-2`; not here (§2).
 
 ## 7. References
 
@@ -336,7 +336,7 @@ implementation detail:
 - `--flat` forces flat rendering for every message in the input (§3.3).
 - `--dictionary <FILE>` converts against the JSON dictionary at `FILE`
   instead of the bundled HL7 v2.5 tables (§4a); `FILE` is read with
-  `hl7_v2::Dictionary::from_json`, and a build failure aborts the run.
+  `hl7_2::Dictionary::from_json`, and a build failure aborts the run.
 - `--schema-shape` sets `Options::schema_shape`, switching the dictionary
   (bundled or `--dictionary`-supplied) from a table of what fields *are*
   to a schema that also decides what the document *contains* (§4a).

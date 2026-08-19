@@ -1,8 +1,8 @@
 //! Building the v2.xml element tree from parsed segments, and serializing it.
 
 use er7::{Component, Field, Repetition, Segment, Separators, Subcomponent};
-use hl7_v2::Dictionary;
-use hl7_v2::dictionary::VARIABLE;
+use hl7_2::Dictionary;
+use hl7_2::dictionary::VARIABLE;
 use std::fmt::Write as _;
 
 /// XML namespace of the root element in every document this crate emits.

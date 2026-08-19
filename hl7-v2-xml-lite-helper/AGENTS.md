@@ -6,7 +6,7 @@ canonical and don't fork the content between the two.
 
 ## What this is
 
-A small, dependency-free XML reader shared by three crates in the `hl7-v2`
+A small, dependency-free XML reader shared by three crates in the `hl7-2`
 family, so each does not carry its own copy:
 
 ```

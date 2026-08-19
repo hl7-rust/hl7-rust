@@ -1,4 +1,4 @@
-//! The small, dependency-free XML reader the `hl7-v2` crates share.
+//! The small, dependency-free XML reader the `hl7-2` crates share.
 //!
 //! The name says what it is for. Nothing here is HL7-specific, but the
 //! crate is scoped to serve `hl7-v2-soap`, `hl7-v2-from-xml-into-er7` and

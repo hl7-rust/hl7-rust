@@ -243,10 +243,10 @@ impl Message {
     /// repetition or a component behave as [`Message::get_all`].
     ///
     /// ```
-    /// let message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||241900~99~7")?;
+    /// let message = hl7_2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||241900~99~7")?;
     /// assert_eq!(message.repetitions("PID-3")?, ["241900", "99", "7"]);
     /// assert_eq!(message.get("PID-3")?.as_deref(), Some("241900~99~7"));
-    /// # Ok::<(), hl7_v2::Error>(())
+    /// # Ok::<(), hl7_2::Error>(())
     /// ```
     /// # Errors
     ///
@@ -317,11 +317,11 @@ impl Message {
     /// [`crate::Builder`] create segments.
     ///
     /// ```
-    /// let mut message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1")?;
+    /// let mut message = hl7_2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1")?;
     /// message.set("PID-5.1", "SMITH")?;
     /// message.set("PID-5.2", "JOHN")?;
     /// assert_eq!(message.get("PID-5")?.as_deref(), Some("SMITH^JOHN"));
-    /// # Ok::<(), hl7_v2::Error>(())
+    /// # Ok::<(), hl7_2::Error>(())
     /// ```
     /// # Errors
     ///
@@ -445,11 +445,11 @@ impl Message {
     /// Append an empty segment named `name` and return it for populating.
     ///
     /// ```
-    /// let mut message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5")?;
+    /// let mut message = hl7_2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5")?;
     /// message.append_segment("PID");
     /// message.set("PID-3.1", "241900")?;
     /// assert!(message.to_er7().ends_with("\rPID|||241900"));
-    /// # Ok::<(), hl7_v2::Error>(())
+    /// # Ok::<(), hl7_2::Error>(())
     /// ```
     pub fn append_segment(&mut self, name: &str) -> &mut Segment {
         self.insert_segment(self.raw.segments.len(), name)
@@ -513,8 +513,8 @@ impl Message {
     /// Decode into a type that implements [`crate::FromHl7`] — struct mode.
     ///
     /// ```
-    /// # #[cfg(feature = "derive")] fn main() -> Result<(), hl7_v2::Error> {
-    /// use hl7_v2::FromHl7;
+    /// # #[cfg(feature = "derive")] fn main() -> Result<(), hl7_2::Error> {
+    /// use hl7_2::FromHl7;
     ///
     /// #[derive(FromHl7)]
     /// struct Patient {
@@ -524,7 +524,7 @@ impl Message {
     ///     family_name: String,
     /// }
     ///
-    /// let message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||241900||SMITH^JOHN")?;
+    /// let message = hl7_2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||241900||SMITH^JOHN")?;
     /// let patient: Patient = message.decode()?;
     /// assert_eq!(patient.id, "241900");
     /// assert_eq!(patient.family_name, "SMITH");

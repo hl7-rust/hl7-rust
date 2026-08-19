@@ -22,7 +22,7 @@ what this crate provides.
 ```
 er7                      the ER7 encoding
   |
-hl7-v2                 HL7 v2 itself: releases 2.1-2.9, three parsing
+hl7-2                 HL7 v2 itself: releases 2.1-2.9, three parsing
                          modes, mutation, validation
   |
   +-- hl7-v2-mllp        this crate: getting those messages across a
@@ -161,7 +161,7 @@ before acknowledging.
 
 | feature | default | effect |
 |---|---|---|
-| `ack` | on | acknowledgement generation; pulls in `hl7-v2` |
+| `ack` | on | acknowledgement generation; pulls in `hl7-2` |
 | `clock` | off | `acknowledge_now`; pulls in `chrono`. Implies `ack` |
 | `noncompliance` | off | the default tolerance becomes lenient |
 
@@ -186,7 +186,7 @@ cargo add hl7-v2-mllp --no-default-features    # framing only, zero dependencies
 ## See also
 
 - [`spec/index.md`](spec/index.md) — the normative specification
-- [`hl7-v2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2) — HL7 v2 itself
+- [`hl7-2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2) — HL7 v2 itself
 - [`er7`](https://github.com/hl7-rust/er7) — the ER7 encoding layer
 
 ## License

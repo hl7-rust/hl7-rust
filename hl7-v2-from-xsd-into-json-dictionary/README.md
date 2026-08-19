@@ -3,10 +3,10 @@
 Read a directory of HL7 version 2 XML Schema Definition (XSD) files — the
 v2.xml encoding, as HL7 published it or as a vendor customised it — and write
 the JSON dictionary the
-[`hl7-v2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-v2)
+[`hl7-2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2)
 crates read.
 
-HL7 publishes v2.xml as schemas. `hl7-v2` reads a dictionary, because one
+HL7 publishes v2.xml as schemas. `hl7-2` reads a dictionary, because one
 dictionary format can serve every release and every local dialect from a
 single build. This crate is the bridge: it turns the schemas a site already
 has into the dictionary the crates already read.
@@ -67,7 +67,7 @@ Then read it:
 
 ```rust
 let text = std::fs::read_to_string("paris.json")?;
-let dictionary = hl7_v2::Dictionary::from_json(&text, "paris")?;
+let dictionary = hl7_2::Dictionary::from_json(&text, "paris")?;
 assert_eq!(dictionary.field_type("PID", 3), Some("CX"));
 assert!(dictionary.field_cardinality("PID", 3).repeats);
 # Ok::<(), Box<dyn std::error::Error>>(())
@@ -98,7 +98,7 @@ the small, dependency-free XML reader shared with `hl7-v2-soap` and
 `xml::Element` without adding its own dependency on it. Reading XSD needs
 an XML reader; writing a dictionary needs a JSON writer, which is small and
 specific enough to the one shape involved to live here rather than pull in
-a general-purpose one. `hl7-v2` itself is a dev-dependency only, used to
+a general-purpose one. `hl7-2` itself is a dev-dependency only, used to
 check that a generated dictionary loads (see `spec/index.md` §7) — it is
 not needed to build this crate.
 

@@ -121,11 +121,11 @@ fn converting_only_some_structures() {
     assert!(error.to_string().contains("ADT_A01"), "{error}");
 }
 
-/// The whole point: what this crate writes, `hl7-v2` reads.
+/// The whole point: what this crate writes, `hl7-2` reads.
 #[test]
 fn the_dictionary_loads_in_the_crate_that_consumes_it() {
     let json = document().to_json();
-    let dictionary = hl7_v2::Dictionary::from_json(&json, "example")
+    let dictionary = hl7_2::Dictionary::from_json(&json, "example")
         .unwrap_or_else(|error| panic!("generated dictionary did not load: {error}"));
 
     assert_eq!(dictionary.version(), Some("2.5"));
@@ -140,7 +140,7 @@ fn the_dictionary_loads_in_the_crate_that_consumes_it() {
     assert!(cardinality.required && cardinality.repeats);
     assert_eq!(
         dictionary.field_cardinality("PID", 1),
-        hl7_v2::dictionary::Cardinality::default()
+        hl7_2::dictionary::Cardinality::default()
     );
 
     // And so does the structure, groups included.

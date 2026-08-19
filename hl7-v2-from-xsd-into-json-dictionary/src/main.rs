@@ -3,7 +3,7 @@ use std::io::Write;
 use std::process::ExitCode;
 
 const USAGE: &str = "\
-Convert HL7 v2.xml XML Schema files into the JSON dictionary hl7-v2 reads.
+Convert HL7 v2.xml XML Schema files into the JSON dictionary hl7-2 reads.
 
 Usage: hl7-v2-from-xsd-into-json-dictionary [OPTIONS] <DIRECTORY>
 

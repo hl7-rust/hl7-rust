@@ -112,11 +112,11 @@ impl Node {
     /// The first child named `name`.
     ///
     /// ```
-    /// let message = hl7_v2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||9||SMITH^JOHN")?;
+    /// let message = hl7_2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||9||SMITH^JOHN")?;
     /// let tree = message.tree();
     /// let pid = tree.find("PID").unwrap();
     /// assert_eq!(pid.child("PID.5").unwrap().child("XPN.2").unwrap().text(), "JOHN");
-    /// # Ok::<(), hl7_v2::Error>(())
+    /// # Ok::<(), hl7_2::Error>(())
     /// ```
     #[must_use]
     pub fn child(&self, name: &str) -> Option<&Node> {

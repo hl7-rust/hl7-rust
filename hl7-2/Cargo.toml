@@ -1,9 +1,9 @@
 [package]
-name = "hl7-v2"
+name = "hl7-2"
 version = "0.2.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
-description = "HL7 v2 (releases 2.1-2.9) for Rust: parse, navigate, validate, modify, and render Health Level Seven (HL7) version 2 messages, in three modes: generic, schema-based, and struct-based. Published standalone as `hl7-v2`; most users get it through the `hl7` umbrella crate instead, as `hl7::v2`."
+description = "HL7 v2 (releases 2.1-2.9) for Rust: parse, navigate, validate, modify, and render Health Level Seven (HL7) version 2 messages, in three modes: generic, schema-based, and struct-based. Published as `hl7-2` (the name `hl7-v2` belongs to an unrelated crate); most users get it through the `hl7` umbrella crate instead, as `hl7::v2`."
 license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
 repository = "https://github.com/hl7-rust/hl7-rust"
 keywords = ["hl7", "healthcare", "er7", "v2", "parser"]
@@ -22,7 +22,7 @@ er7 = "0.1.0"
 # The `#[derive(FromHl7)]` / `#[derive(ToHl7)]` macros for struct mode. Off
 # by default so the dependency-free build stays dependency-free; enabling
 # `derive` pulls in syn and quote through this crate only.
-hl7-v2-derive = { version = "0.1.1", path = "../hl7-v2-derive", optional = true }
+hl7-v2-derive = { version = "0.1.2", path = "../hl7-v2-derive", optional = true }
 
 [features]
 default = []

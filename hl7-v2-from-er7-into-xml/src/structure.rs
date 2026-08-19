@@ -3,17 +3,17 @@
 //! The v2.xml encoding nests segments inside group elements such as
 //! `<ORM_O01.PATIENT>` or `<ORU_R01.ORDER_OBSERVATION>`. Which groups exist,
 //! and which segments go in them, is dictionary knowledge; the matching is
-//! done by [`hl7_v2::structure::group`]. This module is the small piece in
+//! done by [`hl7_2::structure::group`]. This module is the small piece in
 //! between: it turns the [`Layout`] that matcher reports into the XML nodes
 //! this crate emits.
 //!
 //! Until 0.5.0 the grammars and the matcher both lived here, in a copy of
-//! the tables `hl7-v2` now owns. Reading them from a dictionary instead is
+//! the tables `hl7-2` now owns. Reading them from a dictionary instead is
 //! what lets a caller convert against a vendor's own schemas.
 
 use crate::xml::Node;
-use hl7_v2::dictionary::Item;
-use hl7_v2::structure::{Layout, group};
+use hl7_2::dictionary::Item;
+use hl7_2::structure::{Layout, group};
 
 /// Arrange segment nodes into the structure's groups.
 ///
@@ -48,7 +48,7 @@ fn to_nodes(root: &str, layouts: &[Layout], segs: &[(String, Node)]) -> Vec<Node
 #[cfg(test)]
 mod tests {
     use super::*;
-    use hl7_v2::Version;
+    use hl7_2::Version;
 
     fn segs(names: &[&str]) -> Vec<(String, Node)> {
         names

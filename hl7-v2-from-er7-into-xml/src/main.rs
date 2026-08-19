@@ -80,13 +80,13 @@ fn main() -> ExitCode {
         return fail("no HL7 message found in input");
     }
     let dictionary = match dictionary_path.as_deref() {
-        None => hl7_v2::Version::V2_5.dictionary().as_ref().clone(),
+        None => hl7_2::Version::V2_5.dictionary().as_ref().clone(),
         Some(path) => {
             let text = match std::fs::read_to_string(path) {
                 Ok(text) => text,
                 Err(e) => return fail(&format!("reading {path}: {e}")),
             };
-            match hl7_v2::Dictionary::from_json(&text, path) {
+            match hl7_2::Dictionary::from_json(&text, path) {
                 Ok(dictionary) => dictionary,
                 Err(e) => return fail(&format!("{path}: {e}")),
             }

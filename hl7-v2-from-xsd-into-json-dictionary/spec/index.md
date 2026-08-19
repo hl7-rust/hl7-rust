@@ -18,16 +18,16 @@ here, is a bug.
 hl7-v2-from-xsd-into-json-dictionary     schemas -> dictionary (this crate)
               |
               v
-hl7-v2       reads the dictionary (its spec/index.md §3)
+hl7-2       reads the dictionary (its spec/index.md §3)
               |
               +-- hl7-v2-from-er7-into-xml     converts against it
               +-- ...
 ```
 
 This crate runs at authoring time and writes a file. Nothing reads its
-output at runtime except through `hl7_v2::Dictionary::from_json`, so the
+output at runtime except through `hl7_2::Dictionary::from_json`, so the
 contract between the two is that format and nothing more: this crate does
-not depend on `hl7-v2` to build, and depends on it only to test that what
+not depend on `hl7-2` to build, and depends on it only to test that what
 it writes loads (§7).
 
 ## 1. Scope
@@ -160,7 +160,7 @@ directory has no schema for is an error rather than a silent omission.
 
 ## 5. Output (`src/dictionary.rs`)
 
-`hl7-v2`'s dictionary format, indented two spaces, with a trailing
+`hl7-2`'s dictionary format, indented two spaces, with a trailing
 newline, so a generated file and a hand-written one diff against each other.
 Members are written in the order `version`, `description`, `inherits`,
 `types`, `segments`, `aliases`, `structures`, and every map is in sorted key
@@ -181,7 +181,7 @@ One: `hl7-v2-xml-lite-helper`, the small, dependency-free XML reader shared
 with `hl7-v2-soap` and `hl7-v2-from-xml-into-er7` (§2.1), re-exported as
 `xml`. Writing a dictionary needs a JSON writer (§5), which is small and
 specific enough to the one shape involved to live here rather than pull in
-a general-purpose one. `hl7-v2` is a dev-dependency only, for §7 — it is
+a general-purpose one. `hl7-2` is a dev-dependency only, for §7 — it is
 not needed to build this crate.
 
 ## 7. Testing
@@ -190,7 +190,7 @@ Beyond the per-module unit tests, `tests/integration.rs` converts
 `samples/example/` — a small schema set shaped like a real one, exercising
 primitive components, a nested composite, a skipped field number, an empty
 placeholder segment, and a group — and then **loads the result with
-`hl7_v2::Dictionary::from_json`**, checking that the data types,
+`hl7_2::Dictionary::from_json`**, checking that the data types,
 cardinality, and structure all survive. That test is the contract in §0: the
 only thing that makes this crate's output correct is that the crate meant to
 read it can.
@@ -214,7 +214,7 @@ own version, and the two would otherwise collide.
 ## 9. References
 
 - HL7 v2.xml encoding syntax, and the published schema sets
-- `hl7-v2`, `spec/index.md` §3 — the dictionary format
+- `hl7-2`, `spec/index.md` §3 — the dictionary format
 - `hl7-v2-from-er7-into-xml`, `spec/index.md` §4a — schema mode, which is
   what the cardinality in §3.1 is for
 - W3C XML Schema Part 1, §3.9 (`minOccurs`/`maxOccurs` defaults)

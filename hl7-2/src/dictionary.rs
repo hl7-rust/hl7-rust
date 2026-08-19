@@ -293,7 +293,7 @@ impl Dictionary {
     /// when the business adds a field.
     ///
     /// ```
-    /// let dictionary = hl7_v2::Dictionary::from_json(r#"{
+    /// let dictionary = hl7_2::Dictionary::from_json(r#"{
     ///   "inherits": "2.5",
     ///   "segments": { "ZPD": ["ST", "XPN", "TS"] }
     /// }"#, "acme").unwrap();

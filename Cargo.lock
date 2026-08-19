@@ -96,11 +96,12 @@ dependencies = [
 name = "hl7"
 version = "0.1.0"
 dependencies = [
- "hl7-v2",
+ "hl7-2",
+ "hl7-3",
 ]
 
 [[package]]
-name = "hl7-v2"
+name = "hl7-2"
 version = "0.2.0"
 dependencies = [
  "er7",
@@ -108,10 +109,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "hl7-v2-derive"
-version = "0.1.1"
+name = "hl7-3"
+version = "0.1.0"
 dependencies = [
- "hl7-v2",
+ "hl7-v2-xml-lite-helper",
+]
+
+[[package]]
+name = "hl7-v2-derive"
+version = "0.1.2"
+dependencies = [
+ "hl7-2",
  "proc-macro2",
  "quote",
  "syn",
@@ -129,7 +137,7 @@ name = "hl7-v2-from-er7-into-xml"
 version = "0.5.0"
 dependencies = [
  "er7",
- "hl7-v2",
+ "hl7-2",
 ]
 
 [[package]]
@@ -151,16 +159,16 @@ dependencies = [
 name = "hl7-v2-from-xsd-into-json-dictionary"
 version = "0.1.0"
 dependencies = [
- "hl7-v2",
+ "hl7-2",
  "hl7-v2-xml-lite-helper",
 ]
 
 [[package]]
 name = "hl7-v2-mllp"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
- "hl7-v2",
+ "hl7-2",
 ]
 
 [[package]]

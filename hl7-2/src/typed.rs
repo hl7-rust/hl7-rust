@@ -16,8 +16,8 @@
 //! already have:
 //!
 //! ```
-//! # #[cfg(feature = "derive")] fn main() -> Result<(), hl7_v2::Error> {
-//! use hl7_v2::{FromHl7, Raw};
+//! # #[cfg(feature = "derive")] fn main() -> Result<(), hl7_2::Error> {
+//! use hl7_2::{FromHl7, Raw};
 //!
 //! #[derive(FromHl7)]
 //! struct Admission {
@@ -32,7 +32,7 @@
 //! }
 //!
 //! let text = "MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1||241900~99~7||SMITH\rZPD|local";
-//! let admission: Admission = hl7_v2::parse(text)?.decode()?;
+//! let admission: Admission = hl7_2::parse(text)?.decode()?;
 //! assert_eq!(admission.patient_id, "241900");
 //! assert_eq!(admission.all_identifiers.len(), 3);
 //! assert_eq!(admission.birth_date, None);

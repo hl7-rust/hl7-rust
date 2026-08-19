@@ -1,0 +1,24 @@
+[package]
+name = "hl7-3"
+version = "0.1.0"
+authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
+edition = "2024"
+description = "HL7 v3 for Rust: the Reference Information Model (RIM) backbone classes, coded values, and the three-level message envelope (transport wrapper, control act wrapper, domain payload). A foundation, not a full implementation — see spec/index.md for exact scope."
+license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
+repository = "https://github.com/hl7-rust/hl7-rust"
+readme = "README.md"
+keywords = ["hl7", "healthcare", "v3", "rim", "xml"]
+categories = ["parser-implementations", "encoding"]
+include = [
+    "src/**/*",
+    "spec/**/*",
+    "tests/**/*",
+    "/LICENSE.md",
+    "/README.md",
+]
+
+[dependencies]
+# The XML reader this crate reads HL7 v3 messages through — HL7 v3 is XML,
+# unlike v2's pipe-delimited ER7. Same shared, dependency-free reader the
+# v2.xml-facing crates use; see spec/index.md §2.
+hl7-v2-xml-lite-helper = { version = "0.1", path = "../hl7-v2-xml-lite-helper" }

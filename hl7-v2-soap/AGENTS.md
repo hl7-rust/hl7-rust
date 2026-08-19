@@ -11,13 +11,13 @@ and their HTTP statuses, the two ways HL7 v2 is carried in a body, the
 response a receiver returns and how a sender reads one, and the WSDL that
 describes the endpoint.
 
-It is a **transport layer** of the `hl7-v2` family, sitting beside
+It is a **transport layer** of the `hl7-2` family, sitting beside
 `hl7-v2-mllp` rather than above it:
 
 ```
 er7                    the ER7 encoding
   |
-hl7-v2                 the HL7 v2 dictionary and message model
+hl7-2                 the HL7 v2 dictionary and message model
   |
   +-- hl7-v2-mllp      transport: HL7 v2 over TCP
   +-- hl7-v2-soap      transport: HL7 v2 over HTTP   (this crate)
@@ -62,7 +62,7 @@ anything crossing module boundaries goes in `tests/integration.rs`.
 - **Rust edition 2024.** One dependency: `hl7-v2-xml-lite-helper`,
   re-exported as `crate::xml` (see `spec/index.md` §2). It has no
   dependencies of its own, so the audit surface stays small. This crate
-  depends on neither `er7` nor `hl7-v2` — a SOAP envelope is XML, and
+  depends on neither `er7` nor `hl7-2` — a SOAP envelope is XML, and
   reading one requires no HL7 knowledge beyond the names of a few elements.
 - **Namespace prefixes are not resolved.** Elements are matched on their
   local name, so `soapenv:Body`, `soap:Body`, `SOAP-ENV:Body` and `Body`
@@ -103,7 +103,7 @@ anything crossing module boundaries goes in `tests/integration.rs`.
 
 - **HTTP itself.** No client, no server, no TLS, no retries. This crate
   turns bytes into meaning and back; the socket is the caller's.
-- **HL7 validation and format conversion.** Those belong to `hl7-v2` and
+- **HL7 validation and format conversion.** Those belong to `hl7-2` and
   the `hl7-v2-from-*` crates.
 - **SOAP 1.2, WS-Security, WS-Addressing, MTOM, and attachments.** None of
   them appear in the HL7 v2 interfaces this crate was built from, and

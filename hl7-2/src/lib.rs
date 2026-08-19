@@ -8,7 +8,7 @@
 //! speaks. This crate owns that knowledge: the per-release data-type
 //! tables, the message structures, and the three ways to apply them.
 //!
-//! Published standalone as `hl7-v2`; most users get it through the `hl7`
+//! Published standalone as `hl7-2`; most users get it through the `hl7`
 //! umbrella crate instead, which re-exports this crate as `hl7::v2`:
 //!
 //! ```toml
@@ -23,7 +23,7 @@
 //! and nothing is dropped.
 //!
 //! ```
-//! let message = hl7_v2::parse("MSH|^~\\&|LAB||EPIC||20240101||ORU^R01|1|P|2.5\r\
+//! let message = hl7_2::parse("MSH|^~\\&|LAB||EPIC||20240101||ORU^R01|1|P|2.5\r\
 //!                              PID|1||241900||SMITH^JOHN\r\
 //!                              OBR|1||X|GLU\r\
 //!                              OBX|1|NM|GLU^Glucose||7.4|mmol/L")?;
@@ -31,7 +31,7 @@
 //! assert_eq!(tree.name(), "ORU_R01");
 //! assert_eq!(tree.find("XPN.1").unwrap().text(), "SMITH");
 //! assert_eq!(message.get("OBX-5")?.as_deref(), Some("7.4"));
-//! # Ok::<(), hl7_v2::Error>(())
+//! # Ok::<(), hl7_2::Error>(())
 //! ```
 //!
 //! **Schema-based** — for the vendor whose quirks you have learned but
@@ -41,18 +41,18 @@
 //! ```
 //! use std::sync::Arc;
 //!
-//! let dictionary = hl7_v2::Dictionary::from_json(r#"{
+//! let dictionary = hl7_2::Dictionary::from_json(r#"{
 //!   "inherits": "2.5",
 //!   "segments": { "ZPD": ["ST", "XPN"] }
 //! }"#, "acme")?;
-//! let options = hl7_v2::Options::new().with_dictionary(Arc::new(dictionary));
-//! let message = hl7_v2::parse_with_options(
+//! let options = hl7_2::Options::new().with_dictionary(Arc::new(dictionary));
+//! let message = hl7_2::parse_with_options(
 //!     "MSH|^~\\&|ACME||||1||ADT^A01|1|P|2.5\rZPD|7|SMITH^JOHN",
 //!     &options,
 //! )?;
 //! // The vendor's own segment now reads like any standard one.
 //! assert_eq!(message.tree().find("XPN.2").unwrap().text(), "JOHN");
-//! # Ok::<(), hl7_v2::Error>(())
+//! # Ok::<(), hl7_2::Error>(())
 //! ```
 //!
 //! **Struct-based** — for the stable, long-lived feed where you want the
@@ -214,8 +214,8 @@ impl From<dictionary::Error> for Error {
 /// validation failures are fatal.
 ///
 /// ```
-/// let options = hl7_v2::Options::new()
-///     .with_version(hl7_v2::Version::V2_3_1)  // ignore what MSH-12 says
+/// let options = hl7_2::Options::new()
+///     .with_version(hl7_2::Version::V2_3_1)  // ignore what MSH-12 says
 ///     .strict();                              // reject what does not conform
 /// # let _ = options;
 /// ```

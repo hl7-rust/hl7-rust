@@ -6,7 +6,7 @@ fn nhs_dictionaries_load() {
     for flow in ["chemo", "mosaiq", "paris", "phw", "pims", "wds"] {
         let text = fs::read_to_string(format!("{root}/{flow}/dictionary.json")).unwrap();
         let d =
-            hl7_v2::Dictionary::from_json(&text, flow).unwrap_or_else(|e| panic!("{flow}: {e}"));
+            hl7_2::Dictionary::from_json(&text, flow).unwrap_or_else(|e| panic!("{flow}: {e}"));
         let structures: Vec<_> = d.structure_ids().collect();
         println!(
             "{flow}: version={:?} types={} segments={} structures={:?} PID-3={:?} card(PID,3)={:?} card(MSH,7)={:?}",

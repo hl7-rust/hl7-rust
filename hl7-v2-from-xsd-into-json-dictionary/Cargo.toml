@@ -3,7 +3,7 @@ name = "hl7-v2-from-xsd-into-json-dictionary"
 version = "0.1.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
-description = "HL7 v2 from XSD into JSON dictionary: read a directory of HL7 version 2 (v2) XML Schema Definition (XSD) files — the v2.xml encoding, as published or as a vendor customised it — and write the JSON dictionary the hl7-v2 crates read."
+description = "HL7 v2 from XSD into JSON dictionary: read a directory of HL7 version 2 (v2) XML Schema Definition (XSD) files — the v2.xml encoding, as published or as a vendor customised it — and write the JSON dictionary the hl7-2 crates read."
 license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
 repository = "https://github.com/hl7-rust/hl7-rust"
 readme = "README.md"
@@ -28,7 +28,7 @@ hl7-v2-xml-lite-helper = { version = "0.1", path = "../hl7-v2-xml-lite-helper" }
 [dev-dependencies]
 # The dictionaries this crate writes have to load in the crate that reads
 # them, and the only honest way to test that is to load one.
-hl7-v2 = { version = "0.2.0", path = "../hl7-v2", default-features = false }
+hl7-2 = { version = "0.2.0", path = "../hl7-2", default-features = false }
 
 [[bin]]
 name = "hl7-v2-from-xsd-into-json-dictionary"
