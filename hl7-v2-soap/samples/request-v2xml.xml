@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- An HL7 v2.xml payload carried in a SOAP body: the shape a receiver
+     validates against the published HL7 schemas. The prefix is SOAP-ENV
+     here on purpose; senders differ, and a receiver must not care. -->
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Body>
+    <ADT_A05 xmlns="urn:hl7-org:v2xml">
+      <MSH>
+        <MSH.1>|</MSH.1>
+        <MSH.2>^~\&amp;</MSH.2>
+        <MSH.3><HD.1>252</HD.1><HD.2/><HD.3/></MSH.3>
+        <MSH.4><HD.1>252</HD.1><HD.2/><HD.3/></MSH.4>
+        <MSH.7><TS.1>20250505232330</TS.1></MSH.7>
+        <MSH.9><MSG.1>ADT</MSG.1><MSG.2>A31</MSG.2><MSG.3>ADT_A05</MSG.3></MSH.9>
+        <MSH.10>202505052323300000000000</MSH.10>
+        <MSH.11><PT.1>P</PT.1></MSH.11>
+        <MSH.12><VID.1>2.5</VID.1></MSH.12>
+      </MSH>
+      <PID>
+        <PID.3>
+          <CX.1>8888888</CX.1>
+          <CX.4><HD.1>252</HD.1></CX.4>
+          <CX.5>PI</CX.5>
+        </PID.3>
+        <PID.5><XPN.1><FN.1>SURNAME</FN.1></XPN.1><XPN.2>FORENAME</XPN.2></PID.5>
+      </PID>
+    </ADT_A05>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

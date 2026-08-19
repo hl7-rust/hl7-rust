@@ -1,0 +1,28 @@
+[package]
+name = "hl7-v2-soap"
+version = "0.1.0"
+authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
+edition = "2024"
+description = "HL7 v2 over SOAP: the envelope, faults, payload carriage, WSDL, and response evaluation that carry Health Level Seven (HL7) version 2 (v2) messages over HTTP instead of MLLP."
+license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
+repository = "https://github.com/hl7-rust/hl7-v2-soap"
+readme = "README.md"
+keywords = ["hl7", "healthcare", "soap", "v2", "wsdl"]
+categories = ["network-programming", "parser-implementations", "encoding"]
+include = [
+    "src/**/*",
+    "spec/**/*",
+    "samples/**/*",
+    # The tests ship too: a crate about a protocol is worth more with the
+    # cases that pin the protocol down in the box.
+    "tests/**/*",
+    "/LICENSE.md",
+    "/README.md",
+]
+
+# One dependency, and it is the XML reader this crate used to carry its own
+# copy of. The helper has no dependencies of its own, so the audit surface
+# is the same as before and there is one parser to read instead of three.
+# The crate still carries no HTTP client or server — see spec/index.md §1.
+[dependencies]
+hl7-v2-xml-lite-helper = { version = "0.1", path = "../hl7-v2-xml-lite-helper" }
