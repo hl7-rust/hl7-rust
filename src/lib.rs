@@ -20,7 +20,7 @@
 //! assert!(json.contains("\"XPN.1\""));
 //! ```
 
-#![warn(missing_docs)]
+#![warn(missing_docs, clippy::pedantic)]
 
 pub mod json;
 pub mod structure;
@@ -104,11 +104,23 @@ pub struct Options {
 }
 
 /// Convert one ER7 message to JSON with default options.
+/// # Errors
+///
+/// [`Hl7Error`] when the input has no usable MSH header: no segments at
+/// all, a first segment that is not MSH, or a header whose delimiters
+/// cannot be read. Everything below the header degrades rather than
+/// failing.
 pub fn convert(er7_text: &str) -> Result<String, Hl7Error> {
     convert_with_options(er7_text, Options::default())
 }
 
 /// Convert one ER7 message to JSON.
+/// # Errors
+///
+/// [`Hl7Error`] when the input has no usable MSH header: no segments at
+/// all, a first segment that is not MSH, or a header whose delimiters
+/// cannot be read. Everything below the header degrades rather than
+/// failing.
 pub fn convert_with_options(er7_text: &str, options: Options) -> Result<String, Hl7Error> {
     let message = er7::parse(&normalize(er7_text))?;
     let root_name = root_name(&message);

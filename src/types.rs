@@ -10,6 +10,11 @@
 
 /// Component data types of a composite data type, or `None` when the type
 /// is primitive (ST, ID, IS, NM, SI, DT, DTM, TX, FT, ...) or unknown.
+#[must_use]
+// A data table, not logic: every HL7 type gets its own line even where two
+// happen to share a component list, because the table is read against the
+// standard type by type.
+#[allow(clippy::match_same_arms)]
 pub fn composite_components(dt: &str) -> Option<&'static [&'static str]> {
     let v: &'static [&'static str] = match dt {
         "AD" => &["ST", "ST", "ST", "ST", "ST", "ID", "ST", "ST"],
@@ -73,6 +78,8 @@ pub fn composite_components(dt: &str) -> Option<&'static [&'static str]> {
 /// Field data types of a segment (index 0 is SEG-1). `None` for segments
 /// not in the table (including Z-segments), which then use generic names.
 /// The sentinel `"VAR"` marks OBX-5, whose type is given by OBX-2.
+#[must_use]
+#[allow(clippy::match_same_arms)]
 pub fn segment_fields(seg: &str) -> Option<&'static [&'static str]> {
     let v: &'static [&'static str] = match seg {
         "AL1" => &["SI", "CE", "CE", "CE", "ST", "TS"],
@@ -160,6 +167,7 @@ pub fn segment_fields(seg: &str) -> Option<&'static [&'static str]> {
 }
 
 /// Data type of SEG-`index` (1-based), if the segment is in the table.
+#[must_use]
 pub fn field_type(seg: &str, index: usize) -> Option<&'static str> {
     segment_fields(seg)?.get(index.checked_sub(1)?).copied()
 }

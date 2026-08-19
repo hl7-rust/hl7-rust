@@ -232,6 +232,7 @@ const ORU_R01: &[Item] = &[
 ];
 
 /// Grammar for a message structure ID (as derived from MSH-9).
+#[must_use]
 pub fn structure_for(root: &str) -> Option<&'static [Item]> {
     match root {
         "ACK" => Some(ACK),
@@ -244,6 +245,7 @@ pub fn structure_for(root: &str) -> Option<&'static [Item]> {
 
 /// Arrange segment nodes into the grammar's groups. Returns `None` when the
 /// message does not fit the grammar exactly (caller then renders flat).
+#[must_use]
 pub fn group_segments(root: &str, items: &[Item], segs: &[(String, Node)]) -> Option<Vec<Node>> {
     let mut pos = 0;
     let mut out = Vec::new();

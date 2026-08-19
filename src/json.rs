@@ -15,6 +15,7 @@
 
 use crate::types::{composite_components, field_type};
 use er7::{Component, Repetition, Segment, Separators};
+use std::fmt::Write as _;
 
 /// One node of the intermediate tree built from parsed segments, before
 /// same-named siblings are collapsed into JSON arrays by [`node_to_value`].
@@ -63,6 +64,7 @@ impl Node {
 /// because `er7` stores subcomponent text exactly as it arrived and decodes
 /// escape sequences on demand, so decoding happens here, at the point the
 /// text becomes JSON.
+#[must_use]
 pub fn segment_to_node(seg: &Segment, separators: &Separators) -> Node {
     let seg_name = seg.name.clone();
     let mut node = Node::group(&seg_name);
@@ -223,6 +225,7 @@ pub enum Value {
 /// Turn a flat, ordered list of top-level nodes (segments and/or groups)
 /// into one [`Value::Object`], collapsing same-named siblings into arrays
 /// exactly as [`node_to_value`] does for a single node's children.
+#[must_use]
 pub fn nodes_to_object(nodes: &[Node]) -> Value {
     Value::Object(group_children(nodes))
 }
@@ -230,6 +233,7 @@ pub fn nodes_to_object(nodes: &[Node]) -> Value {
 /// Convert one node to a `Value`: a container becomes an object (with
 /// same-named children collapsed into arrays), a text leaf becomes a
 /// string, and a childless, textless leaf becomes `null`.
+#[must_use]
 pub fn node_to_value(node: &Node) -> Value {
     if !node.kids.is_empty() {
         Value::Object(group_children(&node.kids))
@@ -247,12 +251,11 @@ fn group_children(nodes: &[Node]) -> Vec<(String, Value)> {
     let mut order: Vec<&str> = Vec::new();
     let mut groups: Vec<(&str, Vec<&Node>)> = Vec::new();
     for node in nodes {
-        match groups.iter_mut().find(|(name, _)| *name == node.name) {
-            Some((_, kids)) => kids.push(node),
-            None => {
-                order.push(&node.name);
-                groups.push((&node.name, vec![node]));
-            }
+        if let Some((_, kids)) = groups.iter_mut().find(|(name, _)| *name == node.name) {
+            kids.push(node);
+        } else {
+            order.push(&node.name);
+            groups.push((&node.name, vec![node]));
         }
     }
     order
@@ -271,6 +274,7 @@ fn group_children(nodes: &[Node]) -> Vec<(String, Value)> {
 
 /// Serialize a `Value` as pretty-printed JSON (two-space indent, trailing
 /// newline) — the default rendering.
+#[must_use]
 pub fn render_pretty(value: &Value) -> String {
     let mut out = String::new();
     write_pretty(value, 0, &mut out);
@@ -280,6 +284,7 @@ pub fn render_pretty(value: &Value) -> String {
 
 /// Serialize a `Value` as compact JSON: no insignificant whitespace, one
 /// line. Used when `Options::compact` (`--compact` on the CLI) is set.
+#[must_use]
 pub fn render_compact(value: &Value) -> String {
     let mut out = String::new();
     write_compact(value, &mut out);
@@ -366,7 +371,9 @@ fn write_string(s: &str, out: &mut String) {
             '\n' => out.push_str("\\n"),
             '\r' => out.push_str("\\r"),
             '\t' => out.push_str("\\t"),
-            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c if (c as u32) < 0x20 => {
+                let _ = write!(out, "\\u{:04x}", c as u32);
+            }
             c => out.push(c),
         }
     }
