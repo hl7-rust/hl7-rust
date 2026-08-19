@@ -1,0 +1,8 @@
+{
+  "version": "2.7",
+  "description": "HL7 v2.7 as a delta of the v2.5 base. From v2.7 the TS composite is withdrawn in favour of the primitive DTM, so a field this crate's tables type as TS holds a scalar timestamp here rather than a value^degree-of-precision pair.",
+  "inherits": "2.5",
+  "types": {
+    "TS": null
+  }
+}

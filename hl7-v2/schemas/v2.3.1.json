@@ -1,0 +1,31 @@
+{
+  "version": "2.3.1",
+  "description": "HL7 v2.3.1 as a delta of the v2.5 base. This is the release that introduced MSH-9.3, the message structure, and the VID composite in MSH-12, so both are inherited from v2.5 unchanged; ERR is still the one-field form and there is no SFT or SPM.",
+  "inherits": "2.5",
+  "segments": {
+    "SFT": null,
+    "SPM": null,
+    "ERR": [
+      "ELD"
+    ]
+  },
+  "structures": {
+    "ACK": [
+      {
+        "segment": "MSH",
+        "required": true,
+        "repeats": false
+      },
+      {
+        "segment": "MSA",
+        "required": true,
+        "repeats": false
+      },
+      {
+        "segment": "ERR",
+        "required": false,
+        "repeats": true
+      }
+    ]
+  }
+}

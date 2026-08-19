@@ -1,0 +1,40 @@
+{
+  "version": "2.1",
+  "description": "HL7 v2.1 as a delta of the v2.5 base: MSH-9 without a message-structure component, MSH-12 as a plain ID, the one-field ERR, and no SFT or SPM segment. Everything else is inherited; see spec/index.md section 3.4 on coverage.",
+  "inherits": "2.5",
+  "types": {
+    "MSG": [
+      "ID",
+      "ID"
+    ]
+  },
+  "segments": {
+    "SFT": null,
+    "SPM": null,
+    "ERR": [
+      "ELD"
+    ],
+    "MSH": {
+      "12": "ID"
+    }
+  },
+  "structures": {
+    "ACK": [
+      {
+        "segment": "MSH",
+        "required": true,
+        "repeats": false
+      },
+      {
+        "segment": "MSA",
+        "required": true,
+        "repeats": false
+      },
+      {
+        "segment": "ERR",
+        "required": false,
+        "repeats": true
+      }
+    ]
+  }
+}
