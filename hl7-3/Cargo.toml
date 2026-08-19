@@ -1,6 +1,6 @@
 [package]
 name = "hl7-3"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 description = "HL7 v3 for Rust: the Reference Information Model (RIM) backbone classes, coded values, and the three-level message envelope (transport wrapper, control act wrapper, domain payload). A foundation, not a full implementation — see spec/index.md for exact scope."

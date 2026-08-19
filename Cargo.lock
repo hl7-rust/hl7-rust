@@ -102,7 +102,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "er7",
  "hl7-2-derive",
@@ -177,7 +177,7 @@ version = "0.1.0"
 
 [[package]]
 name = "hl7-3"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "hl7-2-xml-lite-helper",
  "hl7-3-derive",
