@@ -1,6 +1,6 @@
 [package]
 name = "hl7-v2-from-xml-into-er7"
-version = "0.4.1"
+version = "0.5.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 description = "HL7 v2 from XML into ER7: Convert Health Level Seven (HL7) version 2 (v2) messages from Extensible Markup Language (XML) into Encoding Rules version 7 (ER7) a.k.a. pipe-delimited."
@@ -11,6 +11,9 @@ categories = ["parser-implementations", "command-line-utilities"]
 
 [dependencies]
 # The ER7 encoding layer: the value tree, escape sequences, and writing
-# back out to the wire format. This crate supplies only the XML parser and
-# the reconstruction rules on top of it — see spec/index.md §2.
+# back out to the wire format. See spec/index.md §2.
 er7 = "0.1.0"
+# The XML reader, which this crate used to carry its own copy of. It has no
+# dependencies of its own, so the audit surface is unchanged and there is
+# one parser to read instead of three.
+hl7-v2-xml-lite-helper = { version = "0.1", path = "../hl7-v2-xml-lite-helper" }

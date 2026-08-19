@@ -27,10 +27,22 @@
 //! assert!(er7.contains("PID|||||TEST^FOUAZ"));
 //! ```
 
-#![warn(missing_docs)]
+#![warn(missing_docs, clippy::pedantic)]
+// XML literals keep their `r#"..."#` delimiters even where no `"` currently
+// forces them: these are documents, and adding a quoted attribute to one
+// should not also mean changing its delimiter.
+#![allow(clippy::needless_raw_string_hashes)]
 
 pub mod reconstruct;
-pub mod xml;
+/// The XML reader this crate is built on, re-exported so callers can name
+/// [`xml::Element`] without adding their own dependency.
+///
+/// Until 0.5.0 this was a module inside this crate, with a `Node` type of
+/// its own. It is now the standalone `hl7-v2-xml-lite-helper` crate, which
+/// reads the same subset; the type is [`xml::Element`], its children are
+/// `children` rather than `kids`, and its text is a `String` that is empty
+/// rather than an `Option` that is `None`.
+pub use hl7_v2_xml_lite_helper as xml;
 
 /// The ER7 encoding layer this crate writes onto, re-exported so callers
 /// can name [`er7::Message`], [`er7::Separators`], and
@@ -50,7 +62,7 @@ use std::fmt;
 #[derive(Debug)]
 pub enum Hl7Error {
     /// The input is not well-formed XML.
-    Xml(xml::XmlError),
+    Xml(xml::Error),
     /// The document has no segments at all (an empty or absent root
     /// element).
     Empty,
@@ -74,8 +86,8 @@ impl fmt::Display for Hl7Error {
 
 impl std::error::Error for Hl7Error {}
 
-impl From<xml::XmlError> for Hl7Error {
-    fn from(error: xml::XmlError) -> Hl7Error {
+impl From<xml::Error> for Hl7Error {
+    fn from(error: xml::Error) -> Hl7Error {
         Hl7Error::Xml(error)
     }
 }
@@ -86,13 +98,23 @@ impl From<xml::XmlError> for Hl7Error {
 ///
 /// Prefer this over [`convert`] when the caller wants to query or edit the
 /// message (via `er7`'s own API) rather than just its ER7 text.
+/// # Errors
+///
+/// [`Hl7Error`] when the document cannot be read as XML, or when what it
+/// contains is not an HL7 message: no segments, or a first segment that is
+/// not MSH.
 pub fn parse(xml_text: &str) -> Result<er7::Message, Hl7Error> {
-    let root = xml::parse_document(xml_text)?;
+    let root = xml::parse(xml_text)?;
     reconstruct::reconstruct(&root)
 }
 
 /// Convert one v2.xml document to ER7 text, with default rendering:
 /// carriage-return segment terminators, and no trailing terminator.
+/// # Errors
+///
+/// [`Hl7Error`] when the document cannot be read as XML, or when what it
+/// contains is not an HL7 message: no segments, or a first segment that is
+/// not MSH.
 pub fn convert(xml_text: &str) -> Result<String, Hl7Error> {
     convert_with_options(xml_text, er7::RenderOptions::default())
 }
@@ -100,6 +122,11 @@ pub fn convert(xml_text: &str) -> Result<String, Hl7Error> {
 /// Convert one v2.xml document to ER7 text, choosing the segment
 /// terminator and whether the last segment gets one too — see
 /// [`er7::RenderOptions`].
+/// # Errors
+///
+/// [`Hl7Error`] when the document cannot be read as XML, or when what it
+/// contains is not an HL7 message: no segments, or a first segment that is
+/// not MSH.
 pub fn convert_with_options(
     xml_text: &str,
     options: er7::RenderOptions,
