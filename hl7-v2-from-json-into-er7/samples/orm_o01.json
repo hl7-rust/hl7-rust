@@ -1,0 +1,63 @@
+{
+  "ORM_O01": {
+    "MSH": {
+      "MSH.1": "|",
+      "MSH.2": "^~\\&",
+      "MSH.3": {
+        "HD.1": "hphis"
+      },
+      "MSH.5": {
+        "HD.1": "EPIC"
+      },
+      "MSH.7": {
+        "TS.1": "20131011093851"
+      },
+      "MSH.9": {
+        "MSG.1": "ORM",
+        "MSG.2": "O01"
+      },
+      "MSH.10": "14AAACVDD",
+      "MSH.11": {
+        "PT.1": "P"
+      },
+      "MSH.12": {
+        "VID.1": "2.5"
+      }
+    },
+    "ORM_O01.PATIENT": {
+      "PID": {
+        "PID.1": "1",
+        "PID.3": {
+          "CX.1": "241900"
+        },
+        "PID.5": {
+          "XPN.1": {
+            "FN.1": "MEDIANO"
+          },
+          "XPN.2": "FOUAZ"
+        }
+      }
+    },
+    "ORM_O01.ORDER": {
+      "ORC": {
+        "ORC.1": "NW",
+        "ORC.2": {
+          "EI.1": "ORD1"
+        }
+      },
+      "ORM_O01.ORDER_DETAIL": {
+        "OBR": {
+          "OBR.1": "1",
+          "OBR.2": {
+            "EI.1": "ORD1"
+          },
+          "OBR.4": {
+            "CE.1": "24331-1",
+            "CE.2": "Lipid Panel",
+            "CE.3": "LN"
+          }
+        }
+      }
+    }
+  }
+}

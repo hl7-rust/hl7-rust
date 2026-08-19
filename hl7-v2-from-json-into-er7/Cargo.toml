@@ -1,0 +1,16 @@
+[package]
+name = "hl7-v2-from-json-into-er7"
+version = "0.4.1"
+authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
+edition = "2024"
+description = "HL7 v2 from JSON into ER7: Convert Health Level Seven (HL7) version 2 (v2) messages from JavaScript Object Notation (JSON) into Encoding Rules version 7 (ER7) a.k.a. pipe-delimited."
+license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
+repository = "https://github.com/hl7-rust/hl7-v2-from-json-into-er7"
+keywords = ["hl7", "healthcare", "json", "er7", "v2"]
+categories = ["parser-implementations", "command-line-utilities"]
+
+[dependencies]
+# The ER7 encoding layer: the value tree, escape sequences, and writing
+# back out to the wire format. This crate supplies only the JSON parser and
+# the reconstruction rules on top of it — see spec/index.md §2.
+er7 = "0.1.0"
