@@ -58,6 +58,10 @@ impl fmt::Display for JsonError {
 impl std::error::Error for JsonError {}
 
 /// Parse `text` as a single JSON document.
+/// # Errors
+///
+/// [`JsonError`] when the text is not valid JSON, with the byte offset
+/// where parsing gave up.
 pub fn parse_document(text: &str) -> Result<Value, JsonError> {
     let mut cursor = Cursor {
         s: text.strip_prefix('\u{feff}').unwrap_or(text),
@@ -233,9 +237,9 @@ impl<'a> Cursor<'a> {
                                 if !(0xDC00..=0xDFFF).contains(&low) {
                                     return Err(self.err("invalid low surrogate"));
                                 }
-                                0x10000 + (((high - 0xD800) as u32) << 10) + (low - 0xDC00) as u32
+                                0x10000 + (u32::from(high - 0xD800) << 10) + u32::from(low - 0xDC00)
                             } else {
-                                high as u32
+                                u32::from(high)
                             };
                             out.push(char::from_u32(code).unwrap_or('\u{FFFD}'));
                             continue; // hex digits already consumed; don't advance_char again

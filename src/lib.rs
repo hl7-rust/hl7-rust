@@ -24,7 +24,7 @@
 //! assert!(er7.contains("PID|||||TEST^FOUAZ"));
 //! ```
 
-#![warn(missing_docs)]
+#![warn(missing_docs, clippy::pedantic)]
 
 pub mod json;
 pub mod reconstruct;
@@ -85,6 +85,10 @@ impl From<json::JsonError> for Hl7Error {
 ///
 /// Prefer this over [`convert`] when the caller wants to query or edit the
 /// message (via `er7`'s own API) rather than just its ER7 text.
+/// # Errors
+///
+/// [`Hl7Error`] when the text is not valid JSON, or when what it contains
+/// is not an HL7 message: no segments, or a first segment that is not MSH.
 pub fn parse(json_text: &str) -> Result<er7::Message, Hl7Error> {
     let document = json::parse_document(json_text)?;
     reconstruct::reconstruct(&document)
@@ -92,12 +96,20 @@ pub fn parse(json_text: &str) -> Result<er7::Message, Hl7Error> {
 
 /// Convert one JSON document to ER7 text, with default rendering:
 /// carriage-return segment terminators, and no trailing terminator.
+/// # Errors
+///
+/// [`Hl7Error`] when the text is not valid JSON, or when what it contains
+/// is not an HL7 message: no segments, or a first segment that is not MSH.
 pub fn convert(json_text: &str) -> Result<String, Hl7Error> {
     convert_with_options(json_text, er7::RenderOptions::default())
 }
 
 /// Convert one JSON document to ER7 text, choosing the segment terminator
 /// and whether the last segment gets one too — see [`er7::RenderOptions`].
+/// # Errors
+///
+/// [`Hl7Error`] when the text is not valid JSON, or when what it contains
+/// is not an HL7 message: no segments, or a first segment that is not MSH.
 pub fn convert_with_options(
     json_text: &str,
     options: er7::RenderOptions,

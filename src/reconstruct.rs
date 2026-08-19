@@ -26,6 +26,11 @@ use std::collections::BTreeMap;
 /// Reconstruct a full [`Message`] from a parsed JSON document: a
 /// single-key object whose value holds the message's top-level segments
 /// and groups (the forward crate's spec §4.7).
+/// # Errors
+///
+/// [`Hl7Error`] when the document holds no segments, when the first is not
+/// MSH, or when the header does not carry the delimiters the rest is
+/// written in.
 pub fn reconstruct(document: &Value) -> Result<Message, Hl7Error> {
     let Value::Object(root_entries) = document else {
         return Err(Hl7Error::Empty);
@@ -175,10 +180,10 @@ fn literal_field(raw: impl Into<String>) -> Field {
 /// an absent field.
 fn build_fields(entries: &[(String, Value)], separators: &Separators) -> Vec<Field> {
     let indexed = index_entries(entries);
-    pad_fields(indexed, separators)
+    pad_fields(&indexed, separators)
 }
 
-fn pad_fields(indexed: BTreeMap<usize, &Value>, separators: &Separators) -> Vec<Field> {
+fn pad_fields(indexed: &BTreeMap<usize, &Value>, separators: &Separators) -> Vec<Field> {
     let len = indexed.keys().max().copied().unwrap_or(0);
     (1..=len)
         .map(|n| match indexed.get(&n) {
