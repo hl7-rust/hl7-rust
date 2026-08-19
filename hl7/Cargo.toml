@@ -5,7 +5,7 @@ authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 description = "HL7 for Rust: parse, navigate, validate, modify, and render Health Level Seven (HL7) messages. HL7 v2 (releases 2.1-2.9) lives in `hl7::v2`; room for `hl7::v3` and `hl7::fhir` as those standards are implemented."
 license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
-repository = "https://github.com/hl7-rust/hl7"
+repository = "https://github.com/hl7-rust/hl7-rust"
 keywords = ["hl7", "healthcare", "v2", "parser", "fhir"]
 categories = ["parser-implementations"]
 

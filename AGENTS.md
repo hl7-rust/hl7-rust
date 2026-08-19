@@ -1,0 +1,49 @@
+# AGENTS.md
+
+Instructions for coding agents (Claude Code, Codex, or any other) working in
+this repository.
+
+## What this is
+
+A Cargo workspace holding every crate in the HL7-for-Rust project — see
+`README.md` for the crate table and how they depend on each other. Each
+crate directory is a former standalone repository, merged in with
+`git subtree` so its commit history survived the move; each still has its
+own `README.md`, `AGENTS.md` (where present), and — for behavior that's
+normative rather than incidental — a `spec/index.md`, which remains the
+single source of truth for that crate's behavior. **Read the crate's own
+`AGENTS.md` before working in it**; this file only covers workspace-wide
+concerns.
+
+## Layout
+
+```
+Cargo.toml          The workspace: [workspace] members, nothing else.
+<crate>/Cargo.toml   Each member's own package manifest — unchanged from
+                     when it was a separate repo, except `repository` now
+                     points here and there is no per-crate Cargo.lock.
+```
+
+There is one `Cargo.lock` at the workspace root, not one per crate. Don't
+add one back inside a member directory.
+
+Member crates still depend on each other by relative path
+(`hl7-v2-mllp/Cargo.toml`'s `hl7-v2 = { path = "../hl7-v2" }`, for
+example) exactly as they did as sibling repositories — the flat,
+one-directory-per-crate layout was kept specifically so those paths did
+not need to change.
+
+## Working conventions
+
+- `cargo build` / `cargo test` from the workspace root builds and tests
+  every member in one pass. Use `-p <crate>` to scope to one.
+- Each crate keeps its own edition, feature set, and dependency list —
+  this workspace does not (yet) use `[workspace.package]` inheritance or a
+  shared `[workspace.dependencies]` table. Don't add either without
+  discussion; it would touch every member's `Cargo.toml` at once.
+- No `LICENSE` file exists at the workspace root or in any member yet —
+  known gap, not this file's job to fix silently.
+- When a change spans crates (a shared type, a version bump one crate's
+  `Cargo.toml` pins another to), update every affected crate's own
+  `AGENTS.md`/`spec/index.md` in the same change, the same as when they
+  were separate repos.

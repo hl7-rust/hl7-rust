@@ -1,0 +1,15 @@
+[workspace]
+resolver = "3"
+members = [
+  "hl7",
+  "hl7-v2",
+  "hl7-v2-derive",
+  "hl7-v2-mllp",
+  "hl7-v2-soap",
+  "hl7-v2-from-er7-into-json",
+  "hl7-v2-from-er7-into-xml",
+  "hl7-v2-from-json-into-er7",
+  "hl7-v2-from-xml-into-er7",
+  "hl7-v2-from-xsd-into-json-dictionary",
+  "hl7-v2-xml-lite-helper",
+]

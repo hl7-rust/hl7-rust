@@ -5,7 +5,7 @@ authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 description = "HL7 v2 MLLP: the Minimal Lower Layer Protocol that frames Health Level Seven (HL7) version 2 (v2) messages on a TCP stream. Framing, streaming, acknowledgements, and a transport trait."
 license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
-repository = "https://github.com/hl7-rust/hl7-v2-mllp"
+repository = "https://github.com/hl7-rust/hl7-rust"
 keywords = ["hl7", "healthcare", "mllp", "v2", "tcp"]
 categories = ["network-programming", "parser-implementations"]
 
