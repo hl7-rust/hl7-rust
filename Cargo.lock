@@ -194,6 +194,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "hl7-3-soap"
+version = "0.1.0"
+dependencies = [
+ "hl7-2-xml-lite-helper",
+]
+
+[[package]]
 name = "iana-time-zone"
 version = "0.1.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"

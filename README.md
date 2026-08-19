@@ -31,7 +31,10 @@ hl7-2                                 the HL7 v2 dictionary: releases
               |                        message envelope — a foundation,
               |                        not a full implementation
               +-- hl7-3-derive         #[derive(FromElement)] for hl7-3's
-                                       struct mode
+              |                        struct mode
+              +-- hl7-3-soap           transport: HL7 v3 over HTTP (SOAP)
+                                       — v3's own historically dominant
+                                       transport
 
 hl7                                     the umbrella crate — hl7::v2 and
                                        hl7::v3 today, room for hl7::fhir
@@ -51,6 +54,7 @@ workspace. Everything else above is a member here.
 | [`hl7-3-derive`](hl7-3-derive) | `#[derive(FromElement)]`, behind `hl7-3`'s `derive` feature. |
 | [`hl7-2-mllp`](hl7-2-mllp) | MLLP: HL7 v2 framed on a TCP stream. |
 | [`hl7-2-soap`](hl7-2-soap) | HL7 v2 carried in a SOAP envelope over HTTP. |
+| [`hl7-3-soap`](hl7-3-soap) | HL7 v3 carried in a SOAP envelope over HTTP — v3's own dominant transport. |
 | [`hl7-2-from-er7-into-json`](hl7-2-from-er7-into-json) | ER7 → typed JSON |
 | [`hl7-2-from-json-into-er7`](hl7-2-from-json-into-er7) | typed JSON → ER7 |
 | [`hl7-2-from-er7-into-xml`](hl7-2-from-er7-into-xml) | ER7 → v2.xml XML |
