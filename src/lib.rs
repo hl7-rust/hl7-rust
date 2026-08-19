@@ -16,10 +16,13 @@
 //! assert!(xml.contains("<XPN.1>"));
 //! ```
 
-#![warn(missing_docs)]
+#![warn(missing_docs, clippy::pedantic)]
+// XML literals keep their `r#"..."#` delimiters even where no `"` currently
+// forces them: these are documents, and adding a quoted attribute to one
+// should not also mean changing its delimiter.
+#![allow(clippy::needless_raw_string_hashes)]
 
 pub mod structure;
-pub mod types;
 pub mod xml;
 
 /// The ER7 encoding layer this crate is built on, re-exported so callers can
@@ -93,27 +96,101 @@ pub struct Options {
     /// Always emit segments flat under the root element, never grouped into
     /// message-structure groups such as `ORM_O01.PATIENT`.
     pub flat: bool,
+    /// Treat the dictionary as a schema that describes the document's exact
+    /// shape, rather than as a table of what things mean.
+    ///
+    /// Off, the message decides which elements appear: every field it
+    /// carries is written, every repetition becomes its own element, and a
+    /// field it leaves empty is absent. That is the right reading for the
+    /// bundled releases, whose tables say what a field *is* and nothing
+    /// about how often it may appear.
+    ///
+    /// On, the dictionary decides. A field it marks `required` is written
+    /// even when the message leaves it empty, so the position stays visible;
+    /// a field it does not mark `repeats` keeps its repetition separator as
+    /// ordinary text instead of becoming several elements; and no element is
+    /// written for a field the dictionary does not declare. Use it with a
+    /// dictionary generated from XML Schema — one produced by
+    /// `hl7-v2-from-xsd-into-json-dictionary` — where the answer to all
+    /// three questions came from the schema the output is validated against.
+    /// See `spec/index.md` §4.
+    pub schema_shape: bool,
 }
 
 /// Convert one ER7 message to a v2.xml document with default options.
+/// # Errors
+///
+/// [`Hl7Error`] when the input has no usable MSH header: no segments at
+/// all, a first segment that is not MSH, or a header whose delimiters
+/// cannot be read. Everything below the header degrades rather than
+/// failing.
 pub fn convert(er7_text: &str) -> Result<String, Hl7Error> {
     convert_with_options(er7_text, Options::default())
 }
 
-/// Convert one ER7 message to a v2.xml document.
+/// Convert one ER7 message to a v2.xml document, using the bundled HL7 v2.5
+/// dictionary.
+///
+/// v2.5 is used whatever MSH-12 says, which is what this crate has always
+/// done; pass a dictionary to [`convert_with_dictionary`] to convert against
+/// another release or a vendor dialect.
+/// # Errors
+///
+/// [`Hl7Error`] when the input has no usable MSH header: no segments at
+/// all, a first segment that is not MSH, or a header whose delimiters
+/// cannot be read. Everything below the header degrades rather than
+/// failing.
 pub fn convert_with_options(er7_text: &str, options: Options) -> Result<String, Hl7Error> {
+    convert_with_dictionary(er7_text, &hl7_v2::Version::V2_5.dictionary(), options)
+}
+
+/// Convert one ER7 message to a v2.xml document against a given dictionary.
+///
+/// The dictionary supplies everything this crate used to hard-code: which
+/// data type each field carries, what a composite type is made of, and how
+/// the message's segments group. A dictionary built from a vendor's own XML
+/// Schema therefore produces that vendor's document shape rather than the
+/// standard's — which is the point, since the output is usually validated
+/// against those same schemas.
+///
+/// ```
+/// let dictionary = hl7_v2::Version::V2_5.dictionary();
+/// let xml = hl7_v2_from_er7_into_xml::convert_with_dictionary(
+///     "MSH|^~\\&|APP||||1||ACK|1|P|2.5\rMSA|AA|1",
+///     &dictionary,
+///     Default::default(),
+/// ).unwrap();
+/// assert!(xml.contains("<ACK xmlns=\"urn:hl7-org:v2xml\">"));
+/// ```
+/// # Errors
+///
+/// [`Hl7Error`] when the input has no usable MSH header: no segments at
+/// all, a first segment that is not MSH, or a header whose delimiters
+/// cannot be read. Everything below the header degrades rather than
+/// failing.
+pub fn convert_with_dictionary(
+    er7_text: &str,
+    dictionary: &hl7_v2::Dictionary,
+    options: Options,
+) -> Result<String, Hl7Error> {
     let message = er7::parse(&normalize(er7_text))?;
-    let root_name = root_name(&message);
+    let root_name = root_name(&message, dictionary);
     let separators = &message.separators;
     let seg_nodes: Vec<(String, xml::Node)> = message
         .segments
         .iter()
-        .map(|s| (s.name.clone(), xml::segment_to_node(s, separators)))
+        .map(|s| {
+            (
+                s.name.clone(),
+                xml::segment_to_node(s, separators, dictionary, options.schema_shape),
+            )
+        })
         .collect();
     let grouped = if options.flat {
         None
     } else {
-        structure::structure_for(&root_name)
+        dictionary
+            .structure(&root_name)
             .and_then(|items| structure::group_segments(&root_name, items, &seg_nodes))
     };
     let mut root = xml::Node::group(xml::xml_name(&root_name));
@@ -156,21 +233,20 @@ pub fn split_messages(text: &str) -> Vec<String> {
 }
 
 /// Derive the message structure ID (and root element name) from MSH-9:
-/// MSH-9.3 when present, otherwise `MSG.1_MSG.2` with the trigger-event
-/// aliases resolved for the structures this crate knows about.
-fn root_name(message: &er7::Message) -> String {
+/// MSH-9.3 when present, otherwise the structure the dictionary says carries
+/// this message code and trigger event.
+///
+/// Which trigger events share a structure is dictionary knowledge — an A04
+/// admit and an A08 update are both carried by `ADT_A01` — so it comes from
+/// the `"aliases"` section rather than from a match arm here.
+fn root_name(message: &er7::Message, dictionary: &hl7_v2::Dictionary) -> String {
     if let Some(structure_id) = message.message_structure() {
         return structure_id;
     }
-    let code = message.message_code().unwrap_or_default();
-    let trigger = message.trigger_event().unwrap_or_default();
-    match (code.as_str(), trigger.as_str()) {
-        ("", _) => "HL7Message".to_string(),
-        ("ACK", _) => "ACK".to_string(),
-        ("ADT", "A01" | "A04" | "A08" | "A13") => "ADT_A01".to_string(),
-        (code, "") => code.to_string(),
-        (code, trigger) => format!("{code}_{trigger}"),
-    }
+    dictionary.structure_id(
+        &message.message_code().unwrap_or_default(),
+        &message.trigger_event().unwrap_or_default(),
+    )
 }
 
 #[cfg(test)]

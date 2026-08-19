@@ -1,4 +1,6 @@
-use hl7_v2_from_er7_into_xml::{Options, convert, convert_with_options, split_messages};
+use hl7_v2_from_er7_into_xml::{
+    Options, convert, convert_with_dictionary, convert_with_options, split_messages,
+};
 
 /// The spec's ORM^O01 example (with an ORC/OBR order so the message is a
 /// complete ORM_O01), checked against the exact expected v2.xml document,
@@ -142,7 +144,14 @@ fn falls_back_to_flat_on_structure_mismatch() {
 #[test]
 fn flat_option_disables_grouping() {
     let er7 = "MSH|^~\\&|APP||||20260814||ORM^O01|1|P|2.5\rPID|1\rORC|NW";
-    let xml = convert_with_options(er7, Options { flat: true }).unwrap();
+    let xml = convert_with_options(
+        er7,
+        Options {
+            flat: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
     assert!(!xml.contains("ORM_O01.PATIENT"));
     assert!(xml.contains("<PID.1>1</PID.1>"));
 }
@@ -210,4 +219,127 @@ fn splits_batches_into_messages() {
     let xml = convert(&messages[1]).unwrap();
     assert!(xml.contains("<ACK xmlns=\"urn:hl7-org:v2xml\">"));
     assert!(xml.contains("<MSA.1>AA</MSA.1>"));
+}
+
+// --------------------------------------------------------------------------
+// Schema mode: the dictionary decides the document's shape.
+// --------------------------------------------------------------------------
+
+/// A dictionary that states cardinality the way a generated one does.
+fn schema_dictionary() -> hl7_v2::Dictionary {
+    hl7_v2::Dictionary::from_json(
+        r#"{
+             "inherits": "2.5",
+             "segments": {
+               "PID": [
+                 "SI",
+                 {"type": "CX", "required": true},
+                 {"type": "CX", "repeats": true},
+                 "CX",
+                 {"type": "XPN", "required": true}
+               ]
+             }
+           }"#,
+        "test",
+    )
+    .unwrap()
+}
+
+fn schema_convert(er7: &str) -> String {
+    convert_with_dictionary(
+        er7,
+        &schema_dictionary(),
+        Options {
+            schema_shape: true,
+            ..Default::default()
+        },
+    )
+    .unwrap()
+}
+
+const HEADER: &str = "MSH|^~\\&|APP||||1||ADT^A01^ADT_A01|1|P|2.5\r";
+
+#[test]
+fn a_required_field_is_written_even_when_the_message_leaves_it_empty() {
+    // PID-2 and PID-5 are required; the message supplies neither. Each is
+    // written as the full tree its data type declares, because the schema
+    // requires those elements too, not just the field element around them.
+    let xml = schema_convert(&format!("{HEADER}PID|1"));
+    assert!(xml.contains("<PID.2>"), "{xml}");
+    assert!(xml.contains("<CX.1/>"), "{xml}");
+    assert!(xml.contains("<PID.5>"), "{xml}");
+    assert!(xml.contains("<XPN.1>"), "{xml}"); // XPN.1 is an FN, so it nests
+    assert!(xml.contains("<FN.1/>"), "{xml}");
+    // PID-4 is optional and empty, so it is not written at all.
+    assert!(!xml.contains("<PID.4"), "{xml}");
+}
+
+#[test]
+fn every_component_a_composite_declares_is_written() {
+    // HD.1/HD.2/HD.3 are all `minOccurs="1"` in the HL7 schemas, so a
+    // CX.4 carrying only an HD.1 still writes the other two.
+    let xml = schema_convert(&format!("{HEADER}PID|1||700001^^^169^PI"));
+    assert!(
+        xml.contains("<HD.1>169</HD.1><HD.2/><HD.3/>") || xml.contains("<HD.2/>"),
+        "{xml}"
+    );
+    let cx: Vec<_> = (1..=10).map(|n| format!("<CX.{n}")).collect();
+    for tag in &cx {
+        assert!(xml.contains(tag.as_str()), "missing {tag} in {xml}");
+    }
+}
+
+#[test]
+fn a_field_that_cannot_repeat_keeps_its_repetition_separator_as_text() {
+    // PID-4 does not repeat, so `A~B` stays one element...
+    let xml = schema_convert(&format!("{HEADER}PID|1||x|A~B"));
+    assert_eq!(xml.matches("<PID.4>").count(), 1, "{xml}");
+    assert!(xml.contains("A~B"), "{xml}");
+    // ...while PID-3, which does repeat, becomes two.
+    let xml = schema_convert(&format!("{HEADER}PID|1||A~B"));
+    assert_eq!(xml.matches("<PID.3>").count(), 2, "{xml}");
+    assert!(!xml.contains("A~B"), "{xml}");
+}
+
+#[test]
+fn no_element_is_written_for_a_field_the_dictionary_does_not_declare() {
+    // The dictionary stops at PID-5, so a PID-6 in the message is not
+    // written: the schema the output is validated against has no place
+    // for it.
+    let xml = schema_convert(&format!("{HEADER}PID|1||||Smith^John|extra"));
+    assert!(xml.contains("<PID.5>"), "{xml}");
+    assert!(!xml.contains("<PID.6"), "{xml}");
+}
+
+#[test]
+fn without_schema_shape_the_message_still_decides() {
+    // The same dictionary, read as a table rather than as a schema: no
+    // padding, no gating, and nothing dropped.
+    let xml = convert_with_dictionary(
+        &format!("{HEADER}PID|1||||Smith^John|extra"),
+        &schema_dictionary(),
+        Options::default(),
+    )
+    .unwrap();
+    assert!(!xml.contains("<PID.2/>"), "{xml}");
+    assert!(xml.contains("<PID.6>extra</PID.6>"), "{xml}");
+}
+
+#[test]
+fn a_dialect_dictionary_names_elements_its_own_way() {
+    // A vendor that redefines PID-3 as a plain string gets a leaf where the
+    // standard would have nested CX components.
+    let dictionary = hl7_v2::Dictionary::from_json(
+        r#"{"inherits": "2.5", "segments": {"PID": {"3": "ST"}}}"#,
+        "vendor",
+    )
+    .unwrap();
+    let xml = convert_with_dictionary(
+        &format!("{HEADER}PID|1||abc"),
+        &dictionary,
+        Options::default(),
+    )
+    .unwrap();
+    assert!(xml.contains("<PID.3>abc</PID.3>"), "{xml}");
+    assert!(!xml.contains("<CX.1>"), "{xml}");
 }

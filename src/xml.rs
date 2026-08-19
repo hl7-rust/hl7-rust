@@ -1,7 +1,9 @@
 //! Building the v2.xml element tree from parsed segments, and serializing it.
 
-use crate::types::{composite_components, field_type};
-use er7::{Component, Repetition, Segment, Separators};
+use er7::{Component, Field, Repetition, Segment, Separators, Subcomponent};
+use hl7_v2::Dictionary;
+use hl7_v2::dictionary::VARIABLE;
+use std::fmt::Write as _;
 
 /// XML namespace of the root element in every document this crate emits.
 pub const V2XML_NAMESPACE: &str = "urn:hl7-org:v2xml";
@@ -51,6 +53,7 @@ impl Node {
 }
 
 /// Keep only characters that are safe in an XML element name.
+#[must_use]
 pub fn xml_name(s: &str) -> String {
     let cleaned: String = s
         .chars()
@@ -69,84 +72,196 @@ pub fn xml_name(s: &str) -> String {
 
 /// Convert one segment into its `<SEG>` element with typed field children.
 ///
+/// `dictionary` supplies the field data types and, when `schema_shape` is
+/// set, what the schema says about how often each field may appear.
 /// `separators` is the delimiter set the message declared; it is needed
 /// because `er7` stores subcomponent text exactly as it arrived and decodes
 /// escape sequences on demand, so decoding happens here, at the point the
 /// text becomes XML.
-pub fn segment_to_node(seg: &Segment, separators: &Separators) -> Node {
+pub fn segment_to_node(
+    seg: &Segment,
+    separators: &Separators,
+    dictionary: &Dictionary,
+    schema_shape: bool,
+) -> Node {
     let seg_name = xml_name(&seg.name);
     let mut node = Node::group(&seg_name);
     // OBX-5 has a variable type declared by the value of OBX-2.
-    let obx_type = if seg.name == "OBX" {
-        first_value(seg, 2, 1, separators)
-            .map(|v| v.trim().to_ascii_uppercase())
-            .filter(|v| composite_components(v).is_some())
-    } else {
-        None
+    let variable = dictionary.variable_type(seg).map(str::to_string);
+
+    // In schema mode the dictionary decides which positions exist, so that a
+    // required-but-empty field still gets an element and nothing outside the
+    // schema appears. Otherwise the message decides, as it always has.
+    let declared = dictionary.segment_fields(&seg.name).map(<[String]>::len);
+    let count = match (schema_shape, declared) {
+        (true, Some(declared)) => declared,
+        _ => seg.fields.len(),
     };
-    for (i, field) in seg.fields.iter().enumerate() {
-        if field.is_empty() {
-            continue;
-        }
-        let n = i + 1;
+
+    for index in 0..count {
+        let n = index + 1;
         let name = format!("{seg_name}.{n}");
-        let dt = match field_type(&seg.name, n) {
-            Some("VAR") => obx_type.as_deref(),
+        let data_type = match dictionary.field_type(&seg.name, n) {
+            Some(VARIABLE) => variable.as_deref(),
             other => other,
         };
+        let field = seg.fields.get(index);
+        let cardinality = dictionary.field_cardinality(&seg.name, n);
+
+        let present = |field: &&Field| {
+            if schema_shape {
+                !written_text(field, separators).is_empty()
+            } else {
+                !field.is_empty()
+            }
+        };
+
+        let Some(field) = field.filter(present) else {
+            // A field the schema requires is written even when the message
+            // leaves it empty, so its position stays visible to a validator,
+            // and it is written as the full tree its data type declares.
+            if schema_shape && cardinality.required {
+                node.kids
+                    .push(declared_empty(&name, data_type, dictionary, 0));
+            }
+            continue;
+        };
+
+        // A field the schema does not let repeat keeps its repetition
+        // separator as ordinary text: splitting it would emit more elements
+        // than the schema allows, and the document would stop validating.
+        if schema_shape && !cardinality.repeats && field.repetitions.len() > 1 {
+            let joined = flatten(field, separators);
+            node.kids.push(repeat_node(
+                &name,
+                data_type,
+                &joined,
+                separators,
+                dictionary,
+                schema_shape,
+            ));
+            continue;
+        }
+
         for rep in &field.repetitions {
-            if rep.is_empty() {
+            // A repeating field that arrived as `~900001` has an empty first
+            // repetition, and in schema mode that position is written too:
+            // the schema counts elements, and the sender said there were two.
+            if rep.is_empty() && !schema_shape {
                 continue;
             }
-            node.kids.push(repeat_node(&name, dt, rep, separators));
+            node.kids.push(repeat_node(
+                &name,
+                data_type,
+                rep,
+                separators,
+                dictionary,
+                schema_shape,
+            ));
         }
     }
     node
 }
 
-/// The decoded text of SEG-`field`.`component`, taking the first repetition
-/// and first subcomponent, and treating an empty result as absent.
+/// What the sender actually wrote in a field, for deciding whether the
+/// position is occupied at all.
 ///
-/// `er7` offers this shape as a path query (`OBX-2.1`), but a query searches
-/// the whole message for the first matching segment, and here the segment is
-/// already in hand — this is the same lookup scoped to one segment.
-fn first_value(
-    seg: &Segment,
-    field: usize,
-    component: usize,
-    separators: &Separators,
-) -> Option<String> {
-    let text = seg
-        .component(field, component)?
-        .subcomponent(1)?
-        .value(separators)
-        .into_owned();
-    Some(text).filter(|t| !t.is_empty())
+/// Trailing separators are not content: a `PID-9` of `^^` is three empty
+/// components, which is the same as saying nothing, and the schema has no
+/// reason to carry an element for it. Two *repetitions* are different — a
+/// `PID-13` of `^^^~` says there are two of them, and the schema counts
+/// elements — so the repetition separator survives the trim and keeps the
+/// field occupied.
+fn written_text(field: &Field, separators: &Separators) -> String {
+    field
+        .repetitions
+        .iter()
+        .map(|repetition| {
+            repetition
+                .to_er7(separators)
+                .trim_end_matches([separators.component, separators.subcomponent])
+                .to_string()
+        })
+        .collect::<Vec<String>>()
+        .join(&separators.repetition.to_string())
+}
+
+/// Collapse a field's repetitions into the single repetition a
+/// non-repeating field is read as.
+///
+/// The field's own ER7 text is re-split on the component and subcomponent
+/// separators, so a `PID-13` of `A^B~C^D` under a schema that allows one
+/// repetition reads as the three components `A`, `B~C`, `D` — the
+/// repetition separator having become ordinary text in the second one.
+/// Escapes are left encoded here exactly as they arrive; the leaf writers
+/// decode them.
+fn flatten(field: &Field, separators: &Separators) -> Repetition {
+    let text = field.to_er7(separators);
+    Repetition {
+        components: text
+            .split(separators.component)
+            .map(|component| Component {
+                subcomponents: component
+                    .split(separators.subcomponent)
+                    .map(Subcomponent::new)
+                    .collect(),
+            })
+            .collect(),
+    }
 }
 
 /// One field repetition -> one field element.
-fn repeat_node(name: &str, dt: Option<&str>, rep: &Repetition, separators: &Separators) -> Node {
+fn repeat_node(
+    name: &str,
+    dt: Option<&str>,
+    rep: &Repetition,
+    separators: &Separators,
+    dictionary: &Dictionary,
+    schema_shape: bool,
+) -> Node {
     // Explicit null for the whole field: empty field element.
     if rep.is_null() {
         return Node::group(name);
     }
-    if let Some(comps) = dt.and_then(composite_components) {
+    if let Some(comps) = dt.and_then(|dt| dictionary.composite_components(dt)) {
         // Known composite type: children named after the type's components.
         let dt = dt.unwrap();
         let mut node = Node::group(name);
-        for (ci, comp) in rep.components.iter().enumerate() {
-            if comp.is_empty() {
-                continue;
-            }
+        // In schema mode the type decides how many components there are, so
+        // every one it declares is written and anything past the end of the
+        // declaration is dropped; otherwise the value decides.
+        let count = if schema_shape {
+            comps.len()
+        } else {
+            rep.components.len()
+        };
+        for ci in 0..count {
             let cname = format!("{}.{}", dt, ci + 1);
-            node.kids.push(component_node(
-                &cname,
-                comps.get(ci).copied(),
-                comp,
-                separators,
-            ));
+            let cdt = comps.get(ci).map(String::as_str);
+            match rep.components.get(ci) {
+                Some(comp) if !comp.is_empty() => node.kids.push(component_node(
+                    &cname,
+                    cdt,
+                    comp,
+                    separators,
+                    dictionary,
+                    schema_shape,
+                )),
+                // A declared component the value does not reach is written
+                // as the empty tree its own type declares, because the
+                // schema requires the elements to be there.
+                _ if schema_shape => node.kids.push(declared_empty(&cname, cdt, dictionary, 0)),
+                _ => {}
+            }
         }
         return node;
+    }
+    if schema_shape {
+        // The schema says this element has no children, so whatever the
+        // sender put there is its text — separators included. Inventing
+        // positional children would put elements in the document that the
+        // schema has no declaration for.
+        return Node::leaf(name, &rep.to_text(separators));
     }
     if let [only] = rep.components.as_slice()
         && let [sub] = only.subcomponents.as_slice()
@@ -172,19 +287,33 @@ fn component_node(
     cdt: Option<&str>,
     comp: &Component,
     separators: &Separators,
+    dictionary: &Dictionary,
+    schema_shape: bool,
 ) -> Node {
-    if let Some(cdt) = cdt.filter(|t| composite_components(t).is_some()) {
+    if let Some(cdt) = cdt.filter(|t| dictionary.is_composite(t)) {
         // Composite component: subcomponents named after its own components,
         // e.g. XPN.1 containing FN.1, or CX.4 containing HD.1/HD.2/HD.3.
+        let subtypes = dictionary.composite_components(cdt).unwrap_or_default();
+        let count = if schema_shape {
+            subtypes.len()
+        } else {
+            comp.subcomponents.len()
+        };
         let mut node = Node::group(cname);
-        for (si, sub) in comp.subcomponents.iter().enumerate() {
-            if sub.is_empty() {
-                continue;
+        for si in 0..count {
+            let sname = format!("{}.{}", cdt, si + 1);
+            match comp.subcomponents.get(si) {
+                Some(sub) if !sub.is_empty() => {
+                    node.kids.push(Node::leaf(sname, &sub.value(separators)));
+                }
+                _ if schema_shape => node.kids.push(declared_empty(
+                    &sname,
+                    subtypes.get(si).map(String::as_str),
+                    dictionary,
+                    0,
+                )),
+                _ => {}
             }
-            node.kids.push(Node::leaf(
-                format!("{}.{}", cdt, si + 1),
-                &sub.value(separators),
-            ));
         }
         return node;
     }
@@ -192,6 +321,38 @@ fn component_node(
         return Node::leaf(cname, &sub.value(separators));
     }
     generic_component_node(cname, comp, separators)
+}
+
+/// The tree a data type declares, with no values in it.
+///
+/// A schema that says `<xsd:element ref="HD.1"/>` with no `minOccurs`
+/// requires the element, so a composite the message never reaches still has
+/// to appear in full — `<CX.4><HD.1/><HD.2/><HD.3/></CX.4>` rather than
+/// `<CX.4/>`. A primitive is a childless element, which renders self-closing.
+///
+/// `depth` guards against a dictionary whose types contain one another; a
+/// well-formed one nests only a few levels.
+fn declared_empty(name: &str, dt: Option<&str>, dictionary: &Dictionary, depth: usize) -> Node {
+    const MAX_DEPTH: usize = 8;
+    let mut node = Node::group(name);
+    if depth >= MAX_DEPTH {
+        return node;
+    }
+    let Some(dt) = dt else {
+        return node;
+    };
+    let Some(components) = dictionary.composite_components(dt) else {
+        return node;
+    };
+    for (index, component) in components.iter().enumerate() {
+        node.kids.push(declared_empty(
+            &format!("{}.{}", dt, index + 1),
+            Some(component),
+            dictionary,
+            depth + 1,
+        ));
+    }
+    node
 }
 
 fn generic_component_node(cname: &str, comp: &Component, separators: &Separators) -> Node {
@@ -213,6 +374,7 @@ fn generic_component_node(cname: &str, comp: &Component, separators: &Separators
 
 /// Serialize a document with XML declaration; the root element carries the
 /// v2.xml namespace.
+#[must_use]
 pub fn render_document(root: &Node) -> String {
     let mut out = String::from("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     write_node(root, 0, true, &mut out);
@@ -227,19 +389,20 @@ fn write_node(node: &Node, depth: usize, is_root: bool, out: &mut String) {
         String::new()
     };
     if !node.kids.is_empty() {
-        out.push_str(&format!("{pad}<{}{}>\n", node.name, attrs));
+        let _ = writeln!(out, "{pad}<{}{}>", node.name, attrs);
         for kid in &node.kids {
             write_node(kid, depth + 1, false, out);
         }
-        out.push_str(&format!("{pad}</{}>\n", node.name));
+        let _ = writeln!(out, "{pad}</{}>", node.name);
     } else if let Some(text) = &node.text {
-        out.push_str(&format!(
-            "{pad}<{name}{attrs}>{}</{name}>\n",
+        let _ = writeln!(
+            out,
+            "{pad}<{name}{attrs}>{}</{name}>",
             escape_xml(text),
             name = node.name,
-        ));
+        );
     } else {
-        out.push_str(&format!("{pad}<{}{}/>\n", node.name, attrs));
+        let _ = writeln!(out, "{pad}<{}{}/>", node.name, attrs);
     }
 }
 
