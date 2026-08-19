@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Each segment's field list, with the cardinality that becomes a
+     dictionary field's `required` and `repeats`. Note Hxx, HL7's
+     placeholder for an arbitrary Z-segment: an empty sequence, which the
+     converter leaves out of the dictionary entirely. -->
+<xsd:schema xmlns="urn:hl7-org:v2xml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:hl7-org:v2xml">
+    <xsd:include schemaLocation="2_5_fields.xsd"/>
+    <xsd:complexType name="MSH.CONTENT">
+        <xsd:sequence>
+            <xsd:element ref="MSH.1"/>
+            <xsd:element ref="MSH.2"/>
+            <xsd:element minOccurs="0" ref="MSH.3"/>
+            <xsd:element ref="MSH.7"/>
+            <xsd:element ref="MSH.10"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="MSH" type="MSH.CONTENT"/>
+    <xsd:complexType name="EVN.CONTENT">
+        <xsd:sequence>
+            <xsd:element ref="EVN.2"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="EVN" type="EVN.CONTENT"/>
+    <xsd:complexType name="PID.CONTENT">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" ref="PID.1"/>
+            <xsd:element maxOccurs="unbounded" ref="PID.3"/>
+            <xsd:element minOccurs="0" ref="PID.5"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="PID" type="PID.CONTENT"/>
+    <xsd:complexType name="MRG.CONTENT">
+        <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" ref="MRG.1"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="MRG" type="MRG.CONTENT"/>
+    <xsd:complexType name="Hxx.CONTENT">
+        <xsd:sequence/>
+    </xsd:complexType>
+    <xsd:element name="Hxx" type="Hxx.CONTENT"/>
+</xsd:schema>

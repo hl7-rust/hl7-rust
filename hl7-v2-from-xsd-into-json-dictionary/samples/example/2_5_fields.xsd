@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Every SEG.n element and the data type it carries. Unlike the component
+     elements in _types.xsd, these name their data type directly. -->
+<xsd:schema xmlns="urn:hl7-org:v2xml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:hl7-org:v2xml">
+    <xsd:include schemaLocation="2_5_types.xsd"/>
+    <xsd:element name="MSH.1" type="ST"/>
+    <xsd:element name="MSH.2" type="ST"/>
+    <xsd:element name="MSH.3" type="HD"/>
+    <xsd:element name="MSH.7" type="TS"/>
+    <xsd:element name="MSH.10" type="ST"/>
+    <xsd:element name="PID.1" type="SI"/>
+    <xsd:element name="PID.3" type="CX"/>
+    <xsd:element name="PID.5" type="ST"/>
+    <xsd:element name="MRG.1" type="CX"/>
+    <xsd:element name="EVN.2" type="TS"/>
+</xsd:schema>

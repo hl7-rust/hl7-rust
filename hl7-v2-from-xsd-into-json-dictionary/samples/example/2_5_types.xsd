@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A small stand-in for a real <prefix>_types.xsd: enough composite data
+     types, and enough of the .CONTENT indirection, to exercise every path
+     the converter takes. -->
+<xsd:schema xmlns="urn:hl7-org:v2xml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:hl7-org:v2xml">
+    <xsd:simpleType name="ST">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="IS">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="ID">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="SI">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="DTM">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+
+    <!-- A composite whose components are all primitives. -->
+    <xsd:complexType name="HD">
+        <xsd:sequence>
+            <xsd:element ref="HD.1"/>
+            <xsd:element ref="HD.2"/>
+            <xsd:element ref="HD.3"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="HD.1.CONTENT">
+        <xsd:simpleContent><xsd:extension base="IS"/></xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:element name="HD.1" type="HD.1.CONTENT"/>
+    <xsd:complexType name="HD.2.CONTENT">
+        <xsd:simpleContent><xsd:extension base="ST"/></xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:element name="HD.2" type="HD.2.CONTENT"/>
+    <xsd:complexType name="HD.3.CONTENT">
+        <xsd:simpleContent><xsd:extension base="ID"/></xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:element name="HD.3" type="HD.3.CONTENT"/>
+
+    <!-- A composite one of whose components is itself a composite. -->
+    <xsd:complexType name="CX">
+        <xsd:sequence>
+            <xsd:element ref="CX.1"/>
+            <xsd:element ref="CX.4"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="CX.1.CONTENT">
+        <xsd:simpleContent><xsd:extension base="ST"/></xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:element name="CX.1" type="CX.1.CONTENT"/>
+    <xsd:complexType name="CX.4.CONTENT">
+        <xsd:complexContent><xsd:extension base="HD"/></xsd:complexContent>
+    </xsd:complexType>
+    <xsd:element name="CX.4" type="CX.4.CONTENT"/>
+
+    <xsd:complexType name="TS">
+        <xsd:sequence>
+            <xsd:element ref="TS.1"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="TS.1.CONTENT">
+        <xsd:simpleContent><xsd:extension base="DTM"/></xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:element name="TS.1" type="TS.1.CONTENT"/>
+</xsd:schema>
