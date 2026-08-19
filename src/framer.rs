@@ -35,6 +35,7 @@ impl Tolerance {
     /// [`Tolerance::Lenient`] is always available to a caller who asks for
     /// it explicitly, and turning the feature on is how a caller says
     /// "everything on this deployment talks to that one sender".
+    #[must_use]
     pub fn default_tolerance() -> Tolerance {
         if cfg!(feature = "noncompliance") {
             Tolerance::Lenient
@@ -44,21 +45,25 @@ impl Tolerance {
     }
 
     /// The strict reading, whatever the features say.
+    #[must_use]
     pub fn strict() -> Tolerance {
         Tolerance::Strict
     }
 
     /// The lenient reading, whatever the features say.
+    #[must_use]
     pub fn lenient() -> Tolerance {
         Tolerance::Lenient
     }
 
     /// Whether `<FS>` alone ends a frame.
+    #[must_use]
     pub fn allows_missing_carriage_return(self) -> bool {
         self == Tolerance::Lenient
     }
 
     /// Whether bytes outside a frame are discarded rather than reported.
+    #[must_use]
     pub fn allows_leading_bytes(self) -> bool {
         self == Tolerance::Lenient
     }
@@ -96,6 +101,7 @@ pub struct Framer {
 impl Framer {
     /// A framer with the default limit ([`DEFAULT_LIMIT`]) and the default
     /// tolerance (strict, unless the `noncompliance` feature is on).
+    #[must_use]
     pub fn new() -> Framer {
         Framer {
             buffer: Vec::new(),
@@ -108,23 +114,27 @@ impl Framer {
     /// a complete frame. Set it to the largest message the interface can
     /// legitimately send; the point is to bound what a peer can make this
     /// process allocate.
+    #[must_use]
     pub fn with_limit(mut self, limit: usize) -> Framer {
         self.limit = limit;
         self
     }
 
     /// A framer at a chosen [`Tolerance`], whatever the crate features say.
+    #[must_use]
     pub fn with_tolerance(mut self, tolerance: Tolerance) -> Framer {
         self.tolerance = tolerance;
         self
     }
 
     /// How much malformed framing this framer accepts.
+    #[must_use]
     pub fn tolerance(&self) -> Tolerance {
         self.tolerance
     }
 
     /// How many bytes are held, waiting for the rest of a frame.
+    #[must_use]
     pub fn buffered(&self) -> usize {
         self.buffer.len()
     }
@@ -132,6 +142,7 @@ impl Framer {
     /// Whether anything is buffered. A connection closing while this is
     /// true means the peer hung up mid-frame — worth logging, because the
     /// message it was sending is lost.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.buffer.is_empty()
     }
@@ -153,6 +164,12 @@ impl Framer {
     /// affairs mid-message; an error means the bytes are not MLLP and the
     /// connection cannot be trusted to resynchronize, so the usual response
     /// is to log it, [`Framer::reset`], and close.
+    /// # Errors
+    ///
+    /// [`Error`] when the stream cannot be framed: bytes before a start
+    /// block, a start block inside a frame, or more than the configured
+    /// limit buffered without an end block. Framing cannot be resynchronised
+    /// after any of these, so the connection is the caller's to close.
     pub fn next_frame(&mut self) -> Result<Option<Vec<u8>>, Error> {
         let Some(start) = self.buffer.iter().position(|&byte| byte == START_BLOCK) else {
             // No frame has begun. Everything buffered is outside a frame.
@@ -194,7 +211,7 @@ impl Framer {
         match body.get(end + 1) {
             Some(&CARRIAGE_RETURN) => {
                 let payload = body[..end].to_vec();
-                self.buffer.drain(..trailer + 1);
+                self.buffer.drain(..=trailer);
                 Ok(Some(payload))
             }
             Some(_) if self.tolerance.allows_missing_carriage_return() => {
@@ -215,6 +232,10 @@ impl Framer {
     ///
     /// Convenient when a read is expected to carry several messages. Stops
     /// at the first error, having already yielded the frames before it.
+    /// # Errors
+    ///
+    /// The same conditions as [`Framer::next_frame`]; frames already pulled
+    /// before the error are lost with it.
     pub fn frames(&mut self) -> Result<Vec<Vec<u8>>, Error> {
         let mut frames = Vec::new();
         while let Some(frame) = self.next_frame()? {
@@ -272,9 +293,9 @@ mod tests {
     fn splits_several_frames_from_one_read() {
         let mut framer = strict();
         framer.push(b"\x0bone\x1c\r\x0btwo\x1c\r\x0bthree\x1c\r");
-        let frames = framer.frames().unwrap();
+        let pulled = framer.frames().unwrap();
         assert_eq!(
-            frames,
+            pulled,
             [b"one".to_vec(), b"two".to_vec(), b"three".to_vec()]
         );
         assert!(framer.is_empty());

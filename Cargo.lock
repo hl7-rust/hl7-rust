@@ -93,8 +93,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "hl7-rust"
-version = "0.1.0"
+name = "hl7-v2"
+version = "0.2.0"
 dependencies = [
  "er7",
 ]
@@ -104,7 +104,7 @@ name = "hl7-v2-mllp"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "hl7-rust",
+ "hl7-v2",
 ]
 
 [[package]]

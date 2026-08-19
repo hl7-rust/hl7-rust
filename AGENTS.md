@@ -11,12 +11,13 @@ three-byte framing that carries HL7 v2 messages over TCP, plus the
 streaming, transport, and acknowledgement pieces a real interface needs
 around it.
 
-It is the **transport layer** of the `hl7-rust` family:
+It is the **transport layer** of the `hl7-v2` family:
 
 ```
 er7            the ER7 encoding
   |
-hl7-rust       HL7 v2 itself (imported as `hl7`; API in `hl7::v2`)
+hl7-v2       HL7 v2 itself (`hl7_v2::...` directly, or `hl7::v2::...`
+               via the `hl7` umbrella crate)
   |
   +-- hl7-v2-mllp    this crate: bytes on a wire
   +-- hl7-v2-from-er7-into-json / -into-xml / from-json / from-xml
@@ -26,13 +27,13 @@ hl7-rust       HL7 v2 itself (imported as `hl7`; API in `hl7::v2`)
 
 - This crate owns *where a message starts and stops*, and how a reply gets
   back.
-- `hl7-rust` owns *what a message means*. This crate parses a payload only
+- `hl7-v2` owns *what a message means*. This crate parses a payload only
   to build an acknowledgement, and validates nothing.
 - Neither owns *policy*: persistence before `AA`, timeouts, reconnection,
   and what to do about an `AR` are the application's.
 
 If a change here needs to know what a segment means, it probably belongs in
-`hl7-rust`. If it needs to know what the deployment wants, it belongs in
+`hl7-v2`. If it needs to know what the deployment wants, it belongs in
 the caller.
 
 See `README.md` for the user-facing pitch and `spec/index.md` for the exact,
@@ -59,7 +60,7 @@ anything needing a real socket, or crossing module boundaries, goes in
 
 ## Working conventions
 
-- **Rust edition 2024.** Dependencies: `hl7-rust` behind the default-on
+- **Rust edition 2024.** Dependencies: `hl7-v2` behind the default-on
   `ack` feature, `chrono` behind the off-by-default `clock` feature, and
   nothing else. `--no-default-features` must keep compiling with **zero**
   dependencies — that is a promise in the README, and worth keeping in a

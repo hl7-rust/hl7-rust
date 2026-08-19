@@ -39,7 +39,7 @@
 //! messages are called.
 
 use crate::{Error as FrameError, encode};
-use hl7::v2;
+use hl7_v2 as v2;
 use std::fmt;
 
 /// What an acknowledgement says happened, in MSA-1.
@@ -68,6 +68,7 @@ pub enum AckCode {
 
 impl AckCode {
     /// The two-letter code as it goes in MSA-1.
+    #[must_use]
     pub fn as_str(self) -> &'static str {
         match self {
             AckCode::Accept => "AA",
@@ -80,6 +81,7 @@ impl AckCode {
     }
 
     /// Whether this code says the message was accepted (`AA` or `CA`).
+    #[must_use]
     pub fn is_accept(self) -> bool {
         matches!(self, AckCode::Accept | AckCode::CommitAccept)
     }
@@ -134,6 +136,11 @@ impl From<FrameError> for Error {
 /// unframed. `control_id` and `timestamp` belong to the acknowledgement
 /// itself, not to the message being answered; see the module documentation
 /// on why they are arguments.
+/// # Errors
+///
+/// [`Error::NotText`] when the payload is not UTF-8, [`Error::NotHl7`] when
+/// it is text but not a readable HL7 message, and [`Error::Build`] when the
+/// acknowledgement could not be assembled from it.
 pub fn acknowledge(
     payload: &[u8],
     code: AckCode,
@@ -155,15 +162,19 @@ pub fn acknowledge(
 /// ```
 /// use hl7_v2_mllp::{AckCode, ack, encode};
 ///
-/// let message = hl7::v2::parse("MSH|^~\\&|LAB|ACME|EHR|CLINIC|20260814||ORU^R01|99|P|2.5")?;
+/// let message = hl7_v2::parse("MSH|^~\\&|LAB|ACME|EHR|CLINIC|20260814||ORU^R01|99|P|2.5")?;
 ///
 /// // Say what was wrong, not merely that something was.
 /// let mut nack = ack::acknowledge_message(&message, AckCode::Error, "N1", "20260814080100")?;
 /// nack.set("MSA-3", "OBR-4 is required")?;
 /// let frame = encode(nack.to_er7().as_bytes());
 /// # assert!(String::from_utf8(frame).unwrap().contains("MSA|AE|99|OBR-4 is required"));
-/// # Ok::<(), hl7::v2::Error>(())
+/// # Ok::<(), hl7_v2::Error>(())
 /// ```
+/// # Errors
+///
+/// [`v2::Error`] when the acknowledgement cannot be assembled — a message
+/// whose header is missing what an acknowledgement has to echo back.
 pub fn acknowledge_message(
     message: &v2::Message,
     code: AckCode,
@@ -196,6 +207,10 @@ pub fn now() -> String {
 /// that is not HL7 — because they mean different things about the peer:
 /// the first is usually a character-set or protocol mismatch, the second a
 /// sender writing something else into the frame.
+/// # Errors
+///
+/// [`Error::NotText`] when the payload is not UTF-8, and [`Error::NotHl7`]
+/// when it is text but not an HL7 v2 message.
 pub fn parse(payload: &[u8]) -> Result<v2::Message, Error> {
     let text = std::str::from_utf8(payload).map_err(|_| Error::NotText)?;
     v2::parse(text).map_err(Error::NotHl7)

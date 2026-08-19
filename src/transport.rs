@@ -23,14 +23,24 @@ use std::io::{self, Read, Write};
 /// because a stream that has lost framing cannot be resynchronized.
 pub trait Transport {
     /// Frame `payload` and send it.
+    /// # Errors
+    ///
+    /// Whatever the underlying stream reports on write.
     fn send(&mut self, payload: &[u8]) -> io::Result<()>;
 
     /// Receive the next complete message, or `None` at end of stream.
+    /// # Errors
+    ///
+    /// Whatever the underlying stream reports on read, and
+    /// [`io::ErrorKind::InvalidData`] for a stream that cannot be framed.
     fn receive(&mut self) -> io::Result<Option<Vec<u8>>>;
 
     /// Send `message` as UTF-8. HL7 v2 is usually ASCII, but MSH-18 can
     /// name another character set, and a message already encoded in one
     /// should go through [`Transport::send`] as bytes instead.
+    /// # Errors
+    ///
+    /// Whatever the underlying stream reports on write.
     fn send_str(&mut self, message: &str) -> io::Result<()> {
         self.send(message.as_bytes())
     }

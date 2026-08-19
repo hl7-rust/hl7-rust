@@ -17,8 +17,8 @@ test, or a code change that isn't reflected here, is a bug.
 ```
 er7                      the ER7 encoding: delimiters, escapes, rendering
   |
-hl7-rust                 the HL7 v2 dictionary: releases 2.1-2.9, data
-  (imported as `hl7`)    types, structures, three parsing modes,
+hl7-v2                 the HL7 v2 dictionary: releases 2.1-2.9, data
+                         types, structures, three parsing modes,
   |                      mutation, validation
   |
   +-- hl7-v2-mllp        this crate: getting those messages across a
@@ -34,7 +34,7 @@ reach for a framework:
 
 - **This crate owns bytes on a wire.** Where a message starts, where it
   stops, and how a reply gets back.
-- **`hl7-rust` owns what a message means.** This crate parses a payload
+- **`hl7-v2` owns what a message means.** This crate parses a payload
   only to build an acknowledgement (§5), and validates nothing.
 - **Neither owns policy.** Whether an `AA` may be sent before the message
   is persisted, how long to wait for a reply, when to reconnect, and what
@@ -139,7 +139,7 @@ distinguish a complete message from a truncated one.
 | `TooLarge` | more buffered than the limit allows without a complete frame (§4.3) |
 
 Every variant means the *bytes* are not MLLP. None means the *message* is
-wrong: that question belongs to `hl7::v2::Message::validate`, one layer up,
+wrong: that question belongs to `hl7_v2::Message::validate`, one layer up,
 and can only be asked once framing has succeeded. `Error` converts into
 `std::io::Error` of kind `InvalidData`, which is how it reaches a caller
 through §6.
@@ -184,7 +184,7 @@ does not compare it will eventually treat one answer as another's.
 ### 5.1 What is generated
 
 `acknowledge` parses the payload, builds the `ACK`, and frames it. It is
-built by `hl7::v2::builder::acknowledge`, so per that crate's spec §7.4:
+built by `hl7_v2::builder::acknowledge`, so per that crate's spec §7.4:
 sender and receiver swap (`MSH-3`/`MSH-4` ↔ `MSH-5`/`MSH-6`), `MSA-2`
 echoes `MSH-10`, and the reply is in the release the sender declared in
 `MSH-12`.
@@ -241,7 +241,7 @@ message still arriving.
 
 | feature | default | effect |
 |---|---|---|
-| `ack` | on | acknowledgement generation (§5); pulls in `hl7-rust` |
+| `ack` | on | acknowledgement generation (§5); pulls in `hl7-v2` |
 | `clock` | off | `acknowledge_now`, `now`; pulls in `chrono`. Implies `ack` |
 | `noncompliance` | off | `Tolerance::default()` becomes `Lenient` (§3.3) |
 
@@ -297,5 +297,5 @@ a rule nobody is holding.
 
 - HL7 v2 standards, including the transport specification that defines
   MLLP: <https://www.hl7.org/implement/standards/>
-- `hl7-rust` (HL7 v2 itself): <https://github.com/hl7-rust/hl7-v2>
+- `hl7-v2` (HL7 v2 itself): <https://github.com/hl7-rust/hl7-v2>
 - `er7` (the ER7 encoding): <https://crates.io/crates/er7>

@@ -76,7 +76,7 @@
 //! everything above; where this documentation and that document disagree,
 //! that document is right.
 
-#![warn(missing_docs)]
+#![warn(missing_docs, clippy::pedantic)]
 
 #[cfg(feature = "ack")]
 pub mod ack;
@@ -89,9 +89,9 @@ pub use framer::{Framer, Tolerance};
 pub use transport::{IoTransport, Transport};
 
 /// The HL7 v2 crate acknowledgements are built with, re-exported so callers
-/// can name [`hl7::v2::Message`] without adding their own dependency.
+/// can name [`hl7_v2::Message`] without adding their own dependency.
 #[cfg(feature = "ack")]
-pub use hl7;
+pub use hl7_v2;
 
 use std::fmt;
 
@@ -124,6 +124,7 @@ pub const DEFAULT_LIMIT: usize = 16 * 1024 * 1024;
 /// cannot, having defined no escape character — so a payload containing
 /// `<VT>` or `<FS>` cannot be framed unambiguously. [`is_framable`] is the
 /// check; HL7 v2 text never contains either byte.
+#[must_use]
 pub fn encode(payload: &[u8]) -> Vec<u8> {
     let mut frame = Vec::with_capacity(payload.len() + 3);
     frame.push(START_BLOCK);
@@ -139,6 +140,7 @@ pub fn encode(payload: &[u8]) -> Vec<u8> {
 /// [`encode`] does not check, because for HL7 v2 text the answer is always
 /// yes and a caller framing something else already knows what they are
 /// doing. Check when the payload came from somewhere you do not control.
+#[must_use]
 pub fn is_framable(payload: &[u8]) -> bool {
     !payload
         .iter()
@@ -150,11 +152,18 @@ pub fn is_framable(payload: &[u8]) -> bool {
 /// This is for a frame already in hand: a test fixture, a file, a datagram.
 /// Against a stream use [`Framer`], which handles a frame split across
 /// reads and several frames in one read.
+/// # Errors
+///
+/// [`Error`] when the bytes are not one complete frame: no start block, no
+/// end block, or a missing carriage return after it.
 pub fn decode(frame: &[u8]) -> Result<&[u8], Error> {
     decode_with(frame, Tolerance::default())
 }
 
 /// Unwrap one complete frame at a chosen [`Tolerance`].
+/// # Errors
+///
+/// The same conditions as [`decode`], less whatever `tolerance` forgives.
 pub fn decode_with(frame: &[u8], tolerance: Tolerance) -> Result<&[u8], Error> {
     let Some((&first, rest)) = frame.split_first() else {
         return Err(Error::Incomplete);
@@ -185,7 +194,7 @@ pub fn decode_with(frame: &[u8], tolerance: Tolerance) -> Result<&[u8], Error> {
 ///
 /// Every variant means the bytes on the wire are not MLLP. None of them
 /// means the *message* is wrong — that question belongs one layer up, to
-/// `hl7::v2::Message::validate`, and can only be asked once framing has
+/// `hl7_v2::Message::validate`, and can only be asked once framing has
 /// succeeded.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Error {

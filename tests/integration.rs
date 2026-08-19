@@ -25,7 +25,7 @@ fn a_message_survives_the_round_trip_to_the_wire() {
 
     // And it is still the same message afterwards, segment terminators and
     // all — the frame's trailer uses the same byte, and must not eat one.
-    let message = hl7::v2::parse(std::str::from_utf8(payload).unwrap()).unwrap();
+    let message = hl7_v2::parse(std::str::from_utf8(payload).unwrap()).unwrap();
     assert_eq!(message.to_er7(), MESSAGE);
     assert_eq!(message.segments().count(), 4);
 }
