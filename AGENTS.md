@@ -43,6 +43,12 @@ not need to change.
   this workspace does not (yet) use `[workspace.package]` inheritance or a
   shared `[workspace.dependencies]` table. Don't add either without
   discussion; it would touch every member's `Cargo.toml` at once.
+- **MSRV is current stable Rust minus three releases**, pinned as
+  `rust-version` in every member's `Cargo.toml` and stated in
+  [`spec/rust-msrv-n-minus-3.md`](spec/rust-msrv-n-minus-3.md). Check a
+  change against it with `cargo +1.95 check --workspace --all-targets`;
+  raising the floor is a breaking change and belongs in a release allowed
+  to break.
 - Every crate, and the workspace root, has its own `LICENSE.md` — the same
   multi-license boilerplate byte-for-byte everywhere, matching each
   `Cargo.toml`'s `license` field. Keep new crates consistent with that;
