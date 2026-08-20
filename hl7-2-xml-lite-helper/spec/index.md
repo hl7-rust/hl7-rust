@@ -99,6 +99,22 @@ is refusing a document over a fragment nobody was going to read.
 There is no recovery: a document that is not well-formed is an error, not a
 best guess.
 
+### 3.7 Nesting limit
+
+Elements may nest at most **256** deep; past that, reading stops with
+`Malformed`.
+
+Reading is recursive, so nesting depth is stack depth. Without a limit, a
+few kilobytes of nothing but open tags overflow the stack and abort the
+process — a crash the caller cannot catch, from input the caller did not
+write, which is the one failure mode a reader must not have. An error is
+recoverable; an abort is not.
+
+The limit is not a judgement about documents. A v2.xml message reaches its
+subcomponents in six levels and a SOAP envelope in about the same, so 256
+is far above anything this crate is for and far below anything that
+threatens the stack.
+
 ## 4. Writing (`escape`)
 
 `escape` replaces all five of `& < > " '`. All five, not the three that
@@ -109,6 +125,13 @@ attribute instead and this crate does not get to choose.
 
 None, and it stays that way. A crate whose argument is that it is small
 enough to audit cannot have dependencies that also need auditing.
+
+Development dependencies are a separate question and are not covered by
+the rule above: `criterion` is compiled only for `cargo bench`, and
+`libfuzzer-sys` only for `cargo +nightly fuzz` in the separate `fuzz/`
+workspace. Neither is linked into the library or the binary, and neither
+reaches anyone who depends on this crate, so neither adds to the audit
+surface the rule is protecting.
 
 ## 6. What this is not
 

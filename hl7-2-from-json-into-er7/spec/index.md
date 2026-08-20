@@ -66,6 +66,22 @@ string, a missing comma, trailing data after the top-level value — is
 `Hl7Error::Json`, the only category of failure this crate reports that
 isn't about what the JSON means as HL7.
 
+### 2.1 Nesting limit
+
+Objects and arrays may nest at most **256** deep; past that, reading stops
+with `Hl7Error::Json`.
+
+Reading is recursive, so nesting depth is stack depth. Without a limit, a
+few kilobytes of `[[[[…` overflow the stack and abort the process — a crash
+the caller cannot catch, from a document another system sent them, which is
+the one failure mode a reader must not have. An error is recoverable; an
+abort is not.
+
+The limit is not a judgement about documents. A converted message nests six
+levels at the outside — structure, group, segment, field, component,
+subcomponent — so 256 is far above anything this crate is for and far below
+anything that threatens the stack.
+
 ## 3. Reconstructing the value tree (`src/reconstruct.rs`)
 
 ### 3.1 Unwrapping the document and flattening groups
@@ -204,9 +220,23 @@ crate's own philosophy:
 
 - **No dictionary, so no validation** of segment shape, data types,
   cardinality, or table values.
+- **A segment named like a group cannot be told from one.** A segment
+  key whose name contains a `.` is read as a group and flattened, so a
+  segment the sender called `Z.1` contributes nothing. Nothing in the
+  document distinguishes the two cases, and this crate has no
+  message-structure grammar to consult (§3.1). The sibling forward crate
+  never produces such a name — it strips `.` from segment IDs for exactly
+  this reason — so this can only arise from another producer's output.
 - **A key with no parseable trailing index** (should not arise from the
   forward crate's own output) is assigned the position right after the
   highest index already seen at that level, rather than being dropped.
+- **A position above 10,000** is treated the same way, for the same
+  reason and one more: reconstruction is dense, so position `n` costs `n`
+  slots at that level, and a key is only text. `"PID.100000000"` — a
+  hundred bytes of input — would otherwise ask for a hundred million
+  fields, and a larger number for more memory than the machine has. Real
+  segments run to tens of fields, so the cap is far above anything HL7
+  defines and far below anything that hurts.
 - **A number or boolean scalar** (never emitted by the forward crate, but
   valid JSON) is coerced to text per §2 rather than rejected.
 - **A subcomponent-level value that is itself an object** (deeper nesting
@@ -266,7 +296,9 @@ Documented here because it is spec-level (input/output contract), not an
 implementation detail:
 
 - `hl7_2_from_json_into_er7 [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
-  omitted or `-`. The input holds one converted-JSON document.
+  omitted or `-`. The input holds one converted-JSON document. At most one
+  input may be named: a second one, `-` included, is an error rather than a
+  silent replacement of the first.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
 - `-t, --terminator <cr|lf|crlf>` chooses the segment terminator; `cr` (a
   bare carriage return) is the default and the only terminator HL7 permits

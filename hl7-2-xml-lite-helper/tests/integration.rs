@@ -192,3 +192,33 @@ fn a_default_element_is_usable() {
     assert_eq!(element.text_opt(), None);
     assert!(element.child("x").is_none());
 }
+
+/// Reading is recursive, so nesting depth is stack depth. Without a limit a
+/// small document of nothing but open tags aborted the process with a stack
+/// overflow — a crash, not an error, which a library must never hand its
+/// caller. Past the limit it is an ordinary `Malformed` error.
+#[test]
+fn nesting_past_the_limit_is_an_error_not_a_stack_overflow() {
+    let deep = format!("{}{}", "<a>".repeat(20_000), "</a>".repeat(20_000));
+    assert!(matches!(
+        hl7_2_xml_lite_helper::parse(&deep),
+        Err(hl7_2_xml_lite_helper::Error::Malformed(..))
+    ));
+}
+
+/// The limit is far above anything the documents this crate is for reach:
+/// a v2.xml message needs six levels, a SOAP envelope about the same.
+#[test]
+fn ordinary_nesting_depth_still_reads() {
+    let depth = 64;
+    let xml = format!("{}x{}", "<a>".repeat(depth), "</a>".repeat(depth));
+    let root = hl7_2_xml_lite_helper::parse(&xml).unwrap();
+    let mut node = &root;
+    let mut seen = 1;
+    while let Some(kid) = node.children.first() {
+        node = kid;
+        seen += 1;
+    }
+    assert_eq!(seen, depth);
+    assert_eq!(node.text, "x");
+}

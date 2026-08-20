@@ -9,11 +9,16 @@
 //! the one fact this module leans on, and it means reconstruction needs no
 //! HL7 v2.5 data-type dictionary at all — see `spec/index.md` §3 for the
 //! full rule set this implements.
+//!
+//! Every name this module reads is an element's *local* name: a document
+//! that binds `urn:hl7-org:v2xml` to a prefix writes `<ns0:MSH>` and
+//! `<ns0:MSH.1>` for the same elements the forward crate writes as `<MSH>`
+//! and `<MSH.1>`, and which prefix — if any — a serializer chose says
+//! nothing about the message. See `spec/index.md` §2.1.
 
 use crate::Hl7Error;
 use crate::xml::Element;
 use er7::escape::{Escape, escape, escapes};
-use er7::message::NULL;
 use er7::{Component, Field, Message, Repetition, Segment, Separators, Subcomponent};
 use std::collections::BTreeMap;
 
@@ -27,7 +32,7 @@ pub fn reconstruct(root: &Element) -> Result<Message, Hl7Error> {
     let mut flat = Vec::new();
     flatten_segments(root, &mut flat);
     let header = flat.first().ok_or(Hl7Error::Empty)?;
-    if !is_header_name(&header.name) {
+    if !is_header_name(header.local_name()) {
         return Err(Hl7Error::MissingMsh);
     }
     let separators = header_separators(header)?;
@@ -44,8 +49,8 @@ pub fn reconstruct(root: &Element) -> Result<Message, Hl7Error> {
 /// Walk `node`'s children, collecting the segment elements in document
 /// order and descending into (but not keeping) group elements.
 ///
-/// A child is a group, not a segment, exactly when its name contains a
-/// `.` — real segment IDs never do, while every group element the sibling
+/// A child is a group, not a segment, exactly when its local name contains
+/// a `.` — real segment IDs never do, while every group element the sibling
 /// crate emits is named `{message-structure}.{group}` regardless of how
 /// deeply it is nested (`hl7-2-from-er7-into-xml` spec §3.2). This is why
 /// reconstruction needs no message-structure grammar either: it flattens
@@ -53,7 +58,7 @@ pub fn reconstruct(root: &Element) -> Result<Message, Hl7Error> {
 /// produces, and a flat segment sequence is all ER7 needs.
 fn flatten_segments<'a>(node: &'a Element, out: &mut Vec<&'a Element>) {
     for kid in &node.children {
-        if kid.name.contains('.') {
+        if kid.local_name().contains('.') {
             flatten_segments(kid, out);
         } else {
             out.push(kid);
@@ -73,10 +78,10 @@ fn is_header_name(name: &str) -> bool {
 /// [`er7::Separators::from_header`] — the same parsing `er7` applies to a
 /// real ER7 header, reused rather than duplicated.
 fn header_separators(header: &Element) -> Result<Separators, Hl7Error> {
+    let name = header.local_name();
     let field_separator = field_text(header, 1).ok_or_else(|| {
         Hl7Error::BadMshHeader(format!(
-            "{} has no {}.1 field (the field separator)",
-            header.name, header.name
+            "{name} has no {name}.1 field (the field separator)"
         ))
     })?;
     let encoding = field_text(header, 2).unwrap_or("");
@@ -85,26 +90,23 @@ fn header_separators(header: &Element) -> Result<Separators, Hl7Error> {
     // next field separator — so appending the field separator again gives
     // it the terminator it expects, exactly as a real "MSH|^~\&|..." line
     // would.
-    let synthetic = format!(
-        "{}{field_separator}{encoding}{field_separator}",
-        header.name
-    );
+    let synthetic = format!("{name}{field_separator}{encoding}{field_separator}");
     Separators::from_header(&synthetic).map_err(|e| Hl7Error::BadMshHeader(e.to_string()))
 }
 
 /// The decoded text of `segment`'s `.n` child, if present and non-null.
 fn field_text(segment: &Element, n: usize) -> Option<&str> {
-    let target = format!("{}.{n}", segment.name);
+    let target = format!("{}.{n}", segment.local_name());
     segment
         .children
         .iter()
-        .find(|kid| kid.name == target)
+        .find(|kid| kid.local_name() == target)
         .and_then(leaf_text)
 }
 
 fn build_segment(node: &Element, separators: &Separators) -> Segment {
     let mut fields = build_fields(&node.children, separators);
-    if is_header_name(&node.name) {
+    if is_header_name(node.local_name()) {
         // Fields 1 and 2 of a header are the delimiters themselves, stored
         // literally rather than escaped (`er7` spec §3.4) — the generic
         // build above cannot know that, so its guesses for these two slots
@@ -116,7 +118,7 @@ fn build_segment(node: &Element, separators: &Separators) -> Segment {
         fields[1] = literal_field(field_text(node, 2).unwrap_or_default());
     }
     Segment {
-        name: node.name.clone(),
+        name: node.local_name().to_owned(),
         fields,
     }
 }
@@ -150,9 +152,9 @@ fn build_fields(kids: &[Element], separators: &Separators) -> Vec<Field> {
 }
 
 /// One field repetition, or one component: a childless element with text
-/// is a leaf value, a childless element with none is the explicit HL7 null,
-/// and an element with children recurses one level down (components under
-/// a repetition, subcomponents under a component).
+/// is a leaf value, a childless element with none is *empty* (§4.4), and an
+/// element with children recurses one level down (components under a
+/// repetition, subcomponents under a component).
 fn build_repetition(node: &Element, separators: &Separators) -> Repetition {
     if !node.children.is_empty() {
         Repetition {
@@ -165,9 +167,7 @@ fn build_repetition(node: &Element, separators: &Separators) -> Repetition {
             }],
         }
     } else {
-        Repetition {
-            components: vec![null_component()],
-        }
+        Repetition::default()
     }
 }
 
@@ -192,7 +192,7 @@ fn build_component(node: &Element, separators: &Separators) -> Component {
             subcomponents: vec![Subcomponent::new(to_raw(text, separators))],
         }
     } else {
-        null_component()
+        Component::default()
     }
 }
 
@@ -206,12 +206,12 @@ fn build_subcomponents(kids: &[Element], separators: &Separators) -> Vec<Subcomp
 }
 
 /// A subcomponent is always a leaf; an element with children this deep is
-/// outside what the forward crate ever emits, and reads as the explicit
-/// null rather than losing the value silently.
+/// outside what the forward crate ever emits, and reads as empty rather
+/// than inventing a value for it.
 fn build_subcomponent(node: &Element, separators: &Separators) -> Subcomponent {
     match leaf_text(node) {
         Some(text) => Subcomponent::new(to_raw(text, separators)),
-        None => Subcomponent::new(NULL),
+        None => Subcomponent::default(),
     }
 }
 
@@ -230,11 +230,16 @@ fn leaf_text(node: &Element) -> Option<&str> {
     }
 }
 
-fn null_component() -> Component {
-    Component {
-        subcomponents: vec![Subcomponent::new(NULL)],
-    }
-}
+/// The highest position this crate will honour, at any level.
+///
+/// Reconstruction is dense: position `n` costs `n` slots, because every
+/// position below it has to exist for `n` to be the `n`th. A name is just
+/// text, so `<PID.100000000>` — a hundred bytes of input — otherwise asks
+/// for a hundred million fields, and a larger number asks for more memory
+/// than the machine has. Real segments run to tens of fields; this is far
+/// above anything HL7 defines and far below anything that hurts. A position
+/// past it is treated like a name with no position at all (below).
+const MAX_POSITION: usize = 10_000;
 
 /// Group `kids` by the integer after each name's last `.`, preserving
 /// first-appearance order of occurrences within a group. A name with no
@@ -247,8 +252,8 @@ fn group_by_index(kids: &[Element]) -> BTreeMap<usize, Vec<&Element>> {
     let mut groups: BTreeMap<usize, Vec<&Element>> = BTreeMap::new();
     let mut next = 1usize;
     for kid in kids {
-        let index = trailing_index(&kid.name)
-            .filter(|&i| i >= 1)
+        let index = trailing_index(kid.local_name())
+            .filter(|&i| (1..=MAX_POSITION).contains(&i))
             .unwrap_or(next);
         next = index + 1;
         groups.entry(index).or_default().push(kid);
@@ -290,12 +295,22 @@ fn trailing_index(name: &str) -> Option<usize> {
 /// character blindly. Retokenizing with [`escapes`] does exactly that: a
 /// run with no escape character in it ([`Escape::Text`]) is data and gets
 /// [`escape`]d for the delimiters it contains, while every other token is
-/// already valid ER7 and is written back unchanged.
+/// already valid ER7 and is written back unchanged. The one exception is
+/// [`Escape::Unterminated`] — an escape character with nothing closing it,
+/// which is what a `\E\` in the original message decodes to — and it is
+/// re-escaped as data, because emitting it raw would produce ER7 the next
+/// reader cannot parse.
 fn to_raw(text: &str, separators: &Separators) -> String {
     let mut out = String::with_capacity(text.len());
     for token in escapes(text, separators) {
         match token {
-            Escape::Text(run) => out.push_str(&escape(run, separators)),
+            // An unterminated escape character can only be data: no
+            // sequence closes it, so writing it back as-is would emit ER7
+            // that no receiver can parse. Escaping it restores the `\E\`
+            // the forward crate decoded away.
+            Escape::Text(run) | Escape::Unterminated(run) => {
+                out.push_str(&escape(run, separators));
+            }
             other => other.write_er7(&mut out, separators),
         }
     }
@@ -332,11 +347,42 @@ mod tests {
     }
 
     #[test]
-    fn explicit_null_round_trips_from_an_empty_element() {
-        let xml = r#"<X><MSH><MSH.1>|</MSH.1><MSH.2>^~\&amp;</MSH.2></MSH><PID><PID.2/></PID></X>"#;
-        let message = reconstruct(&parse(xml).unwrap()).unwrap();
+    fn an_empty_element_is_empty_and_the_literal_quotes_are_the_null() {
+        // The XML Encoding Rules: an empty element "is treated as not
+        // existing", while `""` says the sender deleted the value. Reading
+        // the first as the second turns a padded document into a message
+        // full of deletion markers, so they must stay apart.
+        let head = r#"<X><MSH><MSH.1>|</MSH.1><MSH.2>^~\&amp;</MSH.2></MSH>"#;
+        let empty = format!("{head}<PID><PID.2/><PID.3></PID.3></PID></X>");
+        let message = reconstruct(&parse(&empty).unwrap()).unwrap();
+        let pid = message.segment("PID").unwrap();
+        assert!(pid.field(2).unwrap().is_empty());
+        assert!(!pid.field(2).unwrap().is_null());
+        assert!(pid.field(3).unwrap().is_empty());
+        // Both positions render as empty fields — separators with nothing
+        // in them, which is what an ER7 sender writes for "not sent".
+        assert_eq!(reconstruct_er7(&empty), "MSH|^~\\&\rPID|||");
+
+        let null = format!(r#"{head}<PID><PID.2>""</PID.2></PID></X>"#);
+        let message = reconstruct(&parse(&null).unwrap()).unwrap();
         assert!(message.segment("PID").unwrap().field(2).unwrap().is_null());
-        assert!(reconstruct_er7(xml).contains("PID||\"\""));
+        assert!(reconstruct_er7(&null).contains("PID||\"\""));
+    }
+
+    #[test]
+    fn an_empty_element_below_a_field_is_empty_too() {
+        // Schema-shaped documents pad a value out to every component its
+        // type declares; those are empty, not null.
+        let xml = r#"<X><MSH><MSH.1>|</MSH.1><MSH.2>^~\&amp;</MSH.2></MSH>
+            <PID><PID.3><CX.1>7</CX.1><CX.2/><CX.4><HD.1/><HD.2/></CX.4></PID.3></PID></X>"#;
+        // The padding survives as empty components and subcomponents —
+        // structure with no values in it, never the null `""`.
+        let er7 = reconstruct_er7(xml);
+        assert!(er7.ends_with("PID|||7^^^&"), "got {er7:?}");
+        assert!(
+            !er7.contains('"'),
+            "padding must not become a null: {er7:?}"
+        );
     }
 
     #[test]
@@ -351,12 +397,58 @@ mod tests {
     }
 
     #[test]
+    fn re_escapes_a_bare_escape_character() {
+        // `\E\` decodes to a lone `\` on the way in, and a lone `\` is an
+        // unterminated escape sequence: writing it back raw produced ER7
+        // whose next reader would swallow the rest of the value.
+        let xml = r#"<X><MSH><MSH.1>|</MSH.1><MSH.2>^~\&amp;</MSH.2></MSH>
+            <NTE><NTE.3>a\b</NTE.3></NTE></X>"#;
+        assert!(reconstruct_er7(xml).ends_with(r"NTE|||a\E\b"));
+    }
+
+    #[test]
+    fn an_absurd_position_does_not_allocate_the_world() {
+        // A hundred bytes of input asked for a hundred million fields
+        // before MAX_POSITION capped it; a larger number asked for more
+        // memory than the machine has.
+        let xml = r#"<X><MSH><MSH.1>|</MSH.1><MSH.2>^~\&amp;</MSH.2></MSH>
+            <PID><PID.100000000>x</PID.100000000></PID></X>"#;
+        let er7 = reconstruct_er7(xml);
+        assert!(er7.len() < 1000, "output ballooned to {} bytes", er7.len());
+        // The value still lands somewhere rather than being dropped.
+        assert!(er7.contains('x'), "got {er7:?}");
+    }
+
+    #[test]
     fn flattens_group_elements() {
         let xml = r#"<ORM_O01><MSH><MSH.1>|</MSH.1><MSH.2>^~\&amp;</MSH.2></MSH>
             <ORM_O01.PATIENT><PID><PID.1>1</PID.1></PID></ORM_O01.PATIENT></ORM_O01>"#;
         let message = reconstruct(&parse(xml).unwrap()).unwrap();
         assert_eq!(message.segments.len(), 2);
         assert_eq!(message.segments[1].name, "PID");
+    }
+
+    #[test]
+    fn reads_prefixed_element_names_the_same_as_unprefixed_ones() {
+        // The same document a serializer that binds the v2.xml namespace to
+        // a prefix, rather than making it the default, would write.
+        let xml = r#"<ns0:ORM_O01 xmlns:ns0="urn:hl7-org:v2xml">
+            <ns0:MSH><ns0:MSH.1>|</ns0:MSH.1><ns0:MSH.2>^~\&amp;</ns0:MSH.2><ns0:MSH.10>1</ns0:MSH.10></ns0:MSH>
+            <ns0:ORM_O01.PATIENT><ns0:PID><ns0:PID.5>
+                <ns0:XPN.1><ns0:FN.1>TEST</ns0:FN.1></ns0:XPN.1><ns0:XPN.2>FOUAZ</ns0:XPN.2>
+            </ns0:PID.5></ns0:PID></ns0:ORM_O01.PATIENT></ns0:ORM_O01>"#;
+        let message = reconstruct(&parse(xml).unwrap()).unwrap();
+        // The header is recognized, and the prefix is not part of a segment ID.
+        assert_eq!(message.segments[0].name, "MSH");
+        // The group element is still seen as a group, and flattened away.
+        assert_eq!(message.segments.len(), 2);
+        assert_eq!(message.segments[1].name, "PID");
+        // Positions still come from the local name's trailing index, at
+        // every level.
+        assert_eq!(message.query("MSH-10").unwrap().as_deref(), Some("1"));
+        assert_eq!(message.query("PID-5.1.1").unwrap().as_deref(), Some("TEST"));
+        assert_eq!(message.query("PID-5.2").unwrap().as_deref(), Some("FOUAZ"));
+        assert!(message.to_er7().starts_with(r"MSH|^~\&|"));
     }
 
     #[test]

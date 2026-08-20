@@ -219,13 +219,7 @@ fn a_batch_file_becomes_one_message_each() {
     assert_eq!(messages.len(), 2);
     let control_ids: Vec<String> = messages
         .iter()
-        .map(|text| {
-            hl7_2::parse(text)
-                .unwrap()
-                .get("MSH-10")
-                .unwrap()
-                .unwrap()
-        })
+        .map(|text| hl7_2::parse(text).unwrap().get("MSH-10").unwrap().unwrap())
         .collect();
     assert_eq!(control_ids, ["MSG00001", "MSG00002"]);
 }

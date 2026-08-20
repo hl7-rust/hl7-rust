@@ -238,14 +238,29 @@ pub fn escape(text: &str) -> String {
     out
 }
 
+/// How deeply elements may nest before reading gives up.
+///
+/// Reading is recursive, so nesting depth is stack depth: without a limit a
+/// small document of nothing but open tags aborts the process with a stack
+/// overflow, which a library must never do to its caller. The documents
+/// this crate is for nest a dozen levels at the outside — a v2.xml message
+/// reaches subcomponents in six, a SOAP envelope in about the same — so
+/// this is far above anything real and still far below the stack.
+const MAX_DEPTH: usize = 256;
+
 struct Cursor<'a> {
     text: &'a str,
     position: usize,
+    depth: usize,
 }
 
 impl<'a> Cursor<'a> {
     fn new(text: &'a str) -> Cursor<'a> {
-        Cursor { text, position: 0 }
+        Cursor {
+            text,
+            position: 0,
+            depth: 0,
+        }
     }
 
     fn rest(&self) -> &'a str {
@@ -300,6 +315,12 @@ impl<'a> Cursor<'a> {
     fn parse_element(&mut self) -> Result<Element, Error> {
         if !self.starts_with("<") {
             return Err(Error::Malformed("expected '<'".into(), self.position));
+        }
+        if self.depth >= MAX_DEPTH {
+            return Err(Error::Malformed(
+                format!("elements nested more than {MAX_DEPTH} deep"),
+                self.position,
+            ));
         }
         self.advance(1);
         let name = self.read_name()?;
@@ -439,7 +460,10 @@ impl<'a> Cursor<'a> {
                 self.advance(end + "]]>".len());
                 continue;
             }
-            children.push(self.parse_element()?);
+            self.depth += 1;
+            let child = self.parse_element();
+            self.depth -= 1;
+            children.push(child?);
         }
     }
 }

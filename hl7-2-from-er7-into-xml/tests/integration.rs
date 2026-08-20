@@ -179,12 +179,16 @@ fn subcomponents_use_component_type_names() {
     ));
 }
 
-/// The HL7 explicit null `""` becomes an empty element.
+/// The HL7 explicit null `""` keeps its literal text, and an empty value
+/// is the thing that produces an empty element — the XML Encoding Rules
+/// give the two opposite meanings, so they must not share an encoding.
 #[test]
-fn explicit_null_becomes_empty_element() {
-    let er7 = "MSH|^~\\&|APP||||20260814||XXX^X01|1|P|2.5\rPID|1|\"\"";
+fn explicit_null_keeps_its_literal_text() {
+    let er7 = "MSH|^~\\&|APP||||20260814||XXX^X01|1|P|2.5\rPID|1|\"\"|^b";
     let xml = convert(er7).unwrap();
-    assert!(xml.contains("<PID.2/>"));
+    assert!(xml.contains("<PID.2>\"\"</PID.2>"), "{xml}");
+    // PID-3.1 is empty, not null, so it is the one that stays empty.
+    assert!(!xml.contains("<CX.1>"), "{xml}");
 }
 
 /// Escape sequences decode to delimiter characters and XML-escape cleanly.
@@ -342,4 +346,22 @@ fn a_dialect_dictionary_names_elements_its_own_way() {
     .unwrap();
     assert!(xml.contains("<PID.3>abc</PID.3>"), "{xml}");
     assert!(!xml.contains("<CX.1>"), "{xml}");
+}
+
+/// A segment ID is written with no `.` in it, however lenient `er7` was
+/// about accepting one.
+///
+/// The reverse sibling crate has no message-structure grammar: it tells a
+/// group element from a segment element by the `.` in a group's
+/// `{structure}.{group}` name. Emitting `<Z.1>` for a segment would hand it
+/// something it must read as a group, and flattening a group keeps its
+/// children — so the segment and every value in it would vanish silently.
+#[test]
+fn a_segment_id_never_carries_a_dot() {
+    let er7 = "MSH|^~\\&|APP||||20260814||XXX^X01|1|P|2.5\rZ.1|value1|value2";
+    let xml = convert(er7).unwrap();
+    assert!(xml.contains("<Z1>"), "{xml}");
+    assert!(!xml.contains("<Z.1>"), "{xml}");
+    // The field elements below it are still `{segment}.{position}`.
+    assert!(xml.contains("<Z1.1>value1</Z1.1>"), "{xml}");
 }

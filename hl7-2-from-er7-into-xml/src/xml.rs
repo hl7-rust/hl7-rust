@@ -34,12 +34,13 @@ impl Node {
         }
     }
 
-    /// A leaf node holding `value`. The HL7 explicit null (`""`) and the
-    /// empty string both produce an element with no text (`<FOO/>`) rather
-    /// than an element containing the literal two-character text `""`.
+    /// A leaf node holding `value`. Only the empty string produces an
+    /// element with no text (`<FOO/>`); the HL7 explicit null keeps its
+    /// literal two-character text `""`, because the XML Encoding Rules give
+    /// the two opposite meanings — an empty element "is treated as not
+    /// existing", while `""` instructs the receiver to delete the value.
     pub fn leaf(name: impl Into<String>, value: &str) -> Self {
-        // The HL7 explicit null `""` becomes an empty element.
-        let text = if value.is_empty() || value == "\"\"" {
+        let text = if value.is_empty() {
             None
         } else {
             Some(value.to_string())
@@ -50,6 +51,24 @@ impl Node {
             kids: Vec::new(),
         }
     }
+}
+
+/// Keep only characters that are safe in an XML element name **and** that
+/// cannot be mistaken for a group.
+///
+/// This is [`xml_name`] with `.` removed as well, and it is what segment
+/// IDs go through. The reverse sibling crate has no message-structure
+/// grammar and does not need one: it tells a group element from a segment
+/// element by the `.` in a group's `{structure}.{group}` name, which works
+/// because real segment IDs never contain one (that crate's spec §3.1).
+/// `er7` is lenient about what it accepts as a segment ID, though, so a
+/// message can carry `Z.1` — and writing that out as `<Z.1>` would hand
+/// the reverse crate something it must read as a group, flattening the
+/// segment and every value in it out of existence. Dropping the `.` here
+/// keeps the one invariant the pair rests on true by construction.
+#[must_use]
+pub fn xml_segment_name(s: &str) -> String {
+    xml_name(&s.replace('.', ""))
 }
 
 /// Keep only characters that are safe in an XML element name.
@@ -84,7 +103,7 @@ pub fn segment_to_node(
     dictionary: &Dictionary,
     schema_shape: bool,
 ) -> Node {
-    let seg_name = xml_name(&seg.name);
+    let seg_name = xml_segment_name(&seg.name);
     let mut node = Node::group(&seg_name);
     // OBX-5 has a variable type declared by the value of OBX-2.
     let variable = dictionary.variable_type(seg).map(str::to_string);
@@ -219,9 +238,11 @@ fn repeat_node(
     dictionary: &Dictionary,
     schema_shape: bool,
 ) -> Node {
-    // Explicit null for the whole field: empty field element.
+    // Explicit null for the whole field: the null keeps its literal text,
+    // which is what distinguishes "delete this" from an empty element's
+    // "nothing was sent" (§4.4).
     if rep.is_null() {
-        return Node::group(name);
+        return Node::leaf(name, er7::message::NULL);
     }
     if let Some(comps) = dt.and_then(|dt| dictionary.composite_components(dt)) {
         // Known composite type: children named after the type's components.
@@ -428,6 +449,12 @@ mod tests {
         assert_eq!(xml_name("PID"), "PID");
         assert_eq!(xml_name("Z<S>1"), "ZS1");
         assert_eq!(xml_name("2DX"), "X2DX");
+        // A segment ID keeps no `.`: `<Z.1>` would be read as a group by
+        // the reverse sibling crate, which would flatten the segment and
+        // every value in it away.
+        assert_eq!(xml_segment_name("Z.1"), "Z1");
+        assert_eq!(xml_segment_name("PID"), "PID");
+        assert_eq!(xml_segment_name(".."), "X");
     }
 
     #[test]

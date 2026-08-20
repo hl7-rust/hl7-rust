@@ -133,6 +133,7 @@ pub fn parse(text: &str) -> Result<Value, Error> {
     let mut reader = Reader {
         bytes: text.as_bytes(),
         pos: 0,
+        depth: 0,
     };
     reader.skip_whitespace();
     let value = reader.value()?;
@@ -143,9 +144,19 @@ pub fn parse(text: &str) -> Result<Value, Error> {
     Ok(value)
 }
 
+/// How deeply objects and arrays may nest before reading gives up.
+///
+/// Reading is recursive, so nesting depth is stack depth: without a limit a
+/// few kilobytes of `[[[[…` abort the process with a stack overflow, which
+/// a library must never do to a caller who merely read a file from
+/// somewhere. A dictionary nests a handful of levels, so this is far above
+/// anything real and far below what threatens the stack.
+const MAX_DEPTH: usize = 256;
+
 struct Reader<'a> {
     bytes: &'a [u8],
     pos: usize,
+    depth: usize,
 }
 
 impl Reader<'_> {
@@ -179,14 +190,26 @@ impl Reader<'_> {
     fn value(&mut self) -> Result<Value, Error> {
         match self.peek() {
             None => Err(self.error("expected a value")),
-            Some(b'{') => self.object(),
-            Some(b'[') => self.array(),
+            Some(b'{') => self.nested(Reader::object),
+            Some(b'[') => self.nested(Reader::array),
             Some(b'"') => Ok(Value::String(self.string()?)),
             Some(b't') => self.literal("true", Value::Bool(true)),
             Some(b'f') => self.literal("false", Value::Bool(false)),
             Some(b'n') => self.literal("null", Value::Null),
             Some(_) => self.number(),
         }
+    }
+
+    /// Read one container, counting the level so that nesting cannot run
+    /// the stack out from under the caller.
+    fn nested(&mut self, read: fn(&mut Self) -> Result<Value, Error>) -> Result<Value, Error> {
+        if self.depth >= MAX_DEPTH {
+            return Err(self.error(&format!("nested more than {MAX_DEPTH} deep")));
+        }
+        self.depth += 1;
+        let value = read(self);
+        self.depth -= 1;
+        value
     }
 
     fn object(&mut self) -> Result<Value, Error> {
@@ -421,5 +444,25 @@ mod tests {
         assert!(parse(r#"{"a" 1}"#).is_err());
         assert!(parse(r#""unterminated"#).is_err());
         assert!(parse("").is_err());
+    }
+
+    #[test]
+    fn nesting_past_the_limit_is_an_error_not_a_stack_overflow() {
+        // Reading is recursive, so nesting depth is stack depth. Without a
+        // limit these aborted the process — a crash the caller cannot catch,
+        // from a dictionary file they merely read off disk.
+        let deep_objects = format!("{}1{}", "{\"a\":".repeat(1000), "}".repeat(1000));
+        let deep_arrays = format!("{}1{}", "[".repeat(1000), "]".repeat(1000));
+        for text in [deep_objects, deep_arrays] {
+            let error = parse(&text).unwrap_err();
+            assert!(error.detail.contains("nested more than"), "{error}");
+        }
+    }
+
+    #[test]
+    fn ordinary_nesting_depth_still_reads() {
+        let depth = 64;
+        let text = format!("{}1{}", "[".repeat(depth), "]".repeat(depth));
+        assert!(parse(&text).is_ok());
     }
 }

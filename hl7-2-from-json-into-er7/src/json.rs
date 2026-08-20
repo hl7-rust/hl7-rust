@@ -66,6 +66,7 @@ pub fn parse_document(text: &str) -> Result<Value, JsonError> {
     let mut cursor = Cursor {
         s: text.strip_prefix('\u{feff}').unwrap_or(text),
         pos: 0,
+        depth: 0,
     };
     cursor.skip_ws();
     if cursor.at_end() {
@@ -82,9 +83,20 @@ pub fn parse_document(text: &str) -> Result<Value, JsonError> {
     Ok(value)
 }
 
+/// How deeply objects and arrays may nest before reading gives up.
+///
+/// Reading is recursive, so nesting depth is stack depth: without a limit a
+/// few kilobytes of `[[[[…` abort the process with a stack overflow, which
+/// a library must never do to a caller reading a document it did not write.
+/// A converted message nests a handful of levels — structure, group,
+/// segment, field, component, subcomponent — so this is far above anything
+/// this crate is for and far below what threatens the stack.
+const MAX_DEPTH: usize = 256;
+
 struct Cursor<'a> {
     s: &'a str,
     pos: usize,
+    depth: usize,
 }
 
 impl<'a> Cursor<'a> {
@@ -131,8 +143,8 @@ impl<'a> Cursor<'a> {
     fn parse_value(&mut self) -> Result<Value, JsonError> {
         self.skip_ws();
         match self.peek() {
-            Some('{') => self.parse_object(),
-            Some('[') => self.parse_array(),
+            Some('{') => self.nested(Cursor::parse_object),
+            Some('[') => self.nested(Cursor::parse_array),
             Some('"') => self.parse_string().map(Value::String),
             Some('t') if self.starts_with("true") => {
                 self.pos += 4;
@@ -149,6 +161,21 @@ impl<'a> Cursor<'a> {
             Some(c) if c == '-' || c.is_ascii_digit() => self.parse_number(),
             _ => Err(self.err("expected a JSON value")),
         }
+    }
+
+    /// Read one container, counting the level so that nesting cannot run
+    /// the stack out from under the caller.
+    fn nested(
+        &mut self,
+        read: fn(&mut Self) -> Result<Value, JsonError>,
+    ) -> Result<Value, JsonError> {
+        if self.depth >= MAX_DEPTH {
+            return Err(self.err(&format!("nested more than {MAX_DEPTH} deep")));
+        }
+        self.depth += 1;
+        let value = read(self);
+        self.depth -= 1;
+        value
     }
 
     fn parse_object(&mut self) -> Result<Value, JsonError> {
@@ -354,5 +381,27 @@ mod tests {
     #[test]
     fn rejects_empty_input() {
         assert!(matches!(parse_document("   "), Err(JsonError::Empty)));
+    }
+
+    #[test]
+    fn nesting_past_the_limit_is_an_error_not_a_stack_overflow() {
+        // Reading is recursive, so nesting depth is stack depth. Without a
+        // limit these aborted the process — a crash the caller cannot catch,
+        // from a document another system sent them.
+        let deep_objects = format!("{}1{}", "{\"a\":".repeat(1000), "}".repeat(1000));
+        let deep_arrays = format!("{}1{}", "[".repeat(1000), "]".repeat(1000));
+        for text in [deep_objects, deep_arrays] {
+            assert!(matches!(
+                parse_document(&text),
+                Err(JsonError::Malformed(ref reason, _)) if reason.contains("nested more than")
+            ));
+        }
+    }
+
+    #[test]
+    fn ordinary_nesting_depth_still_reads() {
+        let depth = 64;
+        let text = format!("{}1{}", "[".repeat(depth), "]".repeat(depth));
+        assert!(parse_document(&text).is_ok());
     }
 }

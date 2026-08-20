@@ -184,10 +184,25 @@ generic rules above.
 
 ### 4.4 HL7 null and empty elements
 
-A field, repetition, or component whose value is empty is either omitted
-(field/repetition/component with *no* value) or rendered as a self-closing
-element with no children and no text (the *explicit null* `""`) — never as
-the literal text `""`.
+The two are not the same thing and are not encoded the same way, because
+the [XML Encoding Rules][xml-encoding-rules] give them opposite meanings:
+"the occurrence of an empty element is treated as not existing to keep
+backward compatibility with ER7", while the two double quote marks `""`
+tell the receiver the field "has been deleted".
+
+- A value that is **empty** (`||`, not `""`) is omitted entirely, and — in
+  schema mode only (§4a) — rendered as a self-closing element with no
+  children and no text, which a receiver reads as "not sent".
+- The **explicit null** `""` is rendered as an element whose text is the
+  literal two characters `""`.
+
+Before this rule, the null was written as a self-closing element, which
+gave it the same encoding schema mode uses for padding an absent value —
+so a receiver (this crate's own reverse sibling included) could not tell
+"delete this" from "nothing was sent", and a padded document read back as
+a message full of deletion markers.
+
+[xml-encoding-rules]: https://www.hl7.eu/refactored/encoding02xml.html
 
 ### 4.5 Element name sanitizing
 
@@ -196,6 +211,19 @@ than ASCII letters, digits, `_`, `.`, `-` are stripped, and if the result
 would not start with a letter or `_`, an `X` is prepended. This applies to
 segment IDs (protecting against malformed/Z-segment IDs) and, transitively,
 to every derived field/component name.
+
+A **segment ID** goes through `xml::xml_segment_name`, which is the same
+thing with `.` removed as well, so a segment element's name never contains
+one. This is not cosmetic. The reverse sibling crate has no
+message-structure grammar and does not need one, because it tells a group
+element from a segment element by the `.` in a group's
+`{structure}.{group}` name (that crate's spec §3.1) — an invariant that
+holds for every real segment ID. `er7` is deliberately lenient about what
+it accepts as a segment ID, though, so a message can carry `Z.1`; writing
+that out as `<Z.1>` would hand the reverse crate something it must read as
+a group, and flattening a group keeps only its children, so the segment and
+every value in it would disappear without an error. Stripping the `.` here
+keeps the invariant true by construction rather than by hope.
 
 ### 4.6 Document rendering
 
@@ -232,7 +260,9 @@ against. Six rules change:
 3. **Empty means empty in full.** A required-but-absent field, and any
    declared component a value does not reach, is written as the whole tree
    its data type declares — `<CX.4><HD.1/><HD.2/><HD.3/></CX.4>`, not
-   `<CX.4/>` — because the schema requires those elements too.
+   `<CX.4/>` — because the schema requires those elements too. Those
+   padding elements are empty, and mean "not sent"; they are not the
+   explicit null, which carries its own text (§4.4).
 4. **Every declared component appears.** A composite writes all of the
    components its type declares, empty ones included, and drops anything past
    the end of the declaration.
@@ -308,6 +338,11 @@ These are intentional scope boundaries, not defects:
   `er7`; anything about what a v2.5 field or structure means belongs in
   `hl7-2`; not here (§2).
 
+- **Development dependencies are separate.** `criterion` is compiled only
+  for `cargo bench`, and `libfuzzer-sys` only for `cargo +nightly fuzz`
+  in the separate `fuzz/` workspace. Neither is linked into the library
+  or the binary, and neither reaches anyone who depends on this crate,
+  so neither counts against the rule above.
 ## 7. References
 
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
@@ -331,7 +366,8 @@ Documented here because it is spec-level (input/output contract), not an
 implementation detail:
 
 - `hl7_2_from_er7_into_xml [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
-  omitted or `-`.
+  omitted or `-`. At most one input may be named: a second one, `-`
+  included, is an error rather than a silent replacement of the first.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
 - `--flat` forces flat rendering for every message in the input (§3.3).
 - `--dictionary <FILE>` converts against the JSON dictionary at `FILE`

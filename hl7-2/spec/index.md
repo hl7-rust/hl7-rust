@@ -122,6 +122,14 @@ segments, data types, and message structures. It is JSON, read by the
 hand-written reader in `src/json.rs`, and the same format serves the
 bundled releases and schema mode.
 
+That reader accepts objects and arrays nested at most **256** deep and
+reports an ordinary `Error` past that. Reading is recursive, so nesting
+depth is stack depth: without a limit a few kilobytes of `[[[[…` overflow
+the stack and abort the process, and a dictionary is a file loaded from
+somewhere — a vendor, a deployment's configuration directory — so a
+malformed one must produce an error a caller can handle, not a crash it
+cannot. A real dictionary nests a handful of levels.
+
 ### 3.1 Format
 
 ```json

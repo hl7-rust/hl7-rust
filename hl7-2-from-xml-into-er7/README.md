@@ -61,6 +61,11 @@ Message-structure group elements (`<ORM_O01.PATIENT>`,
 `<ORU_R01.ORDER_OBSERVATION>`, …) are flattened automatically; grouped and
 `--flat` input from the forward crate both reconstruct the same message.
 
+Namespace prefixes are ignored: a document that binds `urn:hl7-org:v2xml`
+to a prefix (`<ns0:MSH><ns0:MSH.1>|</ns0:MSH.1>…`) converts to exactly the
+same ER7 as one that makes it the default namespace, whatever prefix the
+sending system happened to pick (`spec/index.md` §2.1).
+
 ### Library
 
 ```rust
@@ -118,8 +123,12 @@ failing (`spec/index.md` §5).
   own escape-sequence vocabulary, so delimiter characters are re-escaped
   while formatting sequences the forward crate never decoded (`\.br\`,
   `\H\`, …) are written back exactly as they were.
-- **HL7 null**: a self-closing (or empty) element reconstructs as the
-  explicit null `""` at that position.
+- **HL7 null vs empty**: an element whose text is `""` reconstructs as the
+  explicit null ("delete this"); a self-closing or empty element
+  reconstructs as an *empty* value ("nothing was sent"). The XML Encoding
+  Rules give the two opposite meanings, so this crate keeps them apart —
+  padding an XSD-shaped document with empty elements does not turn it into
+  a message full of deletion markers.
 
 ## Limitations
 

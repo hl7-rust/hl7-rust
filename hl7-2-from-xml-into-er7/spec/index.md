@@ -63,9 +63,9 @@ subset a v2.xml document uses:
   kept) otherwise. An element with neither text nor children is a leaf with
   no text — see §4.4.
 
-Parsing produces a tree of [`xml::Element`] (§2.1): each element carries a
-name plus either `children` or a (possibly empty) `text: String`, mirroring
-the element the forward crate renders to.
+Parsing produces a tree of [`xml::Element`] (helper spec §3.1): each element
+carries a name plus either `children` or a (possibly empty) `text: String`,
+mirroring the element the forward crate renders to.
 
 Anything that isn't well-formed XML by the helper's rules — an unclosed
 element, a mismatched close tag, a malformed attribute — is
@@ -77,6 +77,31 @@ the same XML subset and each had written it; `hl7-2-xml-lite-helper` has
 no dependencies of its own, so the audit surface is unchanged from before
 it existed.
 
+### 2.1 Namespace prefixes
+
+Every element name this crate reads is the element's **local** name: the
+part after the first `:`, or the whole name when there is no `:` (helper
+spec §3.2). The v2.xml namespace `urn:hl7-org:v2xml` may be bound to a
+prefix rather than made the default, so the same message may arrive as
+`<MSH><MSH.1>|</MSH.1></MSH>` from one serializer and
+`<ns0:MSH><ns0:MSH.1>|</ns0:MSH.1></ns0:MSH>` from another. Which prefix a
+serializer chose — `ns0`, `hl7`, `v2`, none — carries no information about
+the message, so it is stripped before anything else looks at a name, at
+every level:
+
+- the segment/group test in §3.1,
+- the `MSH`/`FHS`/`BHS` header test and the synthetic header line in §3.2,
+- the trailing position number in §3.3,
+- the segment ID written into the reconstructed `er7::Segment`, which is
+  therefore always the bare `MSH`, `PID`, `ZDS`, … as ER7 requires.
+
+Prefixes are stripped, not resolved: `xmlns` declarations are not
+interpreted, so a document is read the same way whether or not it declares
+the v2.xml namespace at all, and a document that used the same local names
+under a *different* namespace would be read as v2.xml. That is the same
+trade the helper makes (helper spec §3.2), and v2.xml documents do not mix
+namespaces.
+
 ## 3. Reconstructing the value tree (`src/reconstruct.rs`)
 
 ### 3.1 Flattening groups back to a segment sequence
@@ -86,8 +111,8 @@ the few structures it has a grammar for, e.g. `<ORM_O01.PATIENT>` or
 `<ORU_R01.ORDER_OBSERVATION>` (`hl7-2-from-er7-into-xml` spec §3). This
 crate does not know any message-structure grammar, and does not need one:
 every group element is named `{message-structure}.{group}`, so a child
-element is a segment when its name contains no `.`, and a group — to be
-recursed into, not kept — when it does. Real segment IDs never contain a
+element is a segment when its local name (§2.1) contains no `.`, and a
+group — to be recursed into, not kept — when it does. Real segment IDs never contain a
 `.`, and every group name does, regardless of how deeply it is nested (the
 `{message-structure}` prefix in a group's name is always the top-level one,
 never accumulated per nesting level).
@@ -110,8 +135,8 @@ parsing rather than duplicating it.
 
 ### 3.3 Fields, repetitions, components, subcomponents
 
-Within a segment element, each child's name is `{segment}.n`; `n` is the
-field number. Multiple children sharing the same `n` — sibling elements in
+Within a segment element, each child's local name (§2.1) is `{segment}.n`;
+`n` is the field number. Multiple children sharing the same `n` — sibling elements in
 document order — are that field's repetitions, in that order. A field
 number the segment element never mentions is absent (`Field::default()`),
 not empty, matching how the forward crate omits an empty field entirely
@@ -130,12 +155,36 @@ At any of these levels, one element decides its own shape:
 |----------------------------|---------------------------------------------------|
 | child elements              | a container: recurse one level down                |
 | text, no children           | a leaf holding that text (§3.4)                    |
-| neither text nor children   | the explicit HL7 null `""` at that position (§4.4) |
+| neither text nor children   | *empty* at that position — not the null (§4.4)     |
 
 A gap between mentioned positions (e.g. components 1 and 3 present, 2 not)
 is filled with an empty placeholder at that position — `Component::default()`
 or `Subcomponent::default()` — which is exactly what the forward crate
 itself omits when a value is blank rather than null.
+
+### 3.3a The explicit null is text, an empty element is not
+
+The [XML Encoding Rules][xml-encoding-rules] give the two opposite
+meanings: "the occurrence of an empty element is treated as not existing to
+keep backward compatibility with ER7", while the two double quote marks
+`""` say the sender "ascertained that a data field has been deleted" and
+the receiver should clear it. So:
+
+- `<HD.2/>` and `<HD.2></HD.2>` reconstruct as an **empty** value — a
+  position that exists and carries nothing.
+- `<HD.2>""</HD.2>` reconstructs as the **explicit null** `""`, which is
+  simply its text surviving §3.4 unchanged (`""` holds no delimiter and no
+  escape character, so there is nothing to re-escape).
+
+Before this rule, an empty element became the explicit null. That is the encoding
+a schema-shaped document (`hl7-2-from-er7-into-xml` spec §4a rule 3) uses
+to pad every declared-but-absent field and component, so a padded document
+— the shape real senders validate against an XSD — read back as a message
+whose absent fields had all become deletion instructions. The forward crate
+was changed in the same commit to write the null as its literal text, so
+the pair still round-trips both cases exactly.
+
+[xml-encoding-rules]: https://www.hl7.eu/refactored/encoding02xml.html
 
 ### 3.4 Re-escaping leaf text
 
@@ -186,12 +235,26 @@ crate's own philosophy:
 
 - **No dictionary, so no validation** of segment shape, data types,
   cardinality, or table values.
+- **A segment named like a group cannot be told from one.** A segment
+  element whose name contains a `.` is read as a group and flattened, so a
+  segment the sender called `Z.1` contributes nothing. Nothing in the
+  document distinguishes the two cases, and this crate has no
+  message-structure grammar to consult (§3.1). The sibling forward crate
+  never produces such a name — it strips `.` from segment IDs for exactly
+  this reason — so this can only arise from another producer's output.
 - **An element with no parseable trailing index** (should not arise from
   the forward crate's own output) is assigned the position right after the
   highest index already seen at that level, rather than being dropped.
+- **A position above 10,000** is treated the same way, for the same
+  reason and one more: reconstruction is dense, so position `n` costs `n`
+  slots at that level, and a name is only text. `<PID.100000000>` — a
+  hundred bytes of input — would otherwise ask for a hundred million
+  fields, and a larger number for more memory than the machine has. Real
+  segments run to tens of fields, so the cap is far above anything HL7
+  defines and far below anything that hurts.
 - **A subcomponent-level element with children** (deeper nesting than the
-  forward crate ever produces) is read as the explicit null rather than
-  losing the value silently.
+  forward crate ever produces) is read as empty rather than guessing at a
+  value for it.
 - **Blank (non-null) repetitions cannot be recovered.** The forward crate
   drops a field repetition that is present but entirely blank instead of
   rendering an element for it (`hl7-2-from-er7-into-xml` spec §4.1) — for
@@ -200,12 +263,9 @@ crate's own philosophy:
   repetition *count* after a round trip through both crates may be lower
   than the original message's. This is a limitation of the forward crate's
   encoding, inherited here, not something this crate could recover.
-- **A component- or subcomponent-level explicit null inside an otherwise
-  populated composite** does not round-trip distinctly from a component
-  that was simply blank, for the same reason: the forward crate does not
-  mark that case differently in its output. Only a field-level (whole
-  repetition) or leaf-level explicit null is unambiguous, and both are
-  handled exactly (§4's null rule, §3.3 table).
+- **A value whose text is literally two double quote marks** cannot be
+  told apart from the explicit null, because ER7 itself does not
+  distinguish them — `""` is the null wherever it appears.
 - **One document per conversion.** Unlike ER7, which has an established
   batch-file convention, v2.xml as this crate reads it holds exactly one
   message per document; converting several means calling [`convert`]
@@ -245,7 +305,9 @@ Documented here because it is spec-level (input/output contract), not an
 implementation detail:
 
 - `hl7_2_from_xml_into_er7 [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
-  omitted or `-`. The input holds one v2.xml document.
+  omitted or `-`. The input holds one v2.xml document. At most one input may
+  be named: a second one, `-` included, is an error rather than a silent
+  replacement of the first.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
 - `-t, --terminator <cr|lf|crlf>` chooses the segment terminator; `cr` (a
   bare carriage return) is the default and the only terminator HL7 permits

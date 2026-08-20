@@ -241,3 +241,20 @@ fn splits_batches_into_messages() {
     assert!(json.contains("\"ACK\": {"));
     assert!(json.contains("\"MSA.1\": \"AA\""));
 }
+
+/// A segment key carries no `.`, however lenient `er7` was about accepting
+/// one in a segment ID.
+///
+/// The reverse sibling crate has no message-structure grammar: it tells a
+/// group key from a segment key by the `.` in a group's
+/// `{structure}.{group}` name. Emitting `"Z.1"` for a segment would hand it
+/// something it must read as a group, and the segment and every value in it
+/// would vanish silently.
+#[test]
+fn a_segment_key_never_carries_a_dot() {
+    let er7 = "MSH|^~\\&|APP||||20260814||XXX^X01|1|P|2.5\rZ.1|value1|value2";
+    let json = convert(er7).unwrap();
+    assert!(json.contains("\"Z1\""), "{json}");
+    assert!(!json.contains("\"Z.1\""), "{json}");
+    assert!(json.contains("\"Z1.1\": \"value1\""), "{json}");
+}

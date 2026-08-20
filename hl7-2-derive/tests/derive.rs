@@ -100,10 +100,7 @@ struct Required {
 
 #[test]
 fn a_missing_required_field_names_its_path() {
-    let error = hl7_2::parse(ADT)
-        .unwrap()
-        .decode::<Required>()
-        .unwrap_err();
+    let error = hl7_2::parse(ADT).unwrap().decode::<Required>().unwrap_err();
     assert!(
         matches!(&error, hl7_2::Error::MissingField { path } if path == "PID-99"),
         "{error}"

@@ -131,6 +131,17 @@ repeated-sibling-element trick XML uses.
 
 ### 4.2 Typed key names
 
+A **segment's own key** is its segment ID with any `.` removed. This is not
+cosmetic. The reverse sibling crate has no message-structure grammar and
+does not need one, because it tells a group key from a segment key by the
+`.` in a group's `{structure}.{group}` name (that crate's spec §3.1) — an
+invariant that holds for every real segment ID. `er7` is deliberately
+lenient about what it accepts as a segment ID, though, so a message can
+carry `Z.1`; writing that out as the key `"Z.1"` would hand the reverse
+crate something it must read as a group, and the segment and every value in
+it would disappear without an error. Stripping the `.` keeps the invariant
+true by construction rather than by hope.
+
 Two lookup tables in `src/types.rs` (byte-for-byte shared with the sibling
 crate) drive typed naming:
 
@@ -177,6 +188,14 @@ Given a field's data type `DT`:
   one-element array as equivalent, or use a JSON path library that does.
 - Sibling grouping is order-preserving: keys appear in first-occurrence
   order, matching the order segments/fields appeared in the source message.
+- **A repeated key is grouped at its first occurrence**, which is the one
+  place the mapping loses something a JSON object cannot hold. Segments
+  `PID, ZZ1, ORC, PID` become `"PID": [ … , … ], "ZZ1": …, "ORC": …`: both
+  `PID` entries keep their order relative to each other, but the two
+  segments that sat *between* them no longer do. A JSON object cannot carry
+  the same key twice, so there is nowhere else to put the second `PID`.
+  Adjacent repeats — the common case, and every repeat inside a group the
+  grammar knows — are unaffected.
 
 ### 4.4 OBX-5 variable typing
 
@@ -253,8 +272,11 @@ Same scope boundaries as the XML sibling, restated for this crate:
 - **Not a validator.** No JSON Schema equivalent, cardinality checking, or
   HL7 table (vocabulary) checking is performed.
 - **Four built-in grammars** (`ACK`, `ADT_A01`, `ORM_O01`, `ORU_R01`);
-  everything else renders flat — still valid, lossless JSON, just without
-  group nesting.
+  everything else renders flat — still valid JSON, just without group
+  nesting. "Flat" is lossless for values but not for the *order* of
+  non-adjacent repeats of one segment name: see §4.3. Where segment
+  sequence carries meaning and the structure has no built-in grammar, the
+  XML sibling keeps it and this mapping does not.
 - **ORM_O01 order detail** supports the common OBR choice only; RQD/RQ1/
   RXO/ODS/ODT alternatives render flat.
 - **Formatting escape sequences** (`\.br\`, `\H\`, `\N\`, locally-defined
@@ -273,6 +295,11 @@ Same scope boundaries as the XML sibling, restated for this crate:
   the whole tree is two crates. Anything below the v2.5 dictionary belongs
   in `er7`, not here (§2).
 
+- **Development dependencies are separate.** `criterion` is compiled only
+  for `cargo bench`, and `libfuzzer-sys` only for `cargo +nightly fuzz`
+  in the separate `fuzz/` workspace. Neither is linked into the library
+  or the binary, and neither reaches anyone who depends on this crate,
+  so neither counts against the rule above.
 ## 7. References
 
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
@@ -293,7 +320,8 @@ Same scope boundaries as the XML sibling, restated for this crate:
 ## 8. Command-line behavior (`src/main.rs`)
 
 - `hl7_2_from_er7_into_json [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
-  omitted or `-`.
+  omitted or `-`. At most one input may be named: a second one, `-`
+  included, is an error rather than a silent replacement of the first.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
 - `--flat` forces flat rendering for every message in the input (§3).
 - `--compact` emits compact JSON instead of the pretty-printed default

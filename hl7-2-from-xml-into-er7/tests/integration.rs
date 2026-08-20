@@ -1,6 +1,4 @@
-use hl7_2_from_xml_into_er7::{
-    convert, convert_with_options, er7::RenderOptions, er7::Terminator,
-};
+use hl7_2_from_xml_into_er7::{convert, convert_with_options, er7::RenderOptions, er7::Terminator};
 
 /// The exact v2.xml document the sibling `hl7-2-from-er7-into-xml`
 /// crate's own golden test produces from
@@ -78,4 +76,86 @@ fn parse_returns_a_queryable_message() {
         message.query("PID-5.1").unwrap().as_deref(),
         Some("MEDIANO")
     );
+}
+
+/// A v2.xml document may bind `urn:hl7-org:v2xml` to a prefix
+/// (`<ns0:MSH>`) instead of making it the default namespace — the choice
+/// belongs to whatever serialized the document and says nothing about the
+/// message. Every one of the golden samples must therefore convert to
+/// exactly the same ER7 with a prefix on every tag as without one.
+#[test]
+fn a_prefixed_namespace_converts_identically_to_a_default_one() {
+    for xml in [
+        include_str!("../samples/orm_o01.xml"),
+        include_str!("../samples/oru_r01.xml"),
+        include_str!("../samples/misc.xml"),
+    ] {
+        let prefixed = with_namespace_prefix(xml, "ns0");
+        assert!(prefixed.contains("<ns0:MSH>"), "{prefixed}");
+        assert_eq!(convert(&prefixed).unwrap(), convert(xml).unwrap());
+    }
+}
+
+/// Rewrite a v2.xml document the way a serializer using a prefixed
+/// namespace declaration would: every element tag gains `prefix:`, and the
+/// default-namespace declaration becomes a binding for that prefix. The
+/// XML declaration and any comment or `DOCTYPE` are left alone.
+fn with_namespace_prefix(xml: &str, prefix: &str) -> String {
+    let mut out = String::with_capacity(xml.len());
+    let mut rest = xml;
+    while let Some(open) = rest.find('<') {
+        out.push_str(&rest[..open]);
+        out.push('<');
+        rest = &rest[open + 1..];
+        if rest.starts_with('?') || rest.starts_with('!') {
+            continue;
+        }
+        if let Some(after_slash) = rest.strip_prefix('/') {
+            out.push('/');
+            rest = after_slash;
+        }
+        out.push_str(prefix);
+        out.push(':');
+    }
+    out.push_str(rest);
+    out.replace("xmlns=", &format!("xmlns:{prefix}="))
+}
+
+/// The CLI takes at most one input, and `-` is an input like any other.
+///
+/// Before the guard, `prog file.xml -` silently replaced the named file
+/// with standard input: the converter ran, exited zero, and converted
+/// something the caller had not asked for.
+#[test]
+fn a_second_input_is_an_error_even_when_it_is_a_dash() {
+    use std::process::{Command, Stdio};
+
+    let run = |args: &[&str]| {
+        let output = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-xml-into-er7"))
+            .args(args)
+            .stdin(Stdio::null())
+            .output()
+            .expect("failed to run the CLI");
+        (
+            output.status.success(),
+            String::from_utf8_lossy(&output.stderr).into_owned(),
+        )
+    };
+
+    for args in [
+        ["samples/misc.xml", "-"].as_slice(),
+        ["-", "samples/misc.xml"].as_slice(),
+        ["-", "-"].as_slice(),
+        ["samples/misc.xml", "samples/misc.xml"].as_slice(),
+    ] {
+        let (ok, stderr) = run(args);
+        assert!(!ok, "{args:?} was accepted");
+        assert!(
+            stderr.contains("more than one input file given"),
+            "{args:?} reported {stderr:?}"
+        );
+    }
+
+    // One input still works, from either form.
+    assert!(run(&["samples/misc.xml"]).0);
 }

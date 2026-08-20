@@ -152,7 +152,12 @@ Fidelity degrades gracefully instead of failing:
 - Not a validator: no schema validation, cardinality, or table checking is
   performed; the input is assumed to be sensible HL7 v2.5.
 - Only the four message structures listed above are grouped; everything
-  else renders flat (which is still valid, lossless JSON).
+  else renders flat (still valid JSON, and lossless for values).
+- A segment name that repeats *non-adjacently* is grouped at its first
+  occurrence, so segments that sat between the two occurrences lose their
+  place in the sequence — a JSON object cannot carry the same key twice.
+  Adjacent repeats, and repeats inside a group the grammar knows, are
+  unaffected (`spec/index.md` §4.3).
 - ORM_O01 order detail supports the common OBR choice; RQD/RQ1/RXO/ODS/ODT
   detail segments cause a flat rendering.
 - Formatting escape sequences are preserved as literal text rather than
@@ -197,9 +202,10 @@ encoding layer, cover ER7's two directions against both target formats:
 ## Round trip with the reverse crate
 
 Because [`hl7-2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-json-into-er7)
-reads back exactly what this crate writes, the two compose into a lossless
-round trip you can run from the shell — both crates live in this workspace,
-so no `cd` is needed:
+reads back exactly what this crate writes, the two compose into a round
+trip you can run from the shell — lossless for values, with the two
+sequence caveats above — and both crates live in this workspace, so no
+`cd` is needed:
 
 ```sh
 cargo run -- samples/orm_o01.hl7 \

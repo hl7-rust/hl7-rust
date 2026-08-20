@@ -183,6 +183,17 @@ fn build_fields(entries: &[(String, Value)], separators: &Separators) -> Vec<Fie
     pad_fields(&indexed, separators)
 }
 
+/// The highest position this crate will honour, at any level.
+///
+/// Reconstruction is dense: position `n` costs `n` slots, because every
+/// position below it has to exist for `n` to be the `n`th. A name is just
+/// text, so `"PID.100000000"` — a hundred bytes of input — otherwise asks
+/// for a hundred million fields, and a larger number asks for more memory
+/// than the machine has. Real segments run to tens of fields; this is far
+/// above anything HL7 defines and far below anything that hurts. A position
+/// past it is treated like a name with no position at all (below).
+const MAX_POSITION: usize = 10_000;
+
 fn pad_fields(indexed: &BTreeMap<usize, &Value>, separators: &Separators) -> Vec<Field> {
     let len = indexed.keys().max().copied().unwrap_or(0);
     (1..=len)
@@ -207,7 +218,9 @@ fn index_entries(entries: &[(String, Value)]) -> BTreeMap<usize, &Value> {
     let mut map = BTreeMap::new();
     let mut next = 1usize;
     for (key, value) in entries {
-        let index = trailing_index(key).filter(|&i| i >= 1).unwrap_or(next);
+        let index = trailing_index(key)
+            .filter(|&i| (1..=MAX_POSITION).contains(&i))
+            .unwrap_or(next);
         next = index + 1;
         map.entry(index).or_insert(value);
     }
@@ -331,12 +344,22 @@ fn trailing_index(key: &str) -> Option<usize> {
 /// character blindly. Retokenizing with [`escapes`] does exactly that: a
 /// run with no escape character in it ([`Escape::Text`]) is data and gets
 /// [`escape`]d for the delimiters it contains, while every other token is
-/// already valid ER7 and is written back unchanged.
+/// already valid ER7 and is written back unchanged. The one exception is
+/// [`Escape::Unterminated`] — an escape character with nothing closing it,
+/// which is what a `\E\` in the original message decodes to — and it is
+/// re-escaped as data, because emitting it raw would produce ER7 the next
+/// reader cannot parse.
 fn to_raw(text: &str, separators: &Separators) -> String {
     let mut out = String::with_capacity(text.len());
     for token in escapes(text, separators) {
         match token {
-            Escape::Text(run) => out.push_str(&escape(run, separators)),
+            // An unterminated escape character can only be data: no
+            // sequence closes it, so writing it back as-is would emit ER7
+            // that no receiver can parse. Escaping it restores the `\E\`
+            // the forward crate decoded away.
+            Escape::Text(run) | Escape::Unterminated(run) => {
+                out.push_str(&escape(run, separators));
+            }
             other => other.write_er7(&mut out, separators),
         }
     }
@@ -352,6 +375,31 @@ mod tests {
         reconstruct(&parse_document(json).unwrap())
             .unwrap()
             .to_er7()
+    }
+
+    #[test]
+    fn re_escapes_a_bare_escape_character() {
+        // `\E\` decodes to a lone `\` on the way in, and a lone `\` is an
+        // unterminated escape sequence: writing it back raw produced ER7
+        // whose next reader would swallow the rest of the value.
+        let json = r#"{"X": {"MSH": {"MSH.1": "|", "MSH.2": "^~\\&"},
+            "NTE": {"NTE.3": "a\\b"}}}"#;
+        assert!(
+            reconstruct_er7(json).ends_with(r"NTE|||a\E\b"),
+            "got {:?}",
+            reconstruct_er7(json)
+        );
+    }
+
+    #[test]
+    fn an_absurd_position_does_not_allocate_the_world() {
+        // A hundred bytes of input asked for a hundred million fields
+        // before MAX_POSITION capped it.
+        let json = r#"{"X": {"MSH": {"MSH.1": "|", "MSH.2": "^~\\&"},
+            "PID": {"PID.100000000": "x"}}}"#;
+        let er7 = reconstruct_er7(json);
+        assert!(er7.len() < 1000, "output ballooned to {} bytes", er7.len());
+        assert!(er7.contains('x'), "got {er7:?}");
     }
 
     #[test]

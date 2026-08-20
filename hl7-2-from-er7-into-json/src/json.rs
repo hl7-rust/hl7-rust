@@ -57,6 +57,25 @@ impl Node {
     }
 }
 
+/// The JSON key for a segment ID, with any `.` removed.
+///
+/// The reverse sibling crate has no message-structure grammar and does not
+/// need one: it tells a group key from a segment key by the `.` in a
+/// group's `{structure}.{group}` name, which works because real segment IDs
+/// never contain one (that crate's spec §3.1). `er7` is lenient about what
+/// it accepts as a segment ID, though, so a message can carry `Z.1` — and
+/// writing that out as the key `"Z.1"` would hand the reverse crate
+/// something it must read as a group, flattening the segment and every
+/// value in it out of existence. Dropping the `.` here keeps the one
+/// invariant the pair rests on true by construction.
+fn segment_key(name: &str) -> String {
+    if name.contains('.') {
+        name.replace('.', "")
+    } else {
+        name.to_string()
+    }
+}
+
 /// Convert one segment into its `Node` tree, keyed the same way as this
 /// crate's typed field/component naming (`spec/index.md` §4.2).
 ///
@@ -66,7 +85,7 @@ impl Node {
 /// text becomes JSON.
 #[must_use]
 pub fn segment_to_node(seg: &Segment, separators: &Separators) -> Node {
-    let seg_name = seg.name.clone();
+    let seg_name = segment_key(&seg.name);
     let mut node = Node::group(&seg_name);
     // OBX-5 has a variable type declared by the value of OBX-2.
     let obx_type = if seg.name == "OBX" {

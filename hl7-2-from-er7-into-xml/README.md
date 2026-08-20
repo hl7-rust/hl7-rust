@@ -136,7 +136,10 @@ failing (`spec/index.md` §6).
   converts, using positional generic names instead (`spec/index.md` §4.2).
 - **OBX-5 variable typing**: the value type declared in OBX-2 (CE, CX, SN,
   ...) names the OBX-5 components.
-- **HL7 null**: the explicit null `""` becomes an empty element.
+- **HL7 null**: the explicit null `""` keeps its literal text
+  (`<PID.2>""</PID.2>`). An *empty* element means "not sent" instead —
+  the XML Encoding Rules give the two opposite meanings, so they do not
+  share an encoding.
 - **Message-structure groups**: for known structures the segments are nested
   into their official groups, e.g. `<ORM_O01.PATIENT>` or
   `<ORU_R01.ORDER_OBSERVATION>`. Grammars are included for ACK, ADT_A01
