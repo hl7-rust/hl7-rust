@@ -104,3 +104,34 @@ at zero.
   callers, not a fourth general-purpose parser to choose between.
 - **Recovering from malformed XML.** A document that is not well-formed is
   an error, not a best guess (spec/index.md §3.6).
+
+## Benchmarks
+
+Criterion benchmarks live in `benches/` and measure one conversion over a
+short message and a 200-observation result — both synthetic, never real
+patient data. `criterion` is a development dependency, so it is compiled
+for `cargo bench` and never linked into the library or the binary; the
+runtime dependency rule above is unchanged.
+
+```sh
+cargo bench -p hl7-2-xml-lite-helper
+cargo bench -p hl7-2-xml-lite-helper -- --save-baseline before   # then compare a change
+```
+
+## Fuzzing
+
+`fuzz/` is a cargo-fuzz workspace of its own (nightly plus
+`libfuzzer-sys`), outside the workspace above so that neither reaches the
+crate's dependency list.
+
+```sh
+cargo +nightly fuzz run parse -- -max_total_time=60
+```
+
+The target asserts that reading is **total**: any bytes at all produce an
+`Element` or an `Error`, never a panic and never a stack overflow. The
+stack is the interesting half — reading is recursive, so nesting depth is
+stack depth, and before `MAX_DEPTH` existed a few kilobytes of open tags
+aborted the process. A crash writes its input to `fuzz/artifacts/parse/`;
+reproduce it with `cargo +nightly fuzz run parse <that file>`. Corpus and
+artifacts are gitignored.

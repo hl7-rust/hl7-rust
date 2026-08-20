@@ -137,3 +137,37 @@ round trips, the CLI contract) is covered in `tests/integration.rs` instead.
 - A batch/multi-document input mode for JSON — the typed JSON mapping holds
   one message per document; there is no batch envelope convention to split
   on the JSON side (`spec/index.md` §5).
+
+## Benchmarks
+
+Criterion benchmarks live in `benches/` and measure one conversion over a
+short message and a 200-observation result — both synthetic, never real
+patient data. `criterion` is a development dependency, so it is compiled
+for `cargo bench` and never linked into the library or the binary; the
+runtime dependency rule above is unchanged.
+
+```sh
+cargo bench -p hl7-2-from-json-into-er7
+cargo bench -p hl7-2-from-json-into-er7 -- --save-baseline before   # then compare a change
+```
+
+## Fuzzing
+
+`fuzz/` is a cargo-fuzz workspace of its own (nightly plus
+`libfuzzer-sys`), outside the workspace above so that neither reaches the
+crate's dependency list.
+
+```sh
+cargo +nightly fuzz list
+cargo +nightly fuzz run roundtrip -- -max_total_time=60
+```
+
+Each target asserts a property rather than merely checking for panics:
+conversion is total and its output size is bounded (an absurd position like
+``"PID.100000000"`` must not turn a hundred bytes of input into a
+hundred megabytes), the ER7 that comes out parses and carries no
+unterminated escape sequence, the round trip through both sibling crates is
+a fixed point, and it never invents an explicit null where the source had
+none. A crash writes its input to `fuzz/artifacts/<target>/`; reproduce it
+with `cargo +nightly fuzz run <target> <that file>`. Corpus and artifacts
+are gitignored.

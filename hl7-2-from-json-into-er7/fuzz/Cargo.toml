@@ -1,0 +1,34 @@
+[package]
+name = "hl7-2-from-json-into-er7-fuzz"
+version = "0.0.0"
+edition = "2024"
+authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
+publish = false
+
+# Its own workspace: the fuzzers need `libfuzzer-sys` and a nightly
+# toolchain, neither of which belongs in the workspace above. The forward
+# crate is here so the pair can be fuzzed as the round trip it is.
+[workspace]
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+hl7-2-from-json-into-er7 = { path = ".." }
+hl7-2-from-er7-into-json = { path = "../../hl7-2-from-er7-into-json" }
+er7 = "0.1"
+
+[[bin]]
+name = "convert"
+path = "fuzz_targets/convert.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "roundtrip"
+path = "fuzz_targets/roundtrip.rs"
+test = false
+doc = false
+bench = false

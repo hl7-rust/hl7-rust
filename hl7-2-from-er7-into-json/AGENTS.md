@@ -138,3 +138,16 @@ splitting, the CLI contract) is covered in `tests/integration.rs` instead.
   the existing four in `src/structure.rs`.
 - Pulling in `serde`/`serde_json` — see the dependency note above; the
   hand-rolled writer is deliberate.
+
+## Benchmarks
+
+Criterion benchmarks live in `benches/` and measure one conversion over a
+short message and a 200-observation result — both synthetic, never real
+patient data. `criterion` is a development dependency, so it is compiled
+for `cargo bench` and never linked into the library or the binary; the
+runtime dependency rule above is unchanged.
+
+```sh
+cargo bench -p hl7-2-from-er7-into-json
+cargo bench -p hl7-2-from-er7-into-json -- --save-baseline before   # then compare a change
+```

@@ -3,6 +3,7 @@ name = "hl7-2-xml-lite-helper"
 version = "0.1.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
+rust-version = "1.95"
 description = "A small, dependency-free XML reader shared by the hl7-2 crates: elements, attributes, text, and nesting, for documents whose shape you already know, with namespace prefixes ignored rather than resolved. A helper for that family rather than a general-purpose parser."
 license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
 repository = "https://github.com/hl7-rust/hl7-rust"
@@ -23,3 +24,13 @@ include = [
 # that it is small enough to read cannot have dependencies you also have to
 # read. See spec/index.md §5.
 [dependencies]
+
+# Criterion is a development dependency only: it is compiled for
+# `cargo bench` and never linked into the library or the binary, so the
+# runtime dependency list above is unchanged.
+[dev-dependencies]
+criterion = { version = "0.5", default-features = false, features = ["cargo_bench_support"] }
+
+[[bench]]
+name = "parse"
+harness = false

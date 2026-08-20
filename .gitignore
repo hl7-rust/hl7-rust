@@ -1,1 +1,9 @@
 /target
+
+# cargo-fuzz working state: the built fuzzers, the corpus they grow, and
+# the inputs they save when a target fails. The targets themselves and
+# their Cargo.toml are tracked; none of this is.
+*/fuzz/target
+*/fuzz/corpus
+*/fuzz/artifacts
+*/fuzz/Cargo.lock

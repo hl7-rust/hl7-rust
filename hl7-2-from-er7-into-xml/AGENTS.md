@@ -130,3 +130,16 @@ contract) is covered in `tests/integration.rs` instead.
   speculatively; add one when a real need (a failing test case, a user
   request) motivates it, and give it the same grammar-table treatment as
   the existing four in `src/structure.rs`.
+
+## Benchmarks
+
+Criterion benchmarks live in `benches/` and measure one conversion over a
+short message and a 200-observation result — both synthetic, never real
+patient data. `criterion` is a development dependency, so it is compiled
+for `cargo bench` and never linked into the library or the binary; the
+runtime dependency rule above is unchanged.
+
+```sh
+cargo bench -p hl7-2-from-er7-into-xml
+cargo bench -p hl7-2-from-er7-into-xml -- --save-baseline before   # then compare a change
+```
