@@ -244,7 +244,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "er7",
  "hl7-2-derive",
@@ -262,7 +262,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-from-er7-into-json"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "criterion",
  "er7",
@@ -270,7 +270,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-from-er7-into-xml"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "criterion",
  "er7",
@@ -279,7 +279,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-from-json-into-er7"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "criterion",
  "er7",
@@ -287,7 +287,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-from-xml-into-er7"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "criterion",
  "er7",
@@ -319,7 +319,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-xml-lite-helper"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "criterion",
 ]
