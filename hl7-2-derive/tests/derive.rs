@@ -123,3 +123,61 @@ fn generic_structs_carry_their_bounds_through() {
     let text: Generic<String> = hl7_2::parse(ADT).unwrap().decode().unwrap();
     assert_eq!(text.value, "1");
 }
+
+/// The generated code names `hl7-2` absolutely, as `::hl7_2`, so that a
+/// derived type compiles wherever it is defined. A caller who renames the
+/// dependency has no `::hl7_2` for it to reach, and cannot patch the
+/// generated code from their side — `#[hl7(crate = ...)]` is how they say
+/// where it went.
+///
+/// The rename is simulated here by a module that is *not* named `hl7_2`,
+/// reached by a path the attribute names. Without the attribute this does
+/// not compile.
+mod renamed {
+    pub use hl7_2::*;
+}
+
+#[derive(Debug, DeriveFromHl7, DeriveToHl7)]
+#[hl7(crate = crate::renamed)]
+struct Aliased {
+    #[hl7("PID-1")]
+    sequence: u32,
+    #[hl7("PID-5.1.1")]
+    family_name: String,
+}
+
+#[test]
+fn a_renamed_dependency_is_reachable_through_the_crate_attribute() {
+    let aliased: Aliased = hl7_2::parse(ADT).unwrap().decode().unwrap();
+    assert_eq!(aliased.sequence, 1);
+    assert_eq!(aliased.family_name, "EVERYWOMAN");
+
+    // And the write direction, which generates its own set of paths.
+    let message = hl7_2::Builder::new(Version::V2_5)
+        .message_type("ADT", "A01")
+        .control_id("1")
+        .timestamp("20260814080000")
+        .segment("PID")
+        .encode(&aliased)
+        .build()
+        .unwrap();
+    assert!(
+        message.to_er7().ends_with("PID|1||||EVERYWOMAN"),
+        "{}",
+        message.to_er7()
+    );
+}
+
+/// The quoted spelling, which is how the rest of the ecosystem writes it.
+#[derive(Debug, DeriveFromHl7)]
+#[hl7(crate = "crate::renamed")]
+struct QuotedCrate {
+    #[hl7("PID-1")]
+    sequence: u32,
+}
+
+#[test]
+fn the_crate_path_may_be_quoted() {
+    let value: QuotedCrate = hl7_2::parse(ADT).unwrap().decode().unwrap();
+    assert_eq!(value.sequence, 1);
+}

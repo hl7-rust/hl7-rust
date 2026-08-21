@@ -54,6 +54,11 @@ behind the `derive` feature, only the macro re-export is (see
   `Result<Self, E>`, matching the "degrade, don't reject" choice
   `hl7-3::rim` already makes. Don't add fallibility here without changing
   that decision in `hl7-3` first, and updating both crates' docs together.
+- The generated code names `hl7-3` through the path `crate_path` returns —
+  `::hl7_3` by default, or whatever the struct's `#[element(crate = ...)]`
+  says. Never hard-code `::hl7_3` in a `quote!` again: a caller who renamed
+  the dependency has no such path, and generated code is not something they
+  can edit. The same rule holds in `hl7-2-derive`.
 - A malformed attribute must produce a `syn::Error` pointing at the
   offending tokens, not a panic and not a confusing type error a hundred
   lines later. Test the message.

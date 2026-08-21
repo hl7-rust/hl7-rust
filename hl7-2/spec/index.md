@@ -345,6 +345,16 @@ both from one attribute per field:
 | `#[hl7(raw)]` | a `Raw` holding the whole message | skipped |
 | none | `Default::default()` | skipped |
 
+One attribute is written on the **struct** rather than a field:
+`#[hl7(crate = ...)]`, taking a path either bare (`crate = hl7`) or quoted
+(`crate = "::vendor::hl7_2"`). The generated code names this crate
+absolutely, as `::hl7_2`, so that a derived type compiles wherever it is
+defined without its author importing anything; a caller who renames the
+dependency (`hl7 = { package = "hl7-2" }`) has no `::hl7_2` for the macro to
+reach, and cannot patch generated code from their side. The attribute is how
+they say where it went. It defaults to `::hl7_2`, which is what almost every
+caller wants.
+
 ### 6.1 Value conversion
 
 `FromHl7Value` is implemented for `String`, `bool`, the integer and

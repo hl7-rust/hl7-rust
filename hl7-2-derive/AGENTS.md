@@ -41,6 +41,11 @@ allows that; don't try to "fix" it by vendoring types.
 - Generated code names everything absolutely (`::hl7_2::FromHl7Value`,
   `::core::result::Result`) so it compiles in a module that has imported
   none of it, or has shadowed the names.
+- The generated code names `hl7-2` through the path `crate_path` returns —
+  `::hl7_2` by default, or whatever the struct's `#[hl7(crate = ...)]` says.
+  Never hard-code `::hl7_2` in a `quote!` again: a caller who renamed the
+  dependency has no such path, and generated code is not something they can
+  edit. The same rule holds in `hl7-3-derive`.
 - A malformed attribute must produce a `syn::Error` pointing at the
   offending tokens, not a panic and not a confusing type error a hundred
   lines later. Test the message.
