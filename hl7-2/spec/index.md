@@ -394,6 +394,14 @@ is already absent does nothing and succeeds: it does not create the empty
 field it would then be emptying, which is what keeps writing an
 `Option::None` in struct mode from filling a message with empty components.
 
+Reading the difference back needs a reader that keeps it. `get` and
+`get_all` return *decoded* text, and decoded, `""` is the empty string, so
+a nulled field and an empty one both read as `Some("")`. The tree (§4.3) is
+where they stay apart: the null is a node with `is_null()` true, and an
+empty field is no node at all. `raw().query_path_raw()` is the other way,
+one level down. This is a property of decoding rather than a gap — but it
+is worth knowing before a caller reads `Some("")` as "nothing was sent".
+
 ### 7.3 Segments
 
 `append_segment`, `insert_segment`, `remove_segment`, `remove_segments`.

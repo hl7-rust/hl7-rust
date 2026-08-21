@@ -215,6 +215,33 @@ impl Message {
     /// Returns the decoded text of the first match, or `None` when the path
     /// names nothing in this message. Path syntax is `er7`'s; see
     /// [`er7::Path`].
+    ///
+    /// # The explicit null reads as empty here
+    ///
+    /// Decoded, `""` *is* the empty string, so a field the sender nulled
+    /// and a field they left empty both come back as `Some("")`. The two
+    /// are opposite instructions — "clear what you have" against "I am
+    /// saying nothing about this" — and acting on the wrong one leaves a
+    /// withdrawn allergy on a record, so where the difference matters, ask
+    /// a reader that keeps it:
+    ///
+    /// ```
+    /// let message = hl7_2::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1|\"\"||X")?;
+    ///
+    /// // Indistinguishable through `get`: PID-2 is null, PID-3 is empty.
+    /// assert_eq!(message.get("PID-2")?.as_deref(), Some(""));
+    /// assert_eq!(message.get("PID-3")?.as_deref(), Some(""));
+    ///
+    /// // Distinct in the tree: the null is a node, the empty field is not.
+    /// let tree = message.tree();
+    /// let null = tree.descendants().find(|n| n.path() == "PID[1]-2[1]").unwrap();
+    /// assert!(null.is_null());
+    /// assert!(tree.descendants().all(|n| n.path() != "PID[1]-3[1]"));
+    /// # Ok::<(), hl7_2::Error>(())
+    /// ```
+    ///
+    /// [`Message::set_null`] is the writing half of the same distinction
+    /// (§7.2).
     /// # Errors
     ///
     /// [`Error::Path`] when `path` is not a valid HL7 path.
