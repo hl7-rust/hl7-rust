@@ -244,7 +244,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "er7",
  "hl7-2-derive",
@@ -252,7 +252,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-derive"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "hl7-2",
  "proc-macro2",
@@ -334,7 +334,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-3-derive"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "hl7-3",
  "proc-macro2",
