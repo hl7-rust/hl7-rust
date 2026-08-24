@@ -8,6 +8,22 @@ Built with [SvelteKit](https://svelte.dev/docs/kit) (static adapter) and the
 [Lily Design System](https://github.com/LilyDesignSystem) headless Svelte
 components, styled with Lily's `light` theme plus a dark token layer.
 
+## Where this lives, and where to edit it
+
+The source of truth is the `hl7-rust.github.io/` directory of the
+[hl7-rust/hl7-rust](https://github.com/hl7-rust/hl7-rust) workspace. The
+standalone [hl7-rust/hl7-rust.github.io](https://github.com/hl7-rust/hl7-rust.github.io)
+repository is a **mirror** of that directory, kept in step by the workspace's
+`.github/workflows/publish-website.yml` on every push to `main`.
+
+It has to work that way: <https://hl7-rust.github.io> is an organization GitHub
+Pages site, and GitHub only ever serves one from a repository named
+`hl7-rust.github.io` — so the site cannot be published from the workspace
+directly, even though that is where its source belongs.
+
+**Edit in the workspace, not in the mirror.** A commit made directly to the
+mirror is overwritten by the next push to the workspace.
+
 **Nothing here is normative.** Each crate's own `spec/index.md` is the single
 source of truth for its behavior; this site summarises the crates' READMEs and
 specs and links back to them. If the two disagree, the spec is right and this
@@ -23,8 +39,10 @@ pnpm preview  # preview the production build
 pnpm check    # svelte-check
 ```
 
-Deployment is automatic: `.github/workflows/deploy.yml` runs `pnpm check` and
-`pnpm build`, then publishes `build/` to GitHub Pages on every push to `main`.
+Deployment is automatic, in two hops. A push to the workspace's `main` mirrors
+this directory into the `hl7-rust.github.io` repository; the `deploy.yml` in
+this directory — which lands at that repository's root — then runs `pnpm check`
+and `pnpm build` and publishes `build/` to GitHub Pages.
 
 ## Layout
 

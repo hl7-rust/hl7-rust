@@ -1,0 +1,96 @@
+# Publish the website.
+#
+# https://hl7-rust.github.io is an *organization* GitHub Pages site, which
+# GitHub only ever serves from a repository named `hl7-rust.github.io`. So the
+# site cannot be published from this workspace directly, however much we would
+# like it to be.
+#
+# This workflow closes that gap: `hl7-rust.github.io/` here is the source of
+# truth, and every push to main that touches it mirrors the directory into the
+# `hl7-rust/hl7-rust.github.io` repository. That repository's own
+# `.github/workflows/deploy.yml` — which is the copy sitting in this directory,
+# arriving at its root — then builds and deploys it.
+#
+# The push uses an SSH deploy key rather than GITHUB_TOKEN, and that is
+# deliberate: a push made with GITHUB_TOKEN does not trigger workflows, so the
+# deploy on the other side would never run.
+#
+# Setup, if the key ever has to be replaced:
+#   ssh-keygen -t ed25519 -N '' -C 'mirror from hl7-rust/hl7-rust' -f key
+#   gh api -X POST repos/hl7-rust/hl7-rust.github.io/keys \
+#       -f title='Website mirror from hl7-rust/hl7-rust' \
+#       -f "key=$(cat key.pub)" -F read_only=false
+#   gh secret set WEBSITE_DEPLOY_KEY --repo hl7-rust/hl7-rust < key
+#   rm key key.pub
+
+name: Publish the website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'hl7-rust.github.io/**'
+      - '.github/workflows/publish-website.yml'
+  workflow_dispatch:
+
+# Never two mirrors at once: they would race to push the same branch. Queue
+# instead of cancelling, so an intermediate commit is not silently skipped.
+concurrency:
+  group: publish-website
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    name: Mirror into hl7-rust.github.io
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this workspace
+        uses: actions/checkout@v4
+
+      - name: Check out the website repository
+        uses: actions/checkout@v4
+        with:
+          repository: hl7-rust/hl7-rust.github.io
+          path: .website
+          ssh-key: ${{ secrets.WEBSITE_DEPLOY_KEY }}
+          # Full history, because this commits on top of it rather than
+          # replacing it: the website repository keeps its own log.
+          fetch-depth: 0
+
+      - name: Mirror the directory
+        run: |
+          # Empty the checkout, then lay down exactly what this workspace
+          # tracks. `git archive` emits tracked content only, so nothing
+          # untracked or ignored — node_modules, build, .svelte-kit — can
+          # reach the website repository even if a runner leaves some behind.
+          # Emptying first is what makes a deletion here become a deletion
+          # there; .git survives because it is never tracked.
+          find .website -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          git archive HEAD:hl7-rust.github.io | tar -x -C .website
+
+      - name: Commit and push, if anything changed
+        working-directory: .website
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "The website repository already matches this workspace."
+            exit 0
+          fi
+
+          git config user.name "hl7-rust website mirror"
+          git config user.email "joel@joelparkerhenderson.com"
+          git add --all
+
+          # Name the source commit, so anyone reading the website
+          # repository's log can find what produced a change.
+          subject="$(git -C .. log -1 --format=%s "$SOURCE_SHA")"
+          git commit --message "$subject" --message \
+            "Mirrored from hl7-rust/hl7-rust@${SOURCE_SHA}, which is where this
+          site's source lives. Do not commit here directly: the next mirror
+          would overwrite it."
+
+          git push
