@@ -298,7 +298,7 @@ umbrella crate (`cargo add hl7`), which re-exports this crate as `hl7::v2`.
 ## See also
 
 - [`spec/index.md`](spec/index.md) — the normative specification
-- [`er7`](https://github.com/hl7-rust/er7) — the ER7 encoding layer
+- [`er7`](https://github.com/er7-rust/er7-rust) — the ER7 encoding layer
 - [`hl7-2-derive`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-derive) — the derive macros
 - [`hl7-2-mllp`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-mllp) — MLLP: sending and
   receiving these messages over TCP

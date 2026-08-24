@@ -187,7 +187,7 @@ cargo add hl7-2-mllp --no-default-features    # framing only, zero dependencies
 
 - [`spec/index.md`](spec/index.md) — the normative specification
 - [`hl7-2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2) — HL7 v2 itself
-- [`er7`](https://github.com/hl7-rust/er7) — the ER7 encoding layer
+- [`er7`](https://github.com/er7-rust/er7-rust) — the ER7 encoding layer
 
 ## License
 

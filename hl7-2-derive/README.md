@@ -62,7 +62,7 @@ Writing needs the segments to exist already; build the message with
 - [`hl7-2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2) — the library these macros
   are for; [its `spec/index.md` §6](https://github.com/hl7-rust/hl7-rust/blob/main/hl7-2/spec/index.md)
   is the normative description of struct mode
-- [`er7`](https://github.com/hl7-rust/er7) — the ER7 encoding layer
+- [`er7`](https://github.com/er7-rust/er7-rust) — the ER7 encoding layer
 
 ## License
 
