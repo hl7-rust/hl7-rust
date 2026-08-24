@@ -75,6 +75,24 @@ cargo test
 One `Cargo.lock` at the workspace root covers all members; a crate does not
 carry its own.
 
+## Website
+
+[`hl7-rust.github.io/`](hl7-rust.github.io) is the source of
+<https://hl7-rust.github.io> — documentation, guides, tutorials, examples, and
+a reference page for each crate above. It is a SvelteKit site; see its own
+[`README.md`](hl7-rust.github.io/README.md) to run it locally.
+
+```sh
+make publish
+```
+
+That is the only thing the `Makefile` here does. An organization GitHub Pages
+site is only ever served from a repository named `hl7-rust.github.io`, so the
+site cannot deploy from this workspace; `make publish` splits that directory
+out of this history and pushes it to
+[that repository](https://github.com/hl7-rust/hl7-rust.github.io), which
+deploys it. Building and testing the crates stays with cargo.
+
 ## History
 
 This workspace was assembled from what were previously separate

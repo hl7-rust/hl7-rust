@@ -14,7 +14,7 @@ The source of truth is the `hl7-rust.github.io/` directory of the
 [hl7-rust/hl7-rust](https://github.com/hl7-rust/hl7-rust) workspace. The
 standalone [hl7-rust/hl7-rust.github.io](https://github.com/hl7-rust/hl7-rust.github.io)
 repository holds the same directory as its root, published from the workspace
-with `git subtree push`.
+with `make publish`.
 
 It has to work that way: <https://hl7-rust.github.io> is an organization GitHub
 Pages site, and GitHub only ever serves one from a repository named
@@ -22,31 +22,31 @@ Pages site, and GitHub only ever serves one from a repository named
 directly, even though that is where its source belongs.
 
 **Edit in the workspace, not in the published repository.** A commit made
-directly there is not in the workspace's history, so the next subtree push is
-rejected as a non-fast-forward and someone has to reconcile the two by hand.
+directly there is not in the workspace's history, and `make publish` forces, so
+it would be overwritten without warning.
 
 ## Publishing
 
 From the **workspace root**, not from this directory:
 
 ```sh
-# One-time, per clone: name the published repository.
-git remote add website git@github.com:hl7-rust/hl7-rust.github.io.git
-
-# Publish: split this directory out of the workspace history and push it.
-git subtree push --prefix=hl7-rust.github.io website main
+make publish
 ```
 
-That pushes as you, over your own SSH key, which is what makes it work at all:
-a CI job would need a credential that can write `.github/workflows/deploy.yml`
-in the far repository, and GitHub refuses that to a deploy key. Publishing is
-therefore deliberate rather than automatic — run it when a change is ready to
-be seen.
+That splits this directory out of the workspace's history and pushes the result
+to the `hl7-rust.github.io` repository, adding the `website` remote first if the
+clone does not have it. It pushes as you, over your own SSH key, which is what
+makes it work at all: a CI job would need a credential able to write
+`.github/workflows/deploy.yml` in the far repository, and GitHub refuses that to
+a deploy key. Publishing is therefore deliberate rather than automatic — run it
+when a change is ready to be seen.
 
-`git subtree split` is deterministic, so repeat pushes fast-forward. The first
-one after a history rewrite in the workspace will not, and needs the same
-treatment as a direct commit there: reconcile, or force with
-`git push website "$(git subtree split --prefix=hl7-rust.github.io)":main --force`.
+The push is forced, because the two histories are unrelated: that repository
+grew on its own before this directory existed, and everything it held before
+the switch is kept on its `archive/standalone` branch. Forcing is also what
+lets a rewrite of the workspace's history be published at all. The cost is that
+a commit made directly in the website repository is overwritten rather than
+reported — so do not make one.
 
 Once the push lands, the `deploy.yml` in this directory — which arrives at that
 repository's root — runs `pnpm check` and `pnpm build` and publishes `build/`
@@ -67,10 +67,10 @@ pnpm preview  # preview the production build
 pnpm check    # svelte-check
 ```
 
-Deployment happens in two hops, and the first one is manual: `git subtree push`
-sends this directory to the `hl7-rust.github.io` repository (see
-[Publishing](#publishing)), and its `deploy.yml` then runs `pnpm check` and
-`pnpm build` and publishes `build/` to GitHub Pages.
+Deployment happens in two hops, and the first one is manual: `make publish`
+from the workspace root sends this directory to the `hl7-rust.github.io`
+repository (see [Publishing](#publishing)), and its `deploy.yml` then runs
+`pnpm check` and `pnpm build` and publishes `build/` to GitHub Pages.
 
 ## Layout
 
