@@ -24,6 +24,12 @@ directly, even though that is where its source belongs.
 **Edit in the workspace, not in the mirror.** A commit made directly to the
 mirror is overwritten by the next push to the workspace.
 
+The mirror pushes with a short-lived token from a GitHub App installed on the
+website repository alone — not a deploy key, which GitHub forbids from writing
+`.github/workflows/`, and not `GITHUB_TOKEN`, whose pushes do not trigger the
+deploy on the far side. See the workflow's own header for the App's required
+permissions.
+
 **Nothing here is normative.** Each crate's own `spec/index.md` is the single
 source of truth for its behavior; this site summarises the crates' READMEs and
 specs and links back to them. If the two disagree, the spec is right and this

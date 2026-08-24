@@ -11,17 +11,36 @@
 # `.github/workflows/deploy.yml` — which is the copy sitting in this directory,
 # arriving at its root — then builds and deploys it.
 #
-# The push uses an SSH deploy key rather than GITHUB_TOKEN, and that is
-# deliberate: a push made with GITHUB_TOKEN does not trigger workflows, so the
-# deploy on the other side would never run.
+# ## Why a GitHub App, and not something simpler
 #
-# Setup, if the key ever has to be replaced:
-#   ssh-keygen -t ed25519 -N '' -C 'mirror from hl7-rust/hl7-rust' -f key
-#   gh api -X POST repos/hl7-rust/hl7-rust.github.io/keys \
-#       -f title='Website mirror from hl7-rust/hl7-rust' \
-#       -f "key=$(cat key.pub)" -F read_only=false
-#   gh secret set WEBSITE_DEPLOY_KEY --repo hl7-rust/hl7-rust < key
-#   rm key key.pub
+# The push needs three things at once, and only an App installation token has
+# all three:
+#
+#   - It must be able to write `.github/workflows/deploy.yml`. A deploy key
+#     cannot: GitHub refuses it with "refusing to allow an OAuth App to create
+#     or update workflow ... without `workflow` scope". That rules the simplest
+#     option out entirely, because the mirror carries that file.
+#   - It must trigger the deploy on the far side. A push made with GITHUB_TOKEN
+#     does not start workflow runs, so the deploy would never fire.
+#   - It should not be able to reach anything else. The token below is minted
+#     per run, expires in an hour, and is scoped to one repository.
+#
+# ## Setup
+#
+# A GitHub App owned by the hl7-rust organization, installed on the
+# `hl7-rust.github.io` repository *only*, with repository permissions:
+#
+#   Contents:  Read and write     (the mirrored files)
+#   Workflows: Read and write     (deploy.yml is one of them)
+#
+# Then, from the App's settings page, note its App ID and generate a private
+# key, and put both here:
+#
+#   gh secret set WEBSITE_APP_ID          --repo hl7-rust/hl7-rust
+#   gh secret set WEBSITE_APP_PRIVATE_KEY --repo hl7-rust/hl7-rust < key.pem
+#
+# Nothing org-wide changes, the installation can be revoked in one click, and
+# every token it mints is logged against the App.
 
 name: Publish the website
 
@@ -47,6 +66,17 @@ jobs:
     name: Mirror into hl7-rust.github.io
     runs-on: ubuntu-latest
     steps:
+      - name: Mint a token for the website repository
+        id: token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.WEBSITE_APP_ID }}
+          private-key: ${{ secrets.WEBSITE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          # Scoped to the one repository this workflow writes to, so the token
+          # cannot touch this workspace or anything else in the organization.
+          repositories: hl7-rust.github.io
+
       - name: Check out this workspace
         uses: actions/checkout@v4
 
@@ -55,7 +85,7 @@ jobs:
         with:
           repository: hl7-rust/hl7-rust.github.io
           path: .website
-          ssh-key: ${{ secrets.WEBSITE_DEPLOY_KEY }}
+          token: ${{ steps.token.outputs.token }}
           # Full history, because this commits on top of it rather than
           # replacing it: the website repository keeps its own log.
           fetch-depth: 0
