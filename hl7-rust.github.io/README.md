@@ -13,22 +13,44 @@ components, styled with Lily's `light` theme plus a dark token layer.
 The source of truth is the `hl7-rust.github.io/` directory of the
 [hl7-rust/hl7-rust](https://github.com/hl7-rust/hl7-rust) workspace. The
 standalone [hl7-rust/hl7-rust.github.io](https://github.com/hl7-rust/hl7-rust.github.io)
-repository is a **mirror** of that directory, kept in step by the workspace's
-`.github/workflows/publish-website.yml` on every push to `main`.
+repository holds the same directory as its root, published from the workspace
+with `git subtree push`.
 
 It has to work that way: <https://hl7-rust.github.io> is an organization GitHub
 Pages site, and GitHub only ever serves one from a repository named
 `hl7-rust.github.io` — so the site cannot be published from the workspace
 directly, even though that is where its source belongs.
 
-**Edit in the workspace, not in the mirror.** A commit made directly to the
-mirror is overwritten by the next push to the workspace.
+**Edit in the workspace, not in the published repository.** A commit made
+directly there is not in the workspace's history, so the next subtree push is
+rejected as a non-fast-forward and someone has to reconcile the two by hand.
 
-The mirror pushes with a short-lived token from a GitHub App installed on the
-website repository alone — not a deploy key, which GitHub forbids from writing
-`.github/workflows/`, and not `GITHUB_TOKEN`, whose pushes do not trigger the
-deploy on the far side. See the workflow's own header for the App's required
-permissions.
+## Publishing
+
+From the **workspace root**, not from this directory:
+
+```sh
+# One-time, per clone: name the published repository.
+git remote add website git@github.com:hl7-rust/hl7-rust.github.io.git
+
+# Publish: split this directory out of the workspace history and push it.
+git subtree push --prefix=hl7-rust.github.io website main
+```
+
+That pushes as you, over your own SSH key, which is what makes it work at all:
+a CI job would need a credential that can write `.github/workflows/deploy.yml`
+in the far repository, and GitHub refuses that to a deploy key. Publishing is
+therefore deliberate rather than automatic — run it when a change is ready to
+be seen.
+
+`git subtree split` is deterministic, so repeat pushes fast-forward. The first
+one after a history rewrite in the workspace will not, and needs the same
+treatment as a direct commit there: reconcile, or force with
+`git push website "$(git subtree split --prefix=hl7-rust.github.io)":main --force`.
+
+Once the push lands, the `deploy.yml` in this directory — which arrives at that
+repository's root — runs `pnpm check` and `pnpm build` and publishes `build/`
+to GitHub Pages.
 
 **Nothing here is normative.** Each crate's own `spec/index.md` is the single
 source of truth for its behavior; this site summarises the crates' READMEs and
@@ -45,10 +67,10 @@ pnpm preview  # preview the production build
 pnpm check    # svelte-check
 ```
 
-Deployment is automatic, in two hops. A push to the workspace's `main` mirrors
-this directory into the `hl7-rust.github.io` repository; the `deploy.yml` in
-this directory — which lands at that repository's root — then runs `pnpm check`
-and `pnpm build` and publishes `build/` to GitHub Pages.
+Deployment happens in two hops, and the first one is manual: `git subtree push`
+sends this directory to the `hl7-rust.github.io` repository (see
+[Publishing](#publishing)), and its `deploy.yml` then runs `pnpm check` and
+`pnpm build` and publishes `build/` to GitHub Pages.
 
 ## Layout
 
