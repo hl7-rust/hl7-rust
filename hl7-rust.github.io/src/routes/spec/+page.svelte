@@ -179,8 +179,8 @@
   </p>
   <p>
     The workspace itself has one spec outside any crate:
-    <a href={`${REPO}/blob/main/spec/rust-msrv-n-minus-3.md`}
-      ><code>spec/rust-msrv-n-minus-3.md</code></a
+    <a href={`${REPO}/blob/main/spec/rust-msrv-n-minus-3/index.md`}
+      ><code>spec/rust-msrv-n-minus-3/index.md</code></a
     >, which states the minimum supported Rust version policy every member pins to. See
     <a href="/docs/versions/">Versions and compatibility</a> for what that means in practice.
   </p>

@@ -45,7 +45,7 @@ not need to change.
   discussion; it would touch every member's `Cargo.toml` at once.
 - **MSRV is current stable Rust minus three releases**, pinned as
   `rust-version` in every member's `Cargo.toml` and stated in
-  [`spec/rust-msrv-n-minus-3.md`](spec/rust-msrv-n-minus-3.md). Check a
+  [`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md). Check a
   change against it with `cargo +1.95 check --workspace --all-targets`;
   raising the floor is a breaking change and belongs in a release allowed
   to break.

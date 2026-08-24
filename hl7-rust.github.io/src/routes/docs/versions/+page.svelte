@@ -150,8 +150,8 @@ cargo +1.95 check --workspace --all-targets`;
     The policy is <strong>current stable minus three releases</strong>, pinned as
     <code>rust-version</code> in every member's <code>Cargo.toml</code> and stated in the
     workspace's own
-    <a href={`${REPO}/blob/main/spec/rust-msrv-n-minus-3.md`}
-      ><code>spec/rust-msrv-n-minus-3.md</code></a
+    <a href={`${REPO}/blob/main/spec/rust-msrv-n-minus-3/index.md`}
+      ><code>spec/rust-msrv-n-minus-3/index.md</code></a
     >. At the time of writing that is <code>1.95</code>.
   </p>
   <CodeSample language="sh" code={msrv} />
