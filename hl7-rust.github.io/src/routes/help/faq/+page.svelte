@@ -221,8 +221,9 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
 
   <h3>Where does <code>er7</code> live?</h3>
   <p>
-    In <a href="https://github.com/hl7-rust/er7">its own repository</a>, outside this workspace,
-    because plenty of people want the ER7 encoding without the HL7 dictionary.
+    In <a href="https://github.com/er7-rust/er7-rust">er7-rust/er7-rust</a> — its own repository in its own
+    organization, outside this workspace, because plenty of people want the ER7 encoding without
+    the HL7 dictionary.
   </p>
 
   <h3>Something on this site is wrong. Where do I say so?</h3>

@@ -44,8 +44,9 @@ assert_eq!(message.query("PID-5.1")?.as_deref(), Some("SMITH"));`;
   <p>
     <a href="https://crates.io/crates/er7"><code>er7</code></a> is the ER7 encoding layer: delimiters,
     escapes, paths, byte-for-byte rendering, and batch splitting. It has no dependencies of its own,
-    and it lives in <a href="https://github.com/hl7-rust/er7">its own repository</a> rather than in
-    this workspace — because plenty of people want the encoding without the dictionary.
+    and it lives in <a href="https://github.com/er7-rust/er7-rust">its own repository</a>, in its own
+    organization, rather than in this workspace — because plenty of people want the encoding
+    without the dictionary.
   </p>
   <CodeSample language="rust" code={er7} />
   <p>

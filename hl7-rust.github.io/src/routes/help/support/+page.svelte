@@ -68,9 +68,11 @@ spec/                workspace-wide specs (the MSRV policy)
     </table>
   </div>
   <p>
-    The workspace is <a href={REPO}>github.com/hl7-rust/hl7-rust</a>; the organization, including
-    <a href="https://github.com/hl7-rust/er7"><code>er7</code></a> and the archived predecessor
-    repositories, is at <a href={ORG}>github.com/hl7-rust</a>.
+    The workspace is <a href={REPO}>github.com/hl7-rust/hl7-rust</a>, and the organization
+    around it — including the archived predecessor repositories — is at
+    <a href={ORG}>github.com/hl7-rust</a>. The ER7 encoding layer is elsewhere again:
+    <a href="https://github.com/er7-rust/er7-rust"><code>er7-rust/er7-rust</code></a>, its own organization, so file
+    encoding-level bugs there rather than here.
   </p>
   <p>
     File against the workspace, not against a crate's archived former repository — those still carry
