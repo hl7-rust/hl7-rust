@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://hl7-rust.github.io/sitemap.xml

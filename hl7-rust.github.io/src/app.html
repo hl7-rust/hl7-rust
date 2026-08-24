@@ -6,9 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="HL7 Rust — Rust libraries and command-line tools that convert HL7 version 2.5 ER7 messages to XML and JSON."
+      content="Documentation, guides, tutorials, and examples for HL7 Rust — Rust crates that parse, navigate, validate, modify, render, transport, and convert HL7 v2 and v3 messages."
     />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- The Lily Design System light theme carries the tokens and the component
+         CSS for every Lily component. The dark file re-declares only the tokens,
+         under `:root[data-theme="dark"]` and under prefers-color-scheme, so the
+         two layer instead of fighting. -->
     <link rel="stylesheet" href="%sveltekit.assets%/lily-light.css" />
+    <link rel="stylesheet" href="%sveltekit.assets%/lily-dark.css" />
+
+    <!-- Apply a stored theme choice before first paint, so a reader who chose
+         dark never sees a white flash. Deliberately tiny, deliberately inline,
+         and deliberately tolerant of storage being unavailable. -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('hl7-rust-theme');
+          if (stored === 'light' || stored === 'dark') {
+            document.documentElement.setAttribute('data-theme', stored);
+          }
+        } catch (error) {
+          /* Private browsing, or storage disabled: fall through to the OS setting. */
+        }
+      })();
+    </script>
+
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

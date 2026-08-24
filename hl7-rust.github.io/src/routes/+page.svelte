@@ -1,341 +1,319 @@
 <script lang="ts">
-  import Card from 'lily-design-system-svelte-headless/components/Card/Card.svelte';
-  import Badge from 'lily-design-system-svelte-headless/components/Badge/Badge.svelte';
+  import { Badge } from 'lily-design-system-svelte-headless';
+  import CodeSample from '$lib/components/CodeSample.svelte';
+  import LinkCards from '$lib/components/LinkCards.svelte';
+  import { CATEGORIES, CRATES, cratesIn, type CrateCategory } from '$lib/data/crates';
 
-  const er7Example = `PID|1||241900||TEST^FOUAZ`;
+  const start = [
+    {
+      href: '/docs/quickstart/',
+      label: 'Quick start',
+      blurb:
+        'Install one crate, parse a real ORU^R01, read a value out of it, and send back an acknowledgement.'
+    },
+    {
+      href: '/guides/',
+      label: 'Guides',
+      blurb:
+        'One task per page: parsing, navigating, validating, converting, MLLP, SOAP, vendor dictionaries.'
+    },
+    {
+      href: '/tutorials/',
+      label: 'Tutorials',
+      blurb:
+        'Longer walkthroughs — taming a vendor dialect, standing up an MLLP listener that answers.'
+    },
+    {
+      href: '/crates/',
+      label: 'Crate reference',
+      blurb: 'Fourteen workspace members, each with its features, dependencies, and API tour.'
+    }
+  ];
 
-  const xmlExample = `<PID>
+  const er7 = `MSH|^~\\&|LAB|ACME|EHR|CLINIC|20260814080000||ORU^R01|MSG00042|P|2.5
+PID|1||444333222^^^ACME&1.2.3.4&ISO^MR||EVERYWOMAN^EVE^E||19620320|F
+OBR|1|ORD776655|LAB2233|24331-1^Lipid Panel^LN|||20260813071500
+OBX|1|NM|2093-3^Cholesterol^LN||187|mg/dL|<200|N|||F`;
+
+  const parse = `use hl7::v2;
+
+let message = v2::parse(text)?;
+
+// A path addresses a value; the tree names it.
+assert_eq!(message.get("PID-5.1")?.as_deref(), Some("EVERYWOMAN"));
+assert_eq!(message.tree().find("XPN.1").unwrap().text(), "EVERYWOMAN");
+
+// Every node knows the path that reads it back.
+let second = message.tree().find_all("OBX").nth(1);
+assert_eq!(message.structure_id(), "ORU_R01");`;
+
+  const xml = `<PID>
   <PID.1>1</PID.1>
-  <PID.3><CX.1>241900</CX.1></PID.3>
-  <PID.5><XPN.1><FN.1>TEST</FN.1></XPN.1><XPN.2>FOUAZ</XPN.2></PID.5>
+  <PID.3>
+    <CX.1>241900</CX.1>
+  </PID.3>
+  <PID.5>
+    <XPN.1><FN.1>TEST</FN.1></XPN.1>
+    <XPN.2>FOUAZ</XPN.2>
+  </PID.5>
 </PID>`;
 
-  const jsonExample = `{
+  const json = `{
   "PID": {
     "PID.1": "1",
     "PID.3": { "CX.1": "241900" },
-    "PID.5": { "XPN.1": { "FN.1": "TEST" }, "XPN.2": "FOUAZ" }
+    "PID.5": {
+      "XPN.1": { "FN.1": "TEST" },
+      "XPN.2": "FOUAZ"
+    }
   }
 }`;
 
-  const features = [
-    'ER7 parsing at every level: segments, fields, repetitions (~), components (^), and subcomponents (&).',
-    'Dynamic delimiters, read from MSH-1/MSH-2 rather than hardcoded.',
-    'Typed names: built-in HL7 v2.5 tables map each field of the common segments and composite types to its data type — Z-segments and uncommon types still convert, using positional generic names.',
-    'Message-structure groups for ACK, ADT_A01, ORM_O01, and ORU_R01, flattened back out again on the way in.',
-    'Graceful fallback rather than failure: unknown structures render flat, unknown fields use positional generic names.',
-    'The two reverse crates carry no HL7 v2.5 dictionary of their own — they reconstruct a message purely from the position each forward crate already encodes in every element/key name, and re-escape decoded text back to raw ER7.',
-    'None of the four crates is a validator — no schema, cardinality, or table checking is performed.'
-  ];
+  const map = `er7                                    the ER7 encoding: delimiters,
+                                       escapes, paths, byte-for-byte
+                                       rendering, batch splitting
+  |
+hl7-2                                  the HL7 v2 dictionary: releases
+  |                                    2.1-2.9, data types, message
+  |                                    structures; three parsing modes;
+  |                                    mutation; validation
+  |
+  +-- hl7-2-mllp                       transport: HL7 v2 over TCP (MLLP)
+  +-- hl7-2-soap                       transport: HL7 v2 over HTTP (SOAP)
+  +-- hl7-2-from-er7-into-json         format conversions
+  +-- hl7-2-from-er7-into-xml
+  +-- hl7-2-from-json-into-er7
+  +-- hl7-2-from-xml-into-er7
+  +-- hl7-2-from-xsd-into-json-dictionary   writes the dictionaries
+  |                                          hl7-2 reads, from HL7
+  |                                          v2.xml XSDs
+  +-- hl7-2-xml-lite-helper            shared minimal XML reader, also
+        |                              used directly by:
+        +-- hl7-3                      HL7 v3: RIM backbone classes,
+              |                        coded values, the three-level
+              |                        message envelope
+              +-- hl7-3-derive         #[derive(FromElement)]
+              +-- hl7-3-soap           transport: HL7 v3 over HTTP (SOAP)
+
+hl7                                    the umbrella crate — hl7::v2 and
+                                       hl7::v3 today, room for hl7::fhir`;
+
+  const order: CrateCategory[] = ['core', 'transport', 'conversion', 'tooling'];
 </script>
 
 <svelte:head>
-  <title>HL7 Rust</title>
+  <title>HL7 Rust — HL7 v2 and v3 for Rust</title>
+  <meta
+    name="description"
+    content="HL7 Rust: parse, navigate, validate, modify, render, transport, and convert HL7 v2 and v3 messages in Rust. Documentation, guides, tutorials, examples, and a reference page for every crate."
+  />
 </svelte:head>
 
-<section class="hero">
-  <div class="hero-inner">
-    <p class="eyebrow"><Badge label="Organization">hl7-rust</Badge></p>
-    <h1>HL7 Rust</h1>
-    <p class="lede">
-      Rust libraries and command-line tools for HL7 version 2.5: a parser, dictionary, and
-      validator at the core; MLLP and SOAP transports; and converters that move messages
-      losslessly, in both directions, between the traditional pipe-delimited ER7 encoding and
-      XML or JSON.
+<section class="site-hero">
+  <div class="site-hero-inner">
+    <p class="hero-eyebrow"><Badge label="GitHub organization">hl7-rust</Badge></p>
+    <h1>HL7, in Rust, one crate per layer</h1>
+    <p class="hero-lede">
+      Parse, navigate, validate, modify, and render Health Level Seven messages. HL7 v2 releases
+      2.1 through 2.9 with a real dictionary behind them; HL7 v3's RIM backbone and message
+      envelope; MLLP and SOAP transports; and lossless conversion between ER7, v2.xml, and JSON.
+      Small dependency trees, permissive licensing, and a normative specification for every crate
+      whose behavior is normative.
     </p>
-    <div class="cta-row">
-      <a class="button" href="https://github.com/hl7-rust">GitHub organization</a>
+    <div class="hero-actions">
+      <a class="hero-button hero-button-primary" href="/docs/quickstart/">Quick start</a>
+      <a class="hero-button" href="/docs/">Documentation</a>
+      <a class="hero-button" href="/crates/">Crate reference</a>
     </div>
+    <p class="hero-install"><code>cargo add hl7</code></p>
   </div>
 </section>
 
-<section class="section">
-  <div class="section-inner">
-    <h2>Core</h2>
-    <p>The standards themselves, and the umbrella crate that re-exports them.</p>
-    <div class="card-grid">
-      <Card
-        heading="hl7-2"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2"
-        headingLevel={3}
-        class="card-featured"
-      >
-        <p><Badge type="success" label="This is the main crate">Start here</Badge></p>
-        <p>
-          HL7 v2 (releases 2.1-2.9) for Rust: parse, navigate, validate, modify, and render HL7
-          version 2 messages, in three modes — generic, schema-based, and struct-based. Also a
-          CLI (<code>hl7-v2</code>). This is what everything else in the ecosystem builds on.
-        </p>
-      </Card>
-      <Card
-        heading="hl7-3"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-3"
-        headingLevel={3}
-      >
-        <p>
-          HL7 v3 for Rust: the Reference Information Model (RIM) backbone classes, coded values,
-          and the three-level message envelope (transport wrapper, control act wrapper, domain
-          payload). A foundation, not a full implementation.
-        </p>
-      </Card>
-      <Card
-        heading="hl7"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7"
-        headingLevel={3}
-      >
-        <p>
-          The umbrella crate: re-exports one module per HL7 standard —
-          <code>hl7::v2</code> and <code>hl7::v3</code> today, with room for
-          <code>hl7::fhir</code> as that standard gets implemented.
-        </p>
-      </Card>
-    </div>
+<section class="band">
+  <div class="band-inner">
+    <h2>Start here</h2>
+    <LinkCards links={start} headingLevel={3} label="Ways in" />
   </div>
 </section>
 
-<section class="section section-alt">
-  <div class="section-inner">
-    <h2>Transports</h2>
-    <div class="card-grid">
-      <Card
-        heading="hl7-2-mllp"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-mllp"
-        headingLevel={3}
-      >
-        <p>
-          HL7 v2 MLLP: the Minimal Lower Layer Protocol that frames HL7 version 2 messages on a
-          TCP stream. Framing, streaming, acknowledgements, and a transport trait.
-        </p>
-      </Card>
-      <Card
-        heading="hl7-2-soap"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-soap"
-        headingLevel={3}
-      >
-        <p>
-          HL7 v2 over SOAP: the envelope, faults, payload carriage, WSDL, and response evaluation
-          that carry HL7 version 2 messages over HTTP instead of MLLP.
-        </p>
-      </Card>
-      <Card
-        heading="hl7-3-soap"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-3-soap"
-        headingLevel={3}
-      >
-        <p>
-          HL7 v3 over SOAP: the envelope, faults, message carriage, WSDL, and the real HL7 v3
-          acknowledgement (<code>MCCI_IN000002UV01</code>) — SOAP is v3's own historically
-          dominant transport, not an alternative to something else.
-        </p>
-      </Card>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="section-inner">
-    <h2>Format conversions</h2>
-    <div class="card-grid">
-      <Card
-        heading="hl7-2-from-er7-into-xml"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-xml"
-        headingLevel={3}
-      >
-        <p>
-          ER7 to the official HL7 <strong>v2.xml</strong> XML representation
-          (<code>urn:hl7-org:v2xml</code>).
-        </p>
-      </Card>
-      <Card
-        heading="hl7-2-from-xml-into-er7"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-xml-into-er7"
-        headingLevel={3}
-      >
-        <p>
-          v2.xml XML back to ER7 — reads what the crate above writes, with no HL7 v2.5
-          dictionary of its own.
-        </p>
-      </Card>
-      <Card
-        heading="hl7-2-from-er7-into-json"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-json"
-        headingLevel={3}
-      >
-        <p>
-          ER7 to a typed <strong>JSON</strong> representation designed to preserve everything
-          v2.xml preserves, using idiomatic JSON instead of XML's constructs.
-        </p>
-      </Card>
-      <Card
-        heading="hl7-2-from-json-into-er7"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-json-into-er7"
-        headingLevel={3}
-      >
-        <p>
-          Typed JSON back to ER7 — reads what the crate above writes, with no HL7 v2.5
-          dictionary of its own.
-        </p>
-      </Card>
-    </div>
-    <p>
-      All four crates share the same ER7 parser
-      (<a href="https://crates.io/crates/er7"><code>er7</code></a> on crates.io). The two
-      forward crates share the same HL7 v2.5 data-type tables and message-structure grammars —
-      only the rendered output format differs. The two reverse crates need none of that: each
-      element or key name a forward crate writes already carries its own position, so reversal
-      is purely structural — see each reverse crate's <code>spec/index.md</code> §1.1.
+<section class="band band-alt">
+  <div class="band-inner">
+    <h2>What it looks like</h2>
+    <p class="band-lede">
+      HL7 v2 is pipes and carets. The hard part is not the syntax — it is knowing what the pipes
+      and carets <em>mean</em> in the release the sender speaks. That is what the dictionary is for.
     </p>
-  </div>
-</section>
-
-<section class="section">
-  <div class="section-inner">
-    <h2>Tooling</h2>
-    <div class="card-grid">
-      <Card
-        heading="hl7-2-derive"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-derive"
-        headingLevel={3}
-      >
-        <p>
-          Derive macros for the <code>hl7-2</code> crate: <code>#[derive(FromHl7)]</code> and
-          <code>#[derive(ToHl7)]</code> map struct fields to HL7 v2 message paths. Used through
-          <code>hl7-2</code>'s <code>derive</code> feature, not directly.
-        </p>
-      </Card>
-      <Card
-        heading="hl7-3-derive"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-3-derive"
-        headingLevel={3}
-      >
-        <p>
-          Derive macro for the <code>hl7-3</code> crate: <code>#[derive(FromElement)]</code> maps
-          struct fields to HL7 v3 XML element attributes and children. Used through
-          <code>hl7-3</code>'s <code>derive</code> feature, not directly.
-        </p>
-      </Card>
-      <Card
-        heading="hl7-2-from-xsd-into-json-dictionary"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-xsd-into-json-dictionary"
-        headingLevel={3}
-      >
-        <p>
-          Reads a directory of HL7 v2 XML Schema Definition (XSD) files — the v2.xml encoding, as
-          published or as a vendor customised it — and writes the JSON dictionary the
-          <code>hl7-2</code> crate reads.
-        </p>
-      </Card>
-      <Card
-        heading="hl7-2-xml-lite-helper"
-        href="https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-xml-lite-helper"
-        headingLevel={3}
-      >
-        <p>
-          A small, dependency-free XML reader shared by the <code>hl7-2</code> crates: elements,
-          attributes, text, and nesting, for documents whose shape you already know, with
-          namespace prefixes ignored rather than resolved.
-        </p>
-      </Card>
-    </div>
-  </div>
-</section>
-
-<section class="section section-alt">
-  <div class="section-inner">
-    <h2>Example</h2>
-    <p>An ER7 fragment such as:</p>
-    <pre><code>{er7Example}</code></pre>
-    <div class="example-grid">
+    <div class="split">
       <div>
-        <h3>converts to XML</h3>
-        <pre><code>{xmlExample}</code></pre>
+        <CodeSample
+          language="er7"
+          caption="A lipid panel result, as it arrives on the wire"
+          code={er7}
+        />
       </div>
       <div>
-        <h3>and to JSON</h3>
-        <pre><code>{jsonExample}</code></pre>
+        <CodeSample language="rust" caption="Read from it by path or by name" code={parse} />
       </div>
     </div>
     <p>
-      Piping either back through its reverse crate reproduces the original
-      <code>{er7Example}</code> exactly — that round trip is a runnable example in each forward
-      crate's own README.
+      <a href="/docs/quickstart/">Follow the quick start →</a>
     </p>
   </div>
 </section>
 
-<section class="section">
-  <div class="section-inner">
-    <h2>What they do</h2>
-    <ul class="feature-list">
-      {#each features as feature (feature)}
-        <li>{feature}</li>
-      {/each}
-    </ul>
-    <p>See <a href="/spec/">Specs</a> for where each project's normative conversion rules live.</p>
+<section class="band">
+  <div class="band-inner">
+    <h2>Convert it, losslessly, both ways</h2>
+    <p class="band-lede">
+      The same ER7 fragment <code>PID|1||241900||TEST^FOUAZ</code> converts to the official v2.xml
+      representation and to a typed JSON mapping designed to preserve everything v2.xml preserves.
+      Piping either back through its reverse crate reproduces the original message.
+    </p>
+    <div class="split">
+      <CodeSample language="xml" caption="hl7-2-from-er7-into-xml" code={xml} />
+      <CodeSample language="json" caption="hl7-2-from-er7-into-json" code={json} />
+    </div>
+    <p><a href="/guides/converting/">The conversion guide →</a></p>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="band-inner">
+    <h2>How the crates fit together</h2>
+    <p class="band-lede">
+      One crate per layer, one module per standard. Each seam is a place you can stop: take the
+      ER7 encoding alone, take v2 without a transport, take a transport without the dictionary.
+    </p>
+    <CodeSample language="text" label="The workspace, as a dependency map" code={map} />
+    <p><a href="/docs/architecture/">Why the seams fall where they do →</a></p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="band-inner">
+    <h2>Every crate</h2>
+    {#each order as category (category)}
+      <h3>{CATEGORIES[category].label}</h3>
+      <p class="band-lede">{CATEGORIES[category].blurb}</p>
+      <LinkCards
+        headingLevel={4}
+        label={CATEGORIES[category].label}
+        links={cratesIn(category).map((crate) => ({
+          href: `/crates/${crate.slug}/`,
+          label: crate.name,
+          blurb: crate.tagline
+        }))}
+      />
+    {/each}
+    <p>{CRATES.length} crates in one Cargo workspace, plus <code>er7</code>, which is its own.</p>
   </div>
 </section>
 
 <style>
-  .hero-inner,
-  .section-inner {
-    max-width: 64rem;
+  .site-hero {
+    background: var(--color-primary);
+    color: var(--color-primary-content);
+  }
+
+  .site-hero-inner,
+  .band-inner {
+    max-width: 72rem;
     margin: 0 auto;
-    padding: 2.5rem 1.5rem;
+    padding: 3.5rem 1.5rem;
   }
 
-  .eyebrow {
-    margin: 0 0 0.75rem;
+  .hero-eyebrow {
+    margin: 0 0 1rem;
   }
 
-  .lede {
-    max-width: 42rem;
+  /* Lily's baseline badge is a solid neutral pill, which on the primary-filled
+     hero reads as a black blot. Invert it to sit on the band. */
+  .hero-eyebrow :global(.badge) {
+    background: rgb(255 255 255 / 0.16);
+    color: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.1875rem 0.625rem;
+  }
+
+  .site-hero h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.15;
+  }
+
+  .hero-lede {
+    max-width: 46rem;
     font-size: 1.125rem;
+    line-height: 1.65;
+    margin: 0;
   }
 
-  .cta-row {
-    margin-top: 1.5rem;
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.75rem 0 0;
   }
 
-  /* The theme's baseline .button uses --color-primary as its background,
-     which is also the hero's own background — invert it here so the CTA
-     stays visible against the hero. */
-  .cta-row :global(.button) {
-    background-color: var(--color-base-100, #fff);
-    color: var(--color-primary, #4f39f6);
+  .hero-button {
+    display: inline-block;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-field, 0.25rem);
+    border: 1px solid currentColor;
+    text-decoration: none;
+    color: inherit;
+    font-weight: 600;
   }
 
-  .cta-row :global(.button:hover) {
-    background-color: var(--color-base-200, #f5f5f4);
+  .hero-button:hover {
+    background: rgb(255 255 255 / 0.14);
   }
 
-  .card-grid :global(.card-featured) {
-    border: 2px solid var(--color-primary, #4f39f6);
+  /* The band is --color-primary in both themes, so the primary call to action
+     is painted in the pair that is guaranteed to contrast with it — not in the
+     page surface, which is dark in the dark theme and disappears here. */
+  .hero-button-primary {
+    background: var(--color-primary-content);
+    color: var(--color-primary);
+    border-color: var(--color-primary-content);
   }
 
-  .section-alt {
-    background: var(--color-base-200, #f5f5f4);
+  .hero-button-primary:hover {
+    opacity: 0.88;
   }
 
-  .card-grid {
+  .hero-install {
+    margin: 1.5rem 0 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9375rem;
+    opacity: 0.9;
+  }
+
+  .band-alt {
+    background: var(--color-base-200);
+  }
+
+  .band h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.75rem;
+  }
+
+  .band h3 {
+    margin: 2.5rem 0 0.25rem;
+  }
+
+  .band-lede {
+    max-width: 46rem;
+    margin: 0 0 1rem;
+    line-height: 1.7;
+  }
+
+  .split {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
     gap: 1.5rem;
-    margin: 1.5rem 0;
-  }
-
-  .example-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
-  }
-
-  .example-grid pre {
-    overflow-x: auto;
-  }
-
-  .feature-list {
-    display: grid;
-    gap: 0.5rem;
+    align-items: start;
   }
 </style>

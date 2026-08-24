@@ -10,7 +10,7 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
-    "lily-design-system-svelte-headless": "^0.2.0"
+    "lily-design-system-svelte-headless": "^0.3.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.0",
@@ -22,7 +22,8 @@
     "vite": "^6.2.0"
   },
   "pnpm": {
-    "ignoredBuiltDependencies": ["esbuild"],
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

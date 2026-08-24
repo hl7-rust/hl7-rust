@@ -1,18 +1,17 @@
 # hl7-rust.github.io
 
-Source for the [HL7 Rust](https://hl7-rust.github.io) GitHub Pages site — a
-landing page linking to the [hl7-rust](https://github.com/hl7-rust)
-organization's HL7 v2.5 ⟷ ER7 converters:
-
-- [hl7-2-from-er7-into-xml](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-xml) — ER7 → v2.xml XML
-- [hl7-2-from-xml-into-er7](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-xml-into-er7) — v2.xml XML → ER7
-- [hl7-2-from-er7-into-json](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-json) — ER7 → typed JSON
-- [hl7-2-from-json-into-er7](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-json-into-er7) — typed JSON → ER7
+Source for the [HL7 Rust](https://hl7-rust.github.io) site: documentation,
+guides, tutorials, examples, and a reference page for every crate in the
+[hl7-rust/hl7-rust](https://github.com/hl7-rust/hl7-rust) workspace.
 
 Built with [SvelteKit](https://svelte.dev/docs/kit) (static adapter) and the
 [Lily Design System](https://github.com/LilyDesignSystem) headless Svelte
-components (`lily-design-system-svelte-headless`), styled with Lily's `light`
-theme stylesheet.
+components, styled with Lily's `light` theme plus a dark token layer.
+
+**Nothing here is normative.** Each crate's own `spec/index.md` is the single
+source of truth for its behavior; this site summarises the crates' READMEs and
+specs and links back to them. If the two disagree, the spec is right and this
+site is the bug.
 
 ## Development
 
@@ -24,15 +23,69 @@ pnpm preview  # preview the production build
 pnpm check    # svelte-check
 ```
 
-Deployment is automatic: `.github/workflows/deploy.yml` builds and publishes
-`build/` to GitHub Pages on every push to `main`.
+Deployment is automatic: `.github/workflows/deploy.yml` runs `pnpm check` and
+`pnpm build`, then publishes `build/` to GitHub Pages on every push to `main`.
 
 ## Layout
 
 ```
-src/routes/+layout.svelte   Site chrome — skip link, header, nav, footer
-src/routes/+page.svelte     Home page
-src/routes/spec/+page.svelte  Links out to each project's normative spec
-static/lily-light.css       Lily Design System "light" theme (copied from
-                             lily-design-system/themes/light.css)
+src/routes/+layout.svelte        Site chrome: skip link, header, section
+                                 sidebar, footer — and the only place that
+                                 owns prose styling.
+src/routes/+page.svelte          Home.
+src/routes/docs/                 Install, quick start, concepts,
+                                 architecture, command line, versions.
+src/routes/guides/               One task per page.
+src/routes/tutorials/            Longer start-to-finish walkthroughs.
+src/routes/examples/             Copyable snippets, grouped by task.
+src/routes/crates/<name>/        One page per workspace member.
+src/routes/help/                 FAQ, troubleshooting, support.
+src/routes/spec/                 Pointers to each crate's normative spec.
+src/routes/sitemap.xml/          Generated from the navigation data.
+
+src/lib/data/crates.ts           The crate catalog. Every list, table, and
+                                 link to a crate reads it from here.
+src/lib/data/navigation.ts       The site map. The header nav, the sidebar,
+                                 previous/next, and the sitemap all read it.
+
+src/lib/components/DocPage.svelte    Page shell: breadcrumb, title, lede,
+                                     on-this-page, previous/next.
+src/lib/components/CodeSample.svelte Labelled code block with a copy button.
+src/lib/components/CrateMeta.svelte  The facts panel on a crate page.
+src/lib/components/Callout.svelte    Note and warning.
+src/lib/components/LinkCards.svelte  The card grid every index page uses.
+src/lib/components/ThemeToggle.svelte
+
+static/lily-light.css            Lily "light" theme, copied verbatim from
+                                 lily-design-system/themes/light.css.
+static/lily-dark.css             Only the token block from Lily's "dark"
+                                 theme, re-scoped to :root[data-theme="dark"]
+                                 and to prefers-color-scheme, so the two
+                                 layer instead of replacing each other.
 ```
+
+## Adding a page
+
+1. Add the route under `src/routes/`, using `DocPage` for the shell.
+2. Add it to the right section's `links` in `src/lib/data/navigation.ts`.
+
+That second step is what puts it in the sidebar, in the section index, in the
+previous/next chain, and in the sitemap. Nothing else needs editing.
+
+## Adding a crate
+
+Add an entry to `CRATES` in `src/lib/data/crates.ts`, then add a page under
+`src/routes/crates/<name>/`. The crate index, the architecture tables, the
+install table, the versions table, and the sidebar all pick it up from the
+catalog.
+
+## Updating the theme
+
+`static/lily-light.css` is a verbatim copy of Lily's `themes/light.css` — do
+not hand-edit it; re-copy it. `static/lily-dark.css` is generated from Lily's
+`themes/dark.css` by taking only its token block and re-scoping it; regenerate
+it the same way if the upstream tokens change.
+
+## License
+
+MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only

@@ -10,7 +10,12 @@ const config = {
       assets: 'build',
       fallback: '404.html',
       strict: true
-    })
+    }),
+    prerender: {
+      // Every page is reachable by crawling from "/", except the sitemap,
+      // which nothing links to on purpose.
+      entries: ['*', '/sitemap.xml']
+    }
   }
 };
 
