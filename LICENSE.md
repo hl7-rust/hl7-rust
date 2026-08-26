@@ -10,15 +10,18 @@ byte. An `OR` expression means the choice is yours: pick one, comply with
 that one.
 
 This project is multi-licensed. You may use it under **any one** of the
-following licenses, at your option:
+following licenses, at your option. The full text of every option is
+committed in [`LICENSES/`](LICENSES/), one file per SPDX identifier — the
+[REUSE](https://reuse.software/) convention, which exists for repositories
+that offer more than one license:
 
 | License | SPDX identifier | Full text |
 | ------- | --------------- | --------- |
-| MIT License | `MIT` | <https://opensource.org/license/mit/> |
-| Apache License 2.0 | `Apache-2.0` | <https://www.apache.org/licenses/LICENSE-2.0> |
-| BSD 3-Clause License | `BSD-3-Clause` | <https://opensource.org/license/bsd-3-clause/> |
-| GNU General Public License v2.0 only | `GPL-2.0-only` | <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html> |
-| GNU General Public License v3.0 only | `GPL-3.0-only` | <https://www.gnu.org/licenses/gpl-3.0.html> |
+| MIT License | `MIT` | [`LICENSES/MIT.txt`](LICENSES/MIT.txt) · <https://opensource.org/license/mit/> |
+| Apache License 2.0 | `Apache-2.0` | [`LICENSES/Apache-2.0.txt`](LICENSES/Apache-2.0.txt) · <https://www.apache.org/licenses/LICENSE-2.0> |
+| BSD 3-Clause License | `BSD-3-Clause` | [`LICENSES/BSD-3-Clause.txt`](LICENSES/BSD-3-Clause.txt) · <https://opensource.org/license/bsd-3-clause/> |
+| GNU General Public License v2.0 only | `GPL-2.0-only` | [`LICENSES/GPL-2.0-only.txt`](LICENSES/GPL-2.0-only.txt) · <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html> |
+| GNU General Public License v3.0 only | `GPL-3.0-only` | [`LICENSES/GPL-3.0-only.txt`](LICENSES/GPL-3.0-only.txt) · <https://www.gnu.org/licenses/gpl-3.0.html> |
 
 Each identifier above is the SPDX short identifier from the
 [SPDX License List](https://spdx.org/licenses/), which is the vocabulary

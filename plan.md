@@ -44,13 +44,12 @@ posture. Open items for each are in `tasks.md`.
    the word marks (® on first use per page, the disclaimer footer, per
    `spec/hl7-trademarks-fair-use/`), but three things remain: the org name,
    crate names, and domain use the HL7 mark beyond fair use, and the written
-   permission the README says is being requested has no recorded outcome; the
-   two provable compliance artifacts a legal review asks for are missing
-   (`LICENSES/` with full license texts, and a provenance statement for the
-   bundled `hl7-2/schemas/v2.*.json` table data); and unlike `er7-rust` and
-   `fhir-rust`, nothing here *checks* the trademark rules — the compiled
-   remnant of a checker (`__pycache__/tm.cpython-311.pyc`) is tracked but its
-   source is gone.
+   permission the README says is being requested has no recorded outcome; and
+   of the two provable compliance artifacts a legal review asks for, one is
+   now present (`LICENSES/` with all five full license texts, 2026-08-26)
+   and one is still missing (a provenance statement for the bundled
+   `hl7-2/schemas/v2.*.json` table data). The trademark rules are checked by
+   `bin/check-trademarks` in CI as of 2026-08-26.
 
 3. **Security and supply chain.** SECURITY.md is substantive and honest. What
    it disclosed was the work list; two entries are now closed:

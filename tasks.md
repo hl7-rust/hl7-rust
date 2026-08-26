@@ -88,8 +88,10 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 - [ ] State the provenance and terms of the bundled
       `hl7-2/schemas/v2.1–2.9.json` table data (currently traced only to
       sibling crates' copies at `hl7-2/spec/index.md:43`).
-- [ ] Add `LICENSES/` with the full text of all five licenses in the SPDX
-      expression (REUSE convention; `fhir-rust/LICENSES/` is the model).
+- [x] Add `LICENSES/` with the full text of all five licenses in the SPDX
+      expression (REUSE convention; `fhir-rust/LICENSES/` is the model) —
+      done 2026-08-26: five files copied from the `fhir-rust` model,
+      `LICENSE.md`'s table now links each local text alongside the URL.
 - [ ] Consolidate the trademark position into a root `TRADEMARKS.md`
       (the `er7-rust` file is the model: verbatim notice, mark-by-mark table,
       what is and is not claimed).
