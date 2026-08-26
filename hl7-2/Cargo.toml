@@ -30,3 +30,14 @@ hl7-2-derive = { version = "0.1.3", path = "../hl7-2-derive", optional = true }
 [features]
 default = []
 derive = ["dep:hl7-2-derive"]
+
+# Criterion is a development dependency only: it is compiled for `cargo bench`
+# and never linked into the library or the binary, so the runtime dependency
+# list above is unchanged. The same version and feature set as the conversion
+# crates, so one `cargo bench` at the workspace root builds one Criterion.
+[dev-dependencies]
+criterion = { version = "0.5", default-features = false, features = ["cargo_bench_support"] }
+
+[[bench]]
+name = "parse"
+harness = false

@@ -8,6 +8,7 @@
  */
 
 import { CRATES } from './crates';
+import { POSTS } from './news';
 
 export interface NavLink {
   href: string;
@@ -58,6 +59,26 @@ export const SECTIONS: NavSection[] = [
         href: '/docs/versions/',
         label: 'Versions and compatibility',
         blurb: 'HL7 releases 2.1–2.9, crate versions, the MSRV policy, and licensing.'
+      },
+      {
+        href: '/docs/conformance/',
+        label: 'Conformance',
+        blurb: 'What “supports 2.1–2.9” means here, exactly — and everything it does not mean.'
+      },
+      {
+        href: '/docs/comparison/',
+        label: 'Compared with the alternatives',
+        blurb: 'Interface engines, Java, and the other Rust crates: when each one is the right answer.'
+      },
+      {
+        href: '/docs/benchmarks/',
+        label: 'Benchmarks',
+        blurb: 'Measured figures, the method behind them, and what they are not evidence of.'
+      },
+      {
+        href: '/docs/patient-data/',
+        label: 'Patient data',
+        blurb: 'What these crates do with PHI, what they never do, and where a value can escape.'
       }
     ]
   },
@@ -182,6 +203,16 @@ export const SECTIONS: NavSection[] = [
         blurb: 'Where to file, what to include, and how the repositories are laid out.'
       }
     ]
+  },
+  {
+    title: 'News',
+    href: '/news/',
+    blurb: 'Releases, decisions, and write-ups from the people building this.',
+    links: POSTS.map((post) => ({
+      href: `/news/${post.slug}/`,
+      label: post.title,
+      blurb: post.summary
+    }))
   },
   {
     title: 'Specs',

@@ -49,6 +49,14 @@ not need to change.
   change against it with `cargo +1.95 check --workspace --all-targets`;
   raising the floor is a breaking change and belongs in a release allowed
   to break.
+- **Workspace-wide claims live in `spec/`**, not in a crate: `conformance/`
+  (what "supports 2.1-2.9" means, with the segment, type, and structure
+  lists), `phi/` (what the crates do with patient data and where a value can
+  escape into a log), `benchmark/` (how figures are measured and what the
+  current ones are), `rust-msrv-n-minus-3/` (the MSRV policy). A change that
+  widens dictionary coverage, adds a way for message content to reach an
+  error string, or moves a published benchmark figure updates the
+  corresponding one in the same change.
 - Every crate, and the workspace root, has its own `LICENSE.md` — the same
   multi-license boilerplate byte-for-byte everywhere, matching each
   `Cargo.toml`'s `license` field. Keep new crates consistent with that;

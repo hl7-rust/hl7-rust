@@ -7,7 +7,8 @@
     { id: 'what-a-spec-is', label: 'What a spec is here' },
     { id: 'by-crate', label: 'The specifications, by crate' },
     { id: 'no-spec', label: 'The crates with no spec, and why' },
-    { id: 'reading-them', label: 'How to read them together' }
+    { id: 'reading-them', label: 'How to read them together' },
+    { id: 'workspace', label: 'The workspace’s own specs' }
   ];
 
   const order: CrateCategory[] = ['core', 'transport', 'conversion', 'tooling'];
@@ -177,13 +178,45 @@
     its own position, so reversing the conversion is a purely structural, position-based rebuild.
     That is also why the reverse crates are so much smaller than the forward ones.
   </p>
+  <h2 id="workspace">The workspace's own specs</h2>
   <p>
-    The workspace itself has one spec outside any crate:
-    <a href={`${REPO}/blob/main/spec/rust-msrv-n-minus-3/index.md`}
-      ><code>spec/rust-msrv-n-minus-3/index.md</code></a
-    >, which states the minimum supported Rust version policy every member pins to. See
-    <a href="/docs/versions/">Versions and compatibility</a> for what that means in practice.
+    Four specs sit outside any crate, because what they state is true of the whole workspace rather
+    than of one member. Each has a page on this site summarising it, and the spec is the normative
+    version.
   </p>
+  <dl>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/conformance/index.md`}><code>spec/conformance/index.md</code></a>
+    </dt>
+    <dd>
+      What “supports HL7 v2 releases 2.1 through 2.9” means, exactly — the segments, types, and
+      structures by name, and what happens outside them. Summarised at
+      <a href="/docs/conformance/">Conformance</a>.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/phi/index.md`}><code>spec/phi/index.md</code></a>
+    </dt>
+    <dd>
+      What these crates do with protected health information, what they never do, and where a value
+      can escape into a log. Summarised at <a href="/docs/patient-data/">Patient data</a>.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/benchmark/index.md`}><code>spec/benchmark/index.md</code></a>
+    </dt>
+    <dd>
+      How performance is measured, what the published figures mean, and what they are not evidence
+      of. Summarised at <a href="/docs/benchmarks/">Benchmarks</a>.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/rust-msrv-n-minus-3/index.md`}
+        ><code>spec/rust-msrv-n-minus-3/index.md</code></a
+      >
+    </dt>
+    <dd>
+      The minimum supported Rust version policy every member pins to. See
+      <a href="/docs/versions/">Versions and compatibility</a> for what it means in practice.
+    </dd>
+  </dl>
 </DocPage>
 
 <style>

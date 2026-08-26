@@ -51,6 +51,14 @@ spec/                workspace-wide specs (the MSRV policy)
   lede="Where to file, what to include, and what a change has to satisfy before it can land. Reports that quote a spec section number get fixed fastest."
   {contents}
 >
+  <Callout heading="The short version is in the repository">
+    <p>
+      <a href={`${REPO}/blob/main/CONTRIBUTING.md`}><code>CONTRIBUTING.md</code></a> is the condensed
+      form of this page — enough to file a good report or land a small change without reading
+      anything else. This page is the long version.
+    </p>
+  </Callout>
+
   <h2 id="where">Where to file</h2>
   <div class="table-wrap">
     <table>
@@ -91,7 +99,7 @@ spec/                workspace-wide specs (the MSRV policy)
     </li>
     <li>
       <strong>What you expected and what you got.</strong> The output of
-      <code>hl7-v2 --paths</code> on the message is usually the clearest way to show both.
+      <code>hl7-v2 --tree --paths</code> on the message is usually the clearest way to show both.
     </li>
     <li>
       <strong>The spec section, if you can find it.</strong> Each crate's
@@ -126,6 +134,11 @@ spec/                workspace-wide specs (the MSRV policy)
   <p>
     If a bug genuinely depends on a specific byte sequence in a value — an unusual escape, a
     non-ASCII character set — describe the byte sequence rather than the record it appeared in.
+  </p>
+  <p>
+    <a href="/docs/patient-data/">Patient data</a> states the project's full position: what these
+    crates do with what you hand them, what they never do, and the one place — error and diagnostic
+    strings — where a value can escape into a log.
   </p>
 
   <h2 id="layout">How the repository is laid out</h2>
@@ -181,6 +194,13 @@ spec/                workspace-wide specs (the MSRV policy)
     </p>
   </Callout>
 
+  <p>
+    A change argued on performance carries a before-and-after from the benchmarks in the same crate,
+    produced the way <a href="/docs/benchmarks/">Benchmarks</a> describes. Correctness outranks speed
+    here: a faster parser that loses a value, or that stops round-tripping byte for byte, is not
+    faster.
+  </p>
+
   <h2 id="coverage">Adding dictionary coverage</h2>
   <p>
     Dictionary gaps are the most useful contribution, and the cheapest: filling one means editing one
@@ -194,8 +214,8 @@ spec/                workspace-wide specs (the MSRV policy)
   <p>
     Before filing, consider whether it is a gap at all. An unmodelled difference between releases
     shows up as a positional name rather than a typed one, or as a missing warning — never as a
-    rejected message or a lost value. That is honest incompleteness, and the spec says which
-    differences each release currently claims.
+    rejected message or a lost value. That is honest incompleteness, and
+    <a href="/docs/conformance/">Conformance</a> states exactly what is and is not covered.
   </p>
 
   <h2 id="site">Fixing this website</h2>
