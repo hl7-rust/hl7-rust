@@ -15,7 +15,10 @@ summary a person lands on from the repository root.
 **Machine:** Apple M4 Max, 128 GB, macOS 26.6.1, arm64.
 **Toolchain:** rustc 1.98.0 (88d9e12ae 2026-08-18), release profile.
 **Date:** 2026-08-26.
-**Crates:** `hl7-2` 0.2.3 over `er7` 0.1.2.
+**Crates:** `hl7-2` 0.2.3 over `er7` 0.1.2 — the versions the figures
+were measured on. Releases since have changed documentation, lints, and
+metadata only; nothing has touched a measured code path, so the numbers
+stand until something does.
 **Method:** `cargo bench -p hl7-2`, Criterion defaults, machine otherwise
 idle. Time is Criterion's point estimate; the interval is its confidence
 interval, reported rather than quietly dropped.

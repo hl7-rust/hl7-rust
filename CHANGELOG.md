@@ -15,28 +15,54 @@ raised minimum supported Rust version, which is always a breaking change
 and never lands in a patch
 ([`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md)).
 
-## Unreleased
+## 2026-08-26, third release
+
+The first release with a code change behind it rather than documentation
+alone, and the first with CI standing behind the claim that it builds.
 
 ### Added
 
 - **`#![forbid(unsafe_code)]` on every crate root** — fourteen libraries and
   six binaries, the binaries being separate crates that need their own
   attribute. `unsafe` was already absent; this makes its absence a property
-  the compiler enforces rather than one a reviewer has to take on trust, and
-  `forbid` cannot be lifted by an `allow` further down.
+  the compiler enforces rather than one a reviewer has to take on trust.
+  `forbid` cannot be lifted by an `allow` further down, verified by negative
+  test: adding one fails with E0453.
+- **CI at the repository root**, running the gates that were previously run
+  only on a laptop. The three documents that declared "No CI" were corrected
+  in the same change.
+- **A trademark checker** (`bin/check-trademarks`) enforcing the three
+  fair-use rules across the workspace, so compliance is a check rather than
+  a habit.
+- **The trademark disclaimer in every crate's rustdoc**, which is what
+  docs.rs renders — previously it reached README readers but not API readers.
 - `GOVERNANCE.md` and `SECURITY.md`, with the files that previously declared
   both absent — `MAINTAINERS.md`, `RFC.md`, `AI_STATEMENT.md` — updated in
   the same change. GitHub private vulnerability reporting enabled, since
   `SECURITY.md` names it as the preferred channel.
-- `RFC.md`: ten open questions with the evidence that would settle each.
+- `CODE_OF_CONDUCT.md`, with `CONTRIBUTING.md`'s Conduct section pointing at
+  it.
+- Root `PHI.md`, fronting `spec/phi/index.md` for a privacy-officer reader.
+- `RFC.md`: twelve open questions with the evidence that would settle each.
+- `spec/professionalization/`, the rules this repository holds itself to.
 - `CONTRIBUTING.md` widened past code — reporting what a real feed contains,
   ways to help that need no Rust, and sponsorship, with what it does not buy.
-- `.github/FUNDING.yml`.
+- `plan.md`, `tasks.md`, and `.github/FUNDING.yml`.
 
 ### Fixed
 
+- One overbroad claim in a spec, corrected rather than left standing.
 - Removed a stray `__pycache__/tm.cpython-311.pyc` committed by accident,
   and added `__pycache__/` and `*.pyc` to `.gitignore`.
+
+### Released
+
+`hl7` 0.1.4 · `hl7-2` 0.2.6 · `hl7-3` 0.1.6 · `hl7-2-derive` 0.1.6 ·
+`hl7-3-derive` 0.1.4 · `hl7-2-mllp` 0.1.6 · `hl7-2-soap` 0.1.4 ·
+`hl7-3-soap` 0.1.4 · `hl7-2-xml-lite-helper` 0.1.4 ·
+`hl7-2-from-er7-into-xml` 0.6.3 · `hl7-2-from-xml-into-er7` 0.6.3 ·
+`hl7-2-from-er7-into-json` 0.4.5 · `hl7-2-from-json-into-er7` 0.4.5 ·
+`hl7-2-from-xsd-into-json-dictionary` 0.1.4
 
 ## 2026-08-26, second release
 
