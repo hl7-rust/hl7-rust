@@ -1,4 +1,4 @@
-//! Convert HL7 v2.5 messages from ER7 (pipe-delimited) encoding to a typed
+//! Convert HL7® v2.5 messages from ER7 (pipe-delimited) encoding to a typed
 //! JSON representation.
 //!
 //! This is the JSON sibling of `hl7-2-from-er7-into-xml`: both read ER7

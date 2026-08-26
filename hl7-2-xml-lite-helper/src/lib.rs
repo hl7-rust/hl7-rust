@@ -1,6 +1,6 @@
 //! The small, dependency-free XML reader the `hl7-2` crates share.
 //!
-//! The name says what it is for. Nothing here is HL7-specific, but the
+//! The name says what it is for. Nothing here is HL7®-specific, but the
 //! crate is scoped to serve `hl7-2-soap`, `hl7-2-from-xml-into-er7` and
 //! `hl7-2-from-xsd-into-json-dictionary`, and every trade-off below is
 //! chosen for the documents those read.

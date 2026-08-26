@@ -375,8 +375,8 @@ serious healthcare evaluator asks:
   sustains open-source software for digital health.
 - The **Open Health Stack Software Foundation**, which the Linux Foundation
   announced its intent to launch on 9 July 2026, with more than twenty
-  supporting organizations and a stated focus on HL7 FHIR-based health data
-  standards. New foundations recruit projects; being early is easier than
+  supporting organizations and a stated focus on health data built on the
+  HL7® FHIR® standard. New foundations recruit projects; being early is easier than
   being late.
 
 Related and relevant to audience 3: the Rust Foundation's

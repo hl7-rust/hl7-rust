@@ -65,9 +65,9 @@ Deliberately out of scope, for now:
   interaction's expected shape (a lab result, a care record) is the
   caller's job, using the RIM types this crate provides — this crate does
   not ship per-interaction schemas.
-- **Clinical Document Architecture (CDA).** CDA reuses the RIM and a
-  similar header/body split, but its document model (sections, entries,
-  narrative blocks) is its own thing, not modeled here.
+- **Clinical Document Architecture.** The document architecture reuses the
+  RIM and a similar header/body split, but its document model (sections,
+  entries, narrative blocks) is its own thing, not modeled here.
 - **A `V3` equivalent of `hl7-2`'s CLI.** No binary ships with this crate.
 
 ## 2. The XML layer (the [`hl7-2-xml-lite-helper`] crate)

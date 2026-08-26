@@ -75,15 +75,16 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
    tracked in `tasks.md`.
 4. **Partly met.** `.github/workflows/ci.yml` (2026-08-26) runs the
    CONTRIBUTING.md gates — fmt, clippy, test, rustdoc, the 1.95 MSRV floor —
-   on every push and pull request. Not yet in CI: the trademark check
-   (rule 5), dependency audit, link check, and document-size budget — each
+   and the rule-5 trademark check on every push and pull request. Not yet
+   in CI: dependency audit, link check, and document-size budget — each
    tracked in `tasks.md`.
-5. **Partly met.** The prose rules are implemented (® on first use and the
-   verbatim disclaimer across the root documents and the site footer, per
-   the trademark spec's own "What this project does about it"). No automated
-   checker exists yet — tracked by "Restore an automated trademark checker"
-   under Compliance. The beyond-fair-use permission request has no recorded
-   status — tracked under Compliance, and asked as `RFC.md` §11.
+5. **Partly met.** The prose rules are implemented, and since later on
+   2026-08-26 `bin/check-trademarks` enforces them in CI over a deliberate,
+   documented scope (markdown, crate-root rustdoc, the site's shared
+   footer); the not-yet-covered remainder is recorded in the trademark
+   spec's Assurance section. The beyond-fair-use permission request still
+   has no recorded status — tracked under Compliance, and asked as
+   `RFC.md` §11.
 6. **Met.** `PHI.md` at the root, 2026-08-26, fronting
    [`spec/phi/index.md`](../phi/index.md); it claims no compliance or
    certification.

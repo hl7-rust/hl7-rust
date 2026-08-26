@@ -1,10 +1,10 @@
-//! Health Level Seven (HL7) for Rust.
+//! Health Level Seven (HL7®) for Rust.
 //!
 //! HL7 is not one standard but a family of them, and they have little in
-//! common beyond the name and the problem: v2 is delimited text, v3 is XML,
-//! FHIR is resources over HTTP. So this crate is organized by standard,
-//! one module each, and the module you want is the version your senders
-//! speak:
+//! common beyond the name and the problem: v2 is delimited text, v3 is
+//! XML, the HL7® FHIR® standard is resources over HTTP. So this crate is
+//! organized by standard, one module each, and the module you want is the
+//! version your senders speak:
 //!
 //! - [`v2`] — HL7 v2, releases 2.1 through 2.9. The format most healthcare
 //!   data still moves in.

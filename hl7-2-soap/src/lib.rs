@@ -1,4 +1,4 @@
-//! HL7 v2 over SOAP: the envelope, faults, payload carriage, WSDL, and
+//! HL7® v2 over SOAP: the envelope, faults, payload carriage, WSDL, and
 //! response evaluation that carry HL7 v2 messages over HTTP.
 //!
 //! MLLP is how HL7 v2 usually moves, and `hl7-2-mllp` is that transport.

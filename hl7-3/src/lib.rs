@@ -1,4 +1,4 @@
-//! Health Level Seven (HL7) version 3 (V3) for Rust — a foundation, not a
+//! Health Level Seven (HL7®) version 3 (V3) for Rust — a foundation, not a
 //! complete implementation.
 //!
 //! HL7 v3 replaced v2's pipe-delimited text and per-message-type segment
@@ -10,7 +10,7 @@
 //! XML instead of ER7. It achieved little messaging adoption of its own
 //! (implementers found the model-driven rigor expensive to work with) but
 //! its RIM and three-level structure live on directly inside the Clinical
-//! Document Architecture (CDA), which did succeed.
+//! Document Architecture (CDA®), which did succeed.
 //!
 //! ```
 //! use hl7_3::message;

@@ -60,7 +60,7 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 
 - [x] **Add `CODE_OF_CONDUCT.md`** — done 2026-08-26: Contributor Covenant
       2.1 plus the claim-accuracy clause, adapted from `fhir-rust` with the
-      FHIR-specific references replaced (the clause now cites this repo's
+      sibling-specific references replaced (the clause now cites this repo's
       `spec/` culture; Scope names HL7® International's own spaces).
       CONTRIBUTING.md §Conduct now points to it and carries the private
       reporting path.
@@ -73,8 +73,15 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       crate names, domain — all beyond fair use per
       `spec/hl7-trademarks-fair-use/index.md`). If not yet sent, send it; the
       README's "we are requesting permission" needs a date and an outcome.
-- [ ] Restore an automated trademark checker — port
-      `er7-rust/bin/check-trademarks` or `fhir-rust/scripts/check-trademarks.sh`.
+- [x] Restore an automated trademark checker — done 2026-08-26:
+      `er7-rust/bin/check-trademarks` ported as `bin/check-trademarks`,
+      running in CI (`.github/workflows/ci.yml`, trademarks job) and
+      exiting 0 across the workspace after 28 in-scope fixes. Scope is
+      deliberate and documented in the script header and the trademark
+      spec's Assurance section: markdown, crate-root rustdoc, and the site
+      footer are covered; per-route site source, non-root rustdoc,
+      Cargo.toml descriptions, and --help output are recorded there as the
+      not-yet-covered remainder (114 findings from the full-scope run).
       (The orphaned `__pycache__/tm.cpython-311.pyc` is gone and
       `__pycache__/` is now ignored; it was a stray from an ad-hoc helper
       script, not a checker worth restoring.)

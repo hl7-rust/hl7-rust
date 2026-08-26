@@ -1,4 +1,4 @@
-//! Convert HL7 v2.5 messages from ER7 (pipe-delimited) encoding to the
+//! Convert HL7® v2.5 messages from ER7 (pipe-delimited) encoding to the
 //! HL7 v2.xml XML representation (`urn:hl7-org:v2xml`).
 //!
 //! The ER7 encoding itself — parsing, delimiters, escape sequences — comes

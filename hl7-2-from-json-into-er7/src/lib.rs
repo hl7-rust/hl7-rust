@@ -1,4 +1,4 @@
-//! Convert HL7 v2.5 messages from the typed JSON representation the
+//! Convert HL7® v2.5 messages from the typed JSON representation the
 //! sibling `hl7-2-from-er7-into-json` crate produces back to ER7
 //! (pipe-delimited) encoding.
 //!

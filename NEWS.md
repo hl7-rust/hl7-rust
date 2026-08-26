@@ -17,7 +17,7 @@ readers rather than for a repository, is at
 | Maturity | `0.x`. New, and the API may still break in a minor bump. |
 | Maintainers | One — [`MAINTAINERS.md`](MAINTAINERS.md) states the bus factor plainly |
 | HL7® v2 coverage | Releases 2.1–2.9; 24 segments, 42 composite types, 4 structures, extensible in JSON — [`spec/conformance/index.md`](spec/conformance/index.md) |
-| HL7 v3 | A foundation, not an implementation. No CDA. |
+| HL7 v3 | A foundation, not an implementation. No Clinical Document Architecture. |
 | HL7® FHIR® standard | Not implemented |
 | License | MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only |
 

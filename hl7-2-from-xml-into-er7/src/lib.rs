@@ -1,4 +1,4 @@
-//! Convert HL7 v2.5 messages from the HL7 v2.xml XML representation
+//! Convert HL7® v2.5 messages from the HL7 v2.xml XML representation
 //! (`urn:hl7-org:v2xml`) back to ER7 (pipe-delimited) encoding.
 //!
 //! This is the inverse of the sibling

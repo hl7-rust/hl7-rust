@@ -254,11 +254,13 @@ envelope read generically.
 Out of scope: the rest of the v3 data type hierarchy (`IVL`/`PQ` are
 shallow — bounds stay raw text; generic `IVL<T>`, `RTO`, `BL`/`BN`, `SC` and
 the R2/ITS types are not modelled at all), vocabulary domain validation,
-per-interaction domain payload schemas, and **CDA**, which reuses the RIM
-but is its own document model and is not implemented here.
+per-interaction domain payload schemas, and **the Clinical Document
+Architecture**, which reuses the RIM but is its own document model and is
+not implemented here.
 
-Anyone evaluating this project for a v3 or CDA workload should read that as
-a no for CDA, and as "a starting point you will extend" for v3.
+Anyone evaluating this project for a v3 or Clinical Document Architecture
+workload should read that as a no for the document architecture, and as
+"a starting point you will extend" for v3.
 
 ## The HL7® FHIR® standard
 

@@ -93,9 +93,9 @@ than one module's types together (nothing has, so far).
   numeric type. Read as written until a caller's need shapes what "parsed"
   should mean here.
 - **Vocabulary domain validation** — see spec/index.md §6.
-- **A CDA document model.** CDA reuses the RIM but has its own
-  section/entry/narrative structure; that's a different crate's job if it
-  happens.
+- **A Clinical Document Architecture document model.** The document
+  architecture reuses the RIM but has its own section/entry/narrative
+  structure; that's a different crate's job if it happens.
 - **A CLI**, unlike `hl7-2`. Nothing about this crate's current scope
   needs one.
 

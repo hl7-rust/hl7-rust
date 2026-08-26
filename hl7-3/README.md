@@ -22,12 +22,13 @@ that every domain payload — lab results, care records, structured product
 labeling — is assembled from, serialized as XML instead of ER7. That
 rigor bought consistency at the cost of a steep learning curve, and V3
 messaging itself saw limited adoption; what did succeed, and still runs
-today, is the Clinical Document Architecture (CDA) and national registries
+today, is the Clinical Document Architecture and national registries
 like NHS England's Personal Demographics Service, both built on the same
 RIM and three-level structure this crate reads.
 
-Full HL7 v3 fidelity — every vocabulary domain, every data type, CDA's own
-document model — is a large, multi-year undertaking. This crate is the
+Full HL7 v3 fidelity — every vocabulary domain, every data type, the
+document architecture's own document model — is a large, multi-year
+undertaking. This crate is the
 part that is the same everywhere: the RIM types, and a reader for the
 envelope every interaction shares. Building out a specific interaction (a
 patient registration query, a lab result) on top of it is next.

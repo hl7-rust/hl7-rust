@@ -1,5 +1,5 @@
 //! Derive macros for [`hl7-2`](https://crates.io/crates/hl7-2): map a
-//! struct's fields to HL7 v2 message paths once, in the type definition,
+//! struct's fields to HL7® v2 message paths once, in the type definition,
 //! instead of writing the same accessor calls at every call site.
 //!
 //! This crate is not used directly. `hl7-2` re-exports both macros behind

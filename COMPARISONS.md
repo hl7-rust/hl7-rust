@@ -162,7 +162,8 @@ Read this before adopting, not after.
 1. **You need the HL7® FHIR® standard.** Not implemented here, at all. The
    umbrella crate
    reserves a module path and nothing more.
-2. **You need CDA**, or a substantial HL7 v3 implementation. The v3 crate
+2. **You need the Clinical Document Architecture**, or a substantial
+   HL7 v3 implementation. The v3 crate
    is a foundation — six RIM classes, six data types, a generic envelope —
    and says so in its own first section.
 3. **You are on the JVM, .NET, or Python already.** Use the mature library

@@ -1,4 +1,4 @@
-//! MLLP — the Minimal Lower Layer Protocol, which is how HL7 v2 messages
+//! MLLP — the Minimal Lower Layer Protocol, which is how HL7® v2 messages
 //! actually cross a network.
 //!
 //! A TCP stream is bytes without edges, and an HL7 v2 message carries no

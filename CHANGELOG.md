@@ -42,7 +42,7 @@ and never lands in a patch
 
 ### Changed
 
-- **HL7's fair use rules for its word marks are now implemented**, and the
+- **HL7®'s fair use rules for its word marks are now implemented**, and the
   notice shipped in the first release did not meet them. The disclaimer
   wording is prescribed by HL7 and cannot be paraphrased; the verbatim text
   now appears at the top of every README and in `LICENSE.md`, at the end of

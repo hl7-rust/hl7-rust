@@ -1,4 +1,4 @@
-//! Convert HL7 v2.xml XML Schema files into the JSON dictionary the
+//! Convert HL7® v2.xml XML Schema files into the JSON dictionary the
 //! `hl7-2` crates read.
 //!
 //! HL7 publishes the v2.xml encoding as a set of XML Schema documents, and

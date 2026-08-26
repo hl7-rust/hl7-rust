@@ -1,4 +1,4 @@
-//! HL7 v3 over SOAP: the envelope, faults, message carriage, WSDL, and
+//! HL7® v3 over SOAP: the envelope, faults, message carriage, WSDL, and
 //! acknowledgement evaluation that carry HL7 v3 messages over HTTP.
 //!
 //! Unlike v2 — where MLLP is the usual transport and SOAP is the exception

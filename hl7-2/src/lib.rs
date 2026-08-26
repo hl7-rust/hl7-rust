@@ -1,4 +1,4 @@
-//! Parse, navigate, validate, modify, and write HL7 v2 messages, in three
+//! Parse, navigate, validate, modify, and write HL7® v2 messages, in three
 //! modes that share one set of internals.
 //!
 //! HL7 v2 is the format most healthcare data still moves in, and most of
