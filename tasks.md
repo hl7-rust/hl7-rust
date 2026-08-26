@@ -49,9 +49,14 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       change.
 - [ ] Tag releases and sign commits/tags going forward; record the change of
       posture in MAINTAINERS.md (which currently says nothing is signed).
-- [ ] Add dependency auditing (`cargo deny` covering advisories, licenses,
+- [x] Add dependency auditing (`cargo deny` covering advisories, licenses,
       bans, sources — the `fhir-rust` `fhir-security.yml` is the family
-      pattern) on push plus a weekly cron.
+      pattern) on push plus a weekly cron — done 2026-08-26: `deny.toml`
+      at the root (permissive-only dependency allowlist, empty advisory
+      ignore list, wildcards denied with path-only dev-deps allowed) and
+      `.github/workflows/security.yml`; `cargo deny --all-features check`
+      green locally: "advisories ok, bans ok, licenses ok, sources ok".
+      SECURITY.md's known-gaps entry closed in the same change.
 - [x] Add `.github/ISSUE_TEMPLATE/` and a stated issue-response expectation —
       done 2026-08-26: bug report (never paste patient data), wrong claim
       (the report this repo values most), and a `config.yml` routing

@@ -55,10 +55,12 @@ posture. Open items for each are in `tasks.md`.
    it disclosed was the work list; two entries are now closed:
    `#![forbid(unsafe_code)]` is in all 20 crate roots, and CI exists as of
    2026-08-26 — `.github/workflows/ci.yml` runs the CONTRIBUTING.md gates
-   (fmt, clippy, test, rustdoc, MSRV) on every push and pull request. Still
-   open: zero git tags, unsigned commits, no `cargo audit`/`cargo deny`, no
-   SBOM. CI was the keystone — every other check (trademarks, doc links,
-   dependency audit) now has a place to run.
+   (fmt, clippy, test, rustdoc, MSRV) on every push and pull request, and
+   `.github/workflows/security.yml` runs `cargo deny` (advisories,
+   licenses, bans, sources per `deny.toml`) on push plus a weekly cron.
+   Still open: zero git tags, unsigned commits, no SBOM. CI was the
+   keystone — every other check (trademarks, doc links, dependency audit)
+   now has a place to run.
 
 4. **Privacy and patient data.** `spec/phi/index.md` is a real PHI analysis
    (11 sections, grep-checkable claims, an honest "what is not defended
@@ -100,10 +102,11 @@ posture. Open items for each are in `tasks.md`.
 ## Risks & watch items
 
 - The document set's self-declared gaps are now promises. "No CI" fell
-  2026-08-26; the remaining declared gaps (unsigned commits, no SBOM, no
-  dependency audit) are still standing confessions, and each release that
-  ships while they stand makes SECURITY.md's candor look like a substitute
-  for the fix rather than a commitment to it.
+  2026-08-26, and "no dependency audit" fell the same day (`cargo deny` in
+  `security.yml`); the remaining declared gaps (unsigned commits, no SBOM)
+  are still standing confessions, and each release that ships while they
+  stand makes SECURITY.md's candor look like a substitute for the fix
+  rather than a commitment to it.
 - BENCHMARKS.md cites crate versions now one release stale; a claims-accuracy
   culture has to keep its numbers current or date-stamp them as historical.
 - `CODEOWNERS` asserts the repo has no `.github/` directory; it has one. Small

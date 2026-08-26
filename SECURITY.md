@@ -148,13 +148,13 @@ A security policy that lists no gaps is a security policy nobody checked.
 - **CI is new, and narrow.** Since 2026-08-26,
   `.github/workflows/ci.yml` runs the [`CONTRIBUTING.md`](CONTRIBUTING.md)
   gates — tests, clippy, formatting, the rustdoc pass, and the MSRV floor —
-  on every push and pull request. It runs no dependency audit and gates no
-  release, and before that date every check depended on one person's
+  on every push and pull request, and `.github/workflows/security.yml`
+  runs `cargo deny` (RUSTSEC advisories, license allowlist, bans, sources —
+  policy in `deny.toml`) on every push plus a weekly cron. CI still gates
+  no release, and before that date every check depended on one person's
   laptop.
 - **No release signing, no SBOM, no reproducible-build attestation.**
   Commits and tags are not signed either.
-- **No dependency-audit automation.** With one dependency this is a small
-  surface, but `cargo audit` is not run on a schedule.
 - **No published threat model.**
 
 If one of these is what blocks your adoption, say so —

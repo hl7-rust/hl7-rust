@@ -1,0 +1,50 @@
+# Supply-chain policy for the whole workspace.
+#
+# These crates parse untrusted input in clinical settings, so the dependency
+# tree is evidence someone will be asked to produce. Keeping this green
+# continuously is far cheaper than reconstructing it during an audit. The
+# runtime surface is deliberately tiny — one runtime dependency (`er7`) —
+# but cargo-deny scans the whole graph, dev-dependencies included, because
+# a compromised build-time crate compromises the build.
+#
+# Run:  cargo deny --all-features check     (CI: .github/workflows/security.yml)
+
+[advisories]
+# Any unpatched advisory fails the build. When one has no fix yet, add it
+# here with a dated note rather than lowering the bar globally, and remove
+# the entry rather than extending it.
+yanked = "deny"
+ignore = []
+
+[licenses]
+# The workspace's own crates are five-way `MIT OR Apache-2.0 OR
+# BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only` (LICENSE.md); an OR
+# expression satisfies this allowlist through its permissive arms, so the
+# GPL options do not need to be — and deliberately are not — allowed here.
+# A *dependency* that offered only copyleft terms would change the licensing
+# of a downstream deployment we do not control, and should fail this check.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-3-Clause",
+    # unicode-ident is `(MIT OR Apache-2.0) AND Unicode-3.0` — the AND arm
+    # is a data licence for the Unicode character tables it embeds.
+    "Unicode-3.0",
+]
+confidence-threshold = 0.9
+
+[bans]
+# Duplicate major versions are allowed but visible: they are how a
+# vulnerable transitive copy survives an upgrade of its sibling.
+multiple-versions = "warn"
+wildcards = "deny"
+# The derive crates' dev-dependencies point back at their parent crates by
+# path alone (`hl7-2 = { path = "../hl7-2" }`), which cargo treats as a
+# wildcard version. Cargo strips path-only dev-dependencies on publish, so
+# nothing unversioned reaches crates.io; allow the in-tree form.
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
