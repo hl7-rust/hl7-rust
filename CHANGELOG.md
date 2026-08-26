@@ -15,6 +15,37 @@ raised minimum supported Rust version, which is always a breaking change
 and never lands in a patch
 ([`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md)).
 
+## 2026-08-26, fourth release
+
+Metadata only — no crate behavior changed. Released for the same reason
+the first release was: a `Cargo.toml` `description` reaches crates.io
+only through a release.
+
+### Changed
+
+- **Every crate's description carries the trademark notice.** crates.io
+  renders the description string as-is, so each one now has three parts
+  in order, the format the family's facade crates use: the description
+  proper with ® on the first use of a word mark, the verbatim
+  disclaimer, and "This project is an independent work."
+  `bin/check-trademarks` now enforces all three on every publishable
+  manifest — the `Cargo.toml` surface its scope note had recorded as
+  deferred — and was plant-tested: removing any of the three parts
+  fails CI.
+- **Git tags, from this release forward.** Every published version now
+  gets an annotated `<crate>-v<version>` tag at the release commit, the
+  family convention from the `fhir-rust` sibling. Earlier releases
+  remain untagged; signing tags and commits is still open.
+
+### Released
+
+`hl7` 0.1.5 · `hl7-2` 0.2.7 · `hl7-3` 0.1.7 · `hl7-2-derive` 0.1.7 ·
+`hl7-3-derive` 0.1.5 · `hl7-2-mllp` 0.1.7 · `hl7-2-soap` 0.1.5 ·
+`hl7-3-soap` 0.1.5 · `hl7-2-xml-lite-helper` 0.1.5 ·
+`hl7-2-from-er7-into-xml` 0.6.4 · `hl7-2-from-xml-into-er7` 0.6.4 ·
+`hl7-2-from-er7-into-json` 0.4.6 · `hl7-2-from-json-into-er7` 0.4.6 ·
+`hl7-2-from-xsd-into-json-dictionary` 0.1.5
+
 ## 2026-08-26, third release
 
 The first release with a code change behind it rather than documentation

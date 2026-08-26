@@ -7,7 +7,7 @@ type: software
 # The workspace's 14 crates version independently (see CHANGELOG.md); the
 # version cited here is the umbrella `hl7` crate's, which re-exports the
 # rest, and the date is that release's date.
-version: 0.1.4
+version: 0.1.5
 date-released: '2026-08-26'
 authors:
   - given-names: Joel Parker
