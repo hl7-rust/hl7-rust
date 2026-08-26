@@ -1,5 +1,7 @@
 # HL7 v3
 
+> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+
 The Reference Information Model (RIM) backbone classes, the data types
 they're built from (identifiers, coded values, intervals, quantities,
 encapsulated data, explicit null), and the three-level message envelope

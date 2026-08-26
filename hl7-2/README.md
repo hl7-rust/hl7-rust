@@ -1,5 +1,7 @@
 # HL7 v2
 
+> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+
 Parse, navigate, validate, modify, and write Health Level Seven (HL7)
 version 2 messages, as a Rust library and command-line tool — in three
 modes that share one set of internals.

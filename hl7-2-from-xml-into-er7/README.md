@@ -1,5 +1,7 @@
 # HL7 v2 from XML into ER7
 
+> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+
 Convert Health Level Seven (HL7) version 2.5 messages from the official HL7
 **v2.xml** XML representation (`urn:hl7-org:v2xml`) back to the traditional
 pipe-delimited Encoding Rules version 7 (ER7) encoding, as a Rust library

@@ -1,5 +1,7 @@
 # HL7
 
+> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+
 Health Level Seven (HL7) for Rust, organized by standard: one module per
 release family, so a "message", a "segment", or a "code" in one standard is
 never confused with the same word in another.

@@ -1,5 +1,7 @@
 # HL7 v2 from ER7 into JSON
 
+> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+
 Convert Health Level Seven (HL7) version 2.5 messages from the traditional
 pipe-delimited Encoding Rules version 7 (ER7) encoding to a typed **JSON**
 representation, as a Rust library and command-line tool.

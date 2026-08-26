@@ -1,5 +1,7 @@
 # HL7 v2 MLLP
 
+> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+
 The Minimal Lower Layer Protocol — how HL7 v2 messages actually cross a
 network — as a Rust library.
 

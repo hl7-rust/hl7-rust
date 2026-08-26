@@ -1,5 +1,7 @@
 # HL7 v2 from JSON into ER7
 
+> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+
 Convert Health Level Seven (HL7) version 2.5 messages from the typed JSON
 representation the sibling
 [`hl7-2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-json)

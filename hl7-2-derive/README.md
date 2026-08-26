@@ -1,5 +1,7 @@
 # HL7 v2 derive
 
+> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+
 Derive macros for [`hl7-2`](https://crates.io/crates/hl7-2): map a
 struct's fields to HL7 v2 message paths once, in the type definition,
 instead of writing the same accessor calls at every call site.

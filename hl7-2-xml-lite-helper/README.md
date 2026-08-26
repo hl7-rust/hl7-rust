@@ -1,5 +1,7 @@
 # hl7-2-xml-lite-helper
 
+> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+
 The small, dependency-free XML reader the `hl7-2` crates share.
 
 It reads the subset that carries meaning in a data document — elements,
