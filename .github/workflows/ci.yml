@@ -1,0 +1,70 @@
+# CI for the Rust workspace.
+#
+# The jobs run exactly the gates CONTRIBUTING.md ("Before you open a pull
+# request") names, so what a document claims is what a machine enforces:
+#
+#   cargo test                                # unit and integration tests
+#   cargo clippy --all-targets -- -D warnings # lint-clean
+#   cargo fmt --check                         # formatting
+#   cargo rustdoc --lib -- -W missing-docs    # every public item documented
+#   cargo +1.95 check --workspace --all-targets   # the MSRV floor
+#
+# The MSRV toolchain below moves with the policy in
+# spec/rust-msrv-n-minus-3/index.md: current stable minus three releases,
+# pinned as `rust-version` in every member's Cargo.toml. When the pin moves,
+# this file moves in the same change.
+
+name: ci
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  checks:
+    name: fmt, clippy, test, rustdoc (stable)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: cargo fmt --check
+        run: cargo fmt --check
+      - name: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy --all-targets -- -D warnings
+      - name: cargo test
+        run: cargo test
+      - name: cargo rustdoc --lib -- -W missing-docs, per crate
+        run: |
+          set -eu
+          for crate in \
+            hl7 \
+            hl7-2 \
+            hl7-3 \
+            hl7-3-derive \
+            hl7-3-soap \
+            hl7-2-derive \
+            hl7-2-mllp \
+            hl7-2-soap \
+            hl7-2-from-er7-into-json \
+            hl7-2-from-er7-into-xml \
+            hl7-2-from-json-into-er7 \
+            hl7-2-from-xml-into-er7 \
+            hl7-2-from-xsd-into-json-dictionary \
+            hl7-2-xml-lite-helper
+          do
+            cargo rustdoc -p "$crate" --lib -- -W missing-docs
+          done
+
+  msrv:
+    name: MSRV floor (1.95)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.95
+      - name: cargo check --workspace --all-targets
+        run: cargo check --workspace --all-targets

@@ -4,8 +4,8 @@ How to report a vulnerability in HL7® for Rust, what counts as one, and
 what you can honestly expect back.
 
 Read the last part first if you are performing a supplier review: this is a
-single-maintainer project with no CI, and this document says so rather than
-implying a response capacity that does not exist.
+single-maintainer project, and this document says so rather than implying a
+response capacity that does not exist.
 [`MAINTAINERS.md`](MAINTAINERS.md) has the full picture.
 
 ## Reporting a vulnerability
@@ -145,9 +145,12 @@ A security policy that lists no gaps is a security policy nobody checked.
 
 - **Fuzzing covers 3 of 14 crates.** The ER7 parsing surface in `er7`
   itself, and `hl7-2`'s dictionary reader, are not fuzzed here.
-- **No CI.** The test suite, clippy, formatting, and the MSRV check are
-  real and are run, but on a laptop, and nothing enforces them on a pull
-  request.
+- **CI is new, and narrow.** Since 2026-08-26,
+  `.github/workflows/ci.yml` runs the [`CONTRIBUTING.md`](CONTRIBUTING.md)
+  gates — tests, clippy, formatting, the rustdoc pass, and the MSRV floor —
+  on every push and pull request. It runs no dependency audit and gates no
+  release, and before that date every check depended on one person's
+  laptop.
 - **No release signing, no SBOM, no reproducible-build attestation.**
   Commits and tags are not signed either.
 - **No dependency-audit automation.** With one dependency this is a small

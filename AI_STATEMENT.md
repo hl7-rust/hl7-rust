@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Version | 1.0.0 |
+| Version | 1.1.0 |
 | Effective date | 2026-08-26 |
 | Status | Active |
 | Author and owner | Joel Parker Henderson, maintainer |
@@ -152,10 +152,10 @@ cargo +1.95 check --workspace --all-targets   # the MSRV floor
 - **Tests and expectations shall not be weakened to make a build pass.**
   That is a standing hard rule, for humans and tools alike.
 
-What these controls do **not** prove is §12. And one gap is named here
-rather than buried: **there is no CI.** No workflow runs these gates on a
-pull request; they are run on a laptop by one person.
-[`MAINTAINERS.md`](MAINTAINERS.md) says the same thing.
+What these controls do **not** prove is §12. Since 2026-08-26 these gates
+are enforced by machine: `.github/workflows/ci.yml` runs all five on every
+push and pull request. Before that date they were run on a laptop by one
+person, and the history carries that period.
 
 ## 8. Licensing and provenance of AI output
 
@@ -235,10 +235,10 @@ This section exists because a disclosure without one is marketing.
 - **The gates prove what they test, not correctness.** The test suite
   demonstrates the behaviors it covers. Coverage is real and ratchets
   upward, and it is still a boundary.
-- **The gates are not enforced by machine on a pull request.** There is no
-  CI. A gate that depends on one person remembering to run it is weaker
-  than one a robot refuses to skip, and this project currently has the
-  weaker kind.
+- **CI is young.** The §7 gates run in CI on every push and pull request
+  as of 2026-08-26 (`.github/workflows/ci.yml`). Everything before that
+  date depended on one person remembering to run them, and CI still runs
+  no dependency audit and gates no release.
 - **Review depth is one person's.**
   [`MAINTAINERS.md`](MAINTAINERS.md) says the bus factor is one. "The
   maintainer understands and can explain every committed change" is the
@@ -307,6 +307,7 @@ model for this one.
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-08-26 | First issue. |
+| 1.1.0 | 2026-08-26 | CI stood up (`.github/workflows/ci.yml`); §7 and §12 updated: the quality gates are now machine-enforced on every push and pull request. |
 
 ## Annex B. Machine-readable summary
 
@@ -315,7 +316,7 @@ is authoritative where the two could ever disagree.
 
 ```yaml
 ai-statement:
-  version: 1.0.0
+  version: 1.1.0
   last-updated: 2026-08-26
   vocabulary: w3c-ai-content-disclosure
   disclosure-default: ai-generated

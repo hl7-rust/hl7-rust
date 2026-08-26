@@ -64,9 +64,11 @@ information for an evaluation:
   but it promises best effort rather than a deadline, because one person
   with no on-call rotation cannot meet a deadline. What it does give you is
   an escape hatch: no response in 14 days and you should publish.
-- **No CI.** No workflow runs the tests, the lints, or a release. The gates
-  in [`CONTRIBUTING.md`](CONTRIBUTING.md) are real and are run, but on a
-  laptop, and nothing enforces them on a pull request.
+- **No release automation.** Since 2026-08-26, `.github/workflows/ci.yml`
+  runs the [`CONTRIBUTING.md`](CONTRIBUTING.md) gates — tests, lints,
+  formatting, rustdoc, the MSRV floor — on every push and pull request. But
+  no workflow publishes anything: a crates.io release is still a manual act
+  from one laptop, by one person.
 - **No release signing, no SBOM, no reproducible-build attestation.**
 
 ## If the maintainer is unavailable
