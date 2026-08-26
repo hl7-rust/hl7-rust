@@ -28,6 +28,8 @@ you can say is "we send that segment too", that is still an answer.
 - [8. What would make a one-maintainer project adoptable?](#8-what-would-make-a-one-maintainer-project-adoptable)
 - [9. Is the tree worth optimising?](#9-is-the-tree-worth-optimising)
 - [10. What is missing that nobody has mentioned?](#10-what-is-missing-that-nobody-has-mentioned)
+- [11. If HL7® declines naming permission, what should the project be called?](#11-if-hl7-declines-naming-permission-what-should-the-project-be-called)
+- [12. What does a legal review need to know about the dictionary data?](#12-what-does-a-legal-review-need-to-know-about-the-dictionary-data)
 - [Decided, and not looking for comment](#decided-and-not-looking-for-comment)
 - [How feedback gets handled](#how-feedback-gets-handled)
 
@@ -117,7 +119,8 @@ successful one.
 
 **The question.** `hl7-3` implements six RIM backbone classes, six data
 types, and the three-level envelope, read generically. It says in its own
-first section that it is a foundation, not an implementation. No CDA.
+first section that it is a foundation, not an implementation. No support
+for the Clinical Document Architecture.
 
 **Why it is open.** HL7® v3 is a small and shrinking share of new
 integration work. The foundation is either a useful starting point for the
@@ -162,9 +165,11 @@ exactly the evidence needed, and nobody would otherwise report it.
 ## 8. What would make a one-maintainer project adoptable?
 
 **The question.** [`MAINTAINERS.md`](MAINTAINERS.md) states the bus factor
-is one, names every publishing identity, and says there is no CI, no release
-signing, and no SBOM. [`SECURITY.md`](SECURITY.md) adds a published policy
-but still promises best effort rather than a response window.
+is one, names every publishing identity, and says there is no release
+signing and no SBOM. (It used to say no CI; a root workflow has run the
+[`CONTRIBUTING.md`](CONTRIBUTING.md) gates on every push since
+2026-08-26.) [`SECURITY.md`](SECURITY.md) adds a published policy but
+still promises best effort rather than a response window.
 
 **Why it is open.** Those gaps are disclosed rather than fixed, and the
 disclosure is deliberate. But which of them actually blocks adoption is a
@@ -205,6 +210,46 @@ library and never saying why.
 else, that is the single most valuable issue anyone could file, and it will
 be read as information rather than as criticism.
 
+## 11. If HL7® declines naming permission, what should the project be called?
+
+**The question.** The project's package names, organization name, and
+domain all use the HL7® mark, which is branding rather than fair use, and
+[`spec/hl7-trademarks-fair-use/index.md`](spec/hl7-trademarks-fair-use/index.md)
+says written consent is expected for that. The README states permission is
+being requested; [`plan.md`](plan.md) §Open decisions records that the
+request's status — sent, answered — is written down nowhere, which is
+itself the first thing to fix.
+
+**Why it is open.** If HL7® grants permission, nothing moves. If it
+declines, fourteen published crate names, a GitHub organization, and a
+Pages domain all reopen at once — and renaming published crates is the
+kind of change that strands existing users, so the fallback should be
+chosen before it is needed, not during a takedown letter.
+
+**What would settle it.** Two things: experience — if your project used a
+standards body's mark in its name and asked, what happened? — and
+preference: as a user, would you rather see a rename land early and once,
+or only if forced?
+
+## 12. What does a legal review need to know about the dictionary data?
+
+**The question.** The bundled release dictionaries,
+`hl7-2/schemas/v2.1.json` through `v2.9.json`, describe HL7® v2 segments,
+data types, and message structures. [`plan.md`](plan.md) §Open decisions
+records the gap: their provenance — what source the table content derives
+from, under what terms — is currently traced no further than the sibling
+crates' copies of the same files, and a provenance statement is the kind
+of artifact a hospital legal review asks for first.
+
+**Why it is open.** The maintainer can and should write down the chain of
+derivation; what an outsider knows better is the bar. Reviews differ on
+whether facts-of-the-standard tables need a licence statement at all, and
+on what form of statement satisfies them.
+
+**What would settle it.** If this project has been through your legal or
+procurement review: did the bundled schema data come up, what did the
+review ask for, and what answer sufficed?
+
 ## Decided, and not looking for comment
 
 These are settled, with the reasoning written down. Comments are welcome if
@@ -221,6 +266,7 @@ have chosen differently.
 | Benchmarks publish their method, including the slowest operation | [`spec/benchmark/index.md`](spec/benchmark/index.md) |
 | One dependency, no runtime, no logging, no telemetry | [`spec/phi/index.md`](spec/phi/index.md) |
 | English prose uses the serial comma | [`spec/serial-comma/index.md`](spec/serial-comma/index.md) |
+| CI is one root workflow over the whole workspace, running the CONTRIBUTING.md gates | [`plan.md`](plan.md) §Open decisions, decided 2026-08-26 |
 
 ## How feedback gets handled
 
@@ -236,8 +282,8 @@ silently teaches people not to bother:
   something is decided, that is a statement about the current reasoning,
   not about who is allowed to question it.
 - **No response-time promise.** [`MAINTAINERS.md`](MAINTAINERS.md) explains
-  why: one person, no CI, no on-call. Silence means nobody has got to it,
-  never that the question was unwelcome.
+  why: one person, no on-call. Silence means nobody has got to it, never
+  that the question was unwelcome.
 - **Credit where it is due.** A report that changes the code gets named in
   the changelog entry, unless you would rather it did not.
 
