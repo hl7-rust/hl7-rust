@@ -149,11 +149,16 @@ Stated so nobody has to ask twice, and so no quote implies otherwise:
 
 ### Trademark
 
-"HL7" and "FHIR" are registered trademarks of Health Level Seven
-International. This project implements the published standards and is
-**independent of, not affiliated with, and not endorsed by** HL7
-International. Please carry that qualifier in any coverage; a story that
-implies otherwise would be wrong in a way that matters to a standards body.
+HL7® and FHIR® are registered trademarks of HL7. We are requesting
+permission to use it here. Use of the trademarks does not constitute
+endorsement of this library by HL7.
+
+That is the notice this project carries at the top of every README, and it
+is the wording to quote. In plain terms for a story: this project
+implements the published standards and is **independent of, not affiliated
+with, and not endorsed by** HL7. Please carry that qualifier in any
+coverage; a story implying otherwise would be wrong in a way that matters
+to a standards body.
 
 ## Corrections
 

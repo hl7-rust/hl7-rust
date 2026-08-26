@@ -422,13 +422,21 @@ a
 [product trademark application](http://www.hl7.org/about/product.trademark.application.cfm)
 for exactly this.
 
-Two things are worth doing either way, because they are cheap, correct
+Carrying a notice is worth doing either way, because it is cheap, correct
 regardless of the answer, and exactly what a reviewer at a hospital or a
-device maker looks for: an attribution line ("HL7® is a registered
-trademark of Health Level Seven International"), and a plain statement that
-this project is independent — not affiliated with, endorsed by, or
-certified by HL7 — on the site, in the READMEs, and in the crate
-descriptions.
+device maker looks for. The one this project adopted, at the top of every
+README and in `LICENSE.md`, is:
+
+> HL7® and FHIR® are registered trademarks of HL7. We are requesting
+> permission to use it here. Use of the trademarks does not constitute
+> endorsement of this library by HL7.
+
+Two gaps in it are worth knowing rather than discovering later. It says
+nothing about *certification*, which a reviewer also asks about — that is
+answered in [`spec/conformance/index.md`](../../spec/conformance/index.md),
+whose first lines state that no certifying body has assessed this project.
+And it is not yet carried on the website or in the crate descriptions, only
+in the READMEs and the licence.
 
 ## A ninety-day sequence
 

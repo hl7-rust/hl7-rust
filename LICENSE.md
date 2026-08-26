@@ -50,9 +50,12 @@ This license covers the source code and documentation in this workspace.
 It does not cover the HL7 standards themselves: HL7 v2, HL7 v3, and their
 XML schemas are published by Health Level Seven International under their
 own terms, and this project implements the standards rather than
-redistributing them. "HL7" is a registered trademark of Health Level Seven
-International; a license to use the software is not a license to use the
-mark.
+redistributing them.
+
+HL7® and FHIR® are registered trademarks of HL7. We are requesting
+permission to use it here. Use of the trademarks does not constitute
+endorsement of this library by HL7. A license to use this software is not
+a license to use either mark.
 
 Copyright © Joel Parker Henderson <joel@joelparkerhenderson.com>
 
