@@ -1,6 +1,6 @@
 # hl7-3-soap
 
-> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+> HL7® and FHIR® are registered trademarks of HL7. We are requesting permission to use it here. Use of the trademarks does not constitute endorsement of this library by HL7.
 
 HL7 v3 over SOAP: the envelope, faults, message carriage, WSDL, and
 acknowledgement evaluation that carry Health Level Seven version 3

@@ -1,6 +1,6 @@
 # hl7-2-from-xsd-into-json-dictionary
 
-> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+> HL7® and FHIR® are registered trademarks of HL7. We are requesting permission to use it here. Use of the trademarks does not constitute endorsement of this library by HL7.
 
 Read a directory of HL7 version 2 XML Schema Definition (XSD) files — the
 v2.xml encoding, as HL7 published it or as a vendor customised it — and write

@@ -1,6 +1,6 @@
 # HL7 v3 derive
 
-> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+> HL7® and FHIR® are registered trademarks of HL7. We are requesting permission to use it here. Use of the trademarks does not constitute endorsement of this library by HL7.
 
 Derive macro for [`hl7-3`](https://crates.io/crates/hl7-3): map a struct's
 fields to XML element attributes and children once, in the type
