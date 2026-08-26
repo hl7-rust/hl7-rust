@@ -73,8 +73,10 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       `spec/` culture; Scope names HL7® International's own spaces).
       CONTRIBUTING.md §Conduct now points to it and carries the private
       reporting path.
-- [ ] Fix `CODEOWNERS`'s stale header claiming the repo has no `.github/`
-      directory.
+- [x] Fix `CODEOWNERS`'s stale header claiming the repo has no `.github/`
+      directory — done 2026-08-26; the same pass reworded "commit
+      signatures" to "committer identity", since MAINTAINERS.md says
+      plainly that nothing is cryptographically signed.
 
 ### Compliance — licensing and trademarks
 

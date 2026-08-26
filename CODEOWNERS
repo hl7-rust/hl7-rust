@@ -1,9 +1,10 @@
 # Code owners for this workspace.
 #
 # GitHub reads this file from the repository root, from `docs/`, or from
-# `.github/`; it lives here because this workspace has no `.github/`
-# directory of its own — the only GitHub Actions workflow in the project
-# belongs to the website's published repository, not to this one.
+# `.github/`; it lives at the root, where a person browsing the repository
+# sees it next to MAINTAINERS.md. (An earlier revision claimed the
+# workspace had no `.github/` directory; since 2026-08-26 it has one,
+# carrying FUNDING.yml, the issue templates, and the CI workflows.)
 #
 # One line, one owner, no exceptions: this project has a single maintainer,
 # and MAINTAINERS.md says so plainly rather than implying a team. When a
@@ -11,8 +12,9 @@
 # and MAINTAINERS.md gains a row, in the same change.
 #
 # An email address is used rather than a GitHub handle deliberately: it is
-# the identity that owns the crates.io publishes and the commit signatures,
-# and it does not change if a username does. GitHub only auto-requests a
+# the identity that owns the crates.io publishes and the committer identity
+# in the history (commits are not cryptographically signed — see
+# MAINTAINERS.md), and it does not change if a username does. GitHub only auto-requests a
 # review from an email owner when that address belongs to a user with
 # access to the repository, which is the case here.
 

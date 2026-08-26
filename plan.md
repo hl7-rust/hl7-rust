@@ -111,9 +111,9 @@ posture. Open items for each are in `tasks.md`.
   0.2.6, closing its version staleness — but the watch item stands: a
   claims-accuracy culture has to keep its numbers current or date-stamp
   them as historical every time a release moves past them.
-- `CODEOWNERS` asserts the repo has no `.github/` directory; it has one. Small
-  falsehoods in governance files are the failure mode this family exists to
-  avoid.
+- ~~`CODEOWNERS` asserts the repo has no `.github/` directory; it has one.~~
+  Fixed 2026-08-26. The general watch item stands: small falsehoods in
+  governance files are the failure mode this family exists to avoid.
 
 ## Trademarks
 
