@@ -44,6 +44,8 @@ not do with the data you hand them, is [`spec/phi/index.md`](spec/phi/index.md).
 ## Where to file
 
 - **Issues and pull requests**: <https://github.com/hl7-rust/hl7-rust>.
+- **Security problems**: not a public issue. Use the private channels in
+  [`SECURITY.md`](SECURITY.md).
 - **ER7 encoding bugs** — delimiters, escapes, path syntax, byte-for-byte
   rendering — belong to <https://github.com/er7-rust/er7-rust>, which is a
   separate project this workspace depends on.

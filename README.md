@@ -106,6 +106,8 @@ than of one member.
 | [`spec/benchmark/index.md`](spec/benchmark/index.md) | The rules that govern how performance figures are produced and published |
 | [`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md) | The minimum supported Rust version policy every member pins to |
 | [`MAINTAINERS.md`](MAINTAINERS.md) | Who maintains this, what the bus factor is, and what happens if that person is unavailable |
+| [`GOVERNANCE.md`](GOVERNANCE.md) | Who decides, what binds them, what is in scope, and how to become a maintainer |
+| [`SECURITY.md`](SECURITY.md) | How to report a vulnerability, what counts as one, and the known gaps |
 | [`AI_STATEMENT.md`](AI_STATEMENT.md) | How AI tools are used to build this, who is accountable, and the limits that survive it |
 | [`LICENSE.md`](LICENSE.md) | The five-way license choice, its SPDX expression, and what it does not cover |
 

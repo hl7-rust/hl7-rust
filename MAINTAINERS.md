@@ -59,17 +59,14 @@ committer identity in the history.
 Named rather than quietly omitted, because their absence is itself
 information for an evaluation:
 
-- **No `SECURITY.md`,** and so no published disclosure window. Report a
-  vulnerability privately to <joel@joelparkerhenderson.com>. There is no
-  committed response-time promise, and inventing one nobody is on call to
-  meet would be worse than saying this.
-- **No `GOVERNANCE.md`,** because there is no governance to describe: one
-  person decides. If a second maintainer joins, that changes, and the
-  document describing it will be written then rather than now.
-- **No CI in this repository.** No workflow runs the tests, the lints, or a
-  release. The gates in [`CONTRIBUTING.md`](CONTRIBUTING.md) are real and
-  are run, but they are run on a laptop, and nothing enforces them on a
-  pull request. This is a genuine gap.
+- **No committed response window for a security report.**
+  [`SECURITY.md`](SECURITY.md) now exists and names the private channels,
+  but it promises best effort rather than a deadline, because one person
+  with no on-call rotation cannot meet a deadline. What it does give you is
+  an escape hatch: no response in 14 days and you should publish.
+- **No CI.** No workflow runs the tests, the lints, or a release. The gates
+  in [`CONTRIBUTING.md`](CONTRIBUTING.md) are real and are run, but on a
+  laptop, and nothing enforces them on a pull request.
 - **No release signing, no SBOM, no reproducible-build attestation.**
 
 ## If the maintainer is unavailable
@@ -104,13 +101,13 @@ a continuity plan with nobody behind it.
 
 ## Adding a maintainer
 
-There is no formal route yet, which is the honest statement rather than a
-closed door. In practice it starts the way it always does: sustained,
-reviewed contributions, and a conversation. Dictionary coverage is the most
-useful place to begin — see [`CONTRIBUTING.md`](CONTRIBUTING.md).
+The route is in [`GOVERNANCE.md`](GOVERNANCE.md), and it is deliberately
+informal: sustained, reviewed contributions until the maintainer trusts
+your judgement on changes you did not write, then a conversation you are
+welcome to start. Dictionary coverage and answering other people's issues
+are the two clearest paths — see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 When someone takes it, this file gains a row, `CODEOWNERS` gains their
 identity on the areas they own, the table above gains a second holder
-wherever the identity permits one, and a `GOVERNANCE.md` gets written
-because at that point there is something to govern. Those are the whole
-mechanism.
+wherever the identity permits one, and `GOVERNANCE.md` gains a section on
+how two people decide when they disagree. Those are the whole mechanism.

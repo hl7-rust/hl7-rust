@@ -278,9 +278,9 @@ commit.
 A suspected provenance, licensing, or quality problem in this repository —
 including a claim in this document that does not survive checking — is a
 report this project wants. Open an issue and cite this file; for anything
-security-sensitive, email <joel@joelparkerhenderson.com>, and read
-[`MAINTAINERS.md`](MAINTAINERS.md) first for what is and is not promised
-about response. The handling commitment is the same as for any defect:
+security-sensitive, use the private channels in
+[`SECURITY.md`](SECURITY.md), which is also candid about what is and is not
+promised about response. The handling commitment is the same as for any defect:
 answered, and never silently absorbed.
 
 ## 15. References
@@ -292,7 +292,8 @@ described here: [`LICENSE.md`](LICENSE.md); each crate's `spec/index.md`;
 [`spec/benchmark/index.md`](spec/benchmark/index.md),
 [`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md);
 the workspace and per-crate `AGENTS.md`;
-[`CONTRIBUTING.md`](CONTRIBUTING.md); [`MAINTAINERS.md`](MAINTAINERS.md).
+[`CONTRIBUTING.md`](CONTRIBUTING.md); [`MAINTAINERS.md`](MAINTAINERS.md);
+[`GOVERNANCE.md`](GOVERNANCE.md); [`SECURITY.md`](SECURITY.md).
 
 **Informative** — the sources this document's structure and positions draw
 on: the W3C AI Content Disclosure vocabulary; the ISO/IEC Directives

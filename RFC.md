@@ -163,13 +163,14 @@ exactly the evidence needed, and nobody would otherwise report it.
 
 **The question.** [`MAINTAINERS.md`](MAINTAINERS.md) states the bus factor
 is one, names every publishing identity, and says there is no CI, no release
-signing, no SBOM, and no security policy with a response window.
+signing, and no SBOM. [`SECURITY.md`](SECURITY.md) adds a published policy
+but still promises best effort rather than a response window.
 
 **Why it is open.** Those gaps are disclosed rather than fixed, and the
 disclosure is deliberate. But which of them actually blocks adoption is a
 guess. CI is the maintainer's instinct; a procurement reviewer might say
-signed releases, or an SBOM, or a `SECURITY.md` with a stated window, or a
-second maintainer and nothing else.
+signed releases, or an SBOM, or a stated response window, or a second
+maintainer and nothing else.
 
 **What would settle it.** If this project failed your supplier review, what
 failed it? Naming the specific checklist item is more useful than a general
