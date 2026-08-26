@@ -1,6 +1,6 @@
 # hl7-rust.github.io
 
-Source for the [HL7 Rust](https://hl7-rust.github.io) site: documentation,
+Source for the [HL7® Rust](https://hl7-rust.github.io) site: documentation,
 guides, tutorials, examples, and a reference page for every crate in the
 [hl7-rust/hl7-rust](https://github.com/hl7-rust/hl7-rust) workspace.
 
@@ -135,3 +135,7 @@ it the same way if the upstream tokens change.
 ## License
 
 MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

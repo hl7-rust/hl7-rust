@@ -5,7 +5,7 @@ this repository.
 
 ## What this is
 
-A Cargo workspace holding every crate in the HL7-for-Rust project — see
+A Cargo workspace holding every crate in the HL7®-for-Rust project — see
 `README.md` for the crate table and how they depend on each other. Most
 crate directories are former standalone repositories, merged in with
 `git subtree` so their commit history survived the move (`hl7-3`,
@@ -65,3 +65,7 @@ not need to change.
   `Cargo.toml` pins another to), update every affected crate's own
   `AGENTS.md`/`spec/index.md` in the same change, the same as when they
   were separate repos.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

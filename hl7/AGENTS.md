@@ -9,7 +9,7 @@ and don't fork the content between the two.
 A thin umbrella crate: `src/lib.rs` and nothing else, about thirty lines,
 whose entire content is `pub use hl7_2 as v2;` plus its own doc comment.
 It exists so a caller can `cargo add hl7` and get `hl7::v2` instead of
-depending on `hl7-2` by name — one module per HL7 standard, so a
+depending on `hl7-2` by name — one module per HL7® standard, so a
 "message", a "segment", or a "code" in one standard is never confused with
 the same word in another.
 
@@ -59,3 +59,7 @@ There is no `spec/index.md` here — this crate is too thin to need one.
   (and future standard-specific crates' job), never this one's.
 - Flattening the `v2` module away, or otherwise hiding which standard a
   type belongs to. The per-standard namespace is the point.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

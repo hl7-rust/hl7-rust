@@ -1,4 +1,4 @@
-# Specification: HL7 v2 parsing, navigation, modification, and validation
+# Specification: HL7® v2 parsing, navigation, modification, and validation
 
 This is the single source of truth for what this crate does and how. It
 describes observable behavior, not implementation details; where a rule is
@@ -605,3 +605,7 @@ tests in `tests/integration.rs`; derive tests in
 - `hl7-2-derive` (the macros): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-derive>
 - `hl7-2-mllp` (MLLP transport): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-mllp>
 - Sibling conversion crates: <https://github.com/hl7-rust>
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

@@ -8,7 +8,7 @@ that crate's own `AGENTS.md`.
 
 ## Never paste patient data
 
-HL7 messages are clinical records, and an issue tracker is public and
+HL7® messages are clinical records, and an issue tracker is public and
 permanent. A message pasted into one cannot be unpasted.
 
 Redact the values, keep the structure:
@@ -142,3 +142,7 @@ Be decent. Assume the person on the other end is working on a live clinical
 interface and is short of time.
 
 Contact: <joel@joelparkerhenderson.com>.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

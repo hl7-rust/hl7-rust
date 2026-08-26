@@ -60,7 +60,7 @@ allows that; don't try to "fix" it by vendoring types.
 
 ## Non-goals (don't "fix" these without discussion)
 
-- Attributes that encode HL7 knowledge (segment tables, data types,
+- Attributes that encode HL7® knowledge (segment tables, data types,
   cardinality). The macro maps a field to a path; what a path *means* is the
   dictionary's job, in `hl7-2`. Keep this crate ignorant of HL7.
 - `serde` compatibility or reusing `#[serde(...)]` attributes.
@@ -68,3 +68,7 @@ allows that; don't try to "fix" it by vendoring types.
   the field names the mapping is built on.
 - Runtime behavior of any kind. This crate emits code; it does not parse
   messages, and it must not gain a dependency on anything that does.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

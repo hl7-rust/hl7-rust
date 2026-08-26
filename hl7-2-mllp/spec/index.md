@@ -1,4 +1,4 @@
-# Specification: HL7 v2 over MLLP
+# Specification: HL7® v2 over MLLP
 
 This is the single source of truth for what this crate does and how. It
 describes observable behavior, not implementation details; where a rule is
@@ -299,3 +299,7 @@ a rule nobody is holding.
   MLLP: <https://www.hl7.org/implement/standards/>
 - `hl7-2` (HL7 v2 itself): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2>
 - `er7` (the ER7 encoding): <https://crates.io/crates/er7>
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

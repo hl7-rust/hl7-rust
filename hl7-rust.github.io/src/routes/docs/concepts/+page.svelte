@@ -101,7 +101,7 @@ JSON   null                key omitted`;
       registries built on the same model. Handled by
       <a href="/crates/hl7-3/"><code>hl7-3</code></a>.
     </dd>
-    <dt>FHIR</dt>
+    <dt>The HL7® FHIR® standard</dt>
     <dd>
       Resources over HTTP, the current direction of travel. Not implemented in this workspace —
       but the umbrella crate deliberately leaves <code>hl7::fhir</code> free for it.

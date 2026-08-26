@@ -6,7 +6,7 @@
     { id: 'choosing', label: 'Choosing' },
     { id: 'v2', label: 'HL7 v2' },
     { id: 'formats', label: 'Formats and conversion' },
-    { id: 'v3', label: 'HL7 v3 and FHIR' },
+    { id: 'v3', label: 'HL7® v3 and the HL7® FHIR® standard' },
     { id: 'transports', label: 'Transports' },
     { id: 'project', label: 'The project itself' }
   ];
@@ -145,7 +145,7 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
     <code>--schema-shape</code>) to the converter.
   </p>
 
-  <h2 id="v3">HL7 v3 and FHIR</h2>
+  <h2 id="v3">HL7 v3 and the HL7® FHIR® standard</h2>
 
   <h3>How complete is the v3 support?</h3>
   <p>
@@ -165,7 +165,7 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
     <code>hl7-3</code> for <code>#[derive(FromElement)]</code>.
   </p>
 
-  <h3>Is FHIR supported?</h3>
+  <h3>Is the HL7® FHIR® standard supported?</h3>
   <p>
     Not yet. The umbrella crate deliberately leaves <code>hl7::fhir</code> free so it can land there
     when it is implemented, alongside <code>hl7::v2</code> and <code>hl7::v3</code>.

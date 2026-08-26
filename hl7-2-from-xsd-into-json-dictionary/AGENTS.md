@@ -6,7 +6,7 @@ canonical and don't fork the content between the two.
 
 ## What this is
 
-A Rust crate (and command-line tool) that reads a directory of HL7 version 2
+A Rust crate (and command-line tool) that reads a directory of HL7® version 2
 XML Schema Definition (XSD) files — the v2.xml encoding, as HL7 published it
 or as a vendor customised it — and writes the JSON dictionary format that
 `hl7-2` reads. It runs at authoring time and produces a build artifact; it
@@ -115,3 +115,7 @@ and not worth a dependency, per spec/index.md §5–§6.
   adding a second reader here.
 - **Adding `hl7-2` as a normal dependency.** It stays a dev-dependency; see
   spec/index.md §0.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

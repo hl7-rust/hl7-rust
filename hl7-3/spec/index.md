@@ -1,4 +1,4 @@
-# Specification: HL7 v3 RIM backbone, coded values, and message envelope
+# Specification: HL7® v3 RIM backbone, coded values, and message envelope
 
 This is the single source of truth for what this crate does and how. It
 describes observable behavior, not implementation details; where a rule is
@@ -247,3 +247,7 @@ actually defines.
 | §4 `Entity`, `Role`, `Participation`, `ActRelationship`, `RoleLink` | `rim::tests::entity_reads_class_determiner_and_name`, `role_reads_class_and_status`, `participation_reads_type_and_function`, `act_relationship_reads_type_and_inversion`, `role_link_reads_type` |
 | §5.1 transport wrapper, control act wrapper, domain payload | `message::tests::reads_the_transport_wrapper`, `reads_the_control_act_wrapper_and_trigger_event`, `reads_the_domain_payload_as_a_raw_element` |
 | §5.2 missing wrappers read as `None`, malformed XML is the only error | `message::tests::missing_wrappers_read_as_none_not_an_error`, `malformed_xml_is_an_error` |
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

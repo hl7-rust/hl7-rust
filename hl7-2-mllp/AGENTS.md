@@ -7,7 +7,7 @@ canonical and don't fork the content between the two.
 ## What this is
 
 A Rust crate implementing MLLP, the Minimal Lower Layer Protocol: the
-three-byte framing that carries HL7 v2 messages over TCP, plus the
+three-byte framing that carries HL7® v2 messages over TCP, plus the
 streaming, transport, and acknowledgement pieces a real interface needs
 around it.
 
@@ -129,3 +129,7 @@ anything needing a real socket, or crossing module boundaries, goes in
   `AckCode`, which are supported.
 - **Interpreting the acknowledgement for the caller** — deciding that an
   `AR` means "retry later" is application policy.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

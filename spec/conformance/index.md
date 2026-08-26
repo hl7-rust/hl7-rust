@@ -2,7 +2,7 @@
 
 # Conformance
 
-What "supports HL7 v2 releases 2.1 through 2.9" means here, stated
+What "supports HL7® v2 releases 2.1 through 2.9" means here, stated
 precisely enough to evaluate against — including everything it does not
 mean.
 
@@ -29,7 +29,7 @@ every line is checkable against the code and the tests.
 - [Transports](#transports)
 - [Format conversions](#format-conversions)
 - [HL7 v3](#hl7-v3)
-- [FHIR](#fhir)
+- [The HL7® FHIR® standard](#the-hl7-fhir-standard)
 - [How to evaluate this yourself](#how-to-evaluate-this-yourself)
 - [How the gaps get filled](#how-the-gaps-get-filled)
 
@@ -260,11 +260,12 @@ but is its own document model and is not implemented here.
 Anyone evaluating this project for a v3 or CDA workload should read that as
 a no for CDA, and as "a starting point you will extend" for v3.
 
-## FHIR
+## The HL7® FHIR® standard
 
 **Not implemented.** The `hl7` umbrella crate reserves `hl7::fhir` as a
-module path and nothing more. There is no FHIR code in this workspace. If
-you need FHIR today, this project is not it.
+module path and nothing more. There is no HL7® FHIR® standard code in this
+workspace. If you need the HL7® FHIR® standard today, this project is not
+it.
 
 ## How to evaluate this yourself
 
@@ -298,3 +299,7 @@ So the fastest way to widen the dictionary is to report a redacted message
 that reads positionally when it should not. See
 [`CONTRIBUTING.md`](../../CONTRIBUTING.md), and redact it the way
 [`spec/phi/index.md`](../phi/index.md) describes.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

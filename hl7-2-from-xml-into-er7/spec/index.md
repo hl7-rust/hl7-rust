@@ -1,4 +1,4 @@
-# Specification: HL7 v2.xml → v2.5 ER7 conversion
+# Specification: HL7® v2.xml → v2.5 ER7 conversion
 
 This is the single source of truth for what this crate converts and how. It
 describes observable behavior, not implementation details; where a rule is
@@ -317,3 +317,7 @@ implementation detail:
 - Exit code 0 on success; 1 on any error (bad arguments, I/O failure, or a
   conversion error), with a message on stderr prefixed
   `hl7_2_from_xml_into_er7: error:`.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

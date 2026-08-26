@@ -1,4 +1,4 @@
-# Specification: HL7 v2 over SOAP
+# Specification: HL7® v2 over SOAP
 
 This is the single source of truth for what this crate does and how. It
 describes observable behavior, not implementation details; where a rule is
@@ -187,3 +187,7 @@ from what the code accepts.
 - WSDL 1.1 (W3C Note, 2001)
 - HL7 v2.xml encoding syntax
 - `hl7-2-mllp`, `spec/index.md` — the other transport
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

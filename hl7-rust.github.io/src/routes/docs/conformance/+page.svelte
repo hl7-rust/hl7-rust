@@ -11,7 +11,7 @@
     { id: 'outside', label: 'What happens outside that set' },
     { id: 'encoding', label: 'Encoding' },
     { id: 'out-of-scope', label: 'What is out of scope' },
-    { id: 'other-layers', label: 'Transports, conversions, v3, FHIR' },
+    { id: 'other-layers', label: 'Transports, conversions, v3, the HL7® FHIR® standard' },
     { id: 'evaluate', label: 'How to evaluate this yourself' }
   ];
 
@@ -202,7 +202,7 @@ hl7-v2 --check redacted-sample.hl7`;
     </li>
   </ul>
 
-  <h2 id="other-layers">Transports, conversions, v3, FHIR</h2>
+  <h2 id="other-layers">Transports, conversions, v3, the HL7® FHIR® standard</h2>
   <dl>
     <dt>MLLP</dt>
     <dd>
@@ -227,10 +227,10 @@ hl7-v2 --check redacted-sample.hl7`;
       three-level envelope read generically. No vocabulary validation, no per-interaction schemas,
       and <strong>no CDA</strong> — it reuses the RIM but its document model is its own thing.
     </dd>
-    <dt>FHIR</dt>
+    <dt>HL7® FHIR® standard</dt>
     <dd>
       <strong>Not implemented.</strong> The umbrella crate reserves the module path and nothing
-      more. If you need FHIR today, this project is not it.
+      more. If you need the HL7® FHIR® standard today, this project is not it.
     </dd>
   </dl>
 

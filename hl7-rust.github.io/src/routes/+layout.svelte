@@ -25,9 +25,9 @@
 
 <Header label="Site header" class="site-header">
   <div class="site-header-inner">
-    <a class="site-brand" href="/" aria-label="HL7 Rust home">
+    <a class="site-brand" href="/" aria-label="HL7® Rust home">
       <span class="site-brand-mark" aria-hidden="true">H7</span>
-      <span>HL7 Rust</span>
+      <span>HL7® Rust</span>
     </a>
     <NavigationMenu label="Main" class="site-nav">
       {#each PRIMARY_NAV as link (link.href)}
@@ -103,9 +103,23 @@
       </div>
     </nav>
   </div>
+  <p class="site-footer-trademark">
+    HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their
+    use of these trademarks does not constitute an endorsement by HL7.
+  </p>
 </Footer>
 
 <style>
+  .site-footer-trademark {
+    max-width: 84rem;
+    margin: 1.5rem auto 0;
+    padding: 1rem 1.5rem 0;
+    border-top: 1px solid var(--color-base-300);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    opacity: 0.75;
+  }
+
   .site-header-inner {
     max-width: 84rem;
     margin: 0 auto;

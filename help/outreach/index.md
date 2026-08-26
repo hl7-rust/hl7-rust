@@ -1,6 +1,6 @@
 [hl7-rust](../../README.md) → help → Outreach
 
-# Promoting HL7 for Rust to professionals
+# Promoting HL7® for Rust to professionals
 
 Research, as of 2026-08-25, into where the people who would use these
 crates actually gather, what reaches them, and in what order to try. This
@@ -181,7 +181,7 @@ things years later:
 - [awesome-rust](https://github.com/rust-unofficial/awesome-rust)
 - [kakoni/awesome-healthcare](https://github.com/kakoni/awesome-healthcare)
   — already has an HL7 v2 section
-- [fhir-fuel/awesome-FHIR](https://github.com/fhir-fuel/awesome-FHIR)
+- [fhir-fuel/awesome-FHIR®](https://github.com/fhir-fuel/awesome-FHIR)
 - [jcfr/awesome-health](https://github.com/jcfr/awesome-health)
 
 **GitHub topics.** Free discovery: `hl7`, `hl7v2`, `hl7-v2`, `mllp`,
@@ -572,3 +572,7 @@ Press:
 [ARPR health IT reporters](https://arpr.com/blog/health-it-reporters/),
 [Muck Rack, Healthcare IT News](https://muckrack.com/media-outlet/healthcareitnews),
 [Hacker News posting guide](https://syften.com/blog/hacker-news-marketing/).
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

@@ -6,7 +6,7 @@ canonical and don't fork the content between the two.
 
 ## What this is
 
-A small Rust crate + CLI that converts HL7 v2.5 messages
+A small Rust crate + CLI that converts HL7® v2.5 messages
 from pipe-delimited ER7 text to the official v2.xml XML representation. It
 is the XML sibling of
 [`hl7-2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-json)
@@ -143,3 +143,7 @@ runtime dependency rule above is unchanged.
 cargo bench -p hl7-2-from-er7-into-xml
 cargo bench -p hl7-2-from-er7-into-xml -- --save-baseline before   # then compare a change
 ```
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

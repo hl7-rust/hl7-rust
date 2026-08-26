@@ -151,7 +151,7 @@ Four things in that table are worth saying out loud, including the
 unflattering one:
 
 **Parsing a small message costs about 3 µs**, so a single core parses on the
-order of 300,000 small ADTs a second. For essentially every real HL7
+order of 300,000 small ADTs a second. For essentially every real HL7®
 interface, parsing is not the bottleneck — the network, the database, and
 the downstream system are.
 
@@ -192,3 +192,7 @@ useful than omitting the row.
 - **Not a memory measurement.** Nothing here reports allocations or peak
   resident size. That is a gap, and a contribution that adds it would be
   welcome.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

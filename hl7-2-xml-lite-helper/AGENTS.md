@@ -135,3 +135,7 @@ stack depth, and before `MAX_DEPTH` existed a few kilobytes of open tags
 aborted the process. A crash writes its input to `fuzz/artifacts/parse/`;
 reproduce it with `cargo +nightly fuzz run parse <that file>`. Corpus and
 artifacts are gitignored.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

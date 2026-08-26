@@ -1,4 +1,4 @@
-# Specification: HL7 v3 over SOAP
+# Specification: HL7® v3 over SOAP
 
 This is the single source of truth for what this crate does and how. It
 describes observable behavior, not implementation details; where a rule is
@@ -184,3 +184,7 @@ contract cannot drift from what the code accepts.
 - `hl7-3`, `spec/index.md` — the RIM and message envelope this crate
   carries without decoding
 - `hl7-2-soap`, `spec/index.md` — the v2 sibling this crate mirrors
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

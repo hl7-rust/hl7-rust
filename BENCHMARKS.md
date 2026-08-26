@@ -42,7 +42,7 @@ root.
 
 **Parsing is not your bottleneck.** A small ADT parses in about 3 µs, so
 one core parses on the order of 300,000 a second. For essentially every
-real HL7 interface the network, the database, and the downstream system
+real HL7® interface the network, the database, and the downstream system
 decide the throughput. Choosing a library on parse speed is optimising the
 wrong number.
 
@@ -131,3 +131,7 @@ or that stops round-tripping byte for byte, is not faster.
 - **Not a memory measurement.** Nothing here reports allocations or peak
   resident size. That is a gap, and a contribution adding it would be
   welcome.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

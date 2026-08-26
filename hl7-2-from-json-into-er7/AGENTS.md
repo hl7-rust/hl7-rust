@@ -6,7 +6,7 @@ canonical and don't fork the content between the two.
 
 ## What this is
 
-A small Rust crate + CLI that converts HL7 v2.5 messages from the typed
+A small Rust crate + CLI that converts HL7® v2.5 messages from the typed
 JSON representation the sibling
 [`hl7-2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-json)
 crate produces back to pipe-delimited ER7 text — the inverse of that crate.
@@ -171,3 +171,7 @@ a fixed point, and it never invents an explicit null where the source had
 none. A crash writes its input to `fuzz/artifacts/<target>/`; reproduce it
 with `cargo +nightly fuzz run <target> <that file>`. Corpus and artifacts
 are gitignored.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

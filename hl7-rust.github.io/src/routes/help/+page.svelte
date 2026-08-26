@@ -72,7 +72,7 @@
       Yes. Every crate is offered under MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, or GPL-3.0-only,
       at your option. See <a href="/docs/versions/#license">Licensing</a>.
     </dd>
-    <dt>Is FHIR supported?</dt>
+    <dt>Is the HL7® FHIR® standard supported?</dt>
     <dd>
       Not yet. The umbrella crate deliberately leaves <code>hl7::fhir</code> free for it.
     </dd>

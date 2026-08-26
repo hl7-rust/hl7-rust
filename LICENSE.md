@@ -47,7 +47,7 @@ alone.
 ## What this covers, and what it does not
 
 This license covers the source code and documentation in this workspace.
-It does not cover the HL7 standards themselves: HL7 v2, HL7 v3, and their
+It does not cover the HL7® standards themselves: HL7 v2, HL7 v3, and their
 XML schemas are published by Health Level Seven International under their
 own terms, and this project implements the standards rather than
 redistributing them.
@@ -66,3 +66,7 @@ different legal constraints: a permissive license suits a vendor
 integrating into a proprietary product, while a copyleft license suits a
 public-sector project that wants derivatives kept open. Offering the choice
 means neither has to ask.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

@@ -11,7 +11,7 @@
 | Review | At every release that changes the practice described here, and on any trigger in §12 |
 
 **Abstract.** This document discloses how artificial-intelligence tools are
-used to develop HL7 for Rust, an open-source workspace of Rust crates for
+used to develop HL7® for Rust, an open-source workspace of Rust crates for
 Health Level Seven messages. It states what the tools do and do not touch,
 who is accountable, which controls bound the work and how each is enforced,
 the licensing and data posture, the rules for contributors, the uses that
@@ -333,3 +333,7 @@ ai-statement:
   ships-ai-system: false
   autonomous-use: none
 ```
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

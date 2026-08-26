@@ -27,7 +27,7 @@ editing, because each is a caret range a patch satisfies.
 
 - **A conformance statement**
   ([`spec/conformance/index.md`](spec/conformance/index.md)): what
-  "supports HL7 v2 releases 2.1 through 2.9" means, with the 24 segments,
+  "supports HL7® v2 releases 2.1 through 2.9" means, with the 24 segments,
   42 composite data types, and 4 message structures listed by name, what
   happens to input outside that set, and the out-of-scope list.
 - **A PHI statement** ([`spec/phi/index.md`](spec/phi/index.md)): what
@@ -188,3 +188,7 @@ Two pieces of history worth knowing when reading old versions on crates.io:
 - **`er7` is a separate project**, in its own repository and its own
   organization: <https://github.com/er7-rust/er7-rust>. Encoding-level
   changes are recorded there, not here.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

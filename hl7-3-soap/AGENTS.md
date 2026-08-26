@@ -6,7 +6,7 @@ and don't fork the content between the two.
 
 ## What this is
 
-A Rust crate implementing HL7 v3 over SOAP: the SOAP 1.1 envelope, faults
+A Rust crate implementing HL7® v3 over SOAP: the SOAP 1.1 envelope, faults
 and their HTTP statuses, reading what a v3 payload claims (interaction,
 control ID, assigning authority), the real HL7 v3 acknowledgement, and the
 WSDL that describes the endpoint. Sibling of `hl7-2-soap`, adapted to
@@ -121,3 +121,7 @@ anything crossing module boundaries goes in `tests/integration.rs`.
   attribute this crate reads. `hl7-3` itself stays off HL7's full
   vocabulary-domain tables for the same reason (hallucination risk on
   hand-typed code lists); this crate inherits that restraint.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

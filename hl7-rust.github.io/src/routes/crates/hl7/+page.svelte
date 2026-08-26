@@ -92,7 +92,8 @@ cargo add hl7 --features derive   # pulls in hl7-2's derive macros`;
   <h2 id="why-empty-root">Why the root is empty</h2>
   <p>
     HL7 is not one standard but a family of them, and they have little in common beyond the name and
-    the problem: v2 is delimited text, v3 is XML, FHIR is resources over HTTP.
+    the problem: v2 is delimited text, v3 is XML, and the HL7® FHIR® standard is
+    resources over HTTP.
   </p>
   <p>
     A “message”, a “segment”, and a “code” all mean something different in each. Flattening them

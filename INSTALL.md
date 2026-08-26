@@ -55,7 +55,7 @@ Every flag of every binary is documented at
 
 ## As a library
 
-For HL7 v2, one line is usually enough:
+For HL7® v2, one line is usually enough:
 
 ```sh
 cargo add hl7
@@ -164,3 +164,7 @@ cargo uninstall hl7-2       # and any other installed crate by name
 
 Nothing is left behind: no config directory is created, no cache is
 written, no service is registered.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

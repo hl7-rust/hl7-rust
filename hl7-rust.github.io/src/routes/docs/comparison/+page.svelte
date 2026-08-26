@@ -269,7 +269,7 @@ let name = fields[5];`;
   </Callout>
   <ol>
     <li>
-      <strong>You need FHIR.</strong> Not implemented here, at all. The umbrella crate reserves a
+      <strong>You need the HL7® FHIR® standard.</strong> Not implemented here, at all. The umbrella crate reserves a
       module path and nothing more.
     </li>
     <li>

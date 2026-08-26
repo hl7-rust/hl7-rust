@@ -7,7 +7,7 @@ canonical and don't fork the content between the two.
 ## What this is
 
 A Rust crate + CLI that reads, navigates, validates, modifies, and writes
-HL7 v2 messages in three modes: generic, schema-based, and struct-based.
+HL7® v2 messages in three modes: generic, schema-based, and struct-based.
 
 It is the **dictionary layer** of the `hl7-rust` family, and that is the
 whole point of its existence. Published standalone as `hl7-2` (crate name
@@ -177,3 +177,7 @@ When adding to it:
 - Adding message-structure grammars speculatively; add one when a real need
   (a failing case, a user request) motivates it, and give it the same
   treatment as the four already in `schemas/v2.5.json`.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

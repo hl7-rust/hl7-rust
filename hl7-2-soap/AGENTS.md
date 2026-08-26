@@ -6,7 +6,7 @@ and don't fork the content between the two.
 
 ## What this is
 
-A Rust crate implementing HL7 v2 over SOAP: the SOAP 1.1 envelope, faults
+A Rust crate implementing HL7® v2 over SOAP: the SOAP 1.1 envelope, faults
 and their HTTP statuses, the two ways HL7 v2 is carried in a body, the
 response a receiver returns and how a sender reads one, and the WSDL that
 describes the endpoint.
@@ -112,3 +112,7 @@ anything crossing module boundaries goes in `tests/integration.rs`.
   `xsd:anyType` on purpose — the published HL7 schemas use relative
   `xsd:include` paths that break as soon as the WSDL is saved elsewhere.
   The structural check belongs on the server.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

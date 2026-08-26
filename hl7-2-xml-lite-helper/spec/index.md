@@ -30,7 +30,7 @@ things satisfies all three, and healthcare integration code that gets
 audited is better with one parser to read than three.
 
 The name places it in the family rather than claiming a general one. The
-code is not HL7-specific and could serve anything, but it is maintained for
+code is not HL7®-specific and could serve anything, but it is maintained for
 these three callers, its trade-offs (§3.2, §6) are chosen for their
 documents, and a neutral name would invite users it is not meant for.
 
@@ -140,3 +140,7 @@ and it copies text it could borrow. That is the correct trade for documents
 of the size this reads — an envelope, a schema, a message — and the wrong
 one for a gigabyte of XML, which is a reason to use a different crate rather
 than to complicate this one.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

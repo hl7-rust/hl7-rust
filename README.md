@@ -1,6 +1,10 @@
-# HL7 for Rust
+# HL7® for Rust
 
-> HL7® and FHIR® are registered trademarks of HL7. We are requesting permission to use it here. Use of the trademarks does not constitute endorsement of this library by HL7.
+> HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.
+>
+> This project uses the HL7® name in its package names, its organization
+> name, and its domain, which is beyond fair use; we are requesting
+> permission from HL7® for that.
 
 A Cargo workspace: parse, navigate, validate, modify, and render Health
 Level Seven (HL7) messages in Rust. One crate per layer, one module per

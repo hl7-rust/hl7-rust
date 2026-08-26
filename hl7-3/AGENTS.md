@@ -8,7 +8,7 @@ and don't fork the content between the two.
 
 The Reference Information Model (RIM) backbone classes, the six data
 types RIM attributes are built from (`II`, `CD`, `IVL`, `PQ`, `ED`,
-`NullFlavor`), and the three-level message envelope for HL7 v3 — **a
+`NullFlavor`), and the three-level message envelope for HL7® v3 — **a
 foundation, not a complete implementation**. Read `spec/index.md` §1
 before assuming anything is missing is a bug; it almost certainly is
 documented scope.
@@ -98,3 +98,7 @@ than one module's types together (nothing has, so far).
   happens.
 - **A CLI**, unlike `hl7-2`. Nothing about this crate's current scope
   needs one.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

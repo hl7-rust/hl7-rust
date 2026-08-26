@@ -24,7 +24,7 @@ are building.
 | If you need to… | You want | This project |
 |---|---|---|
 | *Run* interfaces: routes, retries, queues, monitoring, on-call | An interface engine | Not that. Useful alongside one. |
-| Write an application that happens to speak HL7 v2 | A library | Yes |
+| Write an application that happens to speak HL7® v2 | A library | Yes |
 | Do a one-off transformation at a shell prompt | A command-line tool | Yes — six binaries, no Rust required |
 
 ## Interface engines
@@ -159,7 +159,8 @@ Stated without adjectives, so each one can be checked:
 
 Read this before adopting, not after.
 
-1. **You need FHIR.** Not implemented here, at all. The umbrella crate
+1. **You need the HL7® FHIR® standard.** Not implemented here, at all. The
+   umbrella crate
    reserves a module path and nothing more.
 2. **You need CDA**, or a substantial HL7 v3 implementation. The v3 crate
    is a foundation — six RIM classes, six data types, a generic envelope —
@@ -176,3 +177,7 @@ single maintainer ([`MAINTAINERS.md`](MAINTAINERS.md) states the bus factor
 plainly). If your risk posture needs a long production track record, it
 does not have one yet. That is a fact about the calendar, and the only
 honest thing to do is say so.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

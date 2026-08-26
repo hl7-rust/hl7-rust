@@ -104,7 +104,7 @@ pub use hl7_3 as v3;`;
   <CodeSample language="rust" code={umbrella} />
   <p>
     Nothing lives at its root, and that is a decision rather than an omission. A “message”, a
-    “segment”, and a “code” mean different things in v2, v3, and FHIR, and flattening them into one
+    “segment”, and a “code” mean different things in v2, v3, and FHIR®, and flattening them into one
     namespace would invite mixing them up — in a domain where mixing them up means a clinical
     record. Depend on <code>hl7-2</code> or <code>hl7-3</code> directly if you want one standard
     without the indirection; the umbrella exists for callers who want the room left for

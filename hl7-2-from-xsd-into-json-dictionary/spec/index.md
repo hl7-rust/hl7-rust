@@ -1,4 +1,4 @@
-# Specification: HL7 v2 from XSD into JSON dictionary
+# Specification: HL7® v2 from XSD into JSON dictionary
 
 This is the single source of truth for what this crate does and how. It
 describes observable behavior, not implementation details; where a rule is
@@ -218,3 +218,7 @@ own version, and the two would otherwise collide.
 - `hl7-2-from-er7-into-xml`, `spec/index.md` §4a — schema mode, which is
   what the cardinality in §3.1 is for
 - W3C XML Schema Part 1, §3.9 (`minOccurs`/`maxOccurs` defaults)
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.
