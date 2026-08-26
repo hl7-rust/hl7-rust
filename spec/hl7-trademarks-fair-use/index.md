@@ -48,18 +48,25 @@ targets, and URLs are masked first, so `hl7-2` and `chat.fhir.org` are
 correctly not treated as uses of a mark.
 
 **Covered today:** every markdown page in the workspace, every crate
-root's rustdoc (`src/lib.rs`), and the website's shared layout footer —
+root's rustdoc (`src/lib.rs`), the website's shared layout footer —
 which is what puts the disclaimer on every rendered page of
-<https://hl7-rust.github.io>.
+<https://hl7-rust.github.io> — and, since the second 2026-08-26 widening,
+every publishable crate's `Cargo.toml` `description`. crates.io renders
+the description as-is, so each one carries three parts in order: the
+description proper with ® on the first use of a mark, the verbatim
+disclaimer, and the sentence "This project is an independent work." (the
+three-part format the family's facade crates use). The checker enforces
+all three and was plant-tested: removing the ®, the disclaimer, or the
+independence sentence each fails the run.
 
 **Not yet covered**, recorded here so widening the scope stays a visible
 task rather than a silent gap: per-route website source under
-`hl7-rust.github.io/src`, rustdoc in non-root `.rs` files, `Cargo.toml`
-`description` strings, and the six binaries' `--help` output. A full-scope
-run on 2026-08-26 found 142 problems; the 28 inside today's scope were
-fixed, and the remaining 114 sit in these deferred surfaces. Widening is a
-matter of re-enabling the corresponding sections of the script and fixing
-what they report.
+`hl7-rust.github.io/src`, rustdoc in non-root `.rs` files, and the six
+binaries' `--help` output. A full-scope run on 2026-08-26 found 142
+problems; the 28 inside the first scope were fixed then, and the
+`Cargo.toml` descriptions came inside the fence later the same day.
+Widening further is a matter of re-enabling the corresponding sections of
+the script and fixing what they report.
 
 ---
 

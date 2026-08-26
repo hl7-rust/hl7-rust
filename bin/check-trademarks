@@ -17,10 +17,15 @@ fhir-rust/scripts/check-trademarks.sh scopes its FILES list:
 
   covered:  every markdown page in the workspace outside SKIP_DIRS;
             every crate root's rustdoc (src/lib.rs: T1, T2, T3);
-            the website's shared layout footer (T2 for every page).
+            the website's shared layout footer (T2 for every page);
+            every publishable crate's Cargo.toml `description` (T1,
+            the verbatim disclaimer, and the trailing independence
+            sentence, per the three-part format the family's facade
+            crates use: description, disclaimer, "This project is an
+            independent work.").
   not yet:  per-route website source (T1/T3 in src/routes, src/lib);
-            rustdoc in non-root .rs files; Cargo.toml `description`
-            strings; the six binaries' --help output.
+            rustdoc in non-root .rs files; the six binaries' --help
+            output.
 
 The not-yet-covered remainder is recorded in
 spec/hl7-trademarks-fair-use/index.md under "Assurance", so widening this
@@ -32,6 +37,7 @@ Run from the workspace root:  bin/check-trademarks
 import os
 import re
 import sys
+import tomllib
 
 MARKS = ("HL7", "FHIR", "CDA")
 R = "®"
@@ -192,6 +198,33 @@ for path in walk(".rs"):
     check_fhir_standard(path, prose, text)
     if not has_disclaimer(prose):
         fail(path, "T2", "crate root documentation carries no disclaimer")
+
+# --- Cargo.toml: every publishable crate's `description` -------------------
+# Three parts, in order: the description proper (T1: ® after the first use
+# of a word mark, code spans masked the same way markdown is), the verbatim
+# disclaimer (T2), and the independence sentence. crates.io renders the
+# string as-is, so this is a page the fair-use rules apply to.
+
+INDEPENDENT = "This project is an independent work."
+
+for path in walk(("Cargo.toml",)):
+    with open(path, "rb") as handle:
+        try:
+            package = tomllib.load(handle).get("package")
+        except tomllib.TOMLDecodeError:
+            fail(path, "T2", "Cargo.toml does not parse")
+            continue
+    if not package or package.get("publish") is False:
+        continue
+    description = package.get("description")
+    if not isinstance(description, str):
+        continue
+    where = f"{path} [package.description]"
+    check_marks(where, blanked(description, [r"`[^`\n]+`"]))
+    if not has_disclaimer(description):
+        fail(where, "T2", "description carries no verbatim disclaimer")
+    elif not description.rstrip().endswith(INDEPENDENT):
+        fail(where, "T2", f'description does not end with "{INDEPENDENT}"')
 
 # --- Report ----------------------------------------------------------------
 

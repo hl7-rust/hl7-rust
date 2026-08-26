@@ -131,8 +131,8 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 - [ ] Blocked until the trademark item above is done (issue templates landed
       2026-08-26) — then execute `help/outreach/index.md`'s phase 1. Its
       stale note that the trademark notice "is not yet carried on the
-      website" was corrected 2026-08-26 (site footer and crate rustdoc now
-      carry it; Cargo.toml descriptions recorded as the remainder).
+      website" was corrected 2026-08-26 (site footer, crate rustdoc, and —
+      later the same day — every Cargo.toml description carry it).
 - [x] Add `version` and `date-released` to `CITATION.cff` — done
       2026-08-26: cites the umbrella `hl7` crate, 0.1.4, released
       2026-08-26 per CHANGELOG.md, with a comment saying the workspace

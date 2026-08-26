@@ -444,9 +444,10 @@ answered in [`spec/conformance/index.md`](../../spec/conformance/index.md),
 whose first lines state that no certifying body has assessed this project.
 And its coverage has widened since this document was first written: as of
 2026-08-26 the disclaimer is carried in the website footer (every rendered
-page) and in every crate root's rustdoc, which is what docs.rs renders —
-not only in the READMEs and the licence. The `Cargo.toml` `description`
-strings remain outside the checked scope, recorded as such in
+page), in every crate root's rustdoc, which is what docs.rs renders, and
+in every publishable crate's `Cargo.toml` `description`, which is what
+crates.io renders — not only in the READMEs and the licence. All of it is
+checked; the remaining unchecked surfaces are recorded in
 [`spec/hl7-trademarks-fair-use/index.md`](../../spec/hl7-trademarks-fair-use/index.md).
 
 ## A ninety-day sequence
