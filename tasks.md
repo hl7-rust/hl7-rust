@@ -92,9 +92,12 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       expression (REUSE convention; `fhir-rust/LICENSES/` is the model) —
       done 2026-08-26: five files copied from the `fhir-rust` model,
       `LICENSE.md`'s table now links each local text alongside the URL.
-- [ ] Consolidate the trademark position into a root `TRADEMARKS.md`
+- [x] Consolidate the trademark position into a root `TRADEMARKS.md`
       (the `er7-rust` file is the model: verbatim notice, mark-by-mark table,
-      what is and is not claimed).
+      what is and is not claimed) — done 2026-08-26, adapted honestly for
+      this repo's difference from `er7-rust`: the names here *do* use the
+      HL7® mark beyond fair use, and the file states the pending-permission
+      status plainly. Passes `bin/check-trademarks`.
 
 ### Privacy and patient data
 
