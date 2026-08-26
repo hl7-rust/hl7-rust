@@ -58,9 +58,11 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 
 ### Governance
 
-- [ ] **Add `CODE_OF_CONDUCT.md`** (Contributor Covenant 2.1 plus the
-      claim-accuracy clause, adapted from `fhir-rust`), and replace
-      CONTRIBUTING.md's four-line §Conduct with a pointer to it, including a
+- [x] **Add `CODE_OF_CONDUCT.md`** — done 2026-08-26: Contributor Covenant
+      2.1 plus the claim-accuracy clause, adapted from `fhir-rust` with the
+      FHIR-specific references replaced (the clause now cites this repo's
+      `spec/` culture; Scope names HL7® International's own spaces).
+      CONTRIBUTING.md §Conduct now points to it and carries the private
       reporting path.
 - [ ] Fix `CODEOWNERS`'s stale header claiming the repo has no `.github/`
       directory.

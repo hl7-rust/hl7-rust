@@ -219,7 +219,12 @@ downstream. There is no CLA.
 Be decent. Assume the person on the other end is working on a live clinical
 interface and is short of time.
 
-Contact: <joel@joelparkerhenderson.com>.
+The full code is [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) — Contributor
+Covenant 2.1, plus one addition this project takes as seriously as
+harassment: do not overstate what the software does. Report conduct
+problems privately to <joel@joelparkerhenderson.com>; that file is honest
+about what a single-maintainer project can and cannot offer if the report
+concerns the maintainer.
 
 ---
 
