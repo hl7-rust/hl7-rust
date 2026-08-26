@@ -49,6 +49,11 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       change.
 - [ ] Tag releases and sign commits/tags going forward; record the change of
       posture in MAINTAINERS.md (which currently says nothing is signed).
+      **Tagging half started 2026-08-26:** the fourth release carries one
+      annotated `<crate>-v<version>` tag per crate at the release commit
+      (the `fhir-rust` `spec/git-tags-name-published-versions/` convention);
+      the first three releases remain untagged, and signing — the half that
+      needs the owner's keys — is still open.
 - [x] Add dependency auditing (`cargo deny` covering advisories, licenses,
       bans, sources — the `fhir-rust` `fhir-security.yml` is the family
       pattern) on push plus a weekly cron — done 2026-08-26: `deny.toml`
