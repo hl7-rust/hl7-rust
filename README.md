@@ -109,8 +109,11 @@ than of one member.
 | [`AI_STATEMENT.md`](AI_STATEMENT.md) | How AI tools are used to build this, who is accountable, and the limits that survive it |
 | [`LICENSE.md`](LICENSE.md) | The five-way license choice, its SPDX expression, and what it does not cover |
 
-**If you want to contribute:** [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to
-file a report, what a change has to pass, and never pasting patient data.
+**If you want to contribute:** [`CONTRIBUTING.md`](CONTRIBUTING.md) — time,
+code, a report from your own feed, or money, and never pasting patient data.
+
+**If you have an opinion:** [`RFC.md`](RFC.md) — the ten things this project
+is genuinely unsure about, and what evidence would settle each.
 
 **If you want to cite it:** `CITATION.cff` carries the metadata, including
 an ORCID.

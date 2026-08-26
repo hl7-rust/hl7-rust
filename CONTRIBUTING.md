@@ -1,10 +1,22 @@
 # Contributing
 
-Thanks for looking. This file is the short version — enough to file a good
-report or land a small change without reading anything else. The long
-version is [Support and contributing](https://hl7-rust.github.io/help/support/)
-on the website, and the conventions for changing a particular crate are in
-that crate's own `AGENTS.md`.
+Thanks for looking. There is more than one way to help here, and code is
+only one of them.
+
+| You have | Start with |
+|---|---|
+| Ten minutes and a real HL7® feed | [Tell us what your messages contain](#tell-us-what-your-messages-contain) — the single most useful thing anyone can do |
+| An opinion about the design | [`RFC.md`](RFC.md), which lists what this project is actually unsure about |
+| A bug | [What a good report contains](#what-a-good-report-contains) — and read [Never paste patient data](#never-paste-patient-data) first |
+| Time and Rust | [Before you open a pull request](#before-you-open-a-pull-request) |
+| Time and no Rust | [Ways to help that are not code](#ways-to-help-that-are-not-code) |
+| Money | [Money](#money) |
+
+This file is the short version — enough to help without reading anything
+else. The long version is
+[Support and contributing](https://hl7-rust.github.io/help/support/) on the
+website, and the conventions for changing a particular crate are in that
+crate's own `AGENTS.md`.
 
 ## Never paste patient data
 
@@ -90,15 +102,16 @@ And the conventions that a reviewer will otherwise ask about:
 - **Raising the MSRV is a breaking change** and belongs in a release
   allowed to break, never in a patch.
 
-## The most useful contribution
+## Adding dictionary coverage
 
-Dictionary coverage. Filling a gap means editing one JSON file under
-`hl7-2/schemas/` and adding a test, and it is the thing most likely to help
-somebody else's interface.
+The most useful code contribution, and the cheapest: filling a gap means
+editing one JSON file under `hl7-2/schemas/` and adding a test.
 
 Add coverage when a real message motivates it, rather than speculatively —
 a table filled in from the standard with no message behind it is a table
-nobody can check.
+nobody can check. If you have the message but not the Rust, stop here and
+see [Tell us what your messages contain](#tell-us-what-your-messages-contain)
+instead; the report is the hard part, and the JSON is not.
 
 Before filing, check whether it is a gap at all. What each release does and
 does not claim is stated precisely in
@@ -128,6 +141,69 @@ there, not in the published repository, which `make publish` force-pushes
 over. Nothing on the site is normative: it summarizes the crates' READMEs
 and specs. A correction there is a documentation fix; a correction to the
 behavior underneath belongs against the crate.
+
+## Tell us what your messages contain
+
+The bound on this project is not effort, it is knowledge: it models 24
+segments, 42 composite data types, and 4 message structures, and the gap
+between that and your feed is invisible from here. Nobody can guess which
+vendor sends which segment.
+
+Ten minutes, no Rust, on a redacted sample:
+
+```sh
+hl7-v2 --check redacted-sample.hl7      # counts what the dictionary misses
+hl7-v2 --tree --paths redacted-sample.hl7   # shows exactly which fields read positionally
+```
+
+Open an issue with the counts and a redacted example. `SegmentUnknown` and
+`StructureUnknown` warnings are literally a to-do list, and each one closed
+helps every other site sending the same shape. If you cannot share even a
+redacted message, the segment and structure *names* on their own are still
+worth having.
+
+## Ways to help that are not code
+
+- **Answer a question** on an issue. Someone who has debugged an interface
+  before knows things the maintainer does not.
+- **Fix the documentation.** If a guide misled you, that is a defect; the
+  fix is usually two sentences, and you are the only person who will ever
+  notice it.
+- **Try the command-line tools** and say where they were awkward. They are
+  meant to be usable by an integration analyst who writes no Rust, and that
+  claim needs testing by such a person.
+- **Review the claims.** Everything in
+  [`spec/conformance/index.md`](spec/conformance/index.md),
+  [`spec/phi/index.md`](spec/phi/index.md), and
+  [`spec/benchmark/index.md`](spec/benchmark/index.md) is written to be
+  checked rather than believed. Finding one that does not survive checking
+  is a real contribution.
+- **Run the benchmarks on your hardware** and post the numbers. One machine
+  is one data point.
+- **Tell us you are using it.** Even privately. It changes what gets
+  prioritised, and right now the maintainer is guessing.
+- **Answer the open questions** in [`RFC.md`](RFC.md).
+
+## Money
+
+This project is free, and it stays free under all five of its licences
+whether or not anyone pays anything. There is no paid tier, no sponsor-only
+feature, and no feature that unlocks with money.
+
+If you want to fund the time anyway:
+**<https://github.com/sponsors/joelparkerhenderson>**, one-off or recurring.
+
+What sponsorship buys, honestly: maintainer time, which mostly goes to
+dictionary coverage and answering issues. What it does not buy: a support
+contract, a response-time guarantee, a roadmap commitment, or influence
+over what gets merged. [`MAINTAINERS.md`](MAINTAINERS.md) is candid that
+the bus factor is one, and money does not change that number — if your
+organisation depends on this, the mitigations there (pin a version, keep a
+fork you can build) matter more than a donation does.
+
+Sponsorship is never a condition of having a bug fixed. A report from
+someone who has paid nothing is treated exactly like one from someone who
+has.
 
 ## Licensing your contribution
 
