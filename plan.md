@@ -76,10 +76,10 @@ posture. Open items for each are in `tasks.md`.
 
 6. **Audit and harmonization.** This repository has no findings register and
    no plan/tasks history — this file and `tasks.md` are the start. The family
-   conventions to converge on: the canonical special-files list (the
-   `fhir-rust` copy is the most complete; the local
-   `spec/special-files-for-public-repos/index.md` has drifted and carries
-   typos), MSRV N−3, `agents/`-style playbooks, and automated doc gates.
+   conventions to converge on: the canonical special-files list (the local
+   `spec/special-files-for-public-repos/index.md` was re-synced from the
+   `fhir-rust` copy 2026-08-26, typos fixed), MSRV N−3, `agents/`-style
+   playbooks, and automated doc gates.
 
 ## Open decisions (awaiting a call, not code)
 

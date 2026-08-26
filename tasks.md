@@ -143,10 +143,13 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 
 ### Audit and harmonization
 
-- [ ] Re-sync `spec/special-files-for-public-repos/index.md` with the
-      `fhir-rust` canonical version (it is missing CODE_OF_CONDUCT.md,
-      PHI.md, LICENSES/, FUNDING.yml, and a status section, and carries two
-      typos: "optimizaiton", "Prker").
+- [x] Re-sync `spec/special-files-for-public-repos/index.md` with the
+      `fhir-rust` canonical version (it was missing CODE_OF_CONDUCT.md,
+      PHI.md, LICENSES/, FUNDING.yml, and a status section, and carried two
+      typos: "optimizaiton", "Prker") — done 2026-08-26: full canonical
+      list plus a status section adapted to this repo, with those typos
+      fixed (and a third, "summries"), and TRADEMARKS.md added to the list
+      now that this repo carries one.
 - [ ] Adopt a repository-wide link check and document-size budget in CI, per
       the `snomed-rust` convention.
 
