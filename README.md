@@ -4,7 +4,8 @@
 >
 > This project uses the HL7® name in its package names, its organization
 > name, and its domain, which is beyond fair use; we are requesting
-> permission from HL7® for that.
+> permission from HL7® for that. The written-permission request was sent
+> on 2026-08-25; the reply is pending.
 
 A Cargo workspace: parse, navigate, validate, modify, and render Health
 Level Seven (HL7) messages in Rust. One crate per layer, one module per

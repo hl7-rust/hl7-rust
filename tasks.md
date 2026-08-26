@@ -80,10 +80,16 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 
 ### Compliance — licensing and trademarks
 
-- [ ] **Record the status of the HL7 written-permission request** (org name,
+- [x] **Record the status of the HL7 written-permission request** (org name,
       crate names, domain — all beyond fair use per
-      `spec/hl7-trademarks-fair-use/index.md`). If not yet sent, send it; the
-      README's "we are requesting permission" needs a date and an outcome.
+      `spec/hl7-trademarks-fair-use/index.md`) — sent half done: the request
+      was sent 2026-08-25 and that date is now recorded (README,
+      `TRADEMARKS.md`, `plan.md`, the trademark spec, the outreach gate).
+      The outcome is the remaining half, tracked by the next item.
+- [ ] **Record the outcome of the HL7 written-permission request** when the
+      reply arrives (pending as of 2026-08-26). Outreach stays gated on the
+      answer, not on the sending, per `help/outreach/index.md`; if HL7
+      declines, the org/crate/domain naming question reopens.
 - [x] Restore an automated trademark checker — done 2026-08-26:
       `er7-rust/bin/check-trademarks` ported as `bin/check-trademarks`,
       running in CI (`.github/workflows/ci.yml`, trademarks job) and

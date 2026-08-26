@@ -44,10 +44,11 @@ mark, this project uses the HL7® name **in names it controls**:
 That is branding, not a fair-use reference, and HL7 International's
 trademark guidance expects written consent for it. The README notice
 therefore says permission is being requested. **Honest status, as of
-2026-08-26:** no sent date and no outcome for that request is recorded
-anywhere in this repository — recording it (and sending it, if it has not
-been sent) is an open item in [`tasks.md`](tasks.md), and all promotion is
-gated on it per [`help/outreach/index.md`](help/outreach/index.md). If HL7
+2026-08-26:** the written-permission request was sent on 2026-08-25, and no
+reply has arrived — the outcome is pending. Recording that outcome when it
+arrives is an open item in [`tasks.md`](tasks.md), and all promotion is
+gated on the answer, not on the sending, per
+[`help/outreach/index.md`](help/outreach/index.md). If HL7
 International declines, the organisation, crate, and domain naming question
 reopens.
 

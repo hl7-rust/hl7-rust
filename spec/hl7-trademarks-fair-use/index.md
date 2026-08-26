@@ -22,7 +22,8 @@ wording is prescribed and a paraphrase would not satisfy it.
   names, its organization name, and its domain. That is branding, not a
   fair-use reference, and HL7®'s separate trademark guidance expects written
   consent for it — so the README notice states that permission is being
-  requested. See [`help/outreach/index.md`](../../help/outreach/index.md).
+  requested. The written-permission request was sent 2026-08-25; the reply
+  is pending. See [`help/outreach/index.md`](../../help/outreach/index.md).
 
 ## The rules, as HL7® publishes them
 

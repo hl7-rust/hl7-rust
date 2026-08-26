@@ -44,7 +44,7 @@ posture. Open items for each are in `tasks.md`.
    the word marks (® on first use per page, the disclaimer footer, per
    `spec/hl7-trademarks-fair-use/`), but three things remain: the org name,
    crate names, and domain use the HL7 mark beyond fair use, and the written
-   permission the README says is being requested has no recorded outcome; and
+   permission request (sent 2026-08-25) has no answer yet; and
    of the two provable compliance artifacts a legal review asks for, one is
    now present (`LICENSES/` with all five full license texts, 2026-08-26)
    and one is still missing (a provenance statement for the bundled
@@ -70,9 +70,10 @@ posture. Open items for each are in `tasks.md`.
 
 5. **Outreach.** `help/outreach/index.md` (2026-08-25) is the campaign plan,
    and it gates itself correctly: issue templates and a stated response
-   expectation landed 2026-08-26, so trademark resolution is the remaining
-   unmet prerequisite — no promotion until it is answered or in flight.
-   NEWS.md's press posture is ready.
+   expectation landed 2026-08-26, and the trademark request was sent
+   2026-08-25 — but the gate is on HL7's answer, not on the sending, so
+   trademark resolution remains the unmet prerequisite: no promotion until
+   the request is answered. NEWS.md's press posture is ready.
 
 6. **Audit and harmonization.** This repository has no findings register and
    no plan/tasks history — this file and `tasks.md` are the start. The family
@@ -83,9 +84,9 @@ posture. Open items for each are in `tasks.md`.
 
 ## Open decisions (awaiting a call, not code)
 
-- **HL7 written permission.** The request's status (sent? answered?) is
-  recorded nowhere. If HL7 declines, the org/crate/domain naming question
-  reopens — which is why outreach stays gated on it.
+- **HL7 written permission.** The request was sent 2026-08-25; the reply is
+  pending. If HL7 declines, the org/crate/domain naming question reopens —
+  which is why outreach stays gated on the answer, not on the sending.
 - **Schema data provenance.** State where `hl7-2/schemas/v2.1–2.9.json` table
   content came from and under what terms, or replace it with content whose
   terms are stated. A hospital legal review asks this first.

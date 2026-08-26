@@ -139,8 +139,10 @@ Before pointing anyone at this:
   security reports at the private channel), and `MAINTAINERS.md` states the
   read-within-a-week expectation. The fastest way to lose the integration
   audience is an unanswered issue about a vendor dialect.
-- The trademark question is answered or in flight — see
-  [Trademark, first](#trademark-first). It gates the rest.
+- The trademark question is answered — see
+  [Trademark, first](#trademark-first). It gates the rest. The written
+  request was sent 2026-08-25 and the reply is pending; the gate is on the
+  answer, not on the sending.
 - The MSRV policy is already documented
   ([`spec/rust-msrv-n-minus-3`](../../spec/rust-msrv-n-minus-3/index.md)) and is
   genuinely a selling point to this audience — hospital toolchains move in
@@ -424,6 +426,9 @@ a
 [product trademark application](http://www.hl7.org/about/product.trademark.application.cfm)
 for exactly this.
 
+That note was sent on 2026-08-25. The reply is pending, and promotion
+stays gated on the answer, not on the sending.
+
 Carrying a notice is worth doing either way, because it is cheap, correct
 regardless of the answer, and exactly what a reviewer at a hospital or a
 device maker looks for. The one this project adopted, at the top of every
@@ -455,10 +460,10 @@ irreversible channels come last.
 remains is the list in
 [Prerequisites](#prerequisites-before-any-promotion): docs.rs polish, the
 `hl7` crate's stale-looking crates.io page, and changelogs (issue templates
-and the response expectation landed 2026-08-26). Send the trademark note to
-HL7 — it is the only item with an
-external dependency, so it starts first and runs in the background while
-everything else proceeds. Nothing else external.
+and the response expectation landed 2026-08-26). The trademark note to
+HL7 was sent 2026-08-25 — it is the only item with an
+external dependency, so it started first and its reply is awaited in the
+background while everything else proceeds. Nothing else external.
 
 **Days 15–30, quiet seeding.** Curated-list PRs, GitHub topics, docs.rs
 polish, `users.rust-lang.org` Show and tell, This Week in Rust *Call for
