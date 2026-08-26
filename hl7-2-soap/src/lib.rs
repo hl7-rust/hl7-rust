@@ -68,6 +68,11 @@
 //!
 //! See `spec/index.md` for the exact rules (source of truth).
 
+// No `unsafe` anywhere in this crate, enforced rather than merely true:
+// `forbid` cannot be lifted by an `allow` further down, so this is a
+// property a reviewer can rely on without reading the sources. See
+// SECURITY.md.
+#![forbid(unsafe_code)]
 #![warn(missing_docs, clippy::pedantic)]
 // XML literals keep their `r#"..."#` delimiters even where no `"` currently
 // forces them: these are documents, and adding a quoted attribute to one

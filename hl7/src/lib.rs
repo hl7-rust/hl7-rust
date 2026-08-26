@@ -39,6 +39,11 @@
 //! See [`v2`] for everything HL7 v2, and `hl7-2`'s `spec/index.md` for the
 //! normative specification of it.
 
+// No `unsafe` anywhere in this crate, enforced rather than merely true:
+// `forbid` cannot be lifted by an `allow` further down, so this is a
+// property a reviewer can rely on without reading the sources. See
+// SECURITY.md.
+#![forbid(unsafe_code)]
 #![warn(missing_docs, clippy::pedantic)]
 
 pub use hl7_2 as v2;

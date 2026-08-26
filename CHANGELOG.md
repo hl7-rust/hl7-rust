@@ -15,6 +15,29 @@ raised minimum supported Rust version, which is always a breaking change
 and never lands in a patch
 ([`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md)).
 
+## Unreleased
+
+### Added
+
+- **`#![forbid(unsafe_code)]` on every crate root** — fourteen libraries and
+  six binaries, the binaries being separate crates that need their own
+  attribute. `unsafe` was already absent; this makes its absence a property
+  the compiler enforces rather than one a reviewer has to take on trust, and
+  `forbid` cannot be lifted by an `allow` further down.
+- `GOVERNANCE.md` and `SECURITY.md`, with the files that previously declared
+  both absent — `MAINTAINERS.md`, `RFC.md`, `AI_STATEMENT.md` — updated in
+  the same change. GitHub private vulnerability reporting enabled, since
+  `SECURITY.md` names it as the preferred channel.
+- `RFC.md`: ten open questions with the evidence that would settle each.
+- `CONTRIBUTING.md` widened past code — reporting what a real feed contains,
+  ways to help that need no Rust, and sponsorship, with what it does not buy.
+- `.github/FUNDING.yml`.
+
+### Fixed
+
+- Removed a stray `__pycache__/tm.cpython-311.pyc` committed by accident,
+  and added `__pycache__/` and `*.pyc` to `.gitignore`.
+
 ## 2026-08-26, second release
 
 ### Changed

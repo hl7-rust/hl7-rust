@@ -76,6 +76,11 @@
 //! everything above; where this documentation and that document disagree,
 //! that document is right.
 
+// No `unsafe` anywhere in this crate, enforced rather than merely true:
+// `forbid` cannot be lifted by an `allow` further down, so this is a
+// property a reviewer can rely on without reading the sources. See
+// SECURITY.md.
+#![forbid(unsafe_code)]
 #![warn(missing_docs, clippy::pedantic)]
 
 #[cfg(feature = "ack")]

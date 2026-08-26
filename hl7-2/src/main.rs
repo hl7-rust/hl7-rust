@@ -6,6 +6,12 @@
 //! an unfamiliar HL7 message is look at it, and that should not require
 //! writing a program.
 
+// No `unsafe` anywhere in this crate, enforced rather than merely true:
+// `forbid` cannot be lifted by an `allow` further down, so this is a
+// property a reviewer can rely on without reading the sources. See
+// SECURITY.md.
+#![forbid(unsafe_code)]
+
 use hl7_2::generic::Node;
 use hl7_2::{Dictionary, Message, Options, Severity, Version};
 use std::io::{Read, Write};

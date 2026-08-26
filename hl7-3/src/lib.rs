@@ -58,6 +58,11 @@
 //! `hl7-2`'s struct mode does for v2 paths. See [`typed`] for the
 //! attributes and an example.
 
+// No `unsafe` anywhere in this crate, enforced rather than merely true:
+// `forbid` cannot be lifted by an `allow` further down, so this is a
+// property a reviewer can rely on without reading the sources. See
+// SECURITY.md.
+#![forbid(unsafe_code)]
 #![warn(missing_docs, clippy::pedantic)]
 
 pub mod message;

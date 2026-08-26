@@ -22,6 +22,11 @@
 //! document that validates against the very schemas it was built from. See
 //! `spec/index.md` for the conversion rules (source of truth).
 
+// No `unsafe` anywhere in this crate, enforced rather than merely true:
+// `forbid` cannot be lifted by an `allow` further down, so this is a
+// property a reviewer can rely on without reading the sources. See
+// SECURITY.md.
+#![forbid(unsafe_code)]
 #![warn(missing_docs, clippy::pedantic)]
 
 pub mod dictionary;

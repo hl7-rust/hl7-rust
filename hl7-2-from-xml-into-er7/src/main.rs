@@ -1,3 +1,9 @@
+// No `unsafe` anywhere in this crate, enforced rather than merely true:
+// `forbid` cannot be lifted by an `allow` further down, so this is a
+// property a reviewer can rely on without reading the sources. See
+// SECURITY.md.
+#![forbid(unsafe_code)]
+
 use std::io::{Read, Write};
 use std::process::ExitCode;
 

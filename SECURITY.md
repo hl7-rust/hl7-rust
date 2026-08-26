@@ -121,9 +121,11 @@ here, and so the boundary is honest rather than convenient:
 
 Each one is checkable in a few minutes, which is the point:
 
-- **No `unsafe` code.** There is none in any library source. See the gap
-  below, though: it is a fact about the code, not yet a rule the compiler
-  enforces.
+- **No `unsafe` code, enforced by the compiler.** Every crate root —
+  fourteen libraries and six binaries — carries
+  `#![forbid(unsafe_code)]`. `forbid` outranks any `allow` further down, so
+  a crate here cannot regain the ability to write `unsafe` without someone
+  deleting that line in a diff you can see.
 - **No network access, no filesystem access, no environment variables, no
   subprocesses** from library code. `std::net`, `std::fs`, `std::env`, and
   `std::process` appear only in the command-line binaries.
@@ -141,9 +143,6 @@ Each one is checkable in a few minutes, which is the point:
 
 A security policy that lists no gaps is a security policy nobody checked.
 
-- **`unsafe` is absent but not forbidden.** No crate carries
-  `#![forbid(unsafe_code)]`, so nothing prevents it being introduced. Worth
-  fixing, and a good first contribution.
 - **Fuzzing covers 3 of 14 crates.** The ER7 parsing surface in `er7`
   itself, and `hl7-2`'s dictionary reader, are not fuzzed here.
 - **No CI.** The test suite, clippy, formatting, and the MSRV check are
