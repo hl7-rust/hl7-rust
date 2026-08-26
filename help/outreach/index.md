@@ -134,9 +134,11 @@ Before pointing anyone at this:
   a skimming evaluator can read as seven years of neglect. The version
   history and the README have to say otherwise, loudly.
 - A `CHANGELOG.md` per crate, or one for the workspace.
-- Issue templates, and a stated response expectation. The fastest way to
-  lose the integration audience is an unanswered issue about a vendor
-  dialect.
+- ~~Issue templates, and a stated response expectation.~~ Done 2026-08-26:
+  `.github/ISSUE_TEMPLATE/` (bug report, wrong claim, and a config pointing
+  security reports at the private channel), and `MAINTAINERS.md` states the
+  read-within-a-week expectation. The fastest way to lose the integration
+  audience is an unanswered issue about a vendor dialect.
 - The trademark question is answered or in flight — see
   [Trademark, first](#trademark-first). It gates the rest.
 - The MSRV policy is already documented
@@ -435,8 +437,12 @@ Two gaps in it are worth knowing rather than discovering later. It says
 nothing about *certification*, which a reviewer also asks about — that is
 answered in [`spec/conformance/index.md`](../../spec/conformance/index.md),
 whose first lines state that no certifying body has assessed this project.
-And it is not yet carried on the website or in the crate descriptions, only
-in the READMEs and the licence.
+And its coverage has widened since this document was first written: as of
+2026-08-26 the disclaimer is carried in the website footer (every rendered
+page) and in every crate root's rustdoc, which is what docs.rs renders —
+not only in the READMEs and the licence. The `Cargo.toml` `description`
+strings remain outside the checked scope, recorded as such in
+[`spec/hl7-trademarks-fair-use/index.md`](../../spec/hl7-trademarks-fair-use/index.md).
 
 ## A ninety-day sequence
 
@@ -448,8 +454,9 @@ irreversible channels come last.
 [What we are actually promoting](#what-we-are-actually-promoting). What
 remains is the list in
 [Prerequisites](#prerequisites-before-any-promotion): docs.rs polish, the
-`hl7` crate's stale-looking crates.io page, changelogs, and issue
-templates. Send the trademark note to HL7 — it is the only item with an
+`hl7` crate's stale-looking crates.io page, and changelogs (issue templates
+and the response expectation landed 2026-08-26). Send the trademark note to
+HL7 — it is the only item with an
 external dependency, so it starts first and runs in the background while
 everything else proceeds. Nothing else external.
 

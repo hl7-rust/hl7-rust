@@ -52,9 +52,13 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 - [ ] Add dependency auditing (`cargo deny` covering advisories, licenses,
       bans, sources — the `fhir-rust` `fhir-security.yml` is the family
       pattern) on push plus a weekly cron.
-- [ ] Add `.github/ISSUE_TEMPLATE/` and a stated issue-response expectation —
-      `help/outreach/index.md` lists both as prerequisites before any
-      promotion.
+- [x] Add `.github/ISSUE_TEMPLATE/` and a stated issue-response expectation —
+      done 2026-08-26: bug report (never paste patient data), wrong claim
+      (the report this repo values most), and a `config.yml` routing
+      security reports privately and pointing at the expectation;
+      MAINTAINERS.md now states it (read within a week, a target not a
+      contract). `help/outreach/index.md`'s prerequisites updated — the
+      trademark question is now its only unmet gate.
 
 ### Governance
 
@@ -111,10 +115,11 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 
 ### Outreach
 
-- [ ] Blocked until the trademark item and issue templates above are done —
-      then execute `help/outreach/index.md`'s phase 1. Update its stale note
-      that the trademark notice "is not yet carried on the website" (the site
-      footer now carries it per CHANGELOG).
+- [ ] Blocked until the trademark item above is done (issue templates landed
+      2026-08-26) — then execute `help/outreach/index.md`'s phase 1. Its
+      stale note that the trademark notice "is not yet carried on the
+      website" was corrected 2026-08-26 (site footer and crate rustdoc now
+      carry it; Cargo.toml descriptions recorded as the remainder).
 - [ ] Add `version`, `date-released`, and (once a Zenodo deposit exists) a DOI
       to `CITATION.cff`.
 - [ ] Refresh BENCHMARKS.md against the released crate versions or mark its

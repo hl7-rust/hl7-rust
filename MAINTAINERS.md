@@ -71,6 +71,16 @@ information for an evaluation:
   from one laptop, by one person.
 - **No release signing, no SBOM, no reproducible-build attestation.**
 
+## Issue response expectation
+
+**Issues are read within a week.** That is a best-effort target from one
+person, not a contract, and it is the expectation the issue templates
+(`.github/ISSUE_TEMPLATE/`) point at. A read is not a fix: triage says
+what happens next, and [`CONTRIBUTING.md`](CONTRIBUTING.md) says which
+kinds of report move fastest. Security reports do not go through issues at
+all — [`SECURITY.md`](SECURITY.md) has the private channels, and its own
+escalation path if nothing comes back within 14 days.
+
 ## If the maintainer is unavailable
 
 There is no succession plan that a document can create. What exists

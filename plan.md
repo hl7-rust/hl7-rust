@@ -67,9 +67,10 @@ posture. Open items for each are in `tasks.md`.
    there.
 
 5. **Outreach.** `help/outreach/index.md` (2026-08-25) is the campaign plan,
-   and it gates itself correctly: its own prerequisites — issue templates, a
-   stated response expectation, trademark resolution — are not met yet, so no
-   promotion until they are. NEWS.md's press posture is ready.
+   and it gates itself correctly: issue templates and a stated response
+   expectation landed 2026-08-26, so trademark resolution is the remaining
+   unmet prerequisite — no promotion until it is answered or in flight.
+   NEWS.md's press posture is ready.
 
 6. **Audit and harmonization.** This repository has no findings register and
    no plan/tasks history — this file and `tasks.md` are the start. The family
