@@ -89,8 +89,13 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 
 ### Privacy and patient data
 
-- [ ] Add root `PHI.md` fronting `spec/phi/index.md` for a privacy-officer
-      reader (the `fhir-rust` PHI.md Q&A-table shape is the model).
+- [x] Add root `PHI.md` fronting `spec/phi/index.md` for a privacy-officer
+      reader — done 2026-08-26, in the `fhir-rust` Q&A-table shape. Every
+      row was re-verified against the spec or the code; the verification
+      caught and fixed one overbroad spec claim (`std::fs` does appear in
+      one library source — the XSD-dictionary generator, whose purpose is
+      reading the schema files you name; spec/phi table row corrected in
+      the same commit).
 
 ### Outreach
 

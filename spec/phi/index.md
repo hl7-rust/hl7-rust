@@ -56,7 +56,7 @@ Verifiable by reading the manifests and grepping the sources:
 |---|---|
 | No logging or tracing | No `log`, `tracing`, or any logging facade in any `Cargo.toml` in the workspace |
 | No telemetry, analytics, or phone-home | No HTTP client anywhere; no network dependency of any kind |
-| No filesystem access from library code | `std::fs` and `File::open` appear in no library source, only in the CLI's `main.rs` |
+| No filesystem access from message-handling library code | `std::fs` and `File::open` appear in no message-handling library source, only in the CLI binaries' `main.rs` — and in one deliberate exception that touches no messages: `hl7-2-from-xsd-into-json-dictionary`'s library reads the XSD schema files you name (`src/lib.rs`, `structure_files` and `read_xml`), because reading them is that crate's entire purpose |
 | No environment variables | `std::env` appears in no library source, only in the CLI's argument parsing |
 | No sockets opened | `std::net` appears in no library source; the MLLP crate is generic over a byte stream you supply |
 | No subprocesses | `std::process` appears in no library source |
