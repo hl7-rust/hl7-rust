@@ -1,4 +1,4 @@
-[hl7-rust](../README.md) → spec → Rust MSRV
+[hl7-rust](../../README.md) → spec → Rust MSRV
 
 # Rust MSRV: N-3
 

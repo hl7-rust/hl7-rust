@@ -90,7 +90,7 @@ Two consequences worth stating, because they shape §4:
 
 ### 2.3 Errors
 
-`er7::Error` is mapped onto this crate's [`Hl7Error`](src/lib.rs) by a
+`er7::Error` is mapped onto this crate's [`Hl7Error`](../src/lib.rs) by a
 `From` implementation, so the public error type is unchanged:
 
 | `er7::Error` | `Hl7Error` |
@@ -119,11 +119,11 @@ Identical to the sibling crate:
 
 ### 4.1 Two-stage build
 
-Conversion builds an intermediate [`Node`](src/json.rs) tree — one node per
+Conversion builds an intermediate [`Node`](../src/json.rs) tree — one node per
 segment, field, repetition, and component, each carrying a *key* and either
 child nodes or leaf text — using exactly the same typed-naming rules as the
 XML sibling (§4.2 below). Then, and only then, the tree is turned into a
-[`Value`](src/json.rs) (JSON) tree, where **same-named sibling nodes
+[`Value`](../src/json.rs) (JSON) tree, where **same-named sibling nodes
 collapse into one JSON array** rather than becoming duplicate object keys.
 This second stage has no XML equivalent — it's the reason repeating fields
 and repeating groups render as real JSON arrays here instead of the

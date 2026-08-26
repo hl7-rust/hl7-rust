@@ -15,7 +15,38 @@ raised minimum supported Rust version, which is always a breaking change
 and never lands in a patch
 ([`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md)).
 
-## 2026-08-26
+## 2026-08-26, second release
+
+### Changed
+
+- **HL7's fair use rules for its word marks are now implemented**, and the
+  notice shipped in the first release did not meet them. The disclaimer
+  wording is prescribed by HL7 and cannot be paraphrased; the verbatim text
+  now appears at the top of every README and in `LICENSE.md`, at the end of
+  every other document that uses the marks, and in the website footer, which
+  puts it on all 51 rendered pages. The ® follows the first use of each word
+  mark on every page, and the Fast Healthcare Interoperability Resources are
+  referred to as the "HL7® FHIR® standard" in places of prominence. The
+  rules and what was done about each are in
+  [`spec/hl7-trademarks-fair-use/index.md`](spec/hl7-trademarks-fair-use/index.md).
+
+### Fixed
+
+- Four broken relative links in specs, all pre-dating this work:
+  `hl7-2-from-er7-into-json` and `hl7-2-from-er7-into-xml` linked `src/*.rs`
+  from inside `spec/` without `../`, and the MSRV spec linked a
+  `spec/README.md` that does not exist.
+
+### Released
+
+`hl7` 0.1.3 · `hl7-2` 0.2.5 · `hl7-3` 0.1.5 · `hl7-2-derive` 0.1.5 ·
+`hl7-3-derive` 0.1.3 · `hl7-2-mllp` 0.1.5 · `hl7-2-soap` 0.1.3 ·
+`hl7-3-soap` 0.1.3 · `hl7-2-xml-lite-helper` 0.1.3 ·
+`hl7-2-from-er7-into-xml` 0.6.2 · `hl7-2-from-xml-into-er7` 0.6.2 ·
+`hl7-2-from-er7-into-json` 0.4.4 · `hl7-2-from-json-into-er7` 0.4.4 ·
+`hl7-2-from-xsd-into-json-dictionary` 0.1.3
+
+## 2026-08-26, first release
 
 Documentation and policy only — no crate behavior changed. Released
 anyway, and only for one reason: the trademark notice belongs on the

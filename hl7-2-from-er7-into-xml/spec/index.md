@@ -80,7 +80,7 @@ Two consequences worth stating, because they shape §4:
 
 ### 2.3 Errors
 
-`er7::Error` is mapped onto this crate's [`Hl7Error`](src/lib.rs) by a
+`er7::Error` is mapped onto this crate's [`Hl7Error`](../src/lib.rs) by a
 `From` implementation, so the public error type is unchanged:
 
 | `er7::Error` | `Hl7Error` |
