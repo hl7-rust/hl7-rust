@@ -28,6 +28,12 @@
 //! # Ok::<(), hl7_2_xml_lite_helper::Error>(())
 //! ```
 //!
+//! # Trademarks
+//!
+//! HL7®, and FHIR® are the registered trademarks of Health Level Seven
+//! International and their use of these trademarks does not constitute an
+//! endorsement by HL7.
+//!
 //! # Namespace prefixes are ignored, not resolved
 //!
 //! Elements and attributes are matched on their **local name**, so

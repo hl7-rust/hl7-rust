@@ -9,6 +9,12 @@
 //! shape as its `hl7-2-soap` cousin: it does the protocol and nothing
 //! else.
 //!
+//! # Trademarks
+//!
+//! HL7®, and FHIR® are the registered trademarks of Health Level Seven
+//! International and their use of these trademarks does not constitute an
+//! endorsement by HL7.
+//!
 //! # What it does
 //!
 //! - [`parse`] a SOAP envelope and take the single payload out of its body

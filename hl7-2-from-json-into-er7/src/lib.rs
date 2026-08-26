@@ -23,6 +23,12 @@
 //! assert!(er7.starts_with(r"MSH|^~\&|"));
 //! assert!(er7.contains("PID|||||TEST^FOUAZ"));
 //! ```
+//!
+//! # Trademarks
+//!
+//! HL7®, and FHIR® are the registered trademarks of Health Level Seven
+//! International and their use of these trademarks does not constitute an
+//! endorsement by HL7.
 
 // No `unsafe` anywhere in this crate, enforced rather than merely true:
 // `forbid` cannot be lifted by an `allow` further down, so this is a

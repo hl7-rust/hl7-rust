@@ -16,6 +16,12 @@
 //! hl7 = "0.1"
 //! ```
 //!
+//! # Trademarks
+//!
+//! HL7®, and FHIR® are the registered trademarks of Health Level Seven
+//! International and their use of these trademarks does not constitute an
+//! endorsement by HL7.
+//!
 //! ## Three modes
 //!
 //! **Generic** — for the vendor whose messages you have never seen and need

@@ -15,6 +15,12 @@
 //! assert!(xml.contains("<ORM_O01 xmlns=\"urn:hl7-org:v2xml\">"));
 //! assert!(xml.contains("<XPN.1>"));
 //! ```
+//!
+//! # Trademarks
+//!
+//! HL7®, and FHIR® are the registered trademarks of Health Level Seven
+//! International and their use of these trademarks does not constitute an
+//! endorsement by HL7.
 
 // No `unsafe` anywhere in this crate, enforced rather than merely true:
 // `forbid` cannot be lifted by an `allow` further down, so this is a

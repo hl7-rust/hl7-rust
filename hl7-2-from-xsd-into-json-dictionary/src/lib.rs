@@ -21,6 +21,12 @@
 //! which is what lets `hl7-2-from-er7-into-xml` in schema mode produce a
 //! document that validates against the very schemas it was built from. See
 //! `spec/index.md` for the conversion rules (source of truth).
+//!
+//! # Trademarks
+//!
+//! HL7®, and FHIR® are the registered trademarks of Health Level Seven
+//! International and their use of these trademarks does not constitute an
+//! endorsement by HL7.
 
 // No `unsafe` anywhere in this crate, enforced rather than merely true:
 // `forbid` cannot be lifted by an `allow` further down, so this is a

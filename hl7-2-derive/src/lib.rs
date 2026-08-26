@@ -36,6 +36,12 @@
 //! | `#[hl7(raw)]` | the whole message | skipped |
 //! | none | `Default::default()` | skipped |
 //!
+//! # Trademarks
+//!
+//! HL7®, and FHIR® are the registered trademarks of Health Level Seven
+//! International and their use of these trademarks does not constitute an
+//! endorsement by HL7.
+//!
 //! ## When `hl7-2` is not called `hl7_2`
 //!
 //! The generated code names the crate absolutely, as `::hl7_2`, so that it

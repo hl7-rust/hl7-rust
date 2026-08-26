@@ -42,6 +42,12 @@
 //! capability yet (see its `spec/index.md` §1), so a write-direction macro
 //! would have nothing real to generate.
 //!
+//! # Trademarks
+//!
+//! HL7®, and FHIR® are the registered trademarks of Health Level Seven
+//! International and their use of these trademarks does not constitute an
+//! endorsement by HL7.
+//!
 //! ## When `hl7-3` is not called `hl7_3`
 //!
 //! The generated code names the crate absolutely, as `::hl7_3`, so that it

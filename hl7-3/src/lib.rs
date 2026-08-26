@@ -32,6 +32,12 @@
 //! # Ok::<(), hl7_3::Error>(())
 //! ```
 //!
+//! # Trademarks
+//!
+//! HL7®, and FHIR® are the registered trademarks of Health Level Seven
+//! International and their use of these trademarks does not constitute an
+//! endorsement by HL7.
+//!
 //! ## What this crate is, and is not
 //!
 //! It is: the RIM backbone classes as Rust types ([`rim`]), the data types

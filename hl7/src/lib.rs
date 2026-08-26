@@ -38,6 +38,12 @@
 //!
 //! See [`v2`] for everything HL7 v2, and `hl7-2`'s `spec/index.md` for the
 //! normative specification of it.
+//!
+//! # Trademarks
+//!
+//! HL7®, and FHIR® are the registered trademarks of Health Level Seven
+//! International and their use of these trademarks does not constitute an
+//! endorsement by HL7.
 
 // No `unsafe` anywhere in this crate, enforced rather than merely true:
 // `forbid` cannot be lifted by an `allow` further down, so this is a
