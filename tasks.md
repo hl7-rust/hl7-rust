@@ -125,8 +125,12 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       stale note that the trademark notice "is not yet carried on the
       website" was corrected 2026-08-26 (site footer and crate rustdoc now
       carry it; Cargo.toml descriptions recorded as the remainder).
-- [ ] Add `version`, `date-released`, and (once a Zenodo deposit exists) a DOI
-      to `CITATION.cff`.
+- [x] Add `version` and `date-released` to `CITATION.cff` — done
+      2026-08-26: cites the umbrella `hl7` crate, 0.1.4, released
+      2026-08-26 per CHANGELOG.md, with a comment saying the workspace
+      versions independently.
+- [ ] Add a DOI to `CITATION.cff` once a Zenodo deposit exists (needs the
+      owner's Zenodo account).
 - [ ] Refresh BENCHMARKS.md against the released crate versions or mark its
       figures as historical (it cites `hl7-2` 0.2.3; released is 0.2.5).
 

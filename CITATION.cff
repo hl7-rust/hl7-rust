@@ -4,6 +4,11 @@ message: >-
   If you use this work and you want to cite it,
   then you can use the metadata from this file.
 type: software
+# The workspace's 14 crates version independently (see CHANGELOG.md); the
+# version cited here is the umbrella `hl7` crate's, which re-exports the
+# rest, and the date is that release's date.
+version: 0.1.4
+date-released: '2026-08-26'
 authors:
   - given-names: Joel Parker
     family-names: Henderson
