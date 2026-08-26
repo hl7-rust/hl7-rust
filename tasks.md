@@ -152,8 +152,14 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       list plus a status section adapted to this repo, with those typos
       fixed (and a third, "summries"), and TRADEMARKS.md added to the list
       now that this repo carries one.
-- [ ] Adopt a repository-wide link check and document-size budget in CI, per
-      the `snomed-rust` convention.
+- [x] Adopt a repository-wide link check and document-size budget in CI, per
+      the `snomed-rust` convention — done 2026-08-26: `bin/check-docs`
+      ported, `spec/docs-budget-and-links/` adapted, `docs` job added to
+      `ci.yml`. Its first run found nine broken links in a divergent
+      `AI_STATEMENT.md` draft hiding in
+      `spec/special-files-for-public-repos/`, resolved to a pointer at the
+      root document (the `fhir-rust` precedent). Now green: 99 tracked
+      documents, all within budget, zero broken relative links.
 
 ## Trademarks
 

@@ -25,7 +25,13 @@ Special files that use top-level markdown:
 
 ## Status in this repository
 
-All of the above exist as of 2026-08-26. Two notes:
+All of the above exist as of 2026-08-26. Three notes:
+
+- **`AI_STATEMENT.md` has one source** — the repository root — as of
+  2026-08-26. A divergent 1.0.0 draft used to sit in this directory too;
+  it is now a pointer at the root document, with the resolution recorded
+  in the pointer itself. (`bin/check-docs` exposed it: nine of its
+  relative links resolved only from the repository root.)
 
 - **This list is synchronized from the `fhir-rust` sibling's canonical
   copy** (its `spec/special-files-for-public-repos/index.md`), which is the
