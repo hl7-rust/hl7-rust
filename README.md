@@ -105,6 +105,7 @@ than of one member.
 | [`spec/phi/index.md`](spec/phi/index.md) | What these crates do with protected health information, what they never do, and where a value can escape into a log |
 | [`spec/benchmark/index.md`](spec/benchmark/index.md) | The rules that govern how performance figures are produced and published |
 | [`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md) | The minimum supported Rust version policy every member pins to |
+| [`spec/professionalization/index.md`](spec/professionalization/index.md) | What "professional" means here — the rules that bind the maintainer, and an honest status against each |
 | [`MAINTAINERS.md`](MAINTAINERS.md) | Who maintains this, what the bus factor is, and what happens if that person is unavailable |
 | [`GOVERNANCE.md`](GOVERNANCE.md) | Who decides, what binds them, what is in scope, and how to become a maintainer |
 | [`SECURITY.md`](SECURITY.md) | How to report a vulnerability, what counts as one, and the known gaps |
