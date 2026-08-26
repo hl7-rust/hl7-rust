@@ -15,10 +15,13 @@ raised minimum supported Rust version, which is always a breaking change
 and never lands in a patch
 ([`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md)).
 
-## Unreleased
+## 2026-08-26
 
-Documentation and policy only. No crate behavior changed, so nothing here
-needs a release.
+Documentation and policy only — no crate behavior changed. Released
+anyway, and only for one reason: the trademark notice belongs on the
+crates.io page of every crate, and a README reaches crates.io only through
+a release. Every crate took a patch bump; no dependency requirement needed
+editing, because each is a caret range a patch satisfies.
 
 ### Added
 
@@ -59,6 +62,18 @@ needs a release.
 - `hl7-2` gained a `[dev-dependencies]` entry for Criterion. Development
   only; it is never linked into the library or the binary, so the runtime
   dependency surface is unchanged.
+- **Every README carries the HL7 trademark notice** directly under its
+  title, which is what crates.io renders. `LICENSE.md` and `NEWS.md` carry
+  the same wording.
+
+### Released
+
+`hl7` 0.1.2 · `hl7-2` 0.2.4 · `hl7-3` 0.1.4 · `hl7-2-derive` 0.1.4 ·
+`hl7-3-derive` 0.1.2 · `hl7-2-mllp` 0.1.4 · `hl7-2-soap` 0.1.2 ·
+`hl7-3-soap` 0.1.2 · `hl7-2-xml-lite-helper` 0.1.2 ·
+`hl7-2-from-er7-into-xml` 0.6.1 · `hl7-2-from-xml-into-er7` 0.6.1 ·
+`hl7-2-from-er7-into-json` 0.4.3 · `hl7-2-from-json-into-er7` 0.4.3 ·
+`hl7-2-from-xsd-into-json-dictionary` 0.1.2
 
 ## 2026-08-21
 
