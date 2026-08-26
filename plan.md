@@ -107,8 +107,10 @@ posture. Open items for each are in `tasks.md`.
   are still standing confessions, and each release that ships while they
   stand makes SECURITY.md's candor look like a substitute for the fix
   rather than a commitment to it.
-- BENCHMARKS.md cites crate versions now one release stale; a claims-accuracy
-  culture has to keep its numbers current or date-stamp them as historical.
+- BENCHMARKS.md was re-measured 2026-08-26 against the released `hl7-2`
+  0.2.6, closing its version staleness — but the watch item stands: a
+  claims-accuracy culture has to keep its numbers current or date-stamp
+  them as historical every time a release moves past them.
 - `CODEOWNERS` asserts the repo has no `.github/` directory; it has one. Small
   falsehoods in governance files are the failure mode this family exists to
   avoid.

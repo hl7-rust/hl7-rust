@@ -17,16 +17,16 @@
   const spec = `${REPO}/blob/main/spec/benchmark/index.md`;
 
   const rows = [
-    { group: 'parse', input: 'small, 177 B', time: '3.00 µs', interval: '2.97 – 3.04 µs', thrpt: '56.3 MiB/s' },
-    { group: 'parse', input: 'large, 29,104 B', time: '381 µs', interval: '376 – 388 µs', thrpt: '72.8 MiB/s' },
-    { group: 'get', input: 'small, PID-5.1', time: '110 ns', interval: '108 – 112 ns', thrpt: '—' },
-    { group: 'get', input: 'large, OBX[200]-5', time: '1.94 µs', interval: '1.91 – 1.97 µs', thrpt: '—' },
-    { group: 'tree', input: 'small', time: '13.4 µs', interval: '13.3 – 13.6 µs', thrpt: '—' },
-    { group: 'tree', input: 'large', time: '1.50 ms', interval: '1.49 – 1.52 ms', thrpt: '—' },
-    { group: 'validate', input: 'small', time: '6.95 µs', interval: '6.87 – 7.06 µs', thrpt: '—' },
-    { group: 'validate', input: 'large', time: '633 µs', interval: '628 – 640 µs', thrpt: '—' },
-    { group: 'render', input: 'small, 177 B', time: '365 ns', interval: '360 – 372 ns', thrpt: '463 MiB/s' },
-    { group: 'render', input: 'large, 29,104 B', time: '29.4 µs', interval: '28.9 – 30.1 µs', thrpt: '944 MiB/s' }
+    { group: 'parse', input: 'small, 177 B', time: '2.99 µs', interval: '2.98 – 2.99 µs', thrpt: '56.5 MiB/s' },
+    { group: 'parse', input: 'large, 29,104 B', time: '387 µs', interval: '386 – 389 µs', thrpt: '71.6 MiB/s' },
+    { group: 'get', input: 'small, PID-5.1', time: '123 ns', interval: '122 – 123 ns', thrpt: '—' },
+    { group: 'get', input: 'large, OBX[200]-5', time: '1.90 µs', interval: '1.88 – 1.92 µs', thrpt: '—' },
+    { group: 'tree', input: 'small', time: '14.0 µs', interval: '13.9 – 14.2 µs', thrpt: '—' },
+    { group: 'tree', input: 'large', time: '1.54 ms', interval: '1.54 – 1.55 ms', thrpt: '—' },
+    { group: 'validate', input: 'small', time: '7.15 µs', interval: '7.13 – 7.17 µs', thrpt: '—' },
+    { group: 'validate', input: 'large', time: '655 µs', interval: '653 – 657 µs', thrpt: '—' },
+    { group: 'render', input: 'small, 177 B', time: '408 ns', interval: '406 – 410 ns', thrpt: '414 MiB/s' },
+    { group: 'render', input: 'large, 29,104 B', time: '28.5 µs', interval: '28.3 – 28.6 µs', thrpt: '975 MiB/s' }
   ];
 
   const measured = [
@@ -57,7 +57,7 @@ cargo bench -p hl7-2 -- --baseline before`;
     <strong>Machine:</strong> Apple M4 Max, 128 GB, macOS 26.6.1, arm64.
     <strong>Toolchain:</strong> rustc 1.98.0, release profile.
     <strong>Date:</strong> 26 August 2026.
-    <strong>Crates:</strong> <code>hl7-2</code> 0.2.3 over <code>er7</code> 0.1.2.
+    <strong>Crates:</strong> <code>hl7-2</code> 0.2.6 over <code>er7</code> 0.1.1.
     <strong>Method:</strong> <code>cargo bench -p hl7-2</code>, Criterion defaults, machine
     otherwise idle. The middle column is Criterion's point estimate; the interval is its confidence
     interval, reported rather than quietly dropped.
@@ -92,16 +92,18 @@ cargo bench -p hl7-2 -- --baseline before`;
     decide the throughput. If you are choosing a library on parse speed, you are optimising the
     wrong number.
   </p>
-  <h3>Rendering is about eight times cheaper than parsing</h3>
+  <h3>Rendering is seven to eight times cheaper than parsing</h3>
   <p>
-    365 ns against 3.00 µs on the same message. That is what “stored as sent, decoded on demand”
-    buys: writing back out is mostly copying bytes that were never transformed, which is also why
-    the round trip comes back byte for byte.
+    About 0.4 µs against 2.99 µs on the same message. That is what “stored as sent, decoded on
+    demand” buys: writing back out is mostly copying bytes that were never transformed, which is
+    also why the round trip comes back byte for byte. (At nanosecond scale the run-to-run noise is
+    real: an immediate re-run of the render group gave 360 ns against this run’s 408 ns, so treat
+    the nanosecond rows as a scale, not a point.)
   </p>
   <h3>Use paths, not the tree — this is the useful one</h3>
   <p>
     Reading two fields from the large message costs about 4 µs. Building its whole tree costs
-    1.50 ms: <strong>nearly 400 times more</strong>. An integration that wants a handful of fields
+    1.54 ms: <strong>nearly 400 times more</strong>. An integration that wants a handful of fields
     should reach for <a href="/guides/navigating/">paths</a> and never materialise the tree.
   </p>
   <h3>The tree on a large message is the slowest thing here</h3>

@@ -15,26 +15,32 @@ summary a person lands on from the repository root.
 **Machine:** Apple M4 Max, 128 GB, macOS 26.6.1, arm64.
 **Toolchain:** rustc 1.98.0 (88d9e12ae 2026-08-18), release profile.
 **Date:** 2026-08-26.
-**Crates:** `hl7-2` 0.2.3 over `er7` 0.1.2 — the versions the figures
-were measured on. Releases since have changed documentation, lints, and
-metadata only; nothing has touched a measured code path, so the numbers
-stand until something does.
+**Crates:** `hl7-2` 0.2.6 over `er7` 0.1.1 (the version `Cargo.lock`
+pins) — the current crates.io release, so the figures are the code you
+would install today.
 **Method:** `cargo bench -p hl7-2`, Criterion defaults, machine otherwise
 idle. Time is Criterion's point estimate; the interval is its confidence
 interval, reported rather than quietly dropped.
 
 | Group | Input | Time | Interval | Throughput |
 |---|---|---|---|---|
-| `parse` | small, 177 B | 3.00 µs | 2.97 – 3.04 µs | 56.3 MiB/s |
-| `parse` | large, 29,104 B | 381 µs | 376 – 388 µs | 72.8 MiB/s |
-| `get` | small, `PID-5.1` | 110 ns | 108 – 112 ns | — |
-| `get` | large, `OBX[200]-5` | 1.94 µs | 1.91 – 1.97 µs | — |
-| `tree` | small | 13.4 µs | 13.3 – 13.6 µs | — |
-| `tree` | large | 1.50 ms | 1.49 – 1.52 ms | — |
-| `validate` | small | 6.95 µs | 6.87 – 7.06 µs | — |
-| `validate` | large | 633 µs | 628 – 640 µs | — |
-| `render` | small, 177 B | 365 ns | 360 – 372 ns | 463 MiB/s |
-| `render` | large, 29,104 B | 29.4 µs | 28.9 – 30.1 µs | 944 MiB/s |
+| `parse` | small, 177 B | 2.99 µs | 2.98 – 2.99 µs | 56.5 MiB/s |
+| `parse` | large, 29,104 B | 387 µs | 386 – 389 µs | 71.6 MiB/s |
+| `get` | small, `PID-5.1` | 123 ns | 122 – 123 ns | — |
+| `get` | large, `OBX[200]-5` | 1.90 µs | 1.88 – 1.92 µs | — |
+| `tree` | small | 14.0 µs | 13.9 – 14.2 µs | — |
+| `tree` | large | 1.54 ms | 1.54 – 1.55 ms | — |
+| `validate` | small | 7.15 µs | 7.13 – 7.17 µs | — |
+| `validate` | large | 655 µs | 653 – 657 µs | — |
+| `render` | small, 177 B | 408 ns | 406 – 410 ns | 414 MiB/s |
+| `render` | large, 29,104 B | 28.5 µs | 28.3 – 28.6 µs | 975 MiB/s |
+
+One row deserves a variance note rather than silence: `render` on the
+small message gave 408 ns in this run and 360 ns in an immediate re-run
+of the same group on the same build — a 13% swing between runs minutes
+apart that changed nothing. At sub-microsecond scale the run-to-run noise
+on a laptop exceeds the 5% rule of thumb below; treat the nanosecond rows
+as a scale, not a point.
 
 The conversion crates carry their own `benches/convert.rs`, measuring one
 conversion end to end — the right shape for them, because a conversion
@@ -49,13 +55,13 @@ real HL7® interface the network, the database, and the downstream system
 decide the throughput. Choosing a library on parse speed is optimising the
 wrong number.
 
-**Rendering is about eight times cheaper than parsing** — 365 ns against
-3.00 µs on the same message. That is what "stored as sent, decoded on
-demand" buys: writing back out is mostly copying bytes that were never
+**Rendering is seven to eight times cheaper than parsing** — about 0.4 µs
+against 2.99 µs on the same message. That is what "stored as sent, decoded
+on demand" buys: writing back out is mostly copying bytes that were never
 transformed, which is also why the round trip comes back byte for byte.
 
 **Use paths, not the tree.** Reading two fields from the large message
-costs about 4 µs. Building its whole tree costs 1.50 ms — nearly 400 times
+costs about 4 µs. Building its whole tree costs 1.54 ms — nearly 400 times
 more. An integration that wants a handful of fields should use paths and
 never materialize the tree. This is the most useful line in this document.
 

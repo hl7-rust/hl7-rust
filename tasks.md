@@ -131,8 +131,15 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       versions independently.
 - [ ] Add a DOI to `CITATION.cff` once a Zenodo deposit exists (needs the
       owner's Zenodo account).
-- [ ] Refresh BENCHMARKS.md against the released crate versions or mark its
-      figures as historical (it cites `hl7-2` 0.2.3; released is 0.2.5).
+- [x] Refresh BENCHMARKS.md against the released crate versions or mark its
+      figures as historical (it cited `hl7-2` 0.2.3; released is 0.2.6) —
+      done 2026-08-26: the Criterion suite was re-run on `hl7-2` 0.2.6
+      (`cargo bench -p hl7-2`, same machine and toolchain), and
+      BENCHMARKS.md, `spec/benchmark/index.md`, and the website page all
+      carry the new figures. The re-run also caught and corrected a wrong
+      claim: the old table said the figures were over `er7` 0.1.2, but
+      `Cargo.lock` has pinned 0.1.1 in every revision — the measurement was
+      of 0.1.1.
 
 ### Audit and harmonization
 

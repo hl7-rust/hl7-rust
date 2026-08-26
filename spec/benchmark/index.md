@@ -113,37 +113,46 @@ that changed nothing.
 
 **Machine:** Apple M4 Max, 128 GB, macOS 26.6.1, arm64.
 **Toolchain:** rustc 1.98.0 (88d9e12ae 2026-08-18), release profile.
-**Date:** 2026-08-26. **Crate:** `hl7-2` 0.2.3, `er7` 0.1.2.
+**Date:** 2026-08-26. **Crate:** `hl7-2` 0.2.6, `er7` 0.1.1.
 **Method:** `cargo bench -p hl7-2`, Criterion defaults, machine otherwise
 idle.
 
+(An earlier revision of this table, measured the same day on `hl7-2`
+0.2.3, named `er7` 0.1.2; `Cargo.lock` pinned 0.1.1 then too, so the
+version cited was wrong while the measurement itself was of 0.1.1.)
+
 | Group | Input | Time | Throughput |
 |---|---|---|---|
-| `parse` | small, 177 B | 3.00 µs | 56.3 MiB/s |
-| `parse` | large, 29,104 B | 381 µs | 72.8 MiB/s |
-| `get` | small, `PID-5.1` | 110 ns | — |
-| `get` | large, `OBX[200]-5` | 1.94 µs | — |
-| `tree` | small | 13.4 µs | — |
-| `tree` | large | 1.50 ms | — |
-| `validate` | small | 6.95 µs | — |
-| `validate` | large | 633 µs | — |
-| `render` | small, 177 B | 365 ns | 463 MiB/s |
-| `render` | large, 29,104 B | 29.4 µs | 944 MiB/s |
+| `parse` | small, 177 B | 2.99 µs | 56.5 MiB/s |
+| `parse` | large, 29,104 B | 387 µs | 71.6 MiB/s |
+| `get` | small, `PID-5.1` | 123 ns | — |
+| `get` | large, `OBX[200]-5` | 1.90 µs | — |
+| `tree` | small | 14.0 µs | — |
+| `tree` | large | 1.54 ms | — |
+| `validate` | small | 7.15 µs | — |
+| `validate` | large | 655 µs | — |
+| `render` | small, 177 B | 408 ns | 414 MiB/s |
+| `render` | large, 29,104 B | 28.5 µs | 975 MiB/s |
 
 Criterion's confidence intervals for the same run, lower and upper:
 
 | Group | Input | Interval |
 |---|---|---|
-| `parse` | small | 2.97 – 3.04 µs |
-| `parse` | large | 376 – 388 µs |
-| `get` | small | 108 – 112 ns |
-| `get` | large | 1.91 – 1.97 µs |
-| `tree` | small | 13.3 – 13.6 µs |
-| `tree` | large | 1.49 – 1.52 ms |
-| `validate` | small | 6.87 – 7.06 µs |
-| `validate` | large | 628 – 640 µs |
-| `render` | small | 360 – 372 ns |
-| `render` | large | 28.9 – 30.1 µs |
+| `parse` | small | 2.98 – 2.99 µs |
+| `parse` | large | 386 – 389 µs |
+| `get` | small | 122 – 123 ns |
+| `get` | large | 1.88 – 1.92 µs |
+| `tree` | small | 13.9 – 14.2 µs |
+| `tree` | large | 1.54 – 1.55 ms |
+| `validate` | small | 7.13 – 7.17 µs |
+| `validate` | large | 653 – 657 µs |
+| `render` | small | 406 – 410 ns |
+| `render` | large | 28.3 – 28.6 µs |
+
+`render` small also shows what run-to-run noise looks like at nanosecond
+scale: an immediate re-run of the same group on the same build gave
+358 – 361 ns, a 13% swing between runs that changed nothing. Treat the
+nanosecond rows as a scale, not a point.
 
 ## Reading those figures
 
@@ -155,10 +164,10 @@ order of 300,000 small ADTs a second. For essentially every real HL7®
 interface, parsing is not the bottleneck — the network, the database, and
 the downstream system are.
 
-**Rendering is roughly eight times cheaper than parsing** (365 ns against
-3.00 µs on the small message), which is what "stored as sent, decoded on
-demand" buys: writing back out is mostly copying bytes that were never
-transformed.
+**Rendering is seven to eight times cheaper than parsing** (about 0.4 µs
+against 2.99 µs on the small message), which is what "stored as sent,
+decoded on demand" buys: writing back out is mostly copying bytes that
+were never transformed.
 
 **`get` is the cheap path and `tree` is the expensive one.** Reading two
 fields from the large message costs about 4 µs; building its whole tree
