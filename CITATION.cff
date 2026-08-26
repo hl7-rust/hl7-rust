@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+title: 'HL7 for Rust: parse, navigate, validate, modify, and render HL7 messages'
+message: >-
+  If you use this work and you want to cite it,
+  then you can use the metadata from this file.
+type: software
+authors:
+  - given-names: Joel Parker
+    family-names: Henderson
+    email: joel@joelparkerhenderson.com
+    affiliation: joelparkerhenderson.com
+    orcid: 'https://orcid.org/0009-0000-4681-282X'
+identifiers:
+  - type: url
+    value: 'https://github.com/hl7-rust/hl7-rust/'
+    description: 'HL7 for Rust: the Cargo workspace holding every crate in the project'
+  - type: url
+    value: 'https://hl7-rust.github.io'
+    description: 'HL7 for Rust: documentation, guides, tutorials, and examples'
+repository-code: 'https://github.com/hl7-rust/hl7-rust/'
+url: 'https://hl7-rust.github.io'
+abstract: >-
+  A Cargo workspace of Rust crates that parse, navigate, validate, modify,
+  and render Health Level Seven (HL7) messages. One crate per layer, one
+  module per standard: HL7 v2 releases 2.1 through 2.9 in the ER7
+  pipe-delimited encoding, transports for MLLP over TCP and SOAP over HTTP,
+  conversions between ER7 and both v2.xml and JSON, and an HL7 v3
+  foundation of RIM backbone classes and the three-level message envelope.
+keywords:
+  - hl7
+  - hl7-v2
+  - er7
+  - healthcare
+  - health-informatics
+  - interoperability
+  - mllp
+  - rust
+license:
+  - MIT
+  - Apache-2.0
+  - BSD-3-Clause
+  - GPL-2.0-only
+  - GPL-3.0-only

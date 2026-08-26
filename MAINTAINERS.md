@@ -1,0 +1,116 @@
+# Maintainers and access continuity
+
+This file is the roster, and the honest answer to the question a
+procurement review asks about any software that will touch patient data:
+*what happens if the person who can ship a fix is unavailable?*
+
+It is deliberately not aspirational. Everything below describes the project
+as it is on the day you read it in git history, not a structure the project
+hopes to grow into.
+
+## Roster
+
+| Person | GitHub | Contact | Role | Since |
+|---|---|---|---|---|
+| Joel Parker Henderson | [@joelparkerhenderson](https://github.com/joelparkerhenderson) | <joel@joelparkerhenderson.com> | Maintainer (sole) | 2026-08-19 |
+
+ORCID: <https://orcid.org/0009-0000-4681-282X>. The date is when this
+workspace was assembled and first published; the crates it absorbed are
+older, and their histories are still walkable under their own directories.
+
+**The bus factor of this project is one.** There is exactly one person who
+can accept a pull request, publish a release, or change a repository
+setting. No second maintainer exists, no organisation stands behind the
+project, and no legal entity is a party to it. The GitHub organisation
+`hl7-rust` is an organisation in the GitHub sense only — it exists because
+an organisation Pages site must be served from an org-owned repository, not
+because there is a group behind it.
+
+Everything else in this file follows from that sentence, and no wording
+elsewhere in the repository should be read as softening it.
+
+## Publishing identities and where they live
+
+These are the credentials and configured identities that can put bytes in
+front of a user. Naming them is the point: an inventory nobody has written
+down is an inventory nobody can hand over.
+
+| Identity | What it publishes | Held by | Recovery if the holder is unavailable |
+|---|---|---|---|
+| The GitHub organisation `hl7-rust` and its owner account | The repository, its issues, its settings | The maintainer's GitHub account, as sole owner | None. GitHub's account-recovery process is the only route, and it is between GitHub and the account holder. |
+| A crates.io API token | All fourteen crates | The maintainer, on his own machine | The crates.io owner list is the recovery surface, and it is the maintainer's account. |
+| An SSH key | Pushes to GitHub, and to the GitLab and Codeberg mirrors, which `origin` fans out to on one `git push` | The maintainer, on his own hardware | None; the key is not escrowed. A successor would use their own. |
+| The same SSH key, via `make publish` | <https://hl7-rust.github.io> — the website, pushed by `git subtree split` into the `hl7-rust.github.io` repository, which deploys it | The maintainer | As above. Deliberately *not* a CI credential: a workflow doing this would need a token able to write another repository's workflow file, and GitHub refuses that. |
+
+**The honest reading of that table:** every publishing identity terminates
+at one person's GitHub account or one person's hardware. There is no
+Trusted Publishing, no signing key escrow, and no second holder anywhere.
+That is the residual risk, and it is stated rather than mitigated, because
+no mitigation is available to a one-person project without a legal entity
+behind it.
+
+**Commits and tags are not cryptographically signed.** Said plainly because
+a reviewer will check, and an absent signature discovered later reads worse
+than one disclosed here. Authorship rests on the GitHub account and the
+committer identity in the history.
+
+## What is not here yet
+
+Named rather than quietly omitted, because their absence is itself
+information for an evaluation:
+
+- **No `SECURITY.md`,** and so no published disclosure window. Report a
+  vulnerability privately to <joel@joelparkerhenderson.com>. There is no
+  committed response-time promise, and inventing one nobody is on call to
+  meet would be worse than saying this.
+- **No `GOVERNANCE.md`,** because there is no governance to describe: one
+  person decides. If a second maintainer joins, that changes, and the
+  document describing it will be written then rather than now.
+- **No CI in this repository.** No workflow runs the tests, the lints, or a
+  release. The gates in [`CONTRIBUTING.md`](CONTRIBUTING.md) are real and
+  are run, but they are run on a laptop, and nothing enforces them on a
+  pull request. This is a genuine gap.
+- **No release signing, no SBOM, no reproducible-build attestation.**
+
+## If the maintainer is unavailable
+
+There is no succession plan that a document can create. What exists
+instead:
+
+- **Nothing already published disappears.** Crates.io releases are
+  immutable and cannot be unpublished, only yanked — which needs the owner
+  anyway. A deployment already running is unaffected by maintainer
+  availability, and these crates fetch nothing at run time, so nothing
+  degrades on its own.
+- **Nothing new ships.** No release, no fix, no dictionary coverage, no
+  security patch.
+- **The work is not lost.** The licence is five-way permissive-or-copyleft
+  at your option, the history is public and mirrored on three hosts, every
+  behavioral rule is written down in a numbered `spec/index.md`, and every
+  claim the project makes about itself is in
+  [`spec/conformance/index.md`](spec/conformance/index.md),
+  [`spec/phi/index.md`](spec/phi/index.md), and
+  [`spec/benchmark/index.md`](spec/benchmark/index.md). A fork is a
+  complete and legitimate continuation, and the project's position is that
+  it should be taken rather than waited on. The specs exist substantially
+  so that a fork can be maintained by someone who never spoke to the
+  author.
+
+If you depend on this software in a clinical setting and that position is
+not acceptable to you — it reasonably may not be — the mitigation is on
+your side of the boundary: pin a version, keep a fork you can build, and
+budget for maintaining it. That is a truthful answer, and more useful than
+a continuity plan with nobody behind it.
+
+## Adding a maintainer
+
+There is no formal route yet, which is the honest statement rather than a
+closed door. In practice it starts the way it always does: sustained,
+reviewed contributions, and a conversation. Dictionary coverage is the most
+useful place to begin — see [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+When someone takes it, this file gains a row, `CODEOWNERS` gains their
+identity on the areas they own, the table above gains a second holder
+wherever the identity permits one, and a `GOVERNANCE.md` gets written
+because at that point there is something to govern. Those are the whole
+mechanism.

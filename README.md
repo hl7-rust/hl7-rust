@@ -1,5 +1,7 @@
 # HL7 for Rust
 
+> HL7® is the registered trademark of Health Level Seven International, and we are requesting permission to use it here. Use of the HL7 trademark does not constitute endorsement of this library by HL7.
+
 A Cargo workspace: parse, navigate, validate, modify, and render Health
 Level Seven (HL7) messages in Rust. One crate per layer, one module per
 standard.
@@ -74,6 +76,43 @@ cargo test
 
 One `Cargo.lock` at the workspace root covers all members; a crate does not
 carry its own.
+
+## Workspace documents
+
+Each crate carries its own `README.md` and, where behavior is normative, a
+`spec/index.md`. These sit above them and are true of the workspace rather
+than of one member.
+
+**Start here:**
+
+| document | what it answers |
+|---|---|
+| [`INSTALL.md`](INSTALL.md) | How to install and use it, as a command line or as a library |
+| [`CHANGELOG.md`](CHANGELOG.md) | What changed, change by change, with the crate versions that carried it |
+| [`NEWS.md`](NEWS.md) | Announcements, project status, where updates appear, and press contacts |
+| [`COMPARISONS.md`](COMPARISONS.md) | Interface engines, HAPI, the other Rust crates — and when this project is the wrong answer |
+| [`BENCHMARKS.md`](BENCHMARKS.md) | Measured figures and the method that produced them |
+
+**Before you adopt it, or review it:**
+
+| document | what it settles |
+|---|---|
+| [`spec/conformance/index.md`](spec/conformance/index.md) | What "supports HL7 v2 releases 2.1-2.9" means, exactly — segments, types, and structures by name, and what happens outside them |
+| [`spec/phi/index.md`](spec/phi/index.md) | What these crates do with protected health information, what they never do, and where a value can escape into a log |
+| [`spec/benchmark/index.md`](spec/benchmark/index.md) | The rules that govern how performance figures are produced and published |
+| [`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md) | The minimum supported Rust version policy every member pins to |
+| [`MAINTAINERS.md`](MAINTAINERS.md) | Who maintains this, what the bus factor is, and what happens if that person is unavailable |
+| [`AI_STATEMENT.md`](AI_STATEMENT.md) | How AI tools are used to build this, who is accountable, and the limits that survive it |
+| [`LICENSE.md`](LICENSE.md) | The five-way license choice, its SPDX expression, and what it does not cover |
+
+**If you want to contribute:** [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to
+file a report, what a change has to pass, and never pasting patient data.
+
+**If you want to cite it:** `CITATION.cff` carries the metadata, including
+an ORCID.
+
+Run the benchmarks with `cargo bench`, or `cargo bench -p hl7-2` for the
+five core operations.
 
 ## Website
 
