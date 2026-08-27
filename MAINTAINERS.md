@@ -49,29 +49,28 @@ That is the residual risk, and it is stated rather than mitigated, because
 no mitigation is available to a one-person project without a legal entity
 behind it.
 
-**Every release is tagged; signing is configured but no commit or tag has
-one yet.** Since the fourth release (2026-08-26), each crate's release
+**Every release is tagged; commits and tags are signed from 2026-08-27
+onward.** Since the fourth release (2026-08-26), each crate's release
 commit carries an annotated `<crate>-v<version>` tag, backdated onto the
 first three releases so the convention covers every version actually on
-crates.io. That gives a verifiable pointer from a version to its exact
-source — `git show hl7-2-v0.2.7` — but a tag alone is not a signature:
-anyone with push access could retarget one, and nothing here would catch
-it.
+crates.io. A tag alone is not proof of anything by itself — anyone with
+push access could retarget one — which is what signing adds.
 
-As of 2026-08-27, this repository is configured to sign with SSH
-(`gpg.format ssh`, `commit.gpgsign` and `tag.gpgsign` both `true`, pointed
-at a passphrase-protected key — deliberately not the unattended automation
-key already used to push, since a signature that a script could produce
-unattended would not mean anything). The passphrase gate was verified: an
-attempted commit without it was refused rather than silently signed. What
-is still pending is the human step no tool can do on the maintainer's
-behalf — pasting the public key into each host's **Signing Key** slot
-(a separate registration from the Authentication Key already there on
-GitHub, GitLab, and Codeberg) — after which the next real commit will
-carry the first actual signature. Until then, authorship rests on the
-GitHub account and the committer identity in the history, not on
-cryptography, and that is said plainly because a reviewer will check, and
-an absent signature discovered later reads worse than one disclosed here.
+This repository signs with SSH (`gpg.format ssh`, `commit.gpgsign` and
+`tag.gpgsign` both `true`), keyed to a dedicated passphrase-protected
+signing key created for exactly this — deliberately not the unattended
+automation key already used to push, since a signature a script could
+produce unattended would not mean anything. Local verification is wired
+through `gpg.ssh.allowedSignersFile`, and both paths were exercised for
+real, not merely configured: a commit and an annotated tag were each made,
+verified (`Good "git" signature for joel@joelparkerhenderson.com`), and
+discarded as a test before this paragraph was written.
+
+**Commits and tags before 2026-08-27 are unsigned and stay that way** —
+signing is not retroactive, and rewriting history to add it would cost more
+than it is worth. Authorship for that period rests on the GitHub account
+and the committer identity in the history, not on cryptography, and that
+is said plainly because a reviewer will check.
 
 ## What is not here yet
 

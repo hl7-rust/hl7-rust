@@ -53,25 +53,28 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       tags (14 crates × 4 releases) exist and are pushed to all three
       remotes — `git show hl7-2-v0.2.7` and its three predecessors all
       resolve.
-      **Signing is configured, 2026-08-27, first real signature still
-      pending the owner:** `gpg.format ssh`, `commit.gpgsign`/`tag.gpgsign`
-      both `true`, keyed to a dedicated passphrase-protected signing key
-      (`~/.ssh/id.d/jph-code-signing=...`, created for exactly this rather
-      than reusing a general-purpose identity key) — deliberately not the
-      unattended automation key already used to push, since an unattended
-      signature would not mean anything. A local `allowed_signers` file is
-      wired via `gpg.ssh.allowedSignersFile` for local verification. The
-      gate was exercised twice — once against the identity key first
-      proposed, again after switching to the dedicated key — and both times
-      an attempted commit without the passphrase was refused (`error: ...
-      incorrect passphrase supplied`) rather than silently signed or
-      silently skipped. What is left is the one step no tool can do for the
-      maintainer — registering the public key as a
-      **Signing Key** (a separate slot from the Authentication Key already
-      present) on GitHub, GitLab, and Codeberg, none of which had CLI
-      tooling authenticated here (`glab`, `tea` both absent) to do it any
-      other way. MAINTAINERS.md's tagging/signing paragraph rewritten to
-      describe this exact state rather than "nothing is signed."
+      **Signing is live, 2026-08-27:** `gpg.format ssh`,
+      `commit.gpgsign`/`tag.gpgsign` both `true`, keyed to a dedicated
+      passphrase-protected signing key (`~/.ssh/id.d/jph-code-signing=...`,
+      created for exactly this rather than reusing a general-purpose
+      identity key) — deliberately not the unattended automation key
+      already used to push, since an unattended signature would not mean
+      anything. A local `allowed_signers` file is wired via
+      `gpg.ssh.allowedSignersFile` for local verification. The gate was
+      exercised three times before the key was loaded — twice attempting a
+      commit with no key in the agent (once against the identity key first
+      proposed, again after switching to the dedicated key), and each time
+      git refused rather than silently signing — and once for real: with
+      the key loaded via `ssh-add --apple-use-keychain` (macOS's system
+      `/usr/bin/ssh-add`, not the Homebrew one earlier on `PATH`, which
+      lacks the flag), both a test commit and a test annotated tag produced
+      a verified local signature (`Good "git" signature for
+      joel@joelparkerhenderson.com`), then were discarded. Registering the
+      public key as a **Signing Key** on GitHub, GitLab, and Codeberg
+      (separate from the Authentication Key already present) is still the
+      maintainer's step for the hosts to show a verified badge; local
+      signing and verification no longer wait on it. MAINTAINERS.md's
+      tagging/signing paragraph rewritten to describe this exact state.
 - [x] Add dependency auditing (`cargo deny` covering advisories, licenses,
       bans, sources — the `fhir-rust` `fhir-security.yml` is the family
       pattern) on push plus a weekly cron — done 2026-08-26: `deny.toml`
