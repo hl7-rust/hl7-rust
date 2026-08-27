@@ -47,17 +47,28 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       -D warnings`, `fmt --check`, and the 1.95 MSRV check all passing.
       SECURITY.md's claim and its "known gaps" entry updated in the same
       change.
-- [ ] Sign commits and tags going forward (needs the owner's keys — genuinely
-      blocked, not deferred). **Tagging is done, 2026-08-27:** the fourth
-      release's tag convention (`<crate>-v<version>`, annotated) was
-      backfilled onto the first three release commits too, so all 56 tags
-      (14 crates × 4 releases) exist and are pushed to all three remotes —
-      `git show hl7-2-v0.2.7` and its three predecessors all resolve.
-      MAINTAINERS.md's tagging/signing paragraph updated in the same change
-      to describe what tagging does and does not give you: a verifiable
-      pointer from a version to its exact source, not a signature — anyone
-      with push access could still retarget a tag, and nothing here would
-      catch it.
+- [ ] Sign commits and tags going forward. **Tagging is done, 2026-08-27:**
+      the fourth release's tag convention (`<crate>-v<version>`, annotated)
+      was backfilled onto the first three release commits too, so all 56
+      tags (14 crates × 4 releases) exist and are pushed to all three
+      remotes — `git show hl7-2-v0.2.7` and its three predecessors all
+      resolve.
+      **Signing is configured, 2026-08-27, first real signature still
+      pending the owner:** `gpg.format ssh`, `commit.gpgsign`/`tag.gpgsign`
+      both `true`, keyed to the maintainer's existing passphrase-protected
+      SSH key — deliberately not the unattended automation key already used
+      to push, since an unattended signature would not mean anything. A
+      local `allowed_signers` file is wired via
+      `gpg.ssh.allowedSignersFile` for local verification. The gate was
+      exercised, not assumed: an attempted commit without the passphrase
+      was refused (`error: ... incorrect passphrase supplied`) rather than
+      silently signed or silently skipped. What is left is the one step no
+      tool can do for the maintainer — registering the public key as a
+      **Signing Key** (a separate slot from the Authentication Key already
+      present) on GitHub, GitLab, and Codeberg, none of which had CLI
+      tooling authenticated here (`glab`, `tea` both absent) to do it any
+      other way. MAINTAINERS.md's tagging/signing paragraph rewritten to
+      describe this exact state rather than "nothing is signed."
 - [x] Add dependency auditing (`cargo deny` covering advisories, licenses,
       bans, sources — the `fhir-rust` `fhir-security.yml` is the family
       pattern) on push plus a weekly cron — done 2026-08-26: `deny.toml`
