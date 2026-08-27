@@ -72,6 +72,13 @@ than it is worth. Authorship for that period rests on the GitHub account
 and the committer identity in the history, not on cryptography, and that
 is said plainly because a reviewer will check.
 
+The signing key is registered as a Signing Key on GitHub and GitLab, both
+of which show the first signed commit as verified via their own APIs — not
+just locally. It is not yet registered on Codeberg: that mirror has the
+same signature (a signed commit carries its signature to every remote it
+is pushed to) but reports it unverified, `gpg.error.no_gpg_keys_found`,
+until the key is added there too.
+
 ## What is not here yet
 
 Named rather than quietly omitted, because their absence is itself

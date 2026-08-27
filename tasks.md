@@ -69,12 +69,17 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       `/usr/bin/ssh-add`, not the Homebrew one earlier on `PATH`, which
       lacks the flag), both a test commit and a test annotated tag produced
       a verified local signature (`Good "git" signature for
-      joel@joelparkerhenderson.com`), then were discarded. Registering the
-      public key as a **Signing Key** on GitHub, GitLab, and Codeberg
-      (separate from the Authentication Key already present) is still the
-      maintainer's step for the hosts to show a verified badge; local
-      signing and verification no longer wait on it. MAINTAINERS.md's
-      tagging/signing paragraph rewritten to describe this exact state.
+      joel@joelparkerhenderson.com`), then were discarded. The first real
+      signed commit landed and was pushed to all three remotes; checked
+      against each host's own API rather than assumed. **GitHub: verified**
+      (`verification.verified: true, reason: "valid"`). **GitLab:
+      verified** (`verification_status: "verified"`, key titled
+      `jph-code-signing`). **Codeberg: not yet** — the same signature
+      reached it (a signed commit carries its signature everywhere it is
+      pushed) but the API reports `gpg.error.no_gpg_keys_found`; the public
+      key has not been registered there. That is the one remaining step,
+      and it is Codeberg-only now. MAINTAINERS.md's tagging/signing
+      paragraph rewritten to describe this exact, per-host state.
 - [x] Add dependency auditing (`cargo deny` covering advisories, licenses,
       bans, sources — the `fhir-rust` `fhir-security.yml` is the family
       pattern) on push plus a weekly cron — done 2026-08-26: `deny.toml`
