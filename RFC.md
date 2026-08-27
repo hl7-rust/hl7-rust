@@ -231,24 +231,30 @@ standards body's mark in its name and asked, what happened? — and
 preference: as a user, would you rather see a rename land early and once,
 or only if forced?
 
-## 12. What does a legal review need to know about the dictionary data?
+## 12. Is the dictionary data's provenance statement good enough?
 
 **The question.** The bundled release dictionaries,
 `hl7-2/schemas/v2.1.json` through `v2.9.json`, describe HL7® v2 segments,
-data types, and message structures. [`plan.md`](plan.md) §Open decisions
-records the gap: their provenance — what source the table content derives
-from, under what terms — is currently traced no further than the sibling
-crates' copies of the same files, and a provenance statement is the kind
-of artifact a hospital legal review asks for first.
+data types, and message structures.
+[`spec/schema-data-provenance/index.md`](spec/schema-data-provenance/index.md)
+now traces them as far back through git history as the trail goes — to a
+founding commit that cites no source — and states plainly that the trail
+ends there. No HL7® file is vendored anywhere in this workspace, and the
+document gives the idea/expression reasoning most open HL7® implementations
+rely on for why that matters.
 
-**Why it is open.** The maintainer can and should write down the chain of
-derivation; what an outsider knows better is the bar. Reviews differ on
-whether facts-of-the-standard tables need a licence statement at all, and
-on what form of statement satisfies them.
+**Why it is open.** Writing the document closed the "where does this claim
+come from" gap; it did not close the "is this legally sufficient" question,
+because that answer belongs to whoever is reviewing it, not to the project
+describing itself. The document says outright that a reviewer requiring
+HL7® membership or a licensed XSD as the basis for any table will not be
+satisfied by it, and offers the XSD-generator path as the alternative for
+that reviewer.
 
 **What would settle it.** If this project has been through your legal or
-procurement review: did the bundled schema data come up, what did the
-review ask for, and what answer sufficed?
+procurement review: did the provenance document hold up, what did the
+review ask for beyond it, and what would have made the answer complete on
+the first pass?
 
 ## Decided, and not looking for comment
 

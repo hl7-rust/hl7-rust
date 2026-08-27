@@ -42,13 +42,16 @@ posture. Open items for each are in `tasks.md`.
 
 2. **Compliance — licensing and trademarks.** The fair-use work is done for
    the word marks (® on first use per page, the disclaimer footer, per
-   `spec/hl7-trademarks-fair-use/`), but three things remain: the org name,
+   `spec/hl7-trademarks-fair-use/`), but one thing remains: the org name,
    crate names, and domain use the HL7 mark beyond fair use, and the written
-   permission request (sent 2026-08-25) has no answer yet; and
-   of the two provable compliance artifacts a legal review asks for, one is
-   now present (`LICENSES/` with all five full license texts, 2026-08-26)
-   and one is still missing (a provenance statement for the bundled
-   `hl7-2/schemas/v2.*.json` table data). The trademark rules are checked by
+   permission request (sent 2026-08-25) has no answer yet. Both provable
+   compliance artifacts a legal review asks for are now present:
+   `LICENSES/` with all five full license texts (2026-08-26), and
+   `spec/schema-data-provenance/index.md` for the bundled
+   `hl7-2/schemas/v2.*.json` table data (2026-08-27), which traces the
+   tables through the `git subtree`-preserved history of the two former
+   standalone repositories to their founding commit and states plainly that
+   the commit cites no source. The trademark rules are checked by
    `bin/check-trademarks` in CI as of 2026-08-26.
 
 3. **Security and supply chain.** SECURITY.md is substantive and honest. What
@@ -87,9 +90,13 @@ posture. Open items for each are in `tasks.md`.
 - **HL7 written permission.** The request was sent 2026-08-25; the reply is
   pending. If HL7 declines, the org/crate/domain naming question reopens —
   which is why outreach stays gated on the answer, not on the sending.
-- **Schema data provenance.** State where `hl7-2/schemas/v2.1–2.9.json` table
-  content came from and under what terms, or replace it with content whose
-  terms are stated. A hospital legal review asks this first.
+- ~~**Schema data provenance.**~~ Written 2026-08-27:
+  `spec/schema-data-provenance/index.md` traces the tables through the
+  `git subtree`-preserved history of the former standalone repositories to
+  their founding commit, states that no HL7® file is vendored anywhere in
+  this workspace, and states plainly that the founding commit itself cites
+  no source. Whether that is *sufficient* for a given legal review is now
+  RFC.md §12's question, not an undocumented gap.
 - ~~**CI hosting shape.**~~ Decided 2026-08-26: one workflow at the root
   covering the whole workspace (`.github/workflows/ci.yml`, the `fhir-rust`
   pattern). Nothing here needs engine containers.

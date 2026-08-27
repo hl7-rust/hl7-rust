@@ -180,9 +180,9 @@
   </p>
   <h2 id="workspace">The workspace's own specs</h2>
   <p>
-    Four specs sit outside any crate, because what they state is true of the whole workspace rather
-    than of one member. Each has a page on this site summarising it, and the spec is the normative
-    version.
+    Several specs sit outside any crate, because what they state is true of the whole workspace
+    rather than of one member. The five below have a page on this site summarising them, and the
+    spec is the normative version in every case.
   </p>
   <dl>
     <dt>
@@ -216,7 +216,24 @@
       The minimum supported Rust version policy every member pins to. See
       <a href="/docs/versions/">Versions and compatibility</a> for what it means in practice.
     </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/schema-data-provenance/index.md`}
+        ><code>spec/schema-data-provenance/index.md</code></a
+      >
+    </dt>
+    <dd>
+      Where the bundled dictionary data in <code>hl7-2/schemas/*.json</code> came from, traced as far
+      back through git history as the trail goes — no HL7® file is vendored anywhere in this
+      workspace.
+    </dd>
   </dl>
+  <p>
+    A further set of specs — <code>hl7-trademarks-fair-use</code>, <code>professionalization</code>,
+    <code>docs-budget-and-links</code>, <code>serial-comma</code>, and
+    <code>special-files-for-public-repos</code> — govern this workspace's own repository practice
+    rather than the crates' behavior, and do not yet each have a page here; read them directly in the
+    repository's <a href={`${REPO}/tree/main/spec`}><code>spec/</code></a> directory.
+  </p>
 </DocPage>
 
 <style>

@@ -47,13 +47,17 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       -D warnings`, `fmt --check`, and the 1.95 MSRV check all passing.
       SECURITY.md's claim and its "known gaps" entry updated in the same
       change.
-- [ ] Tag releases and sign commits/tags going forward; record the change of
-      posture in MAINTAINERS.md (which currently says nothing is signed).
-      **Tagging half started 2026-08-26:** the fourth release carries one
-      annotated `<crate>-v<version>` tag per crate at the release commit
-      (the `fhir-rust` `spec/git-tags-name-published-versions/` convention);
-      the first three releases remain untagged, and signing — the half that
-      needs the owner's keys — is still open.
+- [ ] Sign commits and tags going forward (needs the owner's keys — genuinely
+      blocked, not deferred). **Tagging is done, 2026-08-27:** the fourth
+      release's tag convention (`<crate>-v<version>`, annotated) was
+      backfilled onto the first three release commits too, so all 56 tags
+      (14 crates × 4 releases) exist and are pushed to all three remotes —
+      `git show hl7-2-v0.2.7` and its three predecessors all resolve.
+      MAINTAINERS.md's tagging/signing paragraph updated in the same change
+      to describe what tagging does and does not give you: a verifiable
+      pointer from a version to its exact source, not a signature — anyone
+      with push access could still retarget a tag, and nothing here would
+      catch it.
 - [x] Add dependency auditing (`cargo deny` covering advisories, licenses,
       bans, sources — the `fhir-rust` `fhir-security.yml` is the family
       pattern) on push plus a weekly cron — done 2026-08-26: `deny.toml`
@@ -107,9 +111,23 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       (The orphaned `__pycache__/tm.cpython-311.pyc` is gone and
       `__pycache__/` is now ignored; it was a stray from an ad-hoc helper
       script, not a checker worth restoring.)
-- [ ] State the provenance and terms of the bundled
-      `hl7-2/schemas/v2.1–2.9.json` table data (currently traced only to
-      sibling crates' copies at `hl7-2/spec/index.md:43`).
+- [x] State the provenance and terms of the bundled
+      `hl7-2/schemas/v2.1–2.9.json` table data — done 2026-08-27:
+      `spec/schema-data-provenance/index.md`. Traced through the `git
+      subtree`-preserved history of the two former standalone repositories
+      (one hop further than "sibling crates' copies," which is where
+      `hl7-2/spec/index.md:43` had left it) to the founding commit
+      `6afe87f`, which cites no source for the table content — stated as a
+      real gap rather than filled with a guess. States the idea/expression
+      legal reasoning, the terms (project license, no HL7® file vendored
+      anywhere in the workspace), and what would close the sourcing gap.
+      Linked from `hl7-2/spec/index.md` §0, the website `/spec/` page,
+      RFC.md §12, and `plan.md`'s open-decisions list, all updated in the
+      same change. The website `/spec/` page's own count of workspace specs
+      was stale before this ("Four specs" naming only four of what were
+      already ten `spec/` subdirectories); corrected to list five with
+      pages and name the other five as not yet paged — a smaller, adjacent
+      but real gap, not fully closed here.
 - [x] Add `LICENSES/` with the full text of all five licenses in the SPDX
       expression (REUSE convention; `fhir-rust/LICENSES/` is the model) —
       done 2026-08-26: five files copied from the `fhir-rust` model,

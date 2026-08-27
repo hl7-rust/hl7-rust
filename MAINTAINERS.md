@@ -49,10 +49,18 @@ That is the residual risk, and it is stated rather than mitigated, because
 no mitigation is available to a one-person project without a legal entity
 behind it.
 
-**Commits and tags are not cryptographically signed.** Said plainly because
+**Every release is tagged; nothing is cryptographically signed.** Since the
+fourth release (2026-08-26), each crate's release commit carries an
+annotated `<crate>-v<version>` tag, backdated onto the first three releases
+so the convention covers every version actually on crates.io. That gives a
+verifiable pointer from a version to its exact source — `git show
+hl7-2-v0.2.7` — but a tag is not a signature: anyone with push access could
+retarget one, and nothing here would catch it.
+
+Commits and tags are not cryptographically signed, and said plainly because
 a reviewer will check, and an absent signature discovered later reads worse
 than one disclosed here. Authorship rests on the GitHub account and the
-committer identity in the history.
+committer identity in the history, not on cryptography.
 
 ## What is not here yet
 

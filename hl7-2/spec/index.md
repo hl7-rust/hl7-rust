@@ -42,7 +42,10 @@ Anything about *what a segment or field means* belongs here.
 this crate as of its 0.5.0; the other three conversion crates still carry
 their own copies of the v2.5 tables. This crate's `schemas/v2.5.json` was
 generated from those copies and is table-for-table identical to them, which
-is what lets each of them move across in turn.
+is what lets each of them move across in turn. Where that content
+originally came from — no HL7® file is vendored anywhere in this workspace —
+is traced as far back as it goes in
+[`spec/schema-data-provenance/index.md`](../../spec/schema-data-provenance/index.md).
 
 A dictionary need not be hand-written or bundled:
 `hl7-2-from-xsd-into-json-dictionary` generates one from a directory of HL7
