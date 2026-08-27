@@ -181,8 +181,8 @@
   <h2 id="workspace">The workspace's own specs</h2>
   <p>
     Several specs sit outside any crate, because what they state is true of the whole workspace
-    rather than of one member. The five below have a page on this site summarising them, and the
-    spec is the normative version in every case.
+    rather than of one member. Ten today. The spec is the normative version in every case; the
+    entries below summarise them and link back.
   </p>
   <dl>
     <dt>
@@ -228,12 +228,61 @@
     </dd>
   </dl>
   <p>
-    A further set of specs — <code>hl7-trademarks-fair-use</code>, <code>professionalization</code>,
-    <code>docs-budget-and-links</code>, <code>serial-comma</code>, and
-    <code>special-files-for-public-repos</code> — govern this workspace's own repository practice
-    rather than the crates' behavior, and do not yet each have a page here; read them directly in the
-    repository's <a href={`${REPO}/tree/main/spec`}><code>spec/</code></a> directory.
+    The five above are about what the crates <em>do</em>. The five below are about how this
+    repository runs itself — its own practice, not the code's behavior — but the same rule applies:
+    the spec is the source of truth, and a root document that disagrees with one is the bug.
   </p>
+  <dl>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/hl7-trademarks-fair-use/index.md`}
+        ><code>spec/hl7-trademarks-fair-use/index.md</code></a
+      >
+    </dt>
+    <dd>
+      HL7®'s own fair-use rules for its word marks, quoted verbatim rather than paraphrased, and what
+      this project does to follow them — the disclaimer, ® on first use per page, and the “HL7® FHIR®
+      standard” naming. Summarised at <a href={`${REPO}/blob/main/TRADEMARKS.md`}
+        ><code>TRADEMARKS.md</code></a
+      >.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/professionalization/index.md`}
+        ><code>spec/professionalization/index.md</code></a
+      >
+    </dt>
+    <dd>
+      What “professional” means for this repository, binding the maintainer as much as any
+      contributor — a checked box in <code>tasks.md</code> means verified, a self-declared gap in
+      SECURITY.md or MAINTAINERS.md is a promise, and a countable claim is measured before it is
+      written.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/docs-budget-and-links/index.md`}
+        ><code>spec/docs-budget-and-links/index.md</code></a
+      >
+    </dt>
+    <dd>
+      A size budget and a link-integrity rule binding every markdown document this repository
+      tracks, checked by <code>bin/check-docs</code> in CI. Its first run found nine broken links in
+      a stray draft the same day it was adopted.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/serial-comma/index.md`}
+        ><code>spec/serial-comma/index.md</code></a
+      >
+    </dt>
+    <dd>English-language prose in this workspace uses the serial comma. That is the whole rule.</dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/special-files-for-public-repos/index.md`}
+        ><code>spec/special-files-for-public-repos/index.md</code></a
+      >
+    </dt>
+    <dd>
+      The canonical list of root-level files a public repository in this family carries —
+      <code>README.md</code> through <code>AI_STATEMENT.md</code> — and, as of this workspace, a
+      status section naming which ones exist here and which do not yet.
+    </dd>
+  </dl>
 </DocPage>
 
 <style>
