@@ -55,15 +55,18 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       resolve.
       **Signing is configured, 2026-08-27, first real signature still
       pending the owner:** `gpg.format ssh`, `commit.gpgsign`/`tag.gpgsign`
-      both `true`, keyed to the maintainer's existing passphrase-protected
-      SSH key — deliberately not the unattended automation key already used
-      to push, since an unattended signature would not mean anything. A
-      local `allowed_signers` file is wired via
-      `gpg.ssh.allowedSignersFile` for local verification. The gate was
-      exercised, not assumed: an attempted commit without the passphrase
-      was refused (`error: ... incorrect passphrase supplied`) rather than
-      silently signed or silently skipped. What is left is the one step no
-      tool can do for the maintainer — registering the public key as a
+      both `true`, keyed to a dedicated passphrase-protected signing key
+      (`~/.ssh/id.d/jph-code-signing=...`, created for exactly this rather
+      than reusing a general-purpose identity key) — deliberately not the
+      unattended automation key already used to push, since an unattended
+      signature would not mean anything. A local `allowed_signers` file is
+      wired via `gpg.ssh.allowedSignersFile` for local verification. The
+      gate was exercised twice — once against the identity key first
+      proposed, again after switching to the dedicated key — and both times
+      an attempted commit without the passphrase was refused (`error: ...
+      incorrect passphrase supplied`) rather than silently signed or
+      silently skipped. What is left is the one step no tool can do for the
+      maintainer — registering the public key as a
       **Signing Key** (a separate slot from the Authentication Key already
       present) on GitHub, GitLab, and Codeberg, none of which had CLI
       tooling authenticated here (`glab`, `tea` both absent) to do it any
