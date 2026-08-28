@@ -13,6 +13,18 @@
 # spec/rust-msrv-n-minus-3/index.md: current stable minus three releases,
 # pinned as `rust-version` in every member's Cargo.toml. When the pin moves,
 # this file moves in the same change.
+#
+# Disk, not time, is the constraint these two build jobs manage. A local
+# `target/` from ordinary development on this workspace already runs to
+# 9 GB (`du -sh target/`, checked 2026-08-28) — a workspace `target/` is one
+# shared directory across all fourteen members, not one per crate, so
+# `cargo test`, `cargo clippy --all-targets`, and fourteen sequential
+# `cargo rustdoc` passes all accumulate into the same place with nothing to
+# release it between them. A GitHub-hosted runner's free space is a few
+# times that, and it starts already spent on toolchains this workspace
+# never touches (Android, .NET, Haskell, CodeQL). Both jobs that build Rust
+# free that space before starting and clean cargo's own output as they go,
+# rather than trusting there is always headroom to spare.
 
 name: ci
 
@@ -29,6 +41,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Free preinstalled runner bloat
+        run: .github/workflows/free-disk-space.sh
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -38,6 +52,8 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
       - name: cargo test
         run: cargo test
+      - name: cargo clean, test artifacts no longer needed
+        run: cargo clean
       - name: cargo rustdoc --lib -- -W missing-docs, per crate
         run: |
           set -eu
@@ -58,6 +74,10 @@ jobs:
             hl7-2-xml-lite-helper
           do
             cargo rustdoc -p "$crate" --lib -- -W missing-docs
+            # A workspace has one shared target/, so each iteration's build
+            # output would otherwise sit next to the other thirteen's for
+            # the rest of the job. Free this crate's before moving on.
+            cargo clean -p "$crate"
           done
 
   msrv:
@@ -65,6 +85,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Free preinstalled runner bloat
+        run: .github/workflows/free-disk-space.sh
       - uses: dtolnay/rust-toolchain@1.95
       - name: cargo check --workspace --all-targets
         run: cargo check --workspace --all-targets
