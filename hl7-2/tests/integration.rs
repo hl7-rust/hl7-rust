@@ -283,12 +283,15 @@ fn cli(arguments: &[&str], input: &str) -> (i32, String) {
         .stderr(Stdio::piped())
         .spawn()
         .expect("the binary is built before its integration tests run");
-    child
-        .stdin
-        .take()
-        .unwrap()
-        .write_all(input.as_bytes())
-        .unwrap();
+    // A CLI given bad usage (the case this helper exists to test) exits
+    // before it ever reads stdin, and closes that end of the pipe on the
+    // way out. Whether this write lands before or after that close is a
+    // race decided by process scheduling, not by anything this test
+    // controls — so a BrokenPipe here means "the child didn't want the
+    // input," which is a real, exercised outcome, not a test failure.
+    // What the test actually asserts on is the exit status and stdout
+    // below, which `wait_with_output` reports correctly either way.
+    let _ = child.stdin.take().unwrap().write_all(input.as_bytes());
     let output = child.wait_with_output().unwrap();
     (
         output.status.code().unwrap_or(-1),
