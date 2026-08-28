@@ -194,6 +194,8 @@ feature, and no feature that unlocks with money.
 
 If you want to fund the time anyway:
 **<https://github.com/sponsors/joelparkerhenderson>**, one-off or recurring.
+An Open Collective is not set up yet — this section will carry the link
+the day it is, rather than one pointing at nothing.
 
 What sponsorship buys, honestly: maintainer time, which mostly goes to
 dictionary coverage and answering issues. What it does not buy: a support

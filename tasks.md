@@ -184,6 +184,32 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       versions independently.
 - [ ] Add a DOI to `CITATION.cff` once a Zenodo deposit exists (needs the
       owner's Zenodo account).
+
+### Funding
+
+Per `spec/free-open-source-funding/index.md`.
+
+- [x] Set up GitHub Sponsors — already live (re-verified 2026-08-28:
+      `github.com/sponsors/joelparkerhenderson` returns a real sponsor
+      page, not a "not accepting sponsors" state).
+- [ ] Set up Open Collective (needs the owner's account: creating a
+      collective and choosing a fiscal host is an identity/financial step,
+      not something to do on the owner's behalf). Checked 2026-08-28: no
+      collective exists yet at any plausible slug —
+      `opencollective.com/{hl7-rust,hl7rust,hl7-for-rust,hl7-2,er7-rust,
+      joel-parker-henderson,joelparkerhenderson}` all resolve to the site's
+      generic search shell (`<title>Search</title>`), not a real
+      collective. `.github/FUNDING.yml`, `CONTRIBUTING.md`, and `NEWS.md`
+      say so plainly rather than pointing at a slug that does not exist —
+      the last thing a funding page should be is broken.
+- [x] Add `.github/FUNDING.yml` — already present (`github:
+      joelparkerhenderson`), and now comments that an `open_collective:`
+      line will be added once the item above is unblocked.
+- [x] Update `CONTRIBUTING.md`'s Money section to match — done 2026-08-28,
+      names GitHub Sponsors as live and Open Collective as not yet set up
+      rather than staying silent about the gap.
+- [x] Update `NEWS.md` to match — done 2026-08-28, adds a `## Funding`
+      section with the same two facts.
 - [x] Refresh BENCHMARKS.md against the released crate versions or mark its
       figures as historical (it cited `hl7-2` 0.2.3; released is 0.2.6) —
       done 2026-08-26: the Criterion suite was re-run on `hl7-2` 0.2.6

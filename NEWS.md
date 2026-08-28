@@ -89,6 +89,25 @@ workspace with their histories preserved; `hl7-3`, `hl7-3-derive`, and
 There is no mailing list and no social account. If one is added, it will be
 announced here first.
 
+## Funding
+
+This project is free under all five of its licences whether or not anyone
+pays anything, and stays that way. There is no paid tier and nothing that
+unlocks with money.
+
+**GitHub Sponsors is live:**
+<https://github.com/sponsors/joelparkerhenderson>, one-off or recurring.
+It funds maintainer time — mostly dictionary coverage and answering
+issues — not a support contract or a response-time guarantee; see
+[`CONTRIBUTING.md`](CONTRIBUTING.md)'s Money section for the full terms.
+
+**An Open Collective is not set up yet.** Checked 2026-08-28: no
+collective exists at any plausible slug. If one is created, it is
+announced here, in [`CONTRIBUTING.md`](CONTRIBUTING.md), and in
+[`.github/FUNDING.yml`](.github/FUNDING.yml) in the same change — not
+before, since a funding link pointing at nothing real is worse than one
+channel fewer.
+
 ## Press and media
 
 **Contact:** Joel Parker Henderson, <joel@joelparkerhenderson.com>. Sole

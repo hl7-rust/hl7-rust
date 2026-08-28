@@ -2,4 +2,12 @@
 # GitHub Sponsors page. CONTRIBUTING.md is candid about what sponsorship
 # does and does not buy: maintainer time, not a support contract, not a
 # response-time guarantee, and never a condition of having a bug fixed.
+#
+# spec/free-open-source-funding/index.md also names Open Collective. No
+# `open_collective:` line is added here yet, on purpose: no collective for
+# this project or its maintainer exists (checked 2026-08-28, several
+# plausible slugs), and a funding button pointing at nothing real is worse
+# than one channel fewer. See tasks.md's Funding section for what setting
+# one up needs — an account and a fiscal-host choice only the maintainer
+# can make. Add the line here in the same change that account exists.
 github: joelparkerhenderson
