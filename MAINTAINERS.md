@@ -44,10 +44,25 @@ down is an inventory nobody can hand over.
 
 **The honest reading of that table:** every publishing identity terminates
 at one person's GitHub account or one person's hardware. There is no
-Trusted Publishing, no signing key escrow, and no second holder anywhere.
-That is the residual risk, and it is stated rather than mitigated, because
-no mitigation is available to a one-person project without a legal entity
-behind it.
+signing key escrow and no second holder anywhere. That is the residual
+risk, and it is stated rather than mitigated, because no mitigation is
+available to a one-person project without a legal entity behind it.
+
+**The crates.io API token is a long-lived credential, not Trusted
+Publishing, and that is a deliberate wait rather than an oversight** —
+[`spec/trusted-publishing/index.md`](spec/trusted-publishing/index.md)
+states the intent: adopt it once it works the same way across every code
+forge this project publishes from and every destination it publishes to,
+not piecemeal per forge. Checked 2026-08-28, so the wait is against
+current fact rather than an old assumption: crates.io's OIDC-based Trusted
+Publishing has been generally available for GitHub Actions since July
+2025; GitLab CI/CD support landed in 2026 but is GitLab.com only, with
+self-hosted GitLab and Codeberg/Forgejo not yet supported on crates.io's
+side at all. Since this project mirrors to GitHub, GitLab, and Codeberg
+equally, adopting it for GitHub alone would mean the one credential this
+table cannot yet retire staying long-lived regardless — a partial win, not
+the one this project is holding out for. Revisit when Codeberg support
+lands; `tasks.md` tracks it.
 
 **Every release is tagged; commits and tags are signed from 2026-08-27
 onward.** Since the fourth release (2026-08-26), each crate's release

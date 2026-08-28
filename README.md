@@ -107,6 +107,7 @@ than of one member.
 | [`spec/benchmark/index.md`](spec/benchmark/index.md) | The rules that govern how performance figures are produced and published |
 | [`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md) | The minimum supported Rust version policy every member pins to |
 | [`spec/professionalization/index.md`](spec/professionalization/index.md) | What "professional" means here — the rules that bind the maintainer, and an honest status against each |
+| [`spec/trusted-publishing/index.md`](spec/trusted-publishing/index.md) | Why crates.io releases still use a long-lived API token, and what has to be true before that changes |
 | [`MAINTAINERS.md`](MAINTAINERS.md) | Who maintains this, what the bus factor is, and what happens if that person is unavailable |
 | [`GOVERNANCE.md`](GOVERNANCE.md) | Who decides, what binds them, what is in scope, and how to become a maintainer |
 | [`SECURITY.md`](SECURITY.md) | How to report a vulnerability, what counts as one, and the known gaps |
@@ -116,8 +117,8 @@ than of one member.
 **If you want to contribute:** [`CONTRIBUTING.md`](CONTRIBUTING.md) — time,
 code, a report from your own feed, or money, and never pasting patient data.
 
-**If you have an opinion:** [`RFC.md`](RFC.md) — the ten things this project
-is genuinely unsure about, and what evidence would settle each.
+**If you have an opinion:** [`RFC.md`](RFC.md) — the twelve things this
+project is genuinely unsure about, and what evidence would settle each.
 
 **If you want to cite it:** `CITATION.cff` carries the metadata, including
 an ORCID.

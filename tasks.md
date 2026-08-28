@@ -79,11 +79,23 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       (`f6a146d`) rather than assumed from the earlier registration gap:
       `verification.verified: true`, signer `joelparkerhenderson`, key
       fingerprint matching. All three remotes now verify the same key on
-      the same commits. MAINTAINERS.md's tagging/signing paragraph
-      describes the state as of when it was last written (GitHub and
-      GitLab only); it is now stale by one host and worth a follow-up
-      correction, tracked as its own item rather than silently left to
-      drift.
+      the same commits. MAINTAINERS.md's tagging/signing paragraph was
+      stale by one host at the moment this line was first written, and was
+      corrected in the same commit — the sentence you might expect here
+      promising a follow-up was itself the drift; fixed rather than left.
+- [ ] Adopt Trusted Publishing for crates.io releases, in place of the
+      long-lived API token, once it is production-ready across GitHub,
+      GitLab, and Codeberg — the policy in
+      `spec/trusted-publishing/index.md`. Checked 2026-08-28, so this is
+      against current fact: GitHub Actions has been GA since July 2025;
+      GitLab CI/CD support is GitLab.com-only beta (self-hosted GitLab
+      unsupported); Codeberg/Forgejo has none on crates.io's side yet,
+      though Forgejo has done OIDC token-issuance work on its own side.
+      Adopting it for GitHub alone would leave the token this project is
+      trying to retire long-lived regardless, since the workflow still has
+      to exist for the other two mirrors — a partial win the stated policy
+      declines. MAINTAINERS.md's publishing-identities section and RFC.md
+      §8 both state this now; revisit when Codeberg lands.
 - [x] Add dependency auditing (`cargo deny` covering advisories, licenses,
       bans, sources — the `fhir-rust` `fhir-security.yml` is the family
       pattern) on push plus a weekly cron — done 2026-08-26: `deny.toml`
