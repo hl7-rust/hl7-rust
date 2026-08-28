@@ -47,7 +47,7 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       -D warnings`, `fmt --check`, and the 1.95 MSRV check all passing.
       SECURITY.md's claim and its "known gaps" entry updated in the same
       change.
-- [ ] Sign commits and tags going forward. **Tagging is done, 2026-08-27:**
+- [x] Sign commits and tags going forward. **Tagging is done, 2026-08-27:**
       the fourth release's tag convention (`<crate>-v<version>`, annotated)
       was backfilled onto the first three release commits too, so all 56
       tags (14 crates × 4 releases) exist and are pushed to all three
@@ -74,12 +74,16 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       against each host's own API rather than assumed. **GitHub: verified**
       (`verification.verified: true, reason: "valid"`). **GitLab:
       verified** (`verification_status: "verified"`, key titled
-      `jph-code-signing`). **Codeberg: not yet** — the same signature
-      reached it (a signed commit carries its signature everywhere it is
-      pushed) but the API reports `gpg.error.no_gpg_keys_found`; the public
-      key has not been registered there. That is the one remaining step,
-      and it is Codeberg-only now. MAINTAINERS.md's tagging/signing
-      paragraph rewritten to describe this exact, per-host state.
+      `jph-code-signing`). **Codeberg: verified as of 2026-08-28** —
+      re-checked directly against Codeberg's own API on a later commit
+      (`f6a146d`) rather than assumed from the earlier registration gap:
+      `verification.verified: true`, signer `joelparkerhenderson`, key
+      fingerprint matching. All three remotes now verify the same key on
+      the same commits. MAINTAINERS.md's tagging/signing paragraph
+      describes the state as of when it was last written (GitHub and
+      GitLab only); it is now stale by one host and worth a follow-up
+      correction, tracked as its own item rather than silently left to
+      drift.
 - [x] Add dependency auditing (`cargo deny` covering advisories, licenses,
       bans, sources — the `fhir-rust` `fhir-security.yml` is the family
       pattern) on push plus a weekly cron — done 2026-08-26: `deny.toml`
@@ -192,16 +196,19 @@ Per `spec/free-open-source-funding/index.md`.
 - [x] Set up GitHub Sponsors — already live (re-verified 2026-08-28:
       `github.com/sponsors/joelparkerhenderson` returns a real sponsor
       page, not a "not accepting sponsors" state).
-- [ ] Set up Open Collective (needs the owner's account: creating a
-      collective and choosing a fiscal host is an identity/financial step,
-      not something to do on the owner's behalf). Checked 2026-08-28: no
-      collective exists yet at any plausible slug —
+- [ ] Set up Open Collective. **Deliberately deferred, 2026-08-28** — the
+      owner's decision, not a stalled blocker: creating a collective and
+      choosing a fiscal host is an identity/financial step nobody should do
+      but the owner, and it is not happening right now by choice. Checked
+      before deferring, so the deferral is informed rather than an excuse:
+      no collective exists yet at any plausible slug —
       `opencollective.com/{hl7-rust,hl7rust,hl7-for-rust,hl7-2,er7-rust,
       joel-parker-henderson,joelparkerhenderson}` all resolve to the site's
       generic search shell (`<title>Search</title>`), not a real
       collective. `.github/FUNDING.yml`, `CONTRIBUTING.md`, and `NEWS.md`
       say so plainly rather than pointing at a slug that does not exist —
-      the last thing a funding page should be is broken.
+      the last thing a funding page should be is broken. Revisit only when
+      the owner raises it again.
 - [x] Add `.github/FUNDING.yml` — already present (`github:
       joelparkerhenderson`), and now comments that an `open_collective:`
       line will be added once the item above is unblocked.
