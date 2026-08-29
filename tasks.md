@@ -146,6 +146,45 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       closed. The `@stable` pin in the other job was never at risk the
       same way; it names a channel, not a version, so Dependabot has
       nothing numeric to bump.
+- [x] Merge the nine remaining PRs — done 2026-08-29. The four
+      cargo/actions ones (`actions/checkout` v4→v7, `syn` 2.0.119→3.0.3,
+      `criterion` 0.5.1→0.8.2, `er7` 0.1.1→0.1.3) really were covered by
+      real CI — `clippy --all-targets`/`test` compile the derive crates
+      against `syn` and the benches against `criterion` — so merged on
+      that evidence, then re-verified with the full local gate set on the
+      combined result before pushing to GitLab and Codeberg, which don't
+      see GitHub PR merges on their own.
+
+      **The five site PRs (TypeScript 5→6, Svelte, SvelteKit,
+      lily-design-system, `vite-plugin-svelte` 5→6) were a different
+      problem: `ci.yml` never runs `pnpm` anything, so their green
+      checkmarks proved nothing about whether the site still builds** —
+      confirmed by grepping the workflow file for `pnpm`/`svelte-check`/
+      `vite build` and finding none. Verified each for real instead:
+      fetched every branch into its own `git worktree`, ran
+      `pnpm run check` (0 errors each) and `pnpm run build` (each wrote a
+      complete `build/` output) before merging any of them. All five
+      touch the same `package.json`/`pnpm-lock.yaml`, so each merge
+      reopened a conflict on the next PR in line — `@dependabot rebase`
+      requested, waited for `mergeable` to flip, re-verified the *rebased*
+      branch (not just re-trusted the old one), merged, repeat, four
+      times. After the tenth PR landed, ran `pnpm run check` and
+      `pnpm run build` once more on the real merged `main` — not a
+      worktree — since five bumps that each pass alone had never been
+      tested together; both came back clean.
+
+      **This is a real, standing gap, not just a one-time inconvenience**:
+      `ci.yml` has no job that builds `hl7-rust.github.io`, so every future
+      site-related Dependabot PR will keep showing a meaningless green
+      check until one is added. Worth its own task — a `site` job running
+      `pnpm install && pnpm run check && pnpm run build` — rather than
+      relying on manual worktree verification each time.
+
+- [ ] Add a `site` job to `ci.yml` that runs
+      `pnpm install && pnpm run check && pnpm run build` against
+      `hl7-rust.github.io` on every push/PR. Closes the gap found above:
+      right now Dependabot's green checkmark on a site-related PR proves
+      nothing, since no CI job ever touches `pnpm`.
 
 ### Governance
 
