@@ -15,6 +15,48 @@ raised minimum supported Rust version, which is always a breaking change
 and never lands in a patch
 ([`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md)).
 
+## 2026-08-29, fifth release
+
+Every crate takes a **minor** bump, not a patch — the MSRV change below is,
+by this document's own rule two paragraphs up, always a breaking change.
+
+### Changed
+
+- **MSRV raised from N-3 to N-2**: current stable is 1.98.0, so the floor
+  moves from 1.95 to 1.96 —
+  [`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md).
+  The mechanism changed with the number: `rust-version` now lives once, in
+  the root `Cargo.toml`'s `[workspace.package]`, and every member inherits
+  it as `rust-version.workspace = true` instead of declaring its own
+  literal value. Verified rather than assumed: `cargo metadata` confirms
+  all fourteen crates resolve to `1.96`, `cargo package` confirms the
+  published manifest carries a literal `rust-version = "1.96"` (not the
+  workspace reference, which would be meaningless outside this repository),
+  and `cargo +1.96 check --workspace --all-targets` is clean with no code
+  changes needed.
+
+### Fixed
+
+- **A `BrokenPipe` race in `hl7-2`'s own test suite**, which ships inside
+  the published package. The integration test helper wrote a message to
+  the CLI's stdin and unwrapped the result; the specific test that hit it
+  passes deliberately bad usage, which makes the CLI exit before reading
+  stdin at all, so the write raced the child closing its end of the pipe.
+  Whether it failed was decided by process scheduling, not by anything the
+  test controlled — which is why it passed locally every time and only
+  once, in CI. The fix stops treating that write's failure as fatal: a
+  `BrokenPipe` there means the child didn't want the input, which is the
+  exact scenario under test, not an infrastructure failure.
+
+### Released
+
+`hl7` 0.2.0 · `hl7-2` 0.3.0 · `hl7-3` 0.2.0 · `hl7-2-derive` 0.2.0 ·
+`hl7-3-derive` 0.2.0 · `hl7-2-mllp` 0.2.0 · `hl7-2-soap` 0.2.0 ·
+`hl7-3-soap` 0.2.0 · `hl7-2-xml-lite-helper` 0.2.0 ·
+`hl7-2-from-er7-into-xml` 0.7.0 · `hl7-2-from-xml-into-er7` 0.7.0 ·
+`hl7-2-from-er7-into-json` 0.5.0 · `hl7-2-from-json-into-er7` 0.5.0 ·
+`hl7-2-from-xsd-into-json-dictionary` 0.2.0
+
 ## 2026-08-26, fourth release
 
 Metadata only — no crate behavior changed. Released for the same reason

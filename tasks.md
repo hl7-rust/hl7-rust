@@ -278,7 +278,20 @@ Per `spec/free-open-source-funding/index.md`.
       seven website pages (typechecked and built clean). Left alone,
       deliberately: mentions inside dated `CHANGELOG.md`, `NEWS.md`, and
       `tasks.md` entries that record what was true *at the time* — rewriting
-      those would falsify history, not fix staleness.
+      those would falsify history, not fix staleness. **Released
+      2026-08-29, fifth release, as a minor bump on all fourteen** — caught
+      before publishing, not after: the first attempt patch-bumped, which
+      directly contradicted `CHANGELOG.md`'s own standing rule that a
+      raised MSRV is always breaking and never lands in a patch. Reverted
+      and redone as minor bumps, which meant twelve inter-crate version
+      requirements needed raising too (a `0.x` minor bump fails Cargo's
+      caret compatibility, unlike a patch), all twelve re-verified
+      satisfied before publishing. `cargo package` was used to confirm the
+      published manifest actually carries a literal `rust-version = "1.96"`
+      rather than the workspace reference, which would mean nothing outside
+      this repository. The BrokenPipe test fix, declined for its own
+      release two turns earlier as not worth one alone, shipped bundled
+      into this one instead.
 
 ## Trademarks
 

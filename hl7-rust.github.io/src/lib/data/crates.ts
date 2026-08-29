@@ -64,7 +64,7 @@ export const CRATES: Crate[] = [
     summary:
       'A thin re-export and nothing else: `hl7::v2` is the `hl7-2` crate and `hl7::v3` is `hl7-3`, with room left for `hl7::fhir`. Nothing lives at the root, because a "message", a "segment", and a "code" mean different things in each standard and one flat namespace would only invite mixing them up.',
     category: 'core',
-    version: '0.1.4',
+    version: '0.2.0',
     spec: false,
     features: [
       { name: 'derive', default: false, effect: 'Forwards to `hl7-2`’s `derive` feature.' }
@@ -80,7 +80,7 @@ export const CRATES: Crate[] = [
     summary:
       'Releases 2.1 through 2.9, in three modes that share one set of internals — generic for the vendor you have never seen, schema-based for the vendor whose format is not frozen, struct-based for the feed that does not change. Also a command-line tool. This is what everything else in the workspace builds on.',
     category: 'core',
-    version: '0.2.6',
+    version: '0.3.0',
     spec: true,
     binary: 'hl7-v2',
     features: [
@@ -101,7 +101,7 @@ export const CRATES: Crate[] = [
     summary:
       'The Reference Information Model backbone classes, the data types they are built from, and the three-level message envelope — a foundation, not a complete implementation. It is the part of v3 that is the same in every domain, which is what CDA and national registries such as NHS England’s Personal Demographics Service are built on.',
     category: 'core',
-    version: '0.1.6',
+    version: '0.2.0',
     spec: true,
     features: [
       { name: 'derive', default: false, effect: 'Adds `#[derive(FromElement)]`; pulls in `hl7-3-derive`.' }
@@ -117,7 +117,7 @@ export const CRATES: Crate[] = [
     summary:
       'The Minimal Lower Layer Protocol is three bytes of framing and nothing more. This crate is what people actually need on top of it: whole messages out of a chopped-up stream, an acknowledgement that names the message it answers, and a bound on what a broken peer can allocate.',
     category: 'transport',
-    version: '0.1.6',
+    version: '0.2.0',
     spec: true,
     features: [
       { name: 'ack', default: true, effect: 'Acknowledgement generation; pulls in `hl7-2`.' },
@@ -135,7 +135,7 @@ export const CRATES: Crate[] = [
     summary:
       'The other v2 transport — what an estate ends up with when messages have to cross a boundary that speaks HTTP, or when the far end was built by a team who had a WSDL and no socket. The envelope, faults that carry their HTTP status, payload carriage, WSDL, and response evaluation. No HTTP client and no HTTP server.',
     category: 'transport',
-    version: '0.1.4',
+    version: '0.2.0',
     spec: true,
     dependencies: ['hl7-2-xml-lite-helper'],
     related: ['hl7-2', 'hl7-2-mllp', 'hl7-3-soap']
@@ -148,7 +148,7 @@ export const CRATES: Crate[] = [
     summary:
       'For v3, SOAP is not the alternative transport — it is the transport. v3 was designed alongside SOAP/WS-*, and real deployments carry it that way. Same shape as its `hl7-2-soap` cousin, plus the real HL7 v3 acknowledgement (`MCCI_IN000002UV01`).',
     category: 'transport',
-    version: '0.1.4',
+    version: '0.2.0',
     spec: true,
     dependencies: ['hl7-2-xml-lite-helper'],
     related: ['hl7-3', 'hl7-2-soap']
@@ -161,7 +161,7 @@ export const CRATES: Crate[] = [
     summary:
       'Pipe-delimited ER7 into `urn:hl7-org:v2xml`, with components named after their HL7 v2.5 data types. Since 0.5.0 the tables and grammars come from the `hl7-2` dictionary, which is what lets `--dictionary` convert against a vendor’s own XML Schema instead of the bundled v2.5 release.',
     category: 'conversion',
-    version: '0.6.3',
+    version: '0.7.0',
     spec: true,
     binary: 'hl7-2-from-er7-into-xml',
     dependencies: ['er7', 'hl7-2'],
@@ -175,7 +175,7 @@ export const CRATES: Crate[] = [
     summary:
       'The inverse of the crate above, and it needs no HL7 v2.5 dictionary at all: every element name the forward crate writes already carries its own position as the number after the last dot, so reversal is a purely structural rebuild.',
     category: 'conversion',
-    version: '0.6.3',
+    version: '0.7.0',
     spec: true,
     binary: 'hl7-2-from-xml-into-er7',
     dependencies: ['er7', 'hl7-2-xml-lite-helper'],
@@ -189,7 +189,7 @@ export const CRATES: Crate[] = [
     summary:
       'There is no official "v2.json" to target, so this crate defines its own mapping — designed to preserve everything v2.xml preserves while using idiomatic JSON (real arrays, real `null`) instead of XML’s constructs. Same ER7 parser, same data-type tables, and same grammars as the XML sibling.',
     category: 'conversion',
-    version: '0.4.5',
+    version: '0.5.0',
     spec: true,
     binary: 'hl7-2-from-er7-into-json',
     dependencies: ['er7'],
@@ -203,7 +203,7 @@ export const CRATES: Crate[] = [
     summary:
       'The inverse of the JSON forward crate, on the same position-carries-the-name principle as the XML reverse crate, plus a minimal dependency-free JSON reader covering the full RFC 8259 grammar.',
     category: 'conversion',
-    version: '0.4.5',
+    version: '0.5.0',
     spec: true,
     binary: 'hl7-2-from-json-into-er7',
     dependencies: ['er7'],
@@ -217,7 +217,7 @@ export const CRATES: Crate[] = [
     summary:
       'Map a struct’s fields to HL7 v2 message paths once, in the type definition, instead of writing the same accessor calls at every call site. You do not depend on this crate directly — it arrives through `hl7-2`’s `derive` feature, which is what keeps the default `hl7-2` build to exactly one dependency.',
     category: 'tooling',
-    version: '0.1.6',
+    version: '0.2.0',
     spec: false,
     dependencies: ['syn', 'quote'],
     related: ['hl7-2', 'hl7-3-derive']
@@ -230,7 +230,7 @@ export const CRATES: Crate[] = [
     summary:
       'Maps struct fields to XML element attributes and children. Like its v2 cousin it arrives through a feature rather than a direct dependency — and unlike it, nothing here returns a `Result`: a missing attribute reads as that field’s `Default`, matching `hl7-3`’s own degrade-don’t-reject choice.',
     category: 'tooling',
-    version: '0.1.4',
+    version: '0.2.0',
     spec: false,
     dependencies: ['syn', 'quote'],
     related: ['hl7-3', 'hl7-2-derive']
@@ -243,7 +243,7 @@ export const CRATES: Crate[] = [
     summary:
       'HL7 publishes v2.xml as schemas; `hl7-2` reads a dictionary, because one dictionary format serves every release and every local dialect from one build. This crate is the bridge, and the dictionary it writes carries cardinality as well as data types — which is what lets schema mode emit a document that validates against the schemas it came from.',
     category: 'tooling',
-    version: '0.1.4',
+    version: '0.2.0',
     spec: true,
     binary: 'hl7-2-from-xsd-into-json-dictionary',
     dependencies: ['hl7-2-xml-lite-helper'],
@@ -257,7 +257,7 @@ export const CRATES: Crate[] = [
     summary:
       'Elements, attributes, text, and nesting, for documents whose shape you already know. It exists because three crates in this family had each written their own version of exactly this, and three copies of a parser is three places for a bug. Namespace prefixes are ignored rather than resolved — deliberately.',
     category: 'tooling',
-    version: '0.1.4',
+    version: '0.2.0',
     spec: true,
     dependencies: [],
     related: ['hl7-2-soap', 'hl7-3-soap', 'hl7-2-from-xml-into-er7', 'hl7-2-from-xsd-into-json-dictionary']

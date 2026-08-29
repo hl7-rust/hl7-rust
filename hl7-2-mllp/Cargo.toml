@@ -1,6 +1,6 @@
 [package]
 name = "hl7-2-mllp"
-version = "0.1.7"
+version = "0.2.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 rust-version.workspace = true
@@ -15,7 +15,7 @@ categories = ["network-programming", "parser-implementations"]
 # expects back (see spec/index.md §5). Optional, and default-on: framing is
 # useful without it, and `default-features = false` gives a build with no
 # dependencies at all.
-hl7-2 = { version = "0.2.0", path = "../hl7-2", optional = true }
+hl7-2 = { version = "0.3.0", path = "../hl7-2", optional = true }
 # Wall-clock timestamps for generated acknowledgements. Off by default: a
 # message that invents its own timestamp is untestable, so the clock is
 # opt-in and the explicit-timestamp call is always there.

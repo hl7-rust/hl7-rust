@@ -1,6 +1,6 @@
 [package]
 name = "hl7-2-from-xml-into-er7"
-version = "0.6.4"
+version = "0.7.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 rust-version.workspace = true
@@ -17,7 +17,7 @@ er7 = "0.1.0"
 # The XML reader, which this crate used to carry its own copy of. It has no
 # dependencies of its own, so the audit surface is unchanged and there is
 # one parser to read instead of three.
-hl7-2-xml-lite-helper = { version = "0.1", path = "../hl7-2-xml-lite-helper" }
+hl7-2-xml-lite-helper = { version = "0.2", path = "../hl7-2-xml-lite-helper" }
 
 # Criterion is a development dependency only: it is compiled for
 # `cargo bench` and never linked into the library or the binary, so the

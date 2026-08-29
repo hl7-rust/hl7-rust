@@ -1,6 +1,6 @@
 [package]
 name = "hl7-2-from-xsd-into-json-dictionary"
-version = "0.1.5"
+version = "0.2.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 rust-version.workspace = true
@@ -24,12 +24,12 @@ include = [
 # here: it writes one document shape and nothing else, which is not worth
 # a crate. See spec/index.md §6.
 [dependencies]
-hl7-2-xml-lite-helper = { version = "0.1", path = "../hl7-2-xml-lite-helper" }
+hl7-2-xml-lite-helper = { version = "0.2", path = "../hl7-2-xml-lite-helper" }
 
 [dev-dependencies]
 # The dictionaries this crate writes have to load in the crate that reads
 # them, and the only honest way to test that is to load one.
-hl7-2 = { version = "0.2.0", path = "../hl7-2", default-features = false }
+hl7-2 = { version = "0.3.0", path = "../hl7-2", default-features = false }
 
 [[bin]]
 name = "hl7-2-from-xsd-into-json-dictionary"
