@@ -85,15 +85,26 @@ The MSRV floor is current stable minus two releases, so the exact
 toolchain in that last line moves; the rule is in
 [`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md).
 
+Touching `hl7-rust.github.io/`? Run its own two gates from inside that
+directory before opening the pull request:
+
+```sh
+pnpm run check # svelte-kit sync && svelte-check
+pnpm run build # vite build
+```
+
 And the conventions that a reviewer will otherwise ask about:
 
 - **Behavior changes go in the spec first.** The spec is the source of
   truth, so a code change that contradicts it is either a bug fix or an
   unstated spec change.
 - **One `Cargo.lock`, at the workspace root.** Never one inside a member.
-- **No `[workspace.package]` inheritance or shared
-  `[workspace.dependencies]`** without discussion — either would touch
-  every member's manifest at once.
+- **No shared `[workspace.dependencies]`, and no `[workspace.package]`
+  inheritance beyond `rust-version`**, without discussion — either would
+  touch every member's manifest at once. `rust-version` is the one
+  deliberate exception: it's pinned once and inherited by every member as
+  `rust-version.workspace = true`, because fourteen crates that must
+  always agree on one MSRV is the case that inheritance exists for.
 - **The license boilerplate is byte-for-byte identical** in every crate.
   Don't invent different text for a new one.
 - **A change spanning crates updates every affected crate's `AGENTS.md`

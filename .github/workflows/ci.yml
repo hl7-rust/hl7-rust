@@ -15,6 +15,15 @@
 # and inherited by every member as `rust-version.workspace = true`. When
 # the pin moves, this file moves in the same change.
 #
+# The `site` job runs the same two commands a contributor is asked to run
+# on hl7-rust.github.io before opening a pull request: `pnpm run check`
+# and `pnpm run build`. Before this job existed, Dependabot's PRs against
+# hl7-rust.github.io/package.json showed a green checkmark from the other
+# jobs here even though none of them ever ran `pnpm` — the checkmark
+# proved nothing about the site. Five such PRs were merged on that false
+# signal and had to be re-verified by hand afterward (see tasks.md); this
+# job closes the gap so the checkmark means what it looks like it means.
+#
 # Disk, not time, is the constraint these two build jobs manage. A local
 # `target/` from ordinary development on this workspace already runs to
 # 9 GB (`du -sh target/`, checked 2026-08-28) — a workspace `target/` is one
@@ -107,3 +116,26 @@ jobs:
       - uses: actions/checkout@v7
       - name: bin/check-docs
         run: ./bin/check-docs
+
+  site:
+    name: hl7-rust.github.io (check, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hl7-rust.github.io
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+          cache-dependency-path: hl7-rust.github.io/pnpm-lock.yaml
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
+      - name: pnpm run check
+        run: pnpm run check
+      - name: pnpm run build
+        run: pnpm run build

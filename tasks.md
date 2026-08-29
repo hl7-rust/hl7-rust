@@ -180,11 +180,26 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       `pnpm install && pnpm run check && pnpm run build` — rather than
       relying on manual worktree verification each time.
 
-- [ ] Add a `site` job to `ci.yml` that runs
+- [x] Add a `site` job to `ci.yml` that runs
       `pnpm install && pnpm run check && pnpm run build` against
-      `hl7-rust.github.io` on every push/PR. Closes the gap found above:
-      right now Dependabot's green checkmark on a site-related PR proves
-      nothing, since no CI job ever touches `pnpm`.
+      `hl7-rust.github.io` on every push/PR — done 2026-08-29. Closes the
+      gap found above: Dependabot's green checkmark on a site-related PR
+      used to prove nothing, since no CI job ever touched `pnpm`. Uses
+      `pnpm/action-setup@v4` (pinned to major version 11, matching the
+      local `pnpm --version`) and `actions/setup-node@v4` with
+      `node-version: lts/*` and pnpm-aware caching; `pnpm install
+      --frozen-lockfile` so a PR that edits `package.json` without
+      updating `pnpm-lock.yaml` fails loudly instead of silently
+      resolving. Verified locally first — `pnpm install --frozen-lockfile`,
+      `pnpm run check` (0 errors), `pnpm run build` (clean `build/`
+      output) — before trusting the workflow file, same as every other CI
+      change this session. Also fixed a stale claim this surfaced: `AGENTS.md`
+      already had the corrected wording for the `rust-version.workspace =
+      true` exception (see the MSRV entry above), but `CONTRIBUTING.md`
+      still said flatly "No `[workspace.package]` inheritance... without
+      discussion" with no exception noted — brought into agreement in the
+      same commit, plus the site's own pre-PR gate commands added next to
+      the Rust ones.
 
 ### Governance
 
