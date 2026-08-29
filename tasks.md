@@ -111,6 +111,27 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       MAINTAINERS.md now states it (read within a week, a target not a
       contract). `help/outreach/index.md`'s prerequisites updated — the
       trademark question is now its only unmet gate.
+- [x] Enable Dependabot, per `spec/dependabot/index.md` (found at
+      `spec/spec/dependabot/index.md` — a doubled-up path, moved to the
+      canonical `spec/<name>/index.md` location in the same change rather
+      than left as a stray nested directory) — done 2026-08-29, both
+      halves. Security updates: `dependabot_security_updates` was
+      `disabled` (checked via the API before touching it, not assumed);
+      enabled with `PUT /repos/hl7-rust/hl7-rust/automated-security-fixes`,
+      re-checked afterward and now reports `"enabled"`. Vulnerability
+      alerts were already on, which that endpoint needs as a prerequisite.
+      Scheduled updates: `.github/dependabot.yml`, one entry per ecosystem
+      this repository actually has — `cargo` at the root (covers all
+      fourteen members through the one shared `Cargo.lock`),
+      `github-actions` at the root, and `npm` under
+      `hl7-rust.github.io` (GitHub's npm handler reads `pnpm-lock.yaml`
+      natively; there is no separate "pnpm" ecosystem value). Weekly, to
+      match the same best-effort cadence SECURITY.md and MAINTAINERS.md
+      already state elsewhere rather than inventing a daily pace nobody is
+      staffed to keep up with. This is a distinct capability from
+      `cargo deny` above, not a duplicate of it: `deny` catches what is
+      already in the lockfile today; Dependabot opens the PR when a new
+      advisory or a new version appears after that.
 
 ### Governance
 

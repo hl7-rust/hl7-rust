@@ -1,0 +1,47 @@
+# Scheduled dependency-update PRs, per spec/dependabot/index.md.
+#
+# This is the second, separate half of that spec. The first — Dependabot
+# security updates at the repository level — is a repo setting, not a
+# file, and isn't visible here; it was enabled directly via the GitHub API
+# (`PUT /repos/hl7-rust/hl7-rust/automated-security-fixes`) in the same
+# change, alerts having already been on. What this file adds is routine,
+# non-security version bumps, on a schedule, rather than only when
+# something is vulnerable.
+#
+# One ecosystem per manifest this repository actually has:
+#   - cargo, at the workspace root — one PR run covers all fourteen
+#     members, since they share the one root Cargo.lock (AGENTS.md).
+#   - github-actions, at the root — the actions pinned in
+#     .github/workflows/*.yml (checkout, rust-toolchain, rust-cache).
+#   - npm, under hl7-rust.github.io — GitHub's "npm" ecosystem handler
+#     reads pnpm-lock.yaml natively; there is no separate "pnpm" value.
+#
+# Weekly, not daily: SECURITY.md and MAINTAINERS.md are both explicit that
+# one person reads issues on a best-effort, roughly weekly cadence with no
+# committed response window. A daily PR cadence would just accumulate
+# unread against that same person; weekly matches the pace that already
+# governs everything else here.
+
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "cargo"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+
+  - package-ecosystem: "npm"
+    directory: "/hl7-rust.github.io"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "site"
