@@ -184,16 +184,36 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       `pnpm install && pnpm run check && pnpm run build` against
       `hl7-rust.github.io` on every push/PR — done 2026-08-29. Closes the
       gap found above: Dependabot's green checkmark on a site-related PR
-      used to prove nothing, since no CI job ever touched `pnpm`. Uses
-      `pnpm/action-setup@v4` (pinned to major version 11, matching the
-      local `pnpm --version`) and `actions/setup-node@v4` with
-      `node-version: lts/*` and pnpm-aware caching; `pnpm install
-      --frozen-lockfile` so a PR that edits `package.json` without
-      updating `pnpm-lock.yaml` fails loudly instead of silently
-      resolving. Verified locally first — `pnpm install --frozen-lockfile`,
-      `pnpm run check` (0 errors), `pnpm run build` (clean `build/`
-      output) — before trusting the workflow file, same as every other CI
-      change this session. Also fixed a stale claim this surfaced: `AGENTS.md`
+      used to prove nothing, since no CI job ever touched `pnpm`.
+
+      First attempt pinned `pnpm/action-setup@v4` to major version 11
+      (matching local `pnpm --version`) with `node-version: lts/*`. That
+      passed a local `pnpm install --frozen-lockfile` / `check` / `build`
+      run, so it looked verified — but the local install was silently
+      using a gitignored, untracked `hl7-rust.github.io/pnpm-workspace.yaml`
+      left over on this machine, which grants `esbuild` permission to run
+      its postinstall script. A real CI run (fresh checkout, no such file)
+      failed at `pnpm install --frozen-lockfile` with
+      `[ERR_PNPM_IGNORED_BUILDS]`: pnpm 10+ no longer reads the
+      `pnpm.onlyBuiltDependencies` field in `package.json` that this repo
+      actually relies on, and refuses to install non-interactively when a
+      build script is silently ignored. The existing (separate, already
+      working) `hl7-rust.github.io/.github/workflows/deploy.yml` — which
+      runs in the sibling `hl7-rust.github.io` repository, triggered by
+      `make publish` — had already solved this by pinning
+      `pnpm/action-setup@v4` to version 9, which still honors that
+      `package.json` field. Fixed the new `site` job to match: version 9,
+      `node-version: 20` (mirroring `deploy.yml` exactly rather than
+      inventing a second convention). Re-verified for real this time by
+      moving the local `pnpm-workspace.yaml` aside, deleting `node_modules`,
+      and running `npx pnpm@9.15.9 install --frozen-lockfile` / `check` /
+      `build` from a clean state that matches what CI actually sees — all
+      three passed — before trusting the fix and re-pushing.
+
+      `pnpm install --frozen-lockfile` (kept from the first attempt) means
+      a PR that edits `package.json` without updating `pnpm-lock.yaml`
+      still fails loudly instead of silently resolving. Also fixed a
+      stale claim this surfaced: `AGENTS.md`
       already had the corrected wording for the `rust-version.workspace =
       true` exception (see the MSRV entry above), but `CONTRIBUTING.md`
       still said flatly "No `[workspace.package]` inheritance... without
