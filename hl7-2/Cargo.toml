@@ -36,7 +36,7 @@ derive = ["dep:hl7-2-derive"]
 # list above is unchanged. The same version and feature set as the conversion
 # crates, so one `cargo bench` at the workspace root builds one Criterion.
 [dev-dependencies]
-criterion = { version = "0.5", default-features = false, features = ["cargo_bench_support"] }
+criterion = { version = "0.8", default-features = false, features = ["cargo_bench_support"] }
 
 [[bench]]
 name = "parse"

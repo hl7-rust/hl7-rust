@@ -23,7 +23,7 @@ hl7-2-xml-lite-helper = { version = "0.2", path = "../hl7-2-xml-lite-helper" }
 # `cargo bench` and never linked into the library or the binary, so the
 # runtime dependency list above is unchanged.
 [dev-dependencies]
-criterion = { version = "0.5", default-features = false, features = ["cargo_bench_support"] }
+criterion = { version = "0.8", default-features = false, features = ["cargo_bench_support"] }
 
 [[bench]]
 name = "convert"
