@@ -89,7 +89,7 @@ pub fn segment_to_node(seg: &Segment, separators: &Separators) -> Node {
     let mut node = Node::group(&seg_name);
     // OBX-5 has a variable type declared by the value of OBX-2.
     let obx_type = if seg.name == "OBX" {
-        first_value(seg, 2, 1, separators)
+        seg.first_value(2, 1, separators)
             .map(|v| v.trim().to_ascii_uppercase())
             .filter(|v| composite_components(v).is_some())
     } else {
@@ -113,26 +113,6 @@ pub fn segment_to_node(seg: &Segment, separators: &Separators) -> Node {
         }
     }
     node
-}
-
-/// The decoded text of SEG-`field`.`component`, taking the first repetition
-/// and first subcomponent, and treating an empty result as absent.
-///
-/// `er7` offers this shape as a path query (`OBX-2.1`), but a query searches
-/// the whole message for the first matching segment, and here the segment is
-/// already in hand — this is the same lookup scoped to one segment.
-fn first_value(
-    seg: &Segment,
-    field: usize,
-    component: usize,
-    separators: &Separators,
-) -> Option<String> {
-    let text = seg
-        .component(field, component)?
-        .subcomponent(1)?
-        .value(separators)
-        .into_owned();
-    Some(text).filter(|t| !t.is_empty())
 }
 
 /// One field repetition -> one field node.

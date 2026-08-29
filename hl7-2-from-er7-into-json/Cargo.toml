@@ -13,8 +13,9 @@ categories = ["parser-implementations", "command-line-utilities"]
 [dependencies]
 # The ER7 encoding layer: parsing, escape sequences, and writing back out.
 # This crate supplies only the HL7 v2.5 dictionary on top of it — see
-# spec/index.md §2.
-er7 = "0.1.0"
+# spec/index.md §2. 0.2.1 is the floor rather than 0.1.0 because
+# Segment::first_value, used in src/json.rs, does not exist before it.
+er7 = "0.2.1"
 
 # Criterion is a development dependency only: it is compiled for
 # `cargo bench` and never linked into the library or the binary, so the
