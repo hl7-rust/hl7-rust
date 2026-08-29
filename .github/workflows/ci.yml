@@ -41,7 +41,7 @@ jobs:
     name: fmt, clippy, test, rustdoc (stable)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Free preinstalled runner bloat
         run: .github/workflows/free-disk-space.sh
       - uses: dtolnay/rust-toolchain@stable
@@ -85,7 +85,7 @@ jobs:
     name: MSRV floor (1.96)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Free preinstalled runner bloat
         run: .github/workflows/free-disk-space.sh
       - uses: dtolnay/rust-toolchain@1.96
@@ -96,7 +96,7 @@ jobs:
     name: trademark fair-use rules (T1, T2, T3)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: bin/check-trademarks
         run: ./bin/check-trademarks
 
@@ -104,6 +104,6 @@ jobs:
     name: docs budget and link integrity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: bin/check-docs
         run: ./bin/check-docs
