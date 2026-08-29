@@ -74,7 +74,7 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
    no SBOM, no dependency audit, no committed response window) are each
    tracked in `tasks.md`.
 4. **Partly met.** `.github/workflows/ci.yml` (2026-08-26) runs the
-   CONTRIBUTING.md gates — fmt, clippy, test, rustdoc, the 1.95 MSRV floor —
+   CONTRIBUTING.md gates — fmt, clippy, test, rustdoc, the 1.96 MSRV floor —
    and the rule-5 trademark check on every push and pull request. Not yet
    in CI: dependency audit, link check, and document-size budget — each
    tracked in `tasks.md`.

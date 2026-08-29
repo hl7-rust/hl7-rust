@@ -16,3 +16,12 @@ members = [
   "hl7-2-from-xsd-into-json-dictionary",
   "hl7-2-xml-lite-helper",
 ]
+
+# The one field every member inherits from the workspace — see
+# spec/rust-msrv-n-minus-2/index.md. Everything else (edition, features,
+# dependencies) stays per-crate, as AGENTS.md's working conventions still
+# say: this is a narrow, deliberate exception for the single value that
+# has to move in lockstep across all fourteen members, not a switch to
+# `[workspace.dependencies]` inheritance generally.
+[workspace.package]
+rust-version = "1.96"

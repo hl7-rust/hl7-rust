@@ -29,7 +29,7 @@ let message = hl7_2::parse_with_options(text, &options)?;
 assert_eq!(Version::nearest("2.5.2"), Some(Version::V2_5_1));`;
 
   const msrv = `# Check a change against the floor
-cargo +1.95 check --workspace --all-targets`;
+cargo +1.96 check --workspace --all-targets`;
 
   const licenseText = `MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only`;
 
@@ -138,7 +138,7 @@ cargo +1.95 check --workspace --all-targets`;
             <td><a href={`/crates/${crate.slug}/`}><code>{crate.name}</code></a></td>
             <td>{crate.version}</td>
             <td>2024</td>
-            <td>1.95</td>
+            <td>1.96</td>
           </tr>
         {/each}
       </tbody>
@@ -147,12 +147,12 @@ cargo +1.95 check --workspace --all-targets`;
 
   <h2 id="msrv">Minimum supported Rust version</h2>
   <p>
-    The policy is <strong>current stable minus three releases</strong>, pinned as
-    <code>rust-version</code> in every member's <code>Cargo.toml</code> and stated in the
-    workspace's own
-    <a href={`${REPO}/blob/main/spec/rust-msrv-n-minus-3/index.md`}
-      ><code>spec/rust-msrv-n-minus-3/index.md</code></a
-    >. At the time of writing that is <code>1.95</code>.
+    The policy is <strong>current stable minus two releases</strong>, pinned once in the
+    workspace's own <code>[workspace.package]</code> and inherited by every member as
+    <code>rust-version.workspace = true</code>, stated in
+    <a href={`${REPO}/blob/main/spec/rust-msrv-n-minus-2/index.md`}
+      ><code>spec/rust-msrv-n-minus-2/index.md</code></a
+    >. At the time of writing that is <code>1.96</code>.
   </p>
   <CodeSample language="sh" code={msrv} />
   <p>

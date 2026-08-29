@@ -39,21 +39,24 @@ not need to change.
 
 - `cargo build` / `cargo test` from the workspace root builds and tests
   every member in one pass. Use `-p <crate>` to scope to one.
-- Each crate keeps its own edition, feature set, and dependency list —
-  this workspace does not (yet) use `[workspace.package]` inheritance or a
-  shared `[workspace.dependencies]` table. Don't add either without
-  discussion; it would touch every member's `Cargo.toml` at once.
-- **MSRV is current stable Rust minus three releases**, pinned as
-  `rust-version` in every member's `Cargo.toml` and stated in
-  [`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md). Check a
-  change against it with `cargo +1.95 check --workspace --all-targets`;
-  raising the floor is a breaking change and belongs in a release allowed
-  to break.
+- Each crate keeps its own edition, feature set, and dependency list. The
+  one deliberate exception is `rust-version`, below — everything else
+  stays per-crate; there is still no shared `[workspace.dependencies]`
+  table, and don't add one without discussion.
+- **MSRV is current stable Rust minus two releases**, pinned once in the
+  root `Cargo.toml`'s `[workspace.package]` and inherited by every member
+  as `rust-version.workspace = true` — see
+  [`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md),
+  which also has the mechanical reason: fourteen crates that must always
+  agree on one value are the case `[workspace.package]` inheritance exists
+  for. Check a change against it with
+  `cargo +1.96 check --workspace --all-targets`; raising the floor is a
+  breaking change and belongs in a release allowed to break.
 - **Workspace-wide claims live in `spec/`**, not in a crate: `conformance/`
   (what "supports 2.1-2.9" means, with the segment, type, and structure
   lists), `phi/` (what the crates do with patient data and where a value can
   escape into a log), `benchmark/` (how figures are measured and what the
-  current ones are), `rust-msrv-n-minus-3/` (the MSRV policy). A change that
+  current ones are), `rust-msrv-n-minus-2/` (the MSRV policy). A change that
   widens dictionary coverage, adds a way for message content to reach an
   error string, or moves a published benchmark figure updates the
   corresponding one in the same change.

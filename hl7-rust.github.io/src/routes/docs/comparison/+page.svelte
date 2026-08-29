@@ -252,7 +252,7 @@ let name = fields[5];`;
       crates do with it</a>, and where a value can escape into a log.
     </li>
     <li>
-      <strong>An MSRV of current stable minus three</strong>, because hospital toolchains are
+      <strong>An MSRV of current stable minus two</strong>, because hospital toolchains are
       approved on a cycle measured in quarters.
     </li>
     <li>

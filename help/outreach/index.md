@@ -144,7 +144,7 @@ Before pointing anyone at this:
   request was sent 2026-08-25 and the reply is pending; the gate is on the
   answer, not on the sending.
 - The MSRV policy is already documented
-  ([`spec/rust-msrv-n-minus-3`](../../spec/rust-msrv-n-minus-3/index.md)) and is
+  ([`spec/rust-msrv-n-minus-2`](../../spec/rust-msrv-n-minus-2/index.md)) and is
   genuinely a selling point to this audience — hospital toolchains move in
   quarters. Say so explicitly in promotional copy.
 

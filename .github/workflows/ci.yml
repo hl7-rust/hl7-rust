@@ -7,12 +7,13 @@
 #   cargo clippy --all-targets -- -D warnings # lint-clean
 #   cargo fmt --check                         # formatting
 #   cargo rustdoc --lib -- -W missing-docs    # every public item documented
-#   cargo +1.95 check --workspace --all-targets   # the MSRV floor
+#   cargo +1.96 check --workspace --all-targets   # the MSRV floor
 #
 # The MSRV toolchain below moves with the policy in
-# spec/rust-msrv-n-minus-3/index.md: current stable minus three releases,
-# pinned as `rust-version` in every member's Cargo.toml. When the pin moves,
-# this file moves in the same change.
+# spec/rust-msrv-n-minus-2/index.md: current stable minus two releases,
+# pinned once as `[workspace.package] rust-version` in the root Cargo.toml
+# and inherited by every member as `rust-version.workspace = true`. When
+# the pin moves, this file moves in the same change.
 #
 # Disk, not time, is the constraint these two build jobs manage. A local
 # `target/` from ordinary development on this workspace already runs to
@@ -81,13 +82,13 @@ jobs:
           done
 
   msrv:
-    name: MSRV floor (1.95)
+    name: MSRV floor (1.96)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Free preinstalled runner bloat
         run: .github/workflows/free-disk-space.sh
-      - uses: dtolnay/rust-toolchain@1.95
+      - uses: dtolnay/rust-toolchain@1.96
       - name: cargo check --workspace --all-targets
         run: cargo check --workspace --all-targets
 

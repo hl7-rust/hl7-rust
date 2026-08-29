@@ -31,7 +31,7 @@ cargo fmt --check                         # formatting
 cargo rustdoc --lib -- -W missing-docs    # every public item documented
 
 # And against the minimum supported Rust version
-cargo +1.95 check --workspace --all-targets`;
+cargo +1.96 check --workspace --all-targets`;
 
   const workspace = `Cargo.toml           the workspace: [workspace] members, nothing else
 Cargo.lock           one, at the root — never one inside a member
@@ -165,12 +165,13 @@ spec/                workspace-wide specs (the MSRV policy)
       directory.
     </li>
     <li>
-      <strong>No <code>[workspace.package]</code> inheritance or shared
-        <code>[workspace.dependencies]</code></strong> without discussion — either would touch every
-      member's manifest at once.
+      <strong>No shared <code>[workspace.dependencies]</code></strong> without discussion — it would
+      touch every member's manifest at once. The one deliberate exception is
+      <code>rust-version</code>, below, inherited via <code>[workspace.package]</code> because all
+      fourteen members must always agree on that one value.
     </li>
     <li>
-      <strong>MSRV is current stable minus three.</strong> Raising the floor is a breaking change and
+      <strong>MSRV is current stable minus two.</strong> Raising the floor is a breaking change and
       belongs in a release allowed to break.
     </li>
     <li>

@@ -256,6 +256,29 @@ Per `spec/free-open-source-funding/index.md`.
       `spec/special-files-for-public-repos/`, resolved to a pointer at the
       root document (the `fhir-rust` precedent). Now green: 99 tracked
       documents, all within budget, zero broken relative links.
+- [x] Raise MSRV from N-3 to N-2 (`spec/rust-msrv-n-minus-2/index.md`,
+      committed by the owner as `e1352d0`) — implemented 2026-08-29: current
+      stable is 1.98.0, so the floor moves to 1.96, installed and verified
+      locally (`cargo +1.96 check --workspace --all-targets` — clean, no
+      code needed to change). The mechanism changed along with the number:
+      `rust-version` now lives once, in the root `Cargo.toml`'s
+      `[workspace.package]`, and all fourteen members inherit it via
+      `rust-version.workspace = true` instead of each declaring "1.95"
+      individually — the spec's own stated reason (`cargo metadata`
+      confirms all fourteen resolve to 1.96). That is new use of
+      `[workspace.package]` inheritance, which `AGENTS.md`'s working
+      conventions previously said not to add without discussion; corrected
+      there to describe the narrow exception rather than left contradicting
+      the code the moment this landed. Propagated everywhere the old value
+      or the old spec path was live prose rather than a historical record —
+      fourteen `Cargo.toml`s, `.github/workflows/ci.yml`, `AGENTS.md`,
+      `README.md`, `RFC.md`, `INSTALL.md`, `CONTRIBUTING.md`,
+      `AI_STATEMENT.md`, `NEWS.md`, `COMPARISONS.md`,
+      `help/outreach/index.md`, `spec/professionalization/index.md`, and
+      seven website pages (typechecked and built clean). Left alone,
+      deliberately: mentions inside dated `CHANGELOG.md`, `NEWS.md`, and
+      `tasks.md` entries that record what was true *at the time* — rewriting
+      those would falsify history, not fix staleness.
 
 ## Trademarks
 

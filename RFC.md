@@ -270,7 +270,7 @@ have chosen differently.
 
 | Decision | Where the reasoning is |
 |---|---|
-| MSRV is current stable minus three releases | [`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md) |
+| MSRV is current stable minus two releases | [`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md) |
 | The spec is the source of truth; behaviour changes go there first | each crate's `spec/index.md` |
 | Coverage grows from real messages, never from transcribing the standard | §1 above, and [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Byte-for-byte round trip, and the explicit null kept distinct | [`spec/conformance/index.md`](spec/conformance/index.md) |

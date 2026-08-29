@@ -143,7 +143,7 @@ decision in the project, all of which is written down in the specs.
   that confirm it.
 - **Five licenses at the user's option**, chosen so that a proprietary
   vendor and a public-sector project can both adopt it without asking.
-- **A minimum supported Rust version of current stable minus three**,
+- **A minimum supported Rust version of current stable minus two**,
   chosen because hospital toolchains are approved on a cycle measured in
   quarters.
 - **Benchmarks and their method are published**, including the project's

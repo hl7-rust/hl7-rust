@@ -282,7 +282,7 @@ message.set("OBX-5", "90|100")?;`;
     <dt>The crate does not build on your toolchain</dt>
     <dd>
       Check your Rust version against the crate's <code>rust-version</code>. The floor is current
-      stable minus three releases. If you are at or above it and it still fails, that is a bug worth
+      stable minus two releases. If you are at or above it and it still fails, that is a bug worth
       reporting.
     </dd>
     <dt><code>cargo install hl7-2</code> succeeded but <code>hl7-2</code> is not a command</dt>

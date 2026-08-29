@@ -105,7 +105,7 @@ than of one member.
 | [`spec/conformance/index.md`](spec/conformance/index.md) | What "supports HL7 v2 releases 2.1-2.9" means, exactly — segments, types, and structures by name, and what happens outside them |
 | [`spec/phi/index.md`](spec/phi/index.md) | What these crates do with protected health information, what they never do, and where a value can escape into a log |
 | [`spec/benchmark/index.md`](spec/benchmark/index.md) | The rules that govern how performance figures are produced and published |
-| [`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md) | The minimum supported Rust version policy every member pins to |
+| [`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md) | The minimum supported Rust version policy every member pins to |
 | [`spec/professionalization/index.md`](spec/professionalization/index.md) | What "professional" means here — the rules that bind the maintainer, and an honest status against each |
 | [`spec/trusted-publishing/index.md`](spec/trusted-publishing/index.md) | Why crates.io releases still use a long-lived API token, and what has to be true before that changes |
 | [`MAINTAINERS.md`](MAINTAINERS.md) | Who maintains this, what the bus factor is, and what happens if that person is unavailable |

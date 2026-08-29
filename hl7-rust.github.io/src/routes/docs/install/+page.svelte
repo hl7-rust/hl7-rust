@@ -63,7 +63,7 @@ cargo test             # every workspace member's tests
 cargo build -p hl7-2   # just one
 
 # Check against the minimum supported Rust version
-cargo +1.95 check --workspace --all-targets`;
+cargo +1.96 check --workspace --all-targets`;
 
   const verify = `use hl7::v2;
 
@@ -94,9 +94,9 @@ fn main() -> Result<(), v2::Error> {
     and no vendored binary anywhere in the workspace.
   </p>
   <p>
-    The minimum supported Rust version is <strong>current stable minus three releases</strong>,
-    pinned as <code>rust-version</code> in every member's <code>Cargo.toml</code>. At the time of
-    writing that is <code>1.95</code>. Raising the floor is treated as a breaking change. See
+    The minimum supported Rust version is <strong>current stable minus two releases</strong>,
+    pinned once in the workspace root and inherited by every member. At the time of
+    writing that is <code>1.96</code>. Raising the floor is treated as a breaking change. See
     <a href="/docs/versions/">Versions and compatibility</a> for the policy in full.
   </p>
 

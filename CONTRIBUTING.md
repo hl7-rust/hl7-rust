@@ -78,12 +78,12 @@ cargo test                                # unit and integration tests
 cargo clippy --all-targets -- -D warnings # lint-clean
 cargo fmt --check                         # formatting
 cargo rustdoc --lib -- -W missing-docs    # every public item documented
-cargo +1.95 check --workspace --all-targets   # the MSRV floor
+cargo +1.96 check --workspace --all-targets   # the MSRV floor
 ```
 
-The MSRV floor is current stable minus three releases, so the exact
+The MSRV floor is current stable minus two releases, so the exact
 toolchain in that last line moves; the rule is in
-[`spec/rust-msrv-n-minus-3/index.md`](spec/rust-msrv-n-minus-3/index.md).
+[`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md).
 
 And the conventions that a reviewer will otherwise ask about:
 

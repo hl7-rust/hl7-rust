@@ -208,8 +208,8 @@
       of. Summarised at <a href="/docs/benchmarks/">Benchmarks</a>.
     </dd>
     <dt>
-      <a href={`${REPO}/blob/main/spec/rust-msrv-n-minus-3/index.md`}
-        ><code>spec/rust-msrv-n-minus-3/index.md</code></a
+      <a href={`${REPO}/blob/main/spec/rust-msrv-n-minus-2/index.md`}
+        ><code>spec/rust-msrv-n-minus-2/index.md</code></a
       >
     </dt>
     <dd>

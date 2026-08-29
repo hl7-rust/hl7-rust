@@ -150,7 +150,7 @@ Stated without adjectives, so each one can be checked:
   structures, and what happens outside them.
 - **A stated position on patient data** — what these crates do with it, and
   where a value can escape into a log.
-- **An MSRV of current stable minus three**, because hospital toolchains
+- **An MSRV of current stable minus two**, because hospital toolchains
   are approved on a cycle measured in quarters.
 - **Five licenses, at your option**, so licensing is not a conversation.
 - **A vendor dialect is one JSON file**, or generated from your own XSDs.
