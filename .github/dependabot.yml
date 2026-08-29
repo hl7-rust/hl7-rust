@@ -38,6 +38,18 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "ci"
+    ignore:
+      # dtolnay/rust-toolchain@1.96 in the msrv job is not a dependency
+      # pin, it *is* the MSRV floor spec/rust-msrv-n-minus-2/index.md
+      # states — Dependabot reads the tag as a routine action version to
+      # bump forward, same as it would checkout@4 -> checkout@7, and
+      # proposed @1.100 within a day of this file landing. CI caught it
+      # (the msrv job failed, as it should against a toolchain the policy
+      # never chose), but the fix belongs in the deliberate MSRV-raising
+      # process in AGENTS.md and that spec, not an automated PR. The
+      # dtolnay/rust-toolchain@stable pin in the other job is a channel
+      # name, not a version, so it was never at risk the same way.
+      - dependency-name: "dtolnay/rust-toolchain"
 
   - package-ecosystem: "npm"
     directory: "/hl7-rust.github.io"

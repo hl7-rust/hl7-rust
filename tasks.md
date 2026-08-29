@@ -131,7 +131,21 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       staffed to keep up with. This is a distinct capability from
       `cargo deny` above, not a duplicate of it: `deny` catches what is
       already in the lockfile today; Dependabot opens the PR when a new
-      advisory or a new version appears after that.
+      advisory or a new version appears after that. **First live PRs
+      confirmed it works, and caught a real gap in the config within a
+      day**: ten PRs opened across all three ecosystems; nine passed CI
+      clean, and the tenth — `dtolnay/rust-toolchain` "bumped" from
+      `1.96` to `1.100` — failed, because that pin is not a version to
+      keep current, it *is* the MSRV floor
+      `spec/rust-msrv-n-minus-2/index.md` states. Dependabot's
+      github-actions ecosystem reads the tag the same way it would
+      `checkout@4` → `checkout@7`; CI's `msrv` job correctly rejected the
+      toolchain the policy never chose. Fixed with an `ignore:` rule on
+      that one dependency name — raising the MSRV stays a deliberate,
+      spec-driven change, never an automated PR — and the failing PR
+      closed. The `@stable` pin in the other job was never at risk the
+      same way; it names a channel, not a version, so Dependabot has
+      nothing numeric to bump.
 
 ### Governance
 
