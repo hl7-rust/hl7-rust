@@ -20,7 +20,7 @@ proc-macro = true
 # has exactly one dependency.
 proc-macro2 = "1"
 quote = "1"
-syn = { version = "2", features = ["derive", "parsing", "printing", "proc-macro"], default-features = false }
+syn = { version = "3", features = ["derive", "parsing", "printing", "proc-macro"], default-features = false }
 
 [dev-dependencies]
 # Path only, deliberately: a proc-macro crate can only be tested by
