@@ -191,9 +191,9 @@ checksum = "9e5e8f6c15a24b9a3ee5efec809ccd006d3b30e8b3bb63c39af737c7f87daa1d"
 
 [[package]]
 name = "er7"
-version = "0.1.1"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8b4e66862ad5116b35bcbaeea7f087a7a014170cc1c91224b1d0105ce54774c"
+checksum = "3bbba5f81bd2a911ff98aa1ac9bbe32eb62ea7f393e275e3a7706ae40a320656"
 
 [[package]]
 name = "find-msvc-tools"
