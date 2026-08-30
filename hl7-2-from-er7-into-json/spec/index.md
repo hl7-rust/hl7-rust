@@ -333,9 +333,13 @@ Same scope boundaries as the XML sibling, restated for this crate:
 - Input is split into messages per §5; each converts independently, and a
   conversion failure on any one message aborts the whole run (exit code 1,
   an error naming that message's 1-based position on stderr). Multiple
-  output documents are joined with a blank line (each is still its own,
-  independent JSON document — the output as a whole is not itself one
-  parseable JSON value when there is more than one message).
+  output documents are joined with a single `\n`: in the pretty-printed
+  default (§4.7) each document already ends in its own trailing newline, so
+  the join reads as a blank line between documents; in `--compact` mode,
+  which has no trailing newline, the join reads as one newline with no
+  blank line. Either way, each document is still its own, independent JSON
+  document — the output as a whole is not itself one parseable JSON value
+  when there is more than one message.
 - Exit code 0 on success; 1 on any error (bad arguments, I/O failure, or a
   conversion error), with a message on stderr prefixed
   `hl7-2-from-er7-into-json: error:`.
