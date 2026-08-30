@@ -211,8 +211,12 @@ The five things a review usually wants, with where to check each:
 1. **Dependency surface.** `cargo tree -p hl7-2` — one crate, `er7`, itself
    dependency-free. Add `--all-features` to see what `derive` pulls in at
    compile time.
-2. **No network or filesystem access from the library.** Grep the sources
-   for `std::net`, `std::fs`, and `std::env`; they appear only in the CLI.
+2. **No network or filesystem access from message-handling library code.**
+   Grep the sources for `std::net`, `std::fs`, and `std::env`; they appear
+   only in the CLI, with one deliberate exception that touches no messages:
+   `hl7-2-from-xsd-into-json-dictionary`'s library reads the XSD schema
+   files you name, because reading them is that crate's entire purpose (see
+   [What the libraries never do](#what-the-libraries-never-do) above).
 3. **No logging.** Grep the manifests for `log` and `tracing`.
 4. **What can appear in an error.**
    [Where a value can escape](#where-a-value-can-escape) above, then

@@ -126,9 +126,12 @@ Each one is checkable in a few minutes, which is the point:
   `#![forbid(unsafe_code)]`. `forbid` outranks any `allow` further down, so
   a crate here cannot regain the ability to write `unsafe` without someone
   deleting that line in a diff you can see.
-- **No network access, no filesystem access, no environment variables, no
-  subprocesses** from library code. `std::net`, `std::fs`, `std::env`, and
-  `std::process` appear only in the command-line binaries.
+- **No network access, no environment variables, no subprocesses** from
+  library code. `std::net`, `std::env`, and `std::process` appear only in
+  the command-line binaries. `std::fs` appears in one deliberate exception
+  that touches no messages: `hl7-2-from-xsd-into-json-dictionary`'s library
+  reads the XSD schema files you name, because reading them is that crate's
+  entire purpose — see `spec/phi/index.md` for the full carve-out.
 - **No logging, telemetry, or analytics**, and no dependency that could
   provide any.
 - **One runtime dependency.** `hl7-2` depends on `er7`, which depends on
