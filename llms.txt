@@ -34,7 +34,7 @@ endorsed by Health Level Seven International.
 - [hl7-2-from-er7-into-xml](hl7-2-from-er7-into-xml): ER7 -> official v2.xml XML
 - [hl7-2-from-xml-into-er7](hl7-2-from-xml-into-er7): v2.xml XML -> ER7
 - [hl7-2-from-xsd-into-json-dictionary](hl7-2-from-xsd-into-json-dictionary): HL7 v2.xml XSDs -> the JSON dictionary `hl7-2` reads
-- [hl7-2-xml-lite-helper](hl7-2-xml-lite-helper): minimal XML reader shared by the v2.xml crates and `hl7-3`
+- [hl7-2-xml-lite-helper](hl7-2-xml-lite-helper): minimal XML reader shared by `hl7-2-soap`, `hl7-2-from-xml-into-er7`, `hl7-2-from-xsd-into-json-dictionary`, `hl7-3`, and `hl7-3-soap`
 
 ## Specifications (normative)
 
