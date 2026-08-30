@@ -1,0 +1,78 @@
+{
+  "name": "HL7 Rust",
+  "trademark_notice": "HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7. This project is an independent work, not affiliated with or endorsed by Health Level Seven International.",
+  "summary": "Parse, navigate, validate, modify, and render Health Level Seven (HL7) messages in Rust. A Cargo workspace of fourteen small, mostly dependency-free crates: HL7 v2 (releases 2.1-2.9) with three parsing modes and a command-line tool, a foundation for HL7 v3, format conversion between ER7 (pipe-delimited), the official v2.xml, and JSON, transports (MLLP, SOAP), and tooling to build a vendor dictionary from a site's own XSDs.",
+  "sections": [
+    {
+      "title": "Start here",
+      "links": [
+        { "title": "Documentation", "url": "https://hl7-rust.github.io/docs/", "description": "Install it, run it, and learn the vocabulary the rest of this site assumes" },
+        { "title": "Install", "url": "https://hl7-rust.github.io/docs/install/", "description": "Every crate, every feature flag, and the command-line tools" },
+        { "title": "hl7-skill/SKILL.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/hl7-skill/SKILL.md", "description": "HL7 concepts, terminology, and ideas, with worked examples - read this first to learn the vocabulary" },
+        { "title": "Quick start", "url": "https://hl7-rust.github.io/docs/quickstart/", "description": "A real message parsed, queried, edited, and answered, in about five minutes" },
+        { "title": "Concepts", "url": "https://hl7-rust.github.io/docs/concepts/", "description": "The full vocabulary this project and this file assume" }
+      ]
+    },
+    {
+      "title": "Crates",
+      "links": [
+        { "title": "hl7", "url": "https://hl7-rust.github.io/crates/hl7/", "description": "Umbrella crate - hl7::v2 and hl7::v3 today, room for hl7::fhir" },
+        { "title": "hl7-2", "url": "https://hl7-rust.github.io/crates/hl7-2/", "description": "HL7 v2 itself - parse, navigate, validate, modify, render; also the hl7-v2 command-line tool" },
+        { "title": "hl7-3", "url": "https://hl7-rust.github.io/crates/hl7-3/", "description": "HL7 v3 - RIM backbone classes, coded values, the three-level message envelope; a foundation, not a full implementation" },
+        { "title": "hl7-2-derive", "url": "https://hl7-rust.github.io/crates/hl7-2-derive/", "description": "#[derive(FromHl7)] / #[derive(ToHl7)], behind hl7-2's derive feature" },
+        { "title": "hl7-3-derive", "url": "https://hl7-rust.github.io/crates/hl7-3-derive/", "description": "#[derive(FromElement)], behind hl7-3's derive feature" },
+        { "title": "hl7-2-mllp", "url": "https://hl7-rust.github.io/crates/hl7-2-mllp/", "description": "HL7 v2 framed on a TCP stream (MLLP)" },
+        { "title": "hl7-2-soap", "url": "https://hl7-rust.github.io/crates/hl7-2-soap/", "description": "HL7 v2 carried in a SOAP envelope over HTTP" },
+        { "title": "hl7-3-soap", "url": "https://hl7-rust.github.io/crates/hl7-3-soap/", "description": "HL7 v3 carried in a SOAP envelope over HTTP - v3's own historically dominant transport" },
+        { "title": "hl7-2-from-er7-into-json", "url": "https://hl7-rust.github.io/crates/hl7-2-from-er7-into-json/", "description": "ER7 -> typed JSON" },
+        { "title": "hl7-2-from-json-into-er7", "url": "https://hl7-rust.github.io/crates/hl7-2-from-json-into-er7/", "description": "typed JSON -> ER7" },
+        { "title": "hl7-2-from-er7-into-xml", "url": "https://hl7-rust.github.io/crates/hl7-2-from-er7-into-xml/", "description": "ER7 -> official v2.xml XML" },
+        { "title": "hl7-2-from-xml-into-er7", "url": "https://hl7-rust.github.io/crates/hl7-2-from-xml-into-er7/", "description": "v2.xml XML -> ER7" },
+        { "title": "hl7-2-from-xsd-into-json-dictionary", "url": "https://hl7-rust.github.io/crates/hl7-2-from-xsd-into-json-dictionary/", "description": "HL7 v2.xml XSDs -> the JSON dictionary hl7-2 reads" },
+        { "title": "hl7-2-xml-lite-helper", "url": "https://hl7-rust.github.io/crates/hl7-2-xml-lite-helper/", "description": "Minimal XML reader shared by the v2.xml crates and hl7-3" }
+      ]
+    },
+    {
+      "title": "Specifications (normative)",
+      "links": [
+        { "title": "spec/conformance", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/spec/conformance/index.md", "description": "What \"supports HL7 v2 releases 2.1-2.9\" means, exactly - segments, types, and structures by name" },
+        { "title": "spec/phi", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/spec/phi/index.md", "description": "What these crates do with protected health information, and where a value can escape into a log" },
+        { "title": "spec/benchmark", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/spec/benchmark/index.md", "description": "How the published performance figures are measured" },
+        { "title": "spec/rust-msrv-n-minus-2", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/spec/rust-msrv-n-minus-2/index.md", "description": "The minimum supported Rust version policy" },
+        { "title": "Specifications index", "url": "https://hl7-rust.github.io/spec/", "description": "Every crate's own spec/index.md, the single source of truth for that crate's behavior - where anything else disagrees with it, the spec wins" }
+      ]
+    },
+    {
+      "title": "Agent skills",
+      "links": [
+        { "title": "hl7-skill/SKILL.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/hl7-skill/SKILL.md", "description": "HL7 concepts, terminology, and ideas for end users, with examples from this repo" },
+        { "title": "hl7-rust-maintainer-skill/SKILL.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/hl7-rust-maintainer-skill/SKILL.md", "description": "Implementation-level conventions for changing this workspace's own code, specs, and docs" }
+      ]
+    },
+    {
+      "title": "Governance and policy",
+      "links": [
+        { "title": "CONTRIBUTING.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/CONTRIBUTING.md", "description": "How to file a report, what a good pull request needs, and how to help without writing code" },
+        { "title": "MAINTAINERS.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/MAINTAINERS.md", "description": "Who maintains this, the bus factor, and what happens if the maintainer is unavailable" },
+        { "title": "GOVERNANCE.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/GOVERNANCE.md", "description": "Who decides, what is in scope, and how to become a maintainer" },
+        { "title": "SECURITY.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/SECURITY.md", "description": "How to report a vulnerability and what counts as one" },
+        { "title": "Patient data", "url": "https://hl7-rust.github.io/docs/patient-data/", "description": "Plain-language answers about patient data, for a privacy officer or reviewer" },
+        { "title": "TRADEMARKS.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/TRADEMARKS.md", "description": "The consolidated HL7/FHIR trademark position" },
+        { "title": "AI_STATEMENT.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/AI_STATEMENT.md", "description": "How AI tools are used to build this, and who is accountable" },
+        { "title": "LICENSE.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/LICENSE.md", "description": "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only" }
+      ]
+    },
+    {
+      "title": "Optional",
+      "links": [
+        { "title": "CHANGELOG.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/CHANGELOG.md", "description": "What changed, change by change, with the crate versions that carried it" },
+        { "title": "News", "url": "https://hl7-rust.github.io/news/", "description": "Announcements and project status" },
+        { "title": "Compared with the alternatives", "url": "https://hl7-rust.github.io/docs/comparison/", "description": "Interface engines, HAPI, and the other Rust crates - and when this project is the wrong answer" },
+        { "title": "Benchmarks", "url": "https://hl7-rust.github.io/docs/benchmarks/", "description": "Measured figures and the method that produced them" },
+        { "title": "RFC.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/RFC.md", "description": "The open questions this project is genuinely unsure about" },
+        { "title": "CITATION.cff", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/CITATION.cff", "description": "Citation metadata, including an ORCID" },
+        { "title": "GitHub repository", "url": "https://github.com/hl7-rust/hl7-rust", "description": "The source code, issue tracker, and this file's origin" }
+      ]
+    }
+  ]
+}

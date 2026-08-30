@@ -1,0 +1,71 @@
+# HL7® Rust
+
+> HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.
+
+Parse, navigate, validate, modify, and render Health Level Seven (HL7)
+messages in Rust. A Cargo workspace of fourteen small, mostly
+dependency-free crates: HL7 v2 (releases 2.1-2.9) with three parsing
+modes and a command-line tool, a foundation for HL7 v3, format
+conversion between ER7 (pipe-delimited), the official v2.xml, and JSON,
+transports (MLLP, SOAP), and tooling to build a vendor dictionary from a
+site's own XSDs. This is an independent project, not affiliated with or
+endorsed by Health Level Seven International.
+
+## Start here
+
+- [Documentation](https://hl7-rust.github.io/docs/): install it, run it, and learn the vocabulary the rest of this site assumes
+- [Install](https://hl7-rust.github.io/docs/install/): every crate, every feature flag, and the command-line tools
+- [hl7-skill/SKILL.md](https://github.com/hl7-rust/hl7-rust/blob/main/hl7-skill/SKILL.md): HL7 concepts, terminology, and ideas, with worked examples — read this first to learn the vocabulary
+- [Quick start](https://hl7-rust.github.io/docs/quickstart/): a real message parsed, queried, edited, and answered, in about five minutes
+- [Concepts](https://hl7-rust.github.io/docs/concepts/): the full vocabulary this project and this file assume
+
+## Crates
+
+- [hl7](https://hl7-rust.github.io/crates/hl7/): umbrella crate — `hl7::v2` and `hl7::v3` today, room for `hl7::fhir`
+- [hl7-2](https://hl7-rust.github.io/crates/hl7-2/): HL7 v2 itself — parse, navigate, validate, modify, render; also the `hl7-v2` command-line tool
+- [hl7-3](https://hl7-rust.github.io/crates/hl7-3/): HL7 v3 — RIM backbone classes, coded values, the three-level message envelope; a foundation, not a full implementation
+- [hl7-2-derive](https://hl7-rust.github.io/crates/hl7-2-derive/): `#[derive(FromHl7)]` / `#[derive(ToHl7)]`, behind `hl7-2`'s `derive` feature
+- [hl7-3-derive](https://hl7-rust.github.io/crates/hl7-3-derive/): `#[derive(FromElement)]`, behind `hl7-3`'s `derive` feature
+- [hl7-2-mllp](https://hl7-rust.github.io/crates/hl7-2-mllp/): HL7 v2 framed on a TCP stream (MLLP)
+- [hl7-2-soap](https://hl7-rust.github.io/crates/hl7-2-soap/): HL7 v2 carried in a SOAP envelope over HTTP
+- [hl7-3-soap](https://hl7-rust.github.io/crates/hl7-3-soap/): HL7 v3 carried in a SOAP envelope over HTTP — v3's own historically dominant transport
+- [hl7-2-from-er7-into-json](https://hl7-rust.github.io/crates/hl7-2-from-er7-into-json/): ER7 -> typed JSON
+- [hl7-2-from-json-into-er7](https://hl7-rust.github.io/crates/hl7-2-from-json-into-er7/): typed JSON -> ER7
+- [hl7-2-from-er7-into-xml](https://hl7-rust.github.io/crates/hl7-2-from-er7-into-xml/): ER7 -> official v2.xml XML
+- [hl7-2-from-xml-into-er7](https://hl7-rust.github.io/crates/hl7-2-from-xml-into-er7/): v2.xml XML -> ER7
+- [hl7-2-from-xsd-into-json-dictionary](https://hl7-rust.github.io/crates/hl7-2-from-xsd-into-json-dictionary/): HL7 v2.xml XSDs -> the JSON dictionary `hl7-2` reads
+- [hl7-2-xml-lite-helper](https://hl7-rust.github.io/crates/hl7-2-xml-lite-helper/): minimal XML reader shared by the v2.xml crates and `hl7-3`
+
+## Specifications (normative)
+
+- [spec/conformance](https://github.com/hl7-rust/hl7-rust/blob/main/spec/conformance/index.md): what "supports HL7 v2 releases 2.1-2.9" means, exactly — segments, types, and structures by name
+- [spec/phi](https://github.com/hl7-rust/hl7-rust/blob/main/spec/phi/index.md): what these crates do with protected health information, and where a value can escape into a log
+- [spec/benchmark](https://github.com/hl7-rust/hl7-rust/blob/main/spec/benchmark/index.md): how the published performance figures are measured
+- [spec/rust-msrv-n-minus-2](https://github.com/hl7-rust/hl7-rust/blob/main/spec/rust-msrv-n-minus-2/index.md): the minimum supported Rust version policy
+- [Specifications index](https://hl7-rust.github.io/spec/): every crate's own `spec/index.md`, the single source of truth for that crate's behavior — where anything else disagrees with it, the spec wins
+
+## Agent skills
+
+- [hl7-skill/SKILL.md](https://github.com/hl7-rust/hl7-rust/blob/main/hl7-skill/SKILL.md): HL7 concepts, terminology, and ideas for end users, with examples from this repo
+- [hl7-rust-maintainer-skill/SKILL.md](https://github.com/hl7-rust/hl7-rust/blob/main/hl7-rust-maintainer-skill/SKILL.md): implementation-level conventions for changing this workspace's own code, specs, and docs
+
+## Governance and policy
+
+- [CONTRIBUTING.md](https://github.com/hl7-rust/hl7-rust/blob/main/CONTRIBUTING.md): how to file a report, what a good pull request needs, and how to help without writing code
+- [MAINTAINERS.md](https://github.com/hl7-rust/hl7-rust/blob/main/MAINTAINERS.md): who maintains this, the bus factor, and what happens if the maintainer is unavailable
+- [GOVERNANCE.md](https://github.com/hl7-rust/hl7-rust/blob/main/GOVERNANCE.md): who decides, what is in scope, and how to become a maintainer
+- [SECURITY.md](https://github.com/hl7-rust/hl7-rust/blob/main/SECURITY.md): how to report a vulnerability and what counts as one
+- [Patient data](https://hl7-rust.github.io/docs/patient-data/): plain-language answers about patient data, for a privacy officer or reviewer
+- [TRADEMARKS.md](https://github.com/hl7-rust/hl7-rust/blob/main/TRADEMARKS.md): the consolidated HL7®/FHIR® trademark position
+- [AI_STATEMENT.md](https://github.com/hl7-rust/hl7-rust/blob/main/AI_STATEMENT.md): how AI tools are used to build this, and who is accountable
+- [LICENSE.md](https://github.com/hl7-rust/hl7-rust/blob/main/LICENSE.md): MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only
+
+## Optional
+
+- [CHANGELOG.md](https://github.com/hl7-rust/hl7-rust/blob/main/CHANGELOG.md): what changed, change by change, with the crate versions that carried it
+- [News](https://hl7-rust.github.io/news/): announcements and project status
+- [Compared with the alternatives](https://hl7-rust.github.io/docs/comparison/): interface engines, HAPI, and the other Rust crates — and when this project is the wrong answer
+- [Benchmarks](https://hl7-rust.github.io/docs/benchmarks/): measured figures and the method that produced them
+- [RFC.md](https://github.com/hl7-rust/hl7-rust/blob/main/RFC.md): the open questions this project is genuinely unsure about
+- [CITATION.cff](https://github.com/hl7-rust/hl7-rust/blob/main/CITATION.cff): citation metadata, including an ORCID
+- [GitHub repository](https://github.com/hl7-rust/hl7-rust): the source code, issue tracker, and this file's origin
