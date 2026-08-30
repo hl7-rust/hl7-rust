@@ -38,8 +38,8 @@ positionally, warns, and round-trips byte for byte.
 publishes measured figures with confidence intervals, on a named machine
 and toolchain, from benchmarks in the repository that anyone can run. Two
 worth carrying away: parsing a small ADT costs about 3 µs, so parsing is
-not your bottleneck; and reading two fields by path costs about 4 µs
-against 1.50 ms to build the whole tree of the same message — nearly 400
+not your bottleneck; and reading two fields by path costs about 3.6 µs
+against 1.44 ms to build the whole tree of the same message — nearly 400
 times more, so use paths.
 
 **A plain statement about patient data.**
