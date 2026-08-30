@@ -36,6 +36,15 @@ example) exactly as they did as sibling repositories — the flat,
 one-directory-per-crate layout was kept specifically so those paths did
 not need to change.
 
+## Working with HL7 messages
+
+[`hl7-skill/SKILL.md`](hl7-skill/SKILL.md) is an Agent Skill covering the
+*use* of this workspace's crates — which one to reach for, CLI recipes for
+parsing/converting/validating HL7 v2 messages, and the gotchas worth
+knowing before relying on the output. This file and the rest of `AGENTS.md`
+family cover working *on* the workspace instead; read whichever one
+matches the task.
+
 ## Working conventions
 
 - `cargo build` / `cargo test` from the workspace root builds and tests

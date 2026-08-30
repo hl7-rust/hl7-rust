@@ -79,6 +79,11 @@ export const SECTIONS: NavSection[] = [
         href: '/docs/patient-data/',
         label: 'Patient data',
         blurb: 'What these crates do with PHI, what they never do, and where a value can escape.'
+      },
+      {
+        href: '/docs/agent-skill/',
+        label: 'Agent skill',
+        blurb: 'A SKILL.md for Claude Code and other agents: which crate, which recipe, which gotcha.'
       }
     ]
   },

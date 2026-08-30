@@ -72,6 +72,16 @@ workspace. Everything else above is a member here.
 Each crate has its own `README.md` (user-facing tour) and, where behavior
 is normative, a `spec/index.md` (single source of truth for that crate).
 
+## Agent skill
+
+[`hl7-skill/`](hl7-skill) is an
+[Agent Skill](https://code.claude.com/docs/en/skills) for Claude Code (and
+any other tool that reads a `SKILL.md`): which crate or CLI to reach for,
+copy-paste conversion and query recipes, and the gotchas worth knowing
+before relying on the output. Point an agent at this repository and it
+picks the skill up on its own; see
+[`hl7-skill/SKILL.md`](hl7-skill/SKILL.md) to read it directly.
+
 ## Build
 
 ```sh
