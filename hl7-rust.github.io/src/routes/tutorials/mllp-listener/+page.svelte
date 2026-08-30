@@ -63,7 +63,8 @@ fn serve(stream: TcpStream) -> io::Result<()> {
         let control_id = format!("ACK{:06}", SEQUENCE.fetch_add(1, Ordering::Relaxed));
         let timestamp = timestamp();
 
-        let message = ack::parse(&payload)?;
+        let message = ack::parse(&payload)
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
         println!("{} {}", message.structure_id(), message.get("MSH-10").ok().flatten().unwrap_or_default());
 
         let reply = ack::acknowledge_message(&message, AckCode::Accept, &control_id, &timestamp)

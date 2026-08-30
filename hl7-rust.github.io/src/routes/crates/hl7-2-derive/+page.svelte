@@ -17,7 +17,7 @@
     { id: 'related', label: 'Related crates' }
   ];
 
-  const cargo = `hl7-2 = { version = "0.2", features = ["derive"] }`;
+  const cargo = `hl7-2 = { version = "0.3", features = ["derive"] }`;
 
   const usage = `use hl7_2::{FromHl7, ToHl7, Raw};
 

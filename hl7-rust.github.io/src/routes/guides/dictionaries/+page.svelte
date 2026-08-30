@@ -70,7 +70,7 @@ assert!(dictionary.field_cardinality("PID", 3).repeats);`;
 { "inherits": "2.5", "segments": { "SFT": null } }
 
 // Or layer over a dictionary you already hold, ignoring "inherits":
-let derived = hl7_2::Dictionary::from_json_over(&text, base, "acme")?;`;
+let derived = hl7_2::Dictionary::from_json_over(&text, "acme", base)?;`;
 
   const loading = `use std::sync::Arc;
 

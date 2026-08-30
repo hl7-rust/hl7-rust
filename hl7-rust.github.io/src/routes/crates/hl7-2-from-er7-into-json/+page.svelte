@@ -56,7 +56,7 @@ let json = hl7_2_from_er7_into_json::convert(er7)?;`;
 
   const options = `use hl7_2_from_er7_into_json::{Options, convert_with_options};
 
-let json = convert_with_options(er7, &Options { flat: true, compact: true })?;`;
+let json = convert_with_options(er7, Options { flat: true, compact: true })?;`;
 </script>
 
 <DocPage title={crate.name} lede={crate.tagline} {contents}>

@@ -37,13 +37,12 @@ ORU_R01
       PID
         PID.1 = 1
         PID.5
-          XPN.1
-            FN.1 = EVERYWOMAN
+          XPN.1 = EVERYWOMAN
           XPN.2 = EVE`;
 
   const cliQuery = `$ hl7-v2 --query OBX-5 oru_r01.hl7
 187
-D
+D^Rh positive^LN
 
 $ hl7-v2 --paths oru_r01.hl7 | head -3
 $ hl7-v2 --check oru_r01.hl7

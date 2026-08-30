@@ -103,7 +103,7 @@
 
 <DocPage
   title="Specifications"
-  lede="Ten of the fourteen crates carry a normative spec/index.md — the single source of truth for that crate's behavior. This site does not restate them; it points at them and says what each one covers."
+  lede="Eleven of the fourteen crates carry a normative spec/index.md — the single source of truth for that crate's behavior. This site does not restate them; it points at them and says what each one covers."
   {contents}
 >
   <h2 id="what-a-spec-is">What a spec is here</h2>
@@ -181,7 +181,7 @@
   <h2 id="workspace">The workspace's own specs</h2>
   <p>
     Several specs sit outside any crate, because what they state is true of the whole workspace
-    rather than of one member. Ten today. The spec is the normative version in every case; the
+    rather than of one member. Fourteen today. The spec is the normative version in every case; the
     entries below summarise them and link back.
   </p>
   <dl>
@@ -226,9 +226,17 @@
       back through git history as the trail goes — no HL7® file is vendored anywhere in this
       workspace.
     </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/rust-fuzz/index.md`}><code>spec/rust-fuzz/index.md</code></a>
+    </dt>
+    <dd>
+      Why the three crates with fuzz targets keep them outside the main Cargo workspace — each
+      declares its own empty <code>[workspace]</code> — so fuzzing never pulls the MSRV floor onto a
+      nightly-only toolchain.
+    </dd>
   </dl>
   <p>
-    The five above are about what the crates <em>do</em>. The five below are about how this
+    The six above are about what the crates <em>do</em>. The eight below are about how this
     repository runs itself — its own practice, not the code's behavior — but the same rule applies:
     the spec is the source of truth, and a root document that disagrees with one is the bug.
   </p>
@@ -281,6 +289,32 @@
       The canonical list of root-level files a public repository in this family carries —
       <code>README.md</code> through <code>AI_STATEMENT.md</code> — and, as of this workspace, a
       status section naming which ones exist here and which do not yet.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/dependabot/index.md`}><code>spec/dependabot/index.md</code></a>
+    </dt>
+    <dd>
+      Turns on GitHub's Dependabot security updates and a scheduled
+      <code>.github/dependabot.yml</code> for update pull requests.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/free-open-source-funding/index.md`}
+        ><code>spec/free-open-source-funding/index.md</code></a
+      >
+    </dt>
+    <dd>
+      What funding channels this project intends to set up — GitHub Sponsors, Open Collective, a
+      <code>FUNDING.yml</code> — and the other root documents that need to agree with it.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/trusted-publishing/index.md`}
+        ><code>spec/trusted-publishing/index.md</code></a
+      >
+    </dt>
+    <dd>
+      Why crates still publish with a long-lived API token today, and the OIDC-based Trusted
+      Publishing this project intends to adopt once it is production-ready across every forge and
+      destination it uses.
     </dd>
   </dl>
 </DocPage>

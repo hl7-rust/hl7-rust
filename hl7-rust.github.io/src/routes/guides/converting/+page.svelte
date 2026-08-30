@@ -68,7 +68,7 @@ let json = hl7_2_from_er7_into_json::convert(er7)?;`;
 
   const libOptions = `use hl7_2_from_er7_into_json::{Options, convert_with_options};
 
-let json = convert_with_options(er7, &Options { flat: true, compact: true })?;`;
+let json = convert_with_options(er7, Options { flat: true, compact: true })?;`;
 
   const libReverse = `let er7 = hl7_2_from_xml_into_er7::convert(xml)?;
 let er7 = hl7_2_from_json_into_er7::convert(json)?;

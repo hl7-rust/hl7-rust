@@ -156,9 +156,9 @@ cargo +1.96 check --workspace --all-targets`;
   </p>
   <CodeSample language="sh" code={msrv} />
   <p>
-    Raising the floor is a breaking change and belongs in a release that is allowed to break. If a
-    crate here fails to build on a Rust version at or above its declared
-    <code>rust-version</code>, that is a bug worth reporting.
+    Raising the floor is routine and expected, not a breaking change to be avoided — it happens in
+    the same change that observes a new stable release. If a crate here fails to build on a Rust
+    version at or above its declared <code>rust-version</code>, that is a bug worth reporting.
   </p>
 
   <h2 id="editions">Rust edition</h2>

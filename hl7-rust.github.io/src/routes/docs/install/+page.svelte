@@ -29,10 +29,10 @@ cargo add hl7-3
 cargo add hl7-3 --features derive`;
 
   const manifest = `[dependencies]
-hl7 = { version = "0.1", features = ["derive"] }
+hl7 = { version = "0.2", features = ["derive"] }
 
 # Or, taking v2 directly:
-hl7-2 = { version = "0.2", features = ["derive"] }`;
+hl7-2 = { version = "0.3", features = ["derive"] }`;
 
   const mllp = `# Everything: framing, streaming, transport, acknowledgement
 cargo add hl7-2-mllp
@@ -96,8 +96,9 @@ fn main() -> Result<(), v2::Error> {
   <p>
     The minimum supported Rust version is <strong>current stable minus two releases</strong>,
     pinned once in the workspace root and inherited by every member. At the time of
-    writing that is <code>1.96</code>. Raising the floor is treated as a breaking change. See
-    <a href="/docs/versions/">Versions and compatibility</a> for the policy in full.
+    writing that is <code>1.96</code>. Raising the floor is routine and expected, not a breaking
+    change to be avoided. See <a href="/docs/versions/">Versions and compatibility</a> for the
+    policy in full.
   </p>
 
   <h2 id="library">As a library</h2>

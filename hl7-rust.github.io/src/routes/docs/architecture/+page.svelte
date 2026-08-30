@@ -59,7 +59,12 @@ pub use hl7_3 as v3;`;
   {contents}
 >
   <h2 id="map">The map</h2>
-  <CodeSample language="text" code={map} label="The workspace as a dependency map" />
+  <p>
+    This groups crates by family and layer, not by literal Cargo dependency edges — several of the
+    branches shown below share a common dependency rather than depending on the crate above them in
+    the tree. See <a href="#shared">what actually depends on what</a> for the real edges.
+  </p>
+  <CodeSample language="text" code={map} label="The workspace, grouped by crate family and layer" />
 
   <h2 id="layers">One crate per layer</h2>
   <p>
@@ -187,10 +192,13 @@ pub use hl7_3 as v3;`;
     history is still walkable under its own directory.
   </p>
   <p>
-    Each crate keeps its own edition, feature set, and dependency list; the workspace does not use
-    <code>[workspace.package]</code> inheritance or a shared
+    Each crate keeps its own edition, feature set, and dependency list; the workspace has no shared
     <code>[workspace.dependencies]</code> table. That is a live decision rather than an oversight —
-    adding either would touch every member's manifest at once.
+    adding one would touch every member's manifest at once. The one deliberate exception is
+    <code>[workspace.package] rust-version</code>, inherited by every member as
+    <code>rust-version.workspace = true</code>, because that single value has to move in lockstep
+    across all fourteen crates — see
+    <a href="/docs/versions/#msrv">Versions and compatibility</a>.
   </p>
   <p>
     One historical wrinkle shows up in names. Every <code>hl7-v2*</code> crate was renamed to

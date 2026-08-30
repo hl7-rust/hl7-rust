@@ -183,8 +183,10 @@ hl7                                    the umbrella crate — hl7::v2 and
     <p class="band-lede">
       One crate per layer, one module per standard. Each seam is a place you can stop: take the
       ER7 encoding alone, take v2 without a transport, take a transport without the dictionary.
+      This groups crates by family and layer, not by literal Cargo dependency edges — see
+      <a href="/docs/architecture/#shared">what actually depends on what</a>.
     </p>
-    <CodeSample language="text" label="The workspace, as a dependency map" code={map} />
+    <CodeSample language="text" label="The workspace, grouped by crate family and layer" code={map} />
     <p><a href="/docs/architecture/">Why the seams fall where they do →</a></p>
   </div>
 </section>

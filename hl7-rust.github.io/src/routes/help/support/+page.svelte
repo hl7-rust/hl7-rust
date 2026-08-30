@@ -171,8 +171,8 @@ spec/                workspace-wide specs (the MSRV policy)
       fourteen members must always agree on that one value.
     </li>
     <li>
-      <strong>MSRV is current stable minus two.</strong> Raising the floor is a breaking change and
-      belongs in a release allowed to break.
+      <strong>MSRV is current stable minus two.</strong> Raising the floor is routine and expected,
+      not a breaking change to be avoided.
     </li>
     <li>
       <strong>Licensing boilerplate is byte-for-byte identical</strong> in every crate. Do not invent

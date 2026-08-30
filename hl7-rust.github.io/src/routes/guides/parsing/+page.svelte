@@ -56,7 +56,7 @@ assert_eq!(admission.patient_id, "241900");
 // The one vendor field no struct models — same object, no second parse.
 assert_eq!(admission.raw.get("ZPD-1")?.as_deref(), Some("local"));`;
 
-  const cargo = `hl7-2 = { version = "0.2", features = ["derive"] }`;
+  const cargo = `hl7-2 = { version = "0.3", features = ["derive"] }`;
 
   const options = `let options = v2::Options::new()
     .with_version(v2::Version::V2_3)        // ignore MSH-12

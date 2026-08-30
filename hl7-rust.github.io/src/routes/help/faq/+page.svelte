@@ -202,8 +202,8 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
 
   <h3>What is the minimum Rust version?</h3>
   <p>
-    Current stable minus two releases, pinned once in the workspace and inherited by every crate. Raising it is treated as a breaking
-    change. See <a href="/docs/versions/#msrv">Versions and compatibility</a>.
+    Current stable minus two releases, pinned once in the workspace and inherited by every crate. Raising it is routine and
+    expected, not a breaking change to be avoided. See <a href="/docs/versions/#msrv">Versions and compatibility</a>.
   </p>
 
   <h3>Why five licenses?</h3>

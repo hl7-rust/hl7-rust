@@ -16,10 +16,10 @@
   ];
 
   const cargo = `[dependencies]
-hl7-2 = { version = "0.2", features = ["derive"] }
+hl7-2 = { version = "0.3", features = ["derive"] }
 
 # Or through the umbrella crate, which forwards the feature:
-hl7 = { version = "0.1", features = ["derive"] }`;
+hl7 = { version = "0.2", features = ["derive"] }`;
 
   const reading = `use hl7_2::{FromHl7, Raw};
 

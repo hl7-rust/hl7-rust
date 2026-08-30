@@ -82,7 +82,7 @@ assert_eq!(observation.class_code, "OBS");
 // The one attribute no struct field models — same object, no second parse.
 assert_eq!(observation.raw.attribute("negationInd"), Some("true"));`;
 
-  const cargo = `hl7-3 = { version = "0.1", features = ["derive"] }`;
+  const cargo = `hl7-3 = { version = "0.2", features = ["derive"] }`;
 </script>
 
 <DocPage

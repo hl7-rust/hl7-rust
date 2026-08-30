@@ -20,7 +20,7 @@
   const never = [
     { not: 'No logging or tracing', check: 'No log, tracing, or any logging facade in any Cargo.toml in the workspace' },
     { not: 'No telemetry, analytics, or phone-home', check: 'No HTTP client anywhere; no network dependency of any kind' },
-    { not: 'No filesystem access from library code', check: 'std::fs and File::open appear in no library source, only in the CLI' },
+    { not: 'No filesystem access from library code that touches patient messages', check: 'std::fs appears in the CLI and in one named exception, hl7-2-from-xsd-into-json-dictionary, which reads XSD schema files from disk to build a dictionary — never a patient message' },
     { not: 'No environment variables', check: 'std::env appears in no library source, only in the CLI’s argument parsing' },
     { not: 'No sockets opened', check: 'std::net appears in no library source; MLLP is generic over a byte stream you supply' },
     { not: 'No subprocesses', check: 'std::process appears in no library source' },
