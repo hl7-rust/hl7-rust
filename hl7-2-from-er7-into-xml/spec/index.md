@@ -8,7 +8,7 @@ wins and the README should be corrected to match.
 
 Status: describes the behavior of `hl7_2_from_er7_into_xml` as implemented. Every rule
 below is exercised by a unit test (next to the code that implements it, e.g.
-`src/er7.rs`'s `#[cfg(test)]` module) or an integration test
+`src/xml.rs`'s `#[cfg(test)]` module) or an integration test
 (`tests/integration.rs`). A change to this document that isn't backed by a
 test, or a code change that isn't reflected here, is a bug.
 
@@ -365,7 +365,7 @@ These are intentional scope boundaries, not defects:
 Documented here because it is spec-level (input/output contract), not an
 implementation detail:
 
-- `hl7_2_from_er7_into_xml [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
+- `hl7-2-from-er7-into-xml [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
   omitted or `-`. At most one input may be named: a second one, `-`
   included, is an error rather than a silent replacement of the first.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
@@ -382,7 +382,7 @@ implementation detail:
   output documents are joined with a blank line.
 - Exit code 0 on success; 1 on any error (bad arguments, I/O failure, or a
   conversion error), with a message on stderr prefixed
-  `hl7_2_from_er7_into_xml: error:`.
+  `hl7-2-from-er7-into-xml: error:`.
 
 ---
 

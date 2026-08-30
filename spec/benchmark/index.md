@@ -113,65 +113,69 @@ that changed nothing.
 
 **Machine:** Apple M4 Max, 128 GB, macOS 26.6.1, arm64.
 **Toolchain:** rustc 1.98.0 (88d9e12ae 2026-08-18), release profile.
-**Date:** 2026-08-26. **Crate:** `hl7-2` 0.2.6, `er7` 0.1.1.
+**Date:** 2026-08-30. **Crate:** `hl7-2` 0.3.0, `er7` 0.1.3.
 **Method:** `cargo bench -p hl7-2`, Criterion defaults, machine otherwise
 idle.
 
-(An earlier revision of this table, measured the same day on `hl7-2`
-0.2.3, named `er7` 0.1.2; `Cargo.lock` pinned 0.1.1 then too, so the
-version cited was wrong while the measurement itself was of 0.1.1.)
+(An earlier revision of this table, measured 2026-08-26 on `hl7-2` 0.2.6
+against `er7` 0.1.1, went stale as-is once `hl7-2` released twice more
+without a re-measurement — the risk `plan.md` had already flagged as a
+watch item. This revision re-runs the same suite against the versions
+actually on crates.io today.)
 
 | Group | Input | Time | Throughput |
 |---|---|---|---|
-| `parse` | small, 177 B | 2.99 µs | 56.5 MiB/s |
-| `parse` | large, 29,104 B | 387 µs | 71.6 MiB/s |
-| `get` | small, `PID-5.1` | 123 ns | — |
-| `get` | large, `OBX[200]-5` | 1.90 µs | — |
-| `tree` | small | 14.0 µs | — |
-| `tree` | large | 1.54 ms | — |
-| `validate` | small | 7.15 µs | — |
-| `validate` | large | 655 µs | — |
-| `render` | small, 177 B | 408 ns | 414 MiB/s |
-| `render` | large, 29,104 B | 28.5 µs | 975 MiB/s |
+| `parse` | small, 177 B | 2.81 µs | 60.1 MiB/s |
+| `parse` | large, 29,104 B | 373 µs | 74.3 MiB/s |
+| `get` | small, `PID-5.1` | 79.2 ns | — |
+| `get` | large, `OBX[200]-5` | 1.80 µs | — |
+| `tree` | small | 13.0 µs | — |
+| `tree` | large | 1.44 ms | — |
+| `validate` | small | 6.40 µs | — |
+| `validate` | large | 602 µs | — |
+| `render` | small, 177 B | 367 ns | 460 MiB/s |
+| `render` | large, 29,104 B | 28.5 µs | 974 MiB/s |
 
 Criterion's confidence intervals for the same run, lower and upper:
 
 | Group | Input | Interval |
 |---|---|---|
-| `parse` | small | 2.98 – 2.99 µs |
-| `parse` | large | 386 – 389 µs |
-| `get` | small | 122 – 123 ns |
-| `get` | large | 1.88 – 1.92 µs |
-| `tree` | small | 13.9 – 14.2 µs |
-| `tree` | large | 1.54 – 1.55 ms |
-| `validate` | small | 7.13 – 7.17 µs |
-| `validate` | large | 653 – 657 µs |
-| `render` | small | 406 – 410 ns |
-| `render` | large | 28.3 – 28.6 µs |
+| `parse` | small | 2.79 – 2.82 µs |
+| `parse` | large | 371 – 376 µs |
+| `get` | small | 78.4 – 80.1 ns |
+| `get` | large | 1.77 – 1.83 µs |
+| `tree` | small | 12.8 – 13.1 µs |
+| `tree` | large | 1.44 – 1.45 ms |
+| `validate` | small | 6.38 – 6.42 µs |
+| `validate` | large | 598 – 607 µs |
+| `render` | small | 365 – 369 ns |
+| `render` | large | 28.3 – 28.7 µs |
 
-`render` small also shows what run-to-run noise looks like at nanosecond
-scale: an immediate re-run of the same group on the same build gave
-358 – 361 ns, a 13% swing between runs that changed nothing. Treat the
-nanosecond rows as a scale, not a point.
+`render` small was also re-run a second time to check for the kind of
+run-to-run noise the previous measurement reported (a 13% swing between
+two runs minutes apart): this time the two runs agreed within about 1%
+(363 ns and 367 ns, overlapping intervals). That doesn't retract the
+earlier finding — it confirms that the noise itself isn't constant.
+Treat the nanosecond rows as a scale, not a guaranteed point.
 
 ## Reading those figures
 
 Four things in that table are worth saying out loud, including the
 unflattering one:
 
-**Parsing a small message costs about 3 µs**, so a single core parses on the
-order of 300,000 small ADTs a second. For essentially every real HL7®
+**Parsing a small message costs about 2.8 µs**, so a single core parses on
+the order of 350,000 small ADTs a second. For essentially every real HL7®
 interface, parsing is not the bottleneck — the network, the database, and
 the downstream system are.
 
-**Rendering is seven to eight times cheaper than parsing** (about 0.4 µs
-against 2.99 µs on the small message), which is what "stored as sent,
+**Rendering is seven to eight times cheaper than parsing** (about 0.37 µs
+against 2.81 µs on the small message), which is what "stored as sent,
 decoded on demand" buys: writing back out is mostly copying bytes that
 were never transformed.
 
 **`get` is the cheap path and `tree` is the expensive one.** Reading two
-fields from the large message costs about 4 µs; building its whole tree
-costs 1.5 ms — nearly 400 times more. An integration that wants a handful
+fields from the large message costs about 3.6 µs; building its whole tree
+costs 1.44 ms — nearly 400 times more. An integration that wants a handful
 of fields should use paths and not walk the tree. This is the single most
 useful thing in this document for someone writing against these crates.
 

@@ -63,21 +63,24 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
 
 1. **Met.** `plan.md` and `tasks.md` exist at the root, committed
    2026-08-26, and every `[x]` added since names its evidence.
-2. **Partly met.** The special files exist and are substantive (the list is
-   in `tasks.md` § Done). But the local canonical list,
-   `spec/special-files-for-public-repos/index.md`, has drifted from the
-   family version — tracked by the "Re-sync" item under Audit and
-   harmonization.
-3. **Met as a practice, with gaps still open.** The two gaps closed so far
-   (`#![forbid(unsafe_code)]`, CI) each updated the declaring documents in
-   the closing change; the still-standing declared gaps (unsigned commits,
-   no SBOM, no dependency audit, no committed response window) are each
-   tracked in `tasks.md`.
-4. **Partly met.** `.github/workflows/ci.yml` (2026-08-26) runs the
+2. **Met.** The special files exist and are substantive (the list is in
+   `tasks.md` § Done). The local canonical list,
+   `spec/special-files-for-public-repos/index.md`, was re-synced from the
+   family version 2026-08-26 (tracked by the "Re-sync" item under Audit and
+   harmonization) and that file's own Status section now states it is
+   synchronized.
+3. **Met as a practice, with gaps still open.** The gaps closed so far
+   (`#![forbid(unsafe_code)]`, CI, dependency auditing via `cargo deny`)
+   each updated the declaring documents in the closing change; the
+   still-standing declared gaps (unsigned commits, no SBOM, no committed
+   response window) are each tracked in `tasks.md`.
+4. **Met.** `.github/workflows/ci.yml` (2026-08-26) runs the
    CONTRIBUTING.md gates — fmt, clippy, test, rustdoc, the 1.96 MSRV floor —
-   and the rule-5 trademark check on every push and pull request. Not yet
-   in CI: dependency audit, link check, and document-size budget — each
-   tracked in `tasks.md`.
+   and the rule-5 trademark check on every push and pull request. The
+   `docs` job runs the link check and document-size budget
+   (`bin/check-docs`), and `.github/workflows/security.yml` runs the
+   dependency audit (`cargo deny`, per `deny.toml`) on push and a weekly
+   cron.
 5. **Partly met.** The prose rules are implemented, and since later on
    2026-08-26 `bin/check-trademarks` enforces them in CI over a deliberate,
    documented scope (markdown, crate-root rustdoc, the site's shared
@@ -91,8 +94,8 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
 7. **Met.** `CODE_OF_CONDUCT.md` at the root, 2026-08-26, with the
    claim-accuracy clause and the reporting path in CONTRIBUTING.md §Conduct.
 8. **Ongoing.** This file is itself an instance: adapted from the family's
-   canonical template. The known divergence is the special-files list
-   (rule 2).
+   canonical template. The special-files list (rule 2) was re-synced
+   2026-08-26 and is no longer a known divergence.
 9. **Met.** `help/outreach/index.md` gates promotion on its prerequisites,
    and the Outreach section of `tasks.md` records the block as standing.
 

@@ -295,7 +295,7 @@ structure the forward crate never actually produces all reconstruct into
 Documented here because it is spec-level (input/output contract), not an
 implementation detail:
 
-- `hl7_2_from_json_into_er7 [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
+- `hl7-2-from-json-into-er7 [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
   omitted or `-`. The input holds one converted-JSON document. At most one
   input may be named: a second one, `-` included, is an error rather than a
   silent replacement of the first.
@@ -307,7 +307,7 @@ implementation detail:
   which the default does not (see `er7` spec §6.1 for why).
 - Exit code 0 on success; 1 on any error (bad arguments, I/O failure, or a
   conversion error), with a message on stderr prefixed
-  `hl7_2_from_json_into_er7: error:`.
+  `hl7-2-from-json-into-er7: error:`.
 
 ---
 

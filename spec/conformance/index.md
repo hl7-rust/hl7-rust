@@ -264,10 +264,11 @@ workload should read that as a no for the document architecture, and as
 
 ## The HL7® FHIR® standard
 
-**Not implemented.** The `hl7` umbrella crate reserves `hl7::fhir` as a
-module path and nothing more. There is no HL7® FHIR® standard code in this
-workspace. If you need the HL7® FHIR® standard today, this project is not
-it.
+**Not implemented.** `hl7/Cargo.toml`'s description names `hl7::fhir` as
+"room for" once that standard is implemented, but no module by that name is
+declared anywhere in source — `hl7/src/lib.rs` re-exports only `v2` and
+`v3`. There is no HL7® FHIR® standard code in this workspace. If you need
+the HL7® FHIR® standard today, this project is not it.
 
 ## How to evaluate this yourself
 

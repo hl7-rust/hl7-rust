@@ -26,7 +26,7 @@ toolchain the code in this workspace may assume.
 | Location                             | Form                                                   |
 | ------------------------------------ | ------------------------------------------------------ |
 | `Cargo.toml` (`[workspace.package]`) | `rust-version = "1.(N-2)"`                             |
-| each `crates/*/Cargo.toml`           | `rust-version.workspace = true`                        |
+| each member crate's `Cargo.toml`     | `rust-version.workspace = true`                        |
 | `.github/workflows/ci.yml`           | an `msrv` job pinning `dtolnay/rust-toolchain@1.(N-2)` |
 
 `rust-version` is the single source of truth inside the workspace: `cargo`

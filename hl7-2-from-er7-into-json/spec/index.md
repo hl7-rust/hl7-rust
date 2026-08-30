@@ -8,18 +8,22 @@ wins and the README should be corrected to match.
 
 Status: describes the behavior of `hl7_2_from_er7_into_json` as implemented. Every
 rule below is exercised by a unit test (next to the code that implements
-it, e.g. `src/er7.rs`'s `#[cfg(test)]` module) or an integration test
+it, e.g. `src/types.rs`'s `#[cfg(test)]` module) or an integration test
 (`tests/integration.rs`). A change to this document that isn't backed by a
 test, or a code change that isn't reflected here, is a bug.
 
 ## 0. Relationship to `hl7-2-from-er7-into-xml`
 
 This crate is the JSON sibling of `hl7-2-from-er7-into-xml`. Sections 1–3
-below (ER7 parsing and message-structure grouping) are identical between
-the two crates — same grammar, same delimiter rules, same escape rules,
-same message-structure grammars — and `src/er7.rs`, `src/types.rs` are
-verbatim shared logic. **Section 4 (element/key naming and rendering) is
-where the two diverge**, because JSON and XML are different target formats
+below (ER7 parsing and message-structure grouping) describe identical
+behavior between the two crates — same grammar, same delimiter rules, same
+escape rules, same message-structure grammars — but that is no longer
+literally shared code: ER7 parsing itself comes from the external `er7`
+crate in both, but `hl7-2-from-er7-into-xml` reads its data types and
+message structures from `hl7-2` as of its 0.5.0, while this crate still
+carries its own `src/types.rs` copy of the v2.5 tables (see `hl7-2/spec/index.md`
+§0). **Section 4 (element/key naming and rendering) is where the two
+diverge in behavior**, because JSON and XML are different target formats
 with different native capabilities (JSON has real arrays and a real null;
 XML does not). Where this document says "unlike XML", that is the
 deliberate difference; everything else is intentionally kept identical so
@@ -319,7 +323,7 @@ Same scope boundaries as the XML sibling, restated for this crate:
 
 ## 8. Command-line behavior (`src/main.rs`)
 
-- `hl7_2_from_er7_into_json [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
+- `hl7-2-from-er7-into-json [OPTIONS] [FILE]` reads `FILE`, or stdin when `FILE` is
   omitted or `-`. At most one input may be named: a second one, `-`
   included, is an error rather than a silent replacement of the first.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
@@ -334,7 +338,7 @@ Same scope boundaries as the XML sibling, restated for this crate:
   parseable JSON value when there is more than one message).
 - Exit code 0 on success; 1 on any error (bad arguments, I/O failure, or a
   conversion error), with a message on stderr prefixed
-  `hl7_2_from_er7_into_json: error:`.
+  `hl7-2-from-er7-into-json: error:`.
 
 ---
 

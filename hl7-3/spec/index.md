@@ -18,17 +18,21 @@ test, or a code change that isn't reflected here, is a bug.
 hl7-2-xml-lite-helper    the XML reader this crate reads through
   |
 hl7-3                     this crate: RIM backbone classes, the data
-                          types RIM attributes are built from, the
-                          three-level message envelope
+  |                       types RIM attributes are built from, the
+  |                       three-level message envelope
+  +-- hl7-3-soap          transport: HL7 v3 over SOAP/HTTP
   |
 hl7                       the umbrella crate — hl7::v3 re-exports this
 ```
 
-Unlike the `hl7-2` family, HL7 v3 has no sibling transport or format
-crates yet — no `hl7-3-mllp`, nothing analogous to
-`hl7-2-from-er7-into-json`. HL7 v3 is XML natively, so there is no
-encoding-layer crate underneath this one the way `er7` sits under
-`hl7-2`; `hl7-2-xml-lite-helper` fills that role instead.
+`hl7-3-soap` is a transport sibling — HL7 v3's SOAP envelope, reading through
+this crate's XML layer without depending on `hl7-3` itself (see its own
+`spec/index.md` §0). What HL7 v3 still has none of: an MLLP-equivalent
+transport crate (no `hl7-3-mllp` — v3 was designed with SOAP as its
+historically dominant transport instead) and any format-conversion crates
+analogous to `hl7-2-from-er7-into-json` and its siblings. HL7 v3 is XML
+natively, so there is no encoding-layer crate underneath this one the way
+`er7` sits under `hl7-2`; `hl7-2-xml-lite-helper` fills that role instead.
 
 ## 1. Scope — read this before filing anything as a bug
 
@@ -247,6 +251,79 @@ actually defines.
 | §4 `Entity`, `Role`, `Participation`, `ActRelationship`, `RoleLink` | `rim::tests::entity_reads_class_determiner_and_name`, `role_reads_class_and_status`, `participation_reads_type_and_function`, `act_relationship_reads_type_and_inversion`, `role_link_reads_type` |
 | §5.1 transport wrapper, control act wrapper, domain payload | `message::tests::reads_the_transport_wrapper`, `reads_the_control_act_wrapper_and_trigger_event`, `reads_the_domain_payload_as_a_raw_element` |
 | §5.2 missing wrappers read as `None`, malformed XML is the only error | `message::tests::missing_wrappers_read_as_none_not_an_error`, `malformed_xml_is_an_error` |
+| §8 struct mode reads attributes, child text, and nested types | `typed::tests::reads_attributes_child_text_and_nested_types` |
+| §8 struct mode degrades to defaults, total like §4/§5 | `typed::tests::missing_attributes_and_children_degrade_to_defaults` |
+| §8 numbers and `bool` default silently on bad input | `typed::tests::numbers_and_bool_default_silently_on_bad_input` |
+
+## 8. Struct mode (`src/typed.rs`, feature `derive`)
+
+Reading RIM and vocabulary types by hand (§3, §4) works for any element,
+but a caller who knows their document's shape ahead of time can map it
+onto a plain Rust struct instead. This is off by default: enabling it
+(`hl7-3 = { version = "...", features = ["derive"] }`) is what pulls in
+`hl7-3-derive`, the only way `syn` and `quote` enter this crate's
+dependency tree — without the feature, `hl7-2-xml-lite-helper` is this
+crate's one dependency, unchanged.
+
+### 8.1 The traits
+
+[`FromElement`] reads a whole type from an `&xml::Element`:
+`fn from_element(element: &Element) -> Self`. It returns `Self` directly,
+never a `Result` — unlike `hl7-2`'s struct mode
+(`FromHl7`), which fails on a field a v2 dictionary says is required.
+`hl7-3` has no dictionary to consult, so struct mode matches how §3–§5
+already read: a missing attribute or child degrades to a default,
+everywhere, never an error. A struct mapped onto the wrong element just
+reads defaults throughout, the same way `Act::from_element` on an
+unrelated element reads empty `class_code`/`mood_code` rather than
+failing.
+
+[`FromElementValue`] reads one field's value from an attribute or a
+child's text: `from_attribute(Option<&str>) -> Self` and
+`from_child_text(Option<&str>) -> Self`. Implemented for `String`,
+`Option<String>`, `bool` (`"true"` and nothing else is `true`, matching
+`ActRelationship::inversion_ind`, §4), the integer and floating-point
+types (unparseable or absent is `0`), and `Option<NullFlavor>` (an
+unrecognized or absent code is `None` — call `NullFlavor::of` directly
+when the code itself, not just whether it parsed, is needed).
+
+`FromElement` is also implemented directly for `Ivl`, `Pq`, `Ed`, and all
+six RIM backbone types (`Act`, `Entity`, `Role`, `Participation`,
+`ActRelationship`, `RoleLink`), each just calling that type's own
+`from_element` — so a struct field typed as one of them nests without
+writing a wrapper impl.
+
+### 8.2 The derive macro (`hl7-3-derive`, feature `derive`)
+
+`#[derive(FromElement)]` generates the `FromElement` impl the §8.1 traits
+describe, one `#[element(...)]` attribute per field:
+
+| attribute | reads |
+|---|---|
+| `#[element("classCode")]` | the `classCode` attribute, via `FromElementValue::from_attribute` |
+| `#[element(child = "id")]` | the `id` child's text, via `FromElementValue::from_child_text` |
+| `#[element(nested = "code")]` | the `code` child, via the field type's own `FromElement` |
+| `#[element(raw)]` | the whole element (field type must be `xml::Element`) |
+| none | `Default::default()` |
+
+The macro lives in a separate crate, `hl7-3-derive`, for the same reason
+`hl7-2-derive` does: a proc-macro crate cannot be conditionally compiled
+inside the crate it serves, so `syn` and `quote` are only pulled in for
+callers who ask for `derive`. It has no `spec/index.md` of its own —
+`src/typed.rs`'s module documentation, together with this section, is the
+normative source for what the attributes mean.
+
+### 8.3 Not yet supported
+
+- **No write direction.** There is no `#[derive(ToElement)]` or any way to
+  render a struct back to XML — `hl7-3` itself has no XML-serialization
+  capability yet (§1).
+- **No `Vec<T>` fields**, unlike `hl7-2-derive`'s repeating-field support.
+  `FromElementValue` has no equivalent of `hl7-2`'s `Message::repetitions`
+  to build one on.
+- **No vocabulary-aware attributes.** The macro maps a field to an
+  attribute or child; what a code in that field *means* is out of scope
+  for `hl7-3` itself (§6), so it is out of scope for the derive too.
 
 ---
 
