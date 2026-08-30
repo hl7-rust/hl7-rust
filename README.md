@@ -76,9 +76,9 @@ is normative, a `spec/index.md` (single source of truth for that crate).
 
 [`hl7-skill/`](hl7-skill) is an
 [Agent Skill](https://code.claude.com/docs/en/skills) for Claude Code (and
-any other tool that reads a `SKILL.md`): which crate or CLI to reach for,
-copy-paste conversion and query recipes, and the gotchas worth knowing
-before relying on the output. Point an agent at this repository and it
+any other tool that reads a `SKILL.md`): HL7 concepts, terminology, and
+ideas — segments, fields, ER7, the HL7 null, and how v2 and v3 differ
+from the HL7® FHIR® standard — with worked examples from this repo. Point an agent at this repository and it
 picks the skill up on its own; see
 [`hl7-skill/SKILL.md`](hl7-skill/SKILL.md) to read it directly.
 

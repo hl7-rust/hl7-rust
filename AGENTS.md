@@ -36,14 +36,13 @@ example) exactly as they did as sibling repositories — the flat,
 one-directory-per-crate layout was kept specifically so those paths did
 not need to change.
 
-## Working with HL7 messages
+## Agent Skill in this workspace
 
-[`hl7-skill/SKILL.md`](hl7-skill/SKILL.md) is an Agent Skill covering the
-*use* of this workspace's crates — which one to reach for, CLI recipes for
-parsing/converting/validating HL7 v2 messages, and the gotchas worth
-knowing before relying on the output. This file and the rest of `AGENTS.md`
-family cover working *on* the workspace instead; read whichever one
-matches the task.
+[`hl7-skill/SKILL.md`](hl7-skill/SKILL.md) is an
+[Agent Skill](https://code.claude.com/docs/en/skills) covering HL7
+concepts, terminology, and ideas for end users, with examples from this
+repo. It is not about changing this repository — this `AGENTS.md` family
+covers that instead.
 
 ## Working conventions
 
