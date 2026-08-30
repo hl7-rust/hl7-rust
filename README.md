@@ -72,15 +72,19 @@ workspace. Everything else above is a member here.
 Each crate has its own `README.md` (user-facing tour) and, where behavior
 is normative, a `spec/index.md` (single source of truth for that crate).
 
-## Agent skill
+## Agent skills
 
-[`hl7-skill/`](hl7-skill) is an
-[Agent Skill](https://code.claude.com/docs/en/skills) for Claude Code (and
-any other tool that reads a `SKILL.md`): HL7 concepts, terminology, and
-ideas — segments, fields, ER7, the HL7 null, and how v2 and v3 differ
-from the HL7® FHIR® standard — with worked examples from this repo. Point an agent at this repository and it
-picks the skill up on its own; see
-[`hl7-skill/SKILL.md`](hl7-skill/SKILL.md) to read it directly.
+Two [Agent Skills](https://code.claude.com/docs/en/skills) for Claude
+Code (and any other tool that reads a `SKILL.md`), each in its own
+top-level folder:
+
+| skill | for | covers |
+|---|---|---|
+| [`hl7-skill/`](hl7-skill) | end users | HL7 concepts, terminology, and ideas — segments, fields, ER7, the HL7 null, and how v2 and v3 differ from the HL7® FHIR® standard — with worked examples from this repo |
+| [`hl7-rust-maintainer-skill/`](hl7-rust-maintainer-skill) | maintainers and contributors | The technical, implementation-level conventions for changing this workspace's own code, specs, and docs |
+
+Point an agent at this repository and it picks up whichever one matches
+the task on its own; see each folder's `SKILL.md` to read it directly.
 
 ## Build
 

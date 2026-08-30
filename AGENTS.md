@@ -36,13 +36,19 @@ example) exactly as they did as sibling repositories — the flat,
 one-directory-per-crate layout was kept specifically so those paths did
 not need to change.
 
-## Agent Skill in this workspace
+## Agent Skills in this workspace
 
-[`hl7-skill/SKILL.md`](hl7-skill/SKILL.md) is an
-[Agent Skill](https://code.claude.com/docs/en/skills) covering HL7
-concepts, terminology, and ideas for end users, with examples from this
-repo. It is not about changing this repository — this `AGENTS.md` family
-covers that instead.
+Two [Agent Skills](https://code.claude.com/docs/en/skills) live at the
+workspace root, each self-contained in its own `SKILL.md`:
+
+- [`hl7-skill/SKILL.md`](hl7-skill/SKILL.md) — HL7 concepts, terminology,
+  and ideas for end users, with examples from this repo. Not about
+  changing this repository.
+- [`hl7-rust-maintainer-skill/SKILL.md`](hl7-rust-maintainer-skill/SKILL.md)
+  — the fast-path version of *this* file: the pre-PR checklist, the
+  spec-first rule, and the recipes contributors reach for most. This
+  `AGENTS.md` family stays canonical; that skill distills it and should
+  be updated alongside it when a convention here changes.
 
 ## Working conventions
 

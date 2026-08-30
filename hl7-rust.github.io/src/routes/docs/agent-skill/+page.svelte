@@ -106,4 +106,8 @@ description: Explain Health Level Seven (HL7®) concepts, terminology,
       <a href="/docs/#sources">Where the authority lives</a>.
     </p>
   </Callout>
+  <p>
+    Building or changing this workspace itself instead? See the
+    companion <a href="/docs/maintainer-skill/">Maintainer skill</a>.
+  </p>
 </DocPage>

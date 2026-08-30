@@ -10,8 +10,8 @@ vocabulary, the encoding, and the ideas — not a how-to for any one tool.
 Every example below is real output from the `hl7-rust` workspace, so it
 doubles as a tour of that project, but the concepts apply to any HL7 v2
 system. This skill is for people *using* HL7 or this workspace, not for
-changing the workspace's own code — that is a separate, maintainer-facing
-skill.
+changing the workspace's own code — for that, see the separate
+[`hl7-rust-maintainer-skill`](../hl7-rust-maintainer-skill/SKILL.md).
 
 ## HL7 is a family, not one standard
 

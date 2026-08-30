@@ -83,7 +83,12 @@ export const SECTIONS: NavSection[] = [
       {
         href: '/docs/agent-skill/',
         label: 'Agent skill',
-        blurb: 'A SKILL.md for Claude Code and other agents: which crate, which recipe, which gotcha.'
+        blurb: 'A SKILL.md for Claude Code and other agents: HL7 concepts, terminology, and worked examples.'
+      },
+      {
+        href: '/docs/maintainer-skill/',
+        label: 'Maintainer skill',
+        blurb: 'A second SKILL.md for changing this workspace itself: the pre-PR checklist and the spec-first rule.'
       }
     ]
   },
