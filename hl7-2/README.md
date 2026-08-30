@@ -117,7 +117,7 @@ the library. A `Raw` field keeps the whole parsed message beside the typed
 data, so the fallback is a method call. Requires the `derive` feature:
 
 ```toml
-hl7-2 = { version = "0.2", features = ["derive"] }
+hl7-2 = { version = "0.3", features = ["derive"] }
 ```
 
 ## Walkthrough: from a message you have never seen to a typed struct

@@ -15,18 +15,21 @@ works — that is what the crates' specs and tests are for. Day-to-day execution
 items live in [`tasks.md`](tasks.md), where a `[x]` means verified, not
 intended.
 
-## Where the workspace stands (verified 2026-08-26)
+## Where the workspace stands (verified 2026-08-30)
 
 All 14 crates are published to crates.io (latest release recorded in
-`CHANGELOG.md`, 2026-08-26). 363 `#[test]` functions, fuzz targets in 3 of 14
-crates, Criterion benches in 4. The root document set is nearly complete:
-GOVERNANCE, SECURITY, LICENSE, CONTRIBUTING, MAINTAINERS, AI_STATEMENT, RFC,
-CODEOWNERS, CITATION.cff, NEWS, COMPARISONS, BENCHMARKS, INSTALL, CHANGELOG,
-and `.github/FUNDING.yml` all exist and are substantive. The honest part of
-that document set is that it *names its own gaps* — unsigned commits, no
-SBOM, no committed response window — rather than implying they are covered.
-This plan exists to close those gaps deliberately instead of leaving them as
-standing confessions.
+`CHANGELOG.md`, 2026-08-29 — the fifth release, an MSRV bump). 363 `#[test]` functions, fuzz
+targets in 3 of 14 crates, Criterion benches in 6. The root document set is nearly
+complete: GOVERNANCE, SECURITY, LICENSE, CONTRIBUTING, MAINTAINERS,
+AI_STATEMENT, RFC, CODEOWNERS, CITATION.cff, NEWS, COMPARISONS, BENCHMARKS,
+INSTALL, CHANGELOG, and `.github/FUNDING.yml` all exist and are substantive.
+The honest part of that document set is that it *names its own gaps* —
+originally unsigned commits, no tags, no SBOM, no committed response window
+— rather than implying they are covered. This plan exists to close those
+gaps deliberately instead of leaving them as standing confessions; three of
+the four have since closed (see workstream 3 below), and this file is
+re-verified against current state each time it's revisited rather than
+trusted from its last edit date.
 
 ## Workstreams — professionalization (2026-08 onward)
 
@@ -55,21 +58,27 @@ posture. Open items for each are in `tasks.md`.
    `bin/check-trademarks` in CI as of 2026-08-26.
 
 3. **Security and supply chain.** SECURITY.md is substantive and honest. What
-   it disclosed was the work list; two entries are now closed:
-   `#![forbid(unsafe_code)]` is in all 20 crate roots, and CI exists as of
+   it disclosed was the work list; four entries are now closed:
+   `#![forbid(unsafe_code)]` is in all 20 crate roots; CI exists as of
    2026-08-26 — `.github/workflows/ci.yml` runs the CONTRIBUTING.md gates
-   (fmt, clippy, test, rustdoc, MSRV) on every push and pull request, and
-   `.github/workflows/security.yml` runs `cargo deny` (advisories,
-   licenses, bans, sources per `deny.toml`) on push plus a weekly cron.
-   Still open: zero git tags, unsigned commits, no SBOM. CI was the
-   keystone — every other check (trademarks, doc links, dependency audit)
-   now has a place to run.
+   (fmt, clippy, test, rustdoc, MSRV) on every push and pull request, plus
+   a `site` job (added 2026-08-29) that actually builds
+   `hl7-rust.github.io`, closing a gap where Dependabot's green checkmark
+   on a site PR used to prove nothing; `.github/workflows/security.yml`
+   runs `cargo deny` (advisories, licenses, bans, sources per `deny.toml`)
+   on push plus a weekly cron; git tags exist for every crate release (70
+   tags, `<crate>-v<version>`, backfilled 2026-08-27 and cut going
+   forward); and commits/tags are SSH-signed as of 2026-08-27, verified
+   `verification.verified: true` on GitHub, GitLab, and Codeberg alike.
+   Still open: no SBOM. CI was the keystone — every other check
+   (trademarks, doc links, dependency audit, the website itself) now has a
+   place to run.
 
 4. **Privacy and patient data.** `spec/phi/index.md` is a real PHI analysis
-   (11 sections, grep-checkable claims, an honest "what is not defended
-   against" list) but it is not surfaced where a hospital privacy officer will
-   look. The family convention is a root `PHI.md`; promote or front the spec
-   there.
+   (9 sections, grep-checkable claims, an honest "what is not defended
+   against" list), and it is now fronted by a root `PHI.md` (2026-08-26) in
+   the family's Q&A-table shape, for the hospital-privacy-officer reader
+   who won't go looking under `spec/`.
 
 5. **Outreach.** `help/outreach/index.md` (2026-08-25) is the campaign plan,
    and it gates itself correctly: issue templates and a stated response
@@ -78,11 +87,12 @@ posture. Open items for each are in `tasks.md`.
    trademark resolution remains the unmet prerequisite: no promotion until
    the request is answered. NEWS.md's press posture is ready.
 
-6. **Audit and harmonization.** This repository has no findings register and
-   no plan/tasks history — this file and `tasks.md` are the start. The family
-   conventions to converge on: the canonical special-files list (the local
+6. **Audit and harmonization.** This file and `tasks.md` are the ongoing
+   findings register and plan/tasks history. The family conventions to
+   converge on: the canonical special-files list (the local
    `spec/special-files-for-public-repos/index.md` was re-synced from the
-   `fhir-rust` copy 2026-08-26, typos fixed), MSRV N−3, `agents/`-style
+   `fhir-rust` copy 2026-08-26, typos fixed), MSRV N−2 (raised from N−3
+   2026-08-29, per `spec/rust-msrv-n-minus-2/index.md`), `AGENTS.md`-style
    playbooks, and automated doc gates.
 
 ## Open decisions (awaiting a call, not code)
@@ -110,15 +120,21 @@ posture. Open items for each are in `tasks.md`.
 ## Risks & watch items
 
 - The document set's self-declared gaps are now promises. "No CI" fell
-  2026-08-26, and "no dependency audit" fell the same day (`cargo deny` in
-  `security.yml`); the remaining declared gaps (unsigned commits, no SBOM)
-  are still standing confessions, and each release that ships while they
-  stand makes SECURITY.md's candor look like a substitute for the fix
-  rather than a commitment to it.
-- BENCHMARKS.md was re-measured 2026-08-26 against the released `hl7-2`
-  0.2.6, closing its version staleness — but the watch item stands: a
-  claims-accuracy culture has to keep its numbers current or date-stamp
-  them as historical every time a release moves past them.
+  2026-08-26, "no dependency audit" fell the same day (`cargo deny` in
+  `security.yml`), "zero git tags" fell 2026-08-27 (70 tags, backfilled and
+  ongoing), and "unsigned commits" fell 2026-08-27 too (SSH signing,
+  verified on all three forges); the remaining declared gap (no SBOM) is
+  still a standing confession, and each release that ships while it stands
+  makes SECURITY.md's candor look like a substitute for the fix rather
+  than a commitment to it.
+- BENCHMARKS.md's watch item made good on itself, once: it was re-measured
+  2026-08-26 against `hl7-2` 0.2.6, but `hl7-2` released twice more since
+  (0.2.7, then 0.3.0 on 2026-08-29) without a re-measurement, and the
+  figures went stale — the exact failure mode the watch item predicted.
+  Caught and re-measured 2026-08-30 against `hl7-2` 0.3.0 / `er7` 0.1.3
+  (`tasks.md` has the full account). The watch item itself doesn't close:
+  a claims-accuracy culture has to keep re-checking this every time a
+  release moves past the measured version, not just once.
 - ~~`CODEOWNERS` asserts the repo has no `.github/` directory; it has one.~~
   Fixed 2026-08-26. The general watch item stands: small falsehoods in
   governance files are the failure mode this family exists to avoid.

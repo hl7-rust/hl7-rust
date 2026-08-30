@@ -16,7 +16,7 @@ off in the same change that completes them, with the evidence named.
       `spec/hl7-trademarks-fair-use/index.md`: ® after first use per page and
       the disclaimer footer in README.md, LICENSE.md, SECURITY.md,
       GOVERNANCE.md, CONTRIBUTING.md; site footer per CHANGELOG.
-- [x] PHI analysis exists at `spec/phi/index.md` (11 sections, checkable
+- [x] PHI analysis exists at `spec/phi/index.md` (9 sections, checkable
       claims, explicit non-defenses).
 - [x] Outreach research exists at `help/outreach/index.md` (audiences,
       channels, 90-day sequence, prerequisites) and correctly gates promotion
@@ -401,6 +401,96 @@ Per `spec/free-open-source-funding/index.md`.
       this repository. The BrokenPipe test fix, declined for its own
       release two turns earlier as not worth one alone, shipped bundled
       into this one instead.
+- [x] Comprehensive accuracy sweep across every documentation surface —
+      done 2026-08-30, prompted by a plain "update, upgrade, harmonize,
+      annotate, audit, fix" instruction. Five parallel read-only audits
+      (`spec/`, `AGENTS.md`/`CLAUDE.md`, `README.md`/root docs, the
+      website, `tasks.md`/`plan.md`), each required to verify every claim
+      against real code/config rather than trust prose, found roughly 50
+      concrete, independently-confirmed problems; three parallel fix
+      passes (website, `spec/`, `AGENTS.md`/`CLAUDE.md`) plus direct edits
+      here landed all of them. Highlights, not an exhaustive list — see
+      `git log` for the full diffs:
+      - **Three website code examples didn't compile**: a `&Options` where
+        `convert_with_options` takes `Options` by value (3 pages), a
+        `Dictionary::from_json_over` call with arguments in the wrong
+        order, and an MLLP tutorial's `?` trying to propagate
+        `ack::Error` into an `io::Result` function with no `From` impl for
+        that conversion. Fixed by running the real CLI and checking real
+        signatures, not by eyeballing the prose.
+      - **A website page's own lede contradicted its own dynamic content**:
+        `/spec/` said "ten" specs and crates in two places where its own
+        rendered lists showed eleven and fourteen. `spec/dependabot`,
+        `spec/free-open-source-funding`, `spec/rust-fuzz`,
+        `spec/trusted-publishing` existed on disk but weren't linked from
+        the page that's supposed to list every spec.
+      - **Four website pages and the crate-dependency diagram directly
+        contradicted the normative spec and the real `Cargo.toml` graph**:
+        pages said raising MSRV "is a breaking change" where
+        `spec/rust-msrv-n-minus-2/index.md` says the opposite ("routine
+        and expected"); the architecture diagram drew edges (e.g.
+        `hl7-2-soap` depending on `hl7-2`) that don't exist in any
+        `Cargo.toml`, relabeled as a family/layer grouping instead of a
+        literal dependency map.
+      - **A "no filesystem access from library code" claim was false**:
+        `hl7-2-from-xsd-into-json-dictionary/src/lib.rs` calls
+        `std::fs::read_dir`/`read_to_string` directly to read XSD schema
+        files — carved out as a named, explained exception instead of
+        silently contradicted.
+      - **Nine README/website install snippets pinned a version behind**:
+        `hl7-2 = "0.2"` / `hl7-3 = "0.1"` where `Cargo.toml` says `0.3` /
+        `0.2` — the same drift that motivated this whole sweep, just
+        found by hand this time instead of by Dependabot.
+      - **`hl7-2-xml-lite-helper` had five real consumers, every doc said
+        three**: `hl7-3` and `hl7-3-soap` depend on it too (grepped every
+        `Cargo.toml` to confirm), missing from its own `AGENTS.md`, two
+        sibling crates' `AGENTS.md` files, and the crate's own
+        verification build command — a change here could have passed its
+        documented check while silently breaking two crates it doesn't
+        name.
+      - **`hl7/AGENTS.md` still described the crate as v2-only, `src/lib.rs`
+        and nothing else, "about thirty lines"** — it re-exports `hl7::v3`
+        too now and is 56 lines; corrected, and `hl7-3`'s own spec gained a
+        section on struct mode (`FromElement`/`derive`) that had never
+        been documented anywhere despite existing since near the crate's
+        founding.
+      - **`plan.md` (last touched 2026-08-26) flatly asserted "zero git
+        tags, unsigned commits"** in two places — both false since
+        2026-08-27 (70 tags backfilled; SSH signing verified on all three
+        forges). `tasks.md`'s own log already had the correct history;
+        `plan.md` just hadn't been re-read against it. Refreshed
+        end-to-end rather than patched at just the flagged sentences: the
+        "verified" date, crate/release counts, the MSRV N−3 mention (now
+        N−2), the PHI section count, and the risk section's own benchmark
+        watch-item note (see below).
+      - **`BENCHMARKS.md` and `spec/benchmark/index.md` were stale against
+        their own "current crates.io release" claim** — measured
+        2026-08-26 against `hl7-2` 0.2.6, but `hl7-2` had since released
+        twice more (0.2.7, then 0.3.0). Actually re-ran
+        `cargo bench -p hl7-2` (not just relabeled the old numbers as
+        historical) against 0.3.0 / `er7` 0.1.3, twice, to also check
+        whether the previous doc's noted 13% run-to-run swing on
+        `render/small` recurred — it didn't (about 1% this time) — and
+        updated both files' tables, prose, and the website's
+        `docs/benchmarks/` page consistently. `CITATION.cff` was also two
+        releases stale (0.1.5 vs. the `hl7` crate's actual current 0.2.0)
+        and `spec/phi/index.md` has 9 sections, not the "11" repeated in
+        both `tasks.md` and `plan.md` — both fixed.
+      - **`AI_STATEMENT.md` §12 still said "CI still runs no dependency
+        audit"** after `cargo deny` landed in `security.yml` the same day
+        that sentence was written by an earlier commit — corrected to
+        name what's actually still true (CI gates no release; publishing
+        is still a manual step).
+      - Five crates' `AGENTS.md`/`CLAUDE.md` said "this repository" where
+        the other nine said "this crate" — leftover phrasing from before
+        the `git subtree` merges, not a deliberate distinction (one
+        merged-in crate had already been updated, a sibling merged-in
+        crate hadn't) — harmonized to "this crate" throughout.
+
+      Every fix agent re-verified its own edits (`./bin/check-docs`,
+      `./bin/check-trademarks`, and for the website, re-reading the
+      changed lines) before reporting back; the full gate set below was
+      run again after everything landed.
 
 ## Trademarks
 

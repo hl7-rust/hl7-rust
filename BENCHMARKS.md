@@ -14,8 +14,8 @@ summary a person lands on from the repository root.
 
 **Machine:** Apple M4 Max, 128 GB, macOS 26.6.1, arm64.
 **Toolchain:** rustc 1.98.0 (88d9e12ae 2026-08-18), release profile.
-**Date:** 2026-08-26.
-**Crates:** `hl7-2` 0.2.6 over `er7` 0.1.1 (the version `Cargo.lock`
+**Date:** 2026-08-30.
+**Crates:** `hl7-2` 0.3.0 over `er7` 0.1.3 (the version `Cargo.lock`
 pins) — the current crates.io release, so the figures are the code you
 would install today.
 **Method:** `cargo bench -p hl7-2`, Criterion defaults, machine otherwise
@@ -24,23 +24,25 @@ interval, reported rather than quietly dropped.
 
 | Group | Input | Time | Interval | Throughput |
 |---|---|---|---|---|
-| `parse` | small, 177 B | 2.99 µs | 2.98 – 2.99 µs | 56.5 MiB/s |
-| `parse` | large, 29,104 B | 387 µs | 386 – 389 µs | 71.6 MiB/s |
-| `get` | small, `PID-5.1` | 123 ns | 122 – 123 ns | — |
-| `get` | large, `OBX[200]-5` | 1.90 µs | 1.88 – 1.92 µs | — |
-| `tree` | small | 14.0 µs | 13.9 – 14.2 µs | — |
-| `tree` | large | 1.54 ms | 1.54 – 1.55 ms | — |
-| `validate` | small | 7.15 µs | 7.13 – 7.17 µs | — |
-| `validate` | large | 655 µs | 653 – 657 µs | — |
-| `render` | small, 177 B | 408 ns | 406 – 410 ns | 414 MiB/s |
-| `render` | large, 29,104 B | 28.5 µs | 28.3 – 28.6 µs | 975 MiB/s |
+| `parse` | small, 177 B | 2.81 µs | 2.79 – 2.82 µs | 60.1 MiB/s |
+| `parse` | large, 29,104 B | 373 µs | 371 – 376 µs | 74.3 MiB/s |
+| `get` | small, `PID-5.1` | 79.2 ns | 78.4 – 80.1 ns | — |
+| `get` | large, `OBX[200]-5` | 1.80 µs | 1.77 – 1.83 µs | — |
+| `tree` | small | 13.0 µs | 12.8 – 13.1 µs | — |
+| `tree` | large | 1.44 ms | 1.44 – 1.45 ms | — |
+| `validate` | small | 6.40 µs | 6.38 – 6.42 µs | — |
+| `validate` | large | 602 µs | 598 – 607 µs | — |
+| `render` | small, 177 B | 367 ns | 365 – 369 ns | 460 MiB/s |
+| `render` | large, 29,104 B | 28.5 µs | 28.3 – 28.7 µs | 974 MiB/s |
 
-One row deserves a variance note rather than silence: `render` on the
-small message gave 408 ns in this run and 360 ns in an immediate re-run
-of the same group on the same build — a 13% swing between runs minutes
-apart that changed nothing. At sub-microsecond scale the run-to-run noise
-on a laptop exceeds the 5% rule of thumb below; treat the nanosecond rows
-as a scale, not a point.
+Measured with two consecutive full-suite runs on this same machine,
+minutes apart, to check for the kind of swing the previous measurement
+(2026-08-26) reported: this time `render/small` agreed within about 1%
+across the two runs (363 ns and 367 ns, overlapping intervals), not the
+13% swing seen before. That doesn't mean the earlier swing was wrong —
+it means run-to-run noise on a laptop is itself not constant, and
+nanosecond-scale rows should still be read as a scale, not a guaranteed
+point.
 
 The conversion crates carry their own `benches/convert.rs`, measuring one
 conversion end to end — the right shape for them, because a conversion
@@ -49,21 +51,22 @@ root.
 
 ## What the numbers say
 
-**Parsing is not your bottleneck.** A small ADT parses in about 3 µs, so
-one core parses on the order of 300,000 a second. For essentially every
+**Parsing is not your bottleneck.** A small ADT parses in about 2.8 µs, so
+one core parses on the order of 350,000 a second. For essentially every
 real HL7® interface the network, the database, and the downstream system
 decide the throughput. Choosing a library on parse speed is optimising the
 wrong number.
 
-**Rendering is seven to eight times cheaper than parsing** — about 0.4 µs
-against 2.99 µs on the same message. That is what "stored as sent, decoded
+**Rendering is seven to eight times cheaper than parsing** — about 0.37 µs
+against 2.81 µs on the same message. That is what "stored as sent, decoded
 on demand" buys: writing back out is mostly copying bytes that were never
 transformed, which is also why the round trip comes back byte for byte.
 
 **Use paths, not the tree.** Reading two fields from the large message
-costs about 4 µs. Building its whole tree costs 1.54 ms — nearly 400 times
-more. An integration that wants a handful of fields should use paths and
-never materialize the tree. This is the most useful line in this document.
+costs about 3.6 µs. Building its whole tree costs 1.44 ms — nearly 400
+times more. An integration that wants a handful of fields should use
+paths and never materialize the tree. This is the most useful line in
+this document.
 
 **The tree on a large message is the slowest thing here**, slower than
 parsing that message four times over. It allocates a named node for every

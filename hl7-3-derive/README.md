@@ -14,7 +14,7 @@ You do not depend on this crate directly. `hl7-3` re-exports the macro
 behind its `derive` feature:
 
 ```toml
-hl7-3 = { version = "0.1", features = ["derive"] }
+hl7-3 = { version = "0.2", features = ["derive"] }
 ```
 
 Keeping the macro in a crate of its own is what lets the default build of

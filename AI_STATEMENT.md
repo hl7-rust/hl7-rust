@@ -236,9 +236,11 @@ This section exists because a disclosure without one is marketing.
   demonstrates the behaviors it covers. Coverage is real and ratchets
   upward, and it is still a boundary.
 - **CI is young.** The §7 gates run in CI on every push and pull request
-  as of 2026-08-26 (`.github/workflows/ci.yml`). Everything before that
-  date depended on one person remembering to run them, and CI still runs
-  no dependency audit and gates no release.
+  as of 2026-08-26 (`.github/workflows/ci.yml`), and a dependency audit
+  (`cargo deny`, per `deny.toml`) followed the same day in
+  `.github/workflows/security.yml`. Everything before 2026-08-26 depended
+  on one person remembering to run these gates by hand, and CI still gates
+  no release — publishing to crates.io is still a manual step.
 - **Review depth is one person's.**
   [`MAINTAINERS.md`](MAINTAINERS.md) says the bus factor is one. "The
   maintainer understands and can explain every committed change" is the
