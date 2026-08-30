@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Instructions for coding agents (Claude Code, Codex, or any other) working in
-this repository. `CLAUDE.md` is a pointer to this file — keep this one
+this crate. `CLAUDE.md` is a pointer to this file — keep this one
 canonical and don't fork the content between the two.
 
 ## What this is

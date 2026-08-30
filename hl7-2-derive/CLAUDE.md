@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 See [AGENTS.md](AGENTS.md) — that file holds the canonical agent
-instructions for this repository. Keeping the guidance in one file avoids
+instructions for this crate. Keeping the guidance in one file avoids
 the two drifting apart.
 
 The behavior these macros generate against is specified in the `hl7-2`

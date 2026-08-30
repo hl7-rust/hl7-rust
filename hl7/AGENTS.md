@@ -6,27 +6,29 @@ and don't fork the content between the two.
 
 ## What this is
 
-A thin umbrella crate: `src/lib.rs` and nothing else, about thirty lines,
-whose entire content is `pub use hl7_2 as v2;` plus its own doc comment.
-It exists so a caller can `cargo add hl7` and get `hl7::v2` instead of
-depending on `hl7-2` by name — one module per HL7® standard, so a
+A thin umbrella crate: `src/lib.rs` and nothing else, about fifty-five
+lines, whose entire content is `pub use hl7_2 as v2;` and
+`pub use hl7_3 as v3;` plus its own doc comment. It exists so a caller can
+`cargo add hl7` and get `hl7::v2` and `hl7::v3` instead of depending on
+`hl7-2` or `hl7-3` by name — one module per HL7® standard, so a
 "message", a "segment", or a "code" in one standard is never confused with
 the same word in another.
 
-Today that's just `hl7::v2`. Room is left for `hl7::v3` and `hl7::fhir` as
-those standards get implemented, each its own crate, re-exported here the
-same way.
+Today that's `hl7::v2` and `hl7::v3`. Room is left for `hl7::fhir` as that
+standard gets implemented, its own crate, re-exported here the same way.
 
 ## Layout
 
 ```
-src/lib.rs   The whole crate: `pub use hl7_2 as v2;`, the `derive` feature
-             forwarding to hl7-2/derive, and the crate-level doc comment
-             (which is also the one doctest this crate has).
+src/lib.rs   The whole crate: `pub use hl7_2 as v2;`, `pub use hl7_3 as
+             v3;`, the `derive` feature forwarding to hl7-2/derive, and the
+             crate-level doc comment (which is also the one doctest this
+             crate has).
 ```
 
 There is no `spec/index.md` here — this crate is too thin to need one.
-`hl7-2`'s spec covers the actual behavior; this crate only re-exports it.
+`hl7-2`'s spec covers `hl7::v2`, and `hl7-3`'s covers `hl7::v3`; this
+crate only re-exports them.
 
 ## Working conventions
 
@@ -41,9 +43,9 @@ There is no `spec/index.md` here — this crate is too thin to need one.
 - No tests of its own beyond the doctest in the crate-level doc comment —
   that's intentional, not a gap. Behavior gets tested where it lives, in
   `hl7-2`.
-- Adding a new standard (`hl7::v3`, `hl7::fhir`, ...) means adding a new
-  sibling crate with its own dictionary, tests, and spec, then one
-  `pub use` line here. It does not mean growing this crate's own logic.
+- Adding a new standard (`hl7::fhir`, ...) means adding a new sibling
+  crate with its own dictionary, tests, and spec, then one `pub use` line
+  here. It does not mean growing this crate's own logic.
 - Every public item must have a doc comment; `src/lib.rs` carries
   `#![warn(missing_docs)]` to enforce it.
 - Before finishing a change, run:

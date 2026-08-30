@@ -12,10 +12,11 @@ crate directories are former standalone repositories, merged in with
 `hl7-3-derive`, and `hl7-3-soap` are the exceptions so far — born directly
 in this workspace, no prior repo). Each crate has its own `README.md`, `AGENTS.md`,
 `CLAUDE.md`, and `LICENSE.md`, and — for behavior that's normative rather
-than incidental — a `spec/index.md` (the two `*-derive` crates don't have
-one; see their own `AGENTS.md` for why), which remains the single source
-of truth for that crate's behavior. **Read the crate's own `AGENTS.md`
-before working in it**; this file only covers workspace-wide concerns.
+than incidental — a `spec/index.md` (the two `*-derive` crates, and `hl7`
+itself, don't have one; see each one's own `AGENTS.md` for why), which
+remains the single source of truth for that crate's behavior. **Read the
+crate's own `AGENTS.md` before working in it**; this file only covers
+workspace-wide concerns.
 
 ## Layout
 

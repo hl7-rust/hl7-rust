@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 See [AGENTS.md](AGENTS.md) — that file holds the canonical agent
-instructions for this repository (layout, dependencies, conventions, and
+instructions for this crate (layout, dependencies, conventions, and
 how spec-affecting changes flow through `spec/index.md`). Keeping the
 guidance in one file avoids the two drifting apart.
 

@@ -1,13 +1,13 @@
 # AGENTS.md
 
 Instructions for coding agents (Claude Code, Codex, or any other) working in
-this repository. `CLAUDE.md` is a pointer to this file — keep this one
+this crate. `CLAUDE.md` is a pointer to this file — keep this one
 canonical and don't fork the content between the two.
 
 ## What this is
 
-A small, dependency-free XML reader shared by three crates in the `hl7-2`
-family, so each does not carry its own copy:
+A small, dependency-free XML reader shared by five crates across the
+`hl7-2` and `hl7-3` families, so each does not carry its own copy:
 
 ```
 hl7-2-xml-lite-helper
@@ -15,12 +15,14 @@ hl7-2-xml-lite-helper
     +-- hl7-2-soap                          reads SOAP envelopes
     +-- hl7-2-from-xml-into-er7             reads HL7 v2.xml messages
     +-- hl7-2-from-xsd-into-json-dictionary reads HL7 v2.xml XSD schemas
+    +-- hl7-3                               reads HL7 v3 messages
+    +-- hl7-3-soap                          reads SOAP envelopes
 ```
 
 It reads the subset of XML that carries meaning in a data document —
 elements, attributes, text, and nesting — and skips the rest: no
 validation, no schema, no DTD, no namespace resolution, no streaming. It is
-scoped to the documents those three callers read, not offered as a
+scoped to the documents those five callers read, not offered as a
 general-purpose parser, and does not claim a general-purpose name.
 
 See `README.md` for the user-facing pitch and `spec/index.md` for the exact,
@@ -78,10 +80,10 @@ at zero.
   cargo clippy -p hl7-2-xml-lite-helper --all-targets -- -D warnings
   cargo fmt --check
   ```
-- After any change, confirm the three callers still build against it:
+- After any change, confirm all five callers still build against it:
   ```sh
   cargo build -p hl7-2-soap -p hl7-2-from-xml-into-er7 \
-    -p hl7-2-from-xsd-into-json-dictionary
+    -p hl7-2-from-xsd-into-json-dictionary -p hl7-3 -p hl7-3-soap
   ```
 
 ## Making a spec-affecting change
@@ -90,7 +92,7 @@ at zero.
 2. Implement it in `src/lib.rs`.
 3. Add or update the tests in `tests/integration.rs` that pin it.
 4. Update `README.md` only if the user-facing summary or examples change.
-5. Run the checks above, including the three-caller build check.
+5. Run the checks above, including the five-caller build check.
 
 ## Non-goals (don't "fix" these without discussion)
 
@@ -100,7 +102,7 @@ at zero.
   could borrow. That is the right trade for an envelope, a schema, or a
   message; it is the wrong crate for a gigabyte of XML.
 - **Becoming a general-purpose XML crate.** Scope creep here defeats the
-  reason it exists — one small, auditable reader for three specific
+  reason it exists — one small, auditable reader for five specific
   callers, not a fourth general-purpose parser to choose between.
 - **Recovering from malformed XML.** A document that is not well-formed is
   an error, not a best guess (spec/index.md §3.6).

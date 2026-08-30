@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Instructions for coding agents (Claude Code, Codex, or any other) working in
-this repository. `CLAUDE.md` is a pointer to this file — keep this one
+this crate. `CLAUDE.md` is a pointer to this file — keep this one
 canonical and don't fork the content between the two.
 
 ## What this is
@@ -54,9 +54,10 @@ the end-to-end conversion-then-load check lives in `tests/integration.rs`
 ## Dependencies
 
 One: [`hl7-2-xml-lite-helper`](../hl7-2-xml-lite-helper), the small,
-dependency-free XML reader shared with `hl7-2-soap` and
-`hl7-2-from-xml-into-er7`, re-exported from `src/lib.rs` as `xml` so a
-caller can name `xml::Element` without adding its own dependency on it.
+dependency-free XML reader shared with four other crates —
+`hl7-2-soap`, `hl7-2-from-xml-into-er7`, `hl7-3`, and `hl7-3-soap` —
+re-exported from `src/lib.rs` as `xml` so a caller can name
+`xml::Element` without adding its own dependency on it.
 There is no `src/xml.rs` — do not reintroduce a hand-written XML reader
 here; the shared helper is the reader (spec/index.md §2.1).
 

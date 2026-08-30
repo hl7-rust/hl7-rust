@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Instructions for coding agents (Claude Code, Codex, or any other) working in
-this repository. `CLAUDE.md` is a pointer to this file — keep this one
+this crate. `CLAUDE.md` is a pointer to this file — keep this one
 canonical and don't fork the content between the two.
 
 ## What this is
@@ -26,13 +26,17 @@ hl7-2         this crate (`hl7_2::...` directly, or `hl7::v2::...` via
 ```
 
 Anything about *how ER7 is written* belongs in `er7`, not here. Anything
-about *what a segment or field means* belongs here and not in the four
-conversion crates — which today still carry their own copies of the v2.5
-tables. `schemas/v2.5.json` was generated from those copies and is
-table-for-table identical, so the conversion crates can eventually depend on
-this crate instead of duplicating it. **If you change the v2.5 tables or the
-node-naming rules, check those crates**: their key and element names follow
-the same rules on purpose, and a divergence is a bug in whichever moved.
+about *what a segment or field means* belongs here and not in three of the
+four conversion crates — `hl7-2-from-er7-into-json`,
+`hl7-2-from-json-into-er7`, and `hl7-2-from-xml-into-er7` — which today
+still carry their own copies of the v2.5 tables. (The fourth,
+`hl7-2-from-er7-into-xml`, has depended on this crate for those tables
+since 0.5.0.) `schemas/v2.5.json` was generated from those copies and is
+table-for-table identical, so the remaining three conversion crates can
+eventually depend on this crate instead of duplicating it. **If you change
+the v2.5 tables or the node-naming rules, check those crates**: their key
+and element names follow the same rules on purpose, and a divergence is a
+bug in whichever moved.
 
 See `README.md` for the user-facing pitch and `spec/index.md` for the exact,
 normative rules — **`spec/index.md` is the single source of truth for
@@ -177,6 +181,21 @@ When adding to it:
 - Adding message-structure grammars speculatively; add one when a real need
   (a failing case, a user request) motivates it, and give it the same
   treatment as the four already in `schemas/v2.5.json`.
+
+## Benchmarks
+
+Criterion benchmarks live in `benches/parse.rs` and measure the five
+things this crate is asked to do — parsing, `get`, the tree, validation,
+and rendering — over a short ADT and a 200-observation lab result, both
+synthetic, never real patient data (see the workspace's `spec/phi/index.md`).
+`criterion` is a development dependency, so it is compiled for `cargo
+bench` and never linked into the library or the binary; the runtime
+dependency rule above is unchanged.
+
+```sh
+cargo bench -p hl7-2
+cargo bench -p hl7-2 -- --save-baseline before   # then compare a change
+```
 
 ---
 

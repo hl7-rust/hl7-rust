@@ -69,7 +69,7 @@ CLI contract) is covered in `tests/integration.rs` instead.
   for the ER7 encoding layer, and, since 0.5.0, `hl7-2-xml-lite-helper`
   (re-exported as `xml`) for reading v2.xml. This crate used to carry its
   own hand-written XML reader (`src/xml.rs`); it now shares a reader with
-  two other crates in this family that needed the same subset, which has
+  four other crates in this family that needed the same subset, which has
   no dependencies of its own, so the audit surface is unchanged (see
   `spec/index.md` §2). Keep the dependency list to these two unless the
   user asks for another — this crate's whole value proposition is reversing
