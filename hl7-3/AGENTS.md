@@ -19,6 +19,11 @@ encoding-layer crate underneath it — HL7 v3 is XML natively, so
 `hl7-2-xml-lite-helper` (a sibling crate, not something this one wraps in
 its own module) fills the role `er7` plays for `hl7-2`.
 
+It also has a struct mode: `src/typed.rs`'s `FromElement`/`FromElementValue`
+traits, and the `#[derive(FromElement)]` macro in the sibling crate
+`hl7-3-derive`, behind this crate's optional `derive` feature — mirroring
+`hl7-2`'s own struct mode and `hl7-2-derive`. See spec/index.md §8.
+
 See `README.md` for the user-facing pitch and `spec/index.md` for the
 exact, normative rules — **`spec/index.md` is the single source of truth
 for behavior.**
@@ -33,6 +38,8 @@ src/rim.rs            The six backbone classes and their from_element
                      readers — spec/index.md §4.
 src/message.rs        Message, ControlAct, and parse() — the three-level
                      envelope — spec/index.md §5.
+src/typed.rs           Struct mode: FromElement/FromElementValue, behind
+                     the optional derive feature — spec/index.md §8.
 spec/index.md          Normative specification (source of truth).
 ```
 
@@ -42,11 +49,13 @@ than one module's types together (nothing has, so far).
 
 ## Working conventions
 
-- **Rust edition 2024.** One dependency: `hl7-2-xml-lite-helper`. Don't
-  add another without discussion — the whole reason this crate reads
-  through the shared helper instead of writing its own XML parser is to
-  keep this crate's audit surface as small as `hl7-2-soap`'s or
-  `hl7-2-from-xml-into-er7`'s.
+- **Rust edition 2024.** One runtime dependency by default:
+  `hl7-2-xml-lite-helper`. Don't add another without discussion — the
+  whole reason this crate reads through the shared helper instead of
+  writing its own XML parser is to keep this crate's audit surface as
+  small as `hl7-2-soap`'s or `hl7-2-from-xml-into-er7`'s. The derive macro
+  lives in the sibling crate `hl7-3-derive`, behind this crate's optional
+  `derive` feature, so the default build is unaffected.
 - **Every `from_element` reader is infallible and total.** A missing
   optional attribute or child reads as `None` or an empty `Vec`, never a
   panic and never an error — matching `hl7-2` generic mode's "degrade,

@@ -90,3 +90,7 @@ behind the `derive` feature, only the macro re-export is (see
   or the field names the mapping is built on.
 - Runtime behavior of any kind. This crate emits code; it does not parse
   XML, and it must not gain a dependency on anything that does.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.
