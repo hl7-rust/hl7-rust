@@ -1,6 +1,6 @@
 ---
 name: hl7-skill
-description: Explain Health Level Seven (HL7®) concepts, terminology, and ideas — what a segment, field, component, and repetition are; what MSH-9, ER7, the HL7 null, v2.xml, and Z-segments mean; how HL7 v2 differs from v3 and FHIR® — with worked examples from the hl7-rust workspace. Use whenever the task is understanding an HL7 message or vocabulary, not only when this repo's code is involved: "what does MSH mean", "explain HL7 segments/fields", "what is ER7", "what's the difference between HL7 v2 and v3", "what is the HL7 null", an unfamiliar pipe-delimited (`MSH|^~\&|...`) message, or an HL7 v2/v3 term used without explanation.
+description: Explain Health Level Seven (HL7®) concepts, terminology, and ideas — what a segment, field, component, and repetition are; what MSH-9, ER7, the HL7 null, v2.xml, and Z-segments mean; how HL7 v2 differs from v3 and FHIR® — with worked examples from the hl7-rust workspace. Use whenever the task is understanding an HL7 message or vocabulary, not only when this repo's code is involved — for example "what does MSH mean", "explain HL7 segments/fields", "what is ER7", "what's the difference between HL7 v2 and v3", "what is the HL7 null", an unfamiliar pipe-delimited (`MSH|^~\&|...`) message, or an HL7 v2/v3 term used without explanation.
 ---
 
 # HL7 concepts, terminology, and ideas
