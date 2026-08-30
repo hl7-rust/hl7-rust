@@ -91,15 +91,24 @@ posture. Open items for each are in `tasks.md`.
    the request is answered. NEWS.md's press posture is ready.
 
 6. **Audit and harmonization.** This file and `tasks.md` are the ongoing
-   findings register and plan/tasks history. Two comprehensive sweeps ran
-   2026-08-30, both prompted by the same plain "update, upgrade,
-   harmonize, annotate, audit, fix" instruction — the second, after the
-   two Agent Skills and `llms.txt`/`llms.json` were added, caught an
-   unsigned-commits claim in `SECURITY.md`/`CODEOWNERS` left stale since
-   signing landed 2026-08-27, `hl7-3/AGENTS.md` never updated for its
-   2026-08-19 struct-mode feature, and the benchmark re-measurement's own
-   `er7` version transcribed wrong (`tasks.md` has both accounts in
-   full). The family conventions to converge on: the canonical
+   findings register and plan/tasks history. Three comprehensive sweeps ran
+   2026-08-30, all prompted by the same plain "update, upgrade,
+   harmonize, annotate, audit, fix" instruction repeated — the second,
+   after the two Agent Skills and `llms.txt`/`llms.json` were added,
+   caught an unsigned-commits claim in `SECURITY.md`/`CODEOWNERS` left
+   stale since signing landed 2026-08-27, `hl7-3/AGENTS.md` never updated
+   for its 2026-08-19 struct-mode feature, and the benchmark
+   re-measurement's own `er7` version transcribed wrong. The third caught
+   something the first two didn't check for at all: local `main` was 11
+   commits ahead of every remote the whole time, so the second sweep's own
+   fixes never reached GitHub, GitLab, or Codeberg — plus a scatter of
+   single-line drift (a false filesystem-access claim repeated in two
+   files, stale benchmark figures in `NEWS.md` alone, the website's
+   `/spec/` page undercounting again after two new specs landed, malformed
+   YAML frontmatter in `hl7-skill/SKILL.md`, and `llms.txt`/`llms.json`
+   inheriting a consumer-count bug already fixed elsewhere before those
+   two files existed) — `tasks.md` has the full account of all three.
+   The family conventions to converge on: the canonical
    special-files list (the local
    `spec/special-files-for-public-repos/index.md` was re-synced from the
    `fhir-rust` copy 2026-08-26, typos fixed), MSRV N−2 (raised from N−3

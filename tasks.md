@@ -558,6 +558,61 @@ Per `spec/free-open-source-funding/index.md`.
       `svelte-check` plus `vite build` (confirmed the escaped
       `MSH|^~\&|...` sample in the rewritten frontmatter renders
       correctly in the built HTML) before committing the website fixes.
+- [x] Third comprehensive accuracy sweep — done 2026-08-30, same day
+      again, same plain instruction repeated a third time. Five parallel
+      read-only audits (governance/compliance, `spec/`,
+      `AGENTS.md`/`CLAUDE.md`, root docs + website, skills + `llms.*`),
+      each required to verify against real code/git/API state, found one
+      structural problem and eight single-line content defects:
+      - **Local `main` was 11 commits ahead of every remote** (GitHub,
+        GitLab, Codeberg) the whole time the second sweep's fixes
+        (`9437f7d`, `f35b494`) were reported "done" — so `SECURITY.md`/
+        `CODEOWNERS` on all three public remotes still said "not signed,"
+        contradicting the pushed `MAINTAINERS.md`, for four days.
+        **Flagged to the maintainer, not pushed** — push is outward-facing
+        and this sweep's mandate doesn't cover it on its own. New rule: a
+        sweep isn't done until `git status` shows nothing ahead of remote.
+      - `SECURITY.md`'s properties list and a second checklist item in
+        `spec/phi/index.md` both still gave the flat "no filesystem access
+        from library code" claim the first sweep had already carved an
+        exception into everywhere else (`hl7-2-from-xsd-into-json-dictionary`
+        reads XSDs by design) — two more places fixed to match.
+      - `NEWS.md` alone still had the pre-remeasurement benchmark figures
+        (1.50 ms/4 µs → 1.44 ms/3.6 µs) the second sweep says it fixed
+        "everywhere else."
+      - The website's `/spec/` page repeated the exact miscount the first
+        sweep caught once already: "Fourteen today" plus a `<dl>` that
+        hadn't grown for the two specs added 2026-08-30
+        (`agent-skills`, `llms-json-and-llms-txt`) — now sixteen, both
+        added; `svelte-check` (0 errors) and a `vite build` confirm the
+        built `spec/index.html` renders the fix.
+      - Root `AGENTS.md` undercounted crates with no pre-monorepo git
+        history (named 3; commit messages show 6 — added
+        `hl7-2-soap`, `hl7-2-xml-lite-helper`,
+        `hl7-2-from-xsd-into-json-dictionary`).
+      - `hl7-skill/SKILL.md`'s YAML frontmatter did not parse (unescaped
+        `": "` in the plain-scalar `description`; PyYAML and js-yaml both
+        rejected it) — the prior sweep's frontmatter fix touched only the
+        website's rendered copy, never this source file. Reworded to drop
+        the colon.
+      - `hl7-rust-maintainer-skill/SKILL.md`'s checklist listed
+        `cargo rustdoc --lib -- -W missing-docs` as a flat command, which
+        fails from the repo root (virtual manifest) — pointed at `ci.yml`'s
+        real per-crate `-p <crate>` loop instead.
+      - `llms.txt`/`llms.json` (added after the first sweep's fix) had the
+        same `hl7-2-xml-lite-helper` "three consumers" undercount already
+        fixed in its `AGENTS.md` — corrected to all five.
+      - `hl7-2-from-er7-into-json/spec/index.md` §8 claimed unconditionally
+        that outputs "are joined with a blank line" — true in pretty mode,
+        false in `--compact` (no trailing newline), confirmed by running
+        the binary in both modes. Reworded to state the actual join and
+        both outcomes.
+
+      Verified before logging: `./bin/check-docs`/`./bin/check-trademarks`
+      after every edit; the fixed frontmatter re-parsed with PyYAML and
+      js-yaml; `llms.json` re-validated as JSON; the website change
+      checked with the Svelte MCP autofixer, `svelte-check`, and a full
+      `vite build`.
 
 ## Trademarks
 
