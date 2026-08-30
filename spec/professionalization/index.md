@@ -70,10 +70,11 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
    harmonization) and that file's own Status section now states it is
    synchronized.
 3. **Met as a practice, with gaps still open.** The gaps closed so far
-   (`#![forbid(unsafe_code)]`, CI, dependency auditing via `cargo deny`)
-   each updated the declaring documents in the closing change; the
-   still-standing declared gaps (unsigned commits, no SBOM, no committed
-   response window) are each tracked in `tasks.md`.
+   (`#![forbid(unsafe_code)]`, CI, dependency auditing via `cargo deny`,
+   and — 2026-08-27 — commit/tag signing) each updated the declaring
+   documents in the closing change; the still-standing declared gaps (no
+   SBOM, no committed security-response window) are each tracked in
+   `tasks.md`.
 4. **Met.** `.github/workflows/ci.yml` (2026-08-26) runs the
    CONTRIBUTING.md gates — fmt, clippy, test, rustdoc, the 1.96 MSRV floor —
    and the rule-5 trademark check on every push and pull request. The

@@ -153,8 +153,11 @@ A security policy that lists no gaps is a security policy nobody checked.
   policy in `deny.toml`) on every push plus a weekly cron. CI still gates
   no release, and before that date every check depended on one person's
   laptop.
-- **No release signing, no SBOM, no reproducible-build attestation.**
-  Commits and tags are not signed either.
+- **No release signing (of the crates.io artifact itself), no SBOM, no
+  reproducible-build attestation.** Commits and tags are signed since
+  2026-08-27 (SSH, verified on GitHub, GitLab, and Codeberg — see
+  [`MAINTAINERS.md`](MAINTAINERS.md)); history from before that date
+  stays unsigned, deliberately, rather than being rewritten.
 - **No published threat model.**
 
 If one of these is what blocks your adoption, say so —

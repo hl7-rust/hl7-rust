@@ -13,9 +13,10 @@
 #
 # An email address is used rather than a GitHub handle deliberately: it is
 # the identity that owns the crates.io publishes and the committer identity
-# in the history (commits are not cryptographically signed — see
-# MAINTAINERS.md), and it does not change if a username does. GitHub only auto-requests a
-# review from an email owner when that address belongs to a user with
-# access to the repository, which is the case here.
+# in the history (commits and tags are signed from 2026-08-27 onward —
+# see MAINTAINERS.md; history before that date stays unsigned), and it
+# does not change if a username does. GitHub only auto-requests a review
+# from an email owner when that address belongs to a user with access to
+# the repository, which is the case here.
 
 *       joel@joelparkerhenderson.com
