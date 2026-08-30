@@ -491,6 +491,73 @@ Per `spec/free-open-source-funding/index.md`.
       `./bin/check-trademarks`, and for the website, re-reading the
       changed lines) before reporting back; the full gate set below was
       run again after everything landed.
+- [x] Second comprehensive accuracy sweep — done 2026-08-30, same day,
+      after `hl7-skill/`, `hl7-rust-maintainer-skill/`, and root
+      `llms.txt`/`llms.json` were added (per `spec/agent-skills/` and
+      `spec/llms-json-and-llms-txt/`), prompted by the same plain
+      "update, upgrade, harmonize, annotate, audit, fix" instruction
+      repeated. Four parallel read-only audits (`spec/`,
+      `AGENTS.md`/`CLAUDE.md`, `README.md`/root docs, the website), each
+      required to verify every claim against real code/config, found
+      eight concrete problems — fewer than the first sweep, since that
+      one had already covered most of the surface, but two were live
+      contradictions between governance documents, not just staleness:
+      - **`SECURITY.md`'s Known gaps and `CODEOWNERS`' header comment
+        both still said "commits and tags are not signed"**, flatly
+        contradicting `MAINTAINERS.md` (updated 2026-08-28), which says
+        signing landed 2026-08-27 with SSH verification on GitHub,
+        GitLab, and Codeberg. `spec/professionalization/index.md` rule
+        3's status line inherited the same staleness. This is the exact
+        failure mode rule 3 exists to prevent — the declaring document
+        wasn't updated in the change that closed the gap — caught only
+        because this sweep re-reads every declared-gap document against
+        each other, not just against `tasks.md`.
+      - **`hl7-3/AGENTS.md` was never updated for struct mode**
+        (`src/typed.rs`, the optional `hl7-3-derive` dependency), which
+        landed 2026-08-19 — eleven days stale the entire time. Its own
+        `spec/index.md` §8 documented the feature correctly throughout;
+        only the agent playbook was wrong. `hl7-3-derive/AGENTS.md` was
+        separately missing the trademark disclaimer footer every other
+        crate's carries — not caught by `bin/check-trademarks`, since
+        that file happens to use no bare word mark outside code spans.
+      - **The 2026-08-30 benchmark re-measurement's own `er7` version was
+        transcribed wrong**: `hl7-2` actually resolves `er7 0.2.1` in
+        `Cargo.lock` (bumped in `aab39e7` the same day), but
+        `BENCHMARKS.md`, `spec/benchmark/index.md`,
+        `hl7-rust.github.io/docs/benchmarks/`, `plan.md`, and this file's
+        own log entry above all said `0.1.3` — the version two unrelated
+        crates (`hl7-2-from-json-into-er7`, `hl7-2-from-xml-into-er7`)
+        pin, present in the same `Cargo.lock` under the same package
+        name. Two spec agents found this independently. `RFC.md` §9
+        separately still cited the *pre*-re-measurement tree-vs-path
+        figures (1.50 ms / 4 µs) the same re-run had already superseded
+        everywhere else (1.44 ms / 3.6 µs) — updated to match.
+      - **Four crate-root rustdoc install snippets were one minor version
+        behind**, in `src/lib.rs` doc comments rather than `README.md`
+        (which the first sweep had already fixed, so this drift was
+        specifically in the docs.rs-rendered copy, not the GitHub-
+        rendered one): `hl7-2-derive` and `hl7-3-derive` each showed
+        their target crate's previous version, and `hl7`/`hl7-2` each
+        showed the other's previous version in the doc comment
+        explaining how to skip the umbrella indirection.
+      - **Both new skill pages' `frontmatter` code samples were
+        truncated**: `/docs/agent-skill/` and `/docs/maintainer-skill/`
+        each show a block captioned as that `SKILL.md`'s actual
+        frontmatter, but both had silently dropped the description's
+        final clause since the pages were first written — the
+        trigger-phrase list on one, the disambiguating "see hl7-skill for
+        that" parenthetical on the other, which is the sentence that
+        actually distinguishes the two skills from each other.
+      - Root `README.md`'s "Workspace documents" table never gained a row
+        for `llms.txt`/`llms.json`, added in a later commit than the
+        table itself.
+
+      Every fix applied directly and re-verified: `cargo check` on the
+      four crates whose `src/lib.rs` changed, `bin/check-docs` and
+      `bin/check-trademarks` after every commit, and the website's
+      `svelte-check` plus `vite build` (confirmed the escaped
+      `MSH|^~\&|...` sample in the rewritten frontmatter renders
+      correctly in the built HTML) before committing the website fixes.
 
 ## Trademarks
 

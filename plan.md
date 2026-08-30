@@ -23,6 +23,9 @@ targets in 3 of 14 crates, Criterion benches in 6. The root document set is near
 complete: GOVERNANCE, SECURITY, LICENSE, CONTRIBUTING, MAINTAINERS,
 AI_STATEMENT, RFC, CODEOWNERS, CITATION.cff, NEWS, COMPARISONS, BENCHMARKS,
 INSTALL, CHANGELOG, and `.github/FUNDING.yml` all exist and are substantive.
+Two Agent Skills (`hl7-skill/`, `hl7-rust-maintainer-skill/`) and root
+`llms.txt`/`llms.json` were added 2026-08-30, per `spec/agent-skills/`
+and `spec/llms-json-and-llms-txt/`.
 The honest part of that document set is that it *names its own gaps* —
 originally unsigned commits, no tags, no SBOM, no committed response window
 — rather than implying they are covered. This plan exists to close those
@@ -88,8 +91,16 @@ posture. Open items for each are in `tasks.md`.
    the request is answered. NEWS.md's press posture is ready.
 
 6. **Audit and harmonization.** This file and `tasks.md` are the ongoing
-   findings register and plan/tasks history. The family conventions to
-   converge on: the canonical special-files list (the local
+   findings register and plan/tasks history. Two comprehensive sweeps ran
+   2026-08-30, both prompted by the same plain "update, upgrade,
+   harmonize, annotate, audit, fix" instruction — the second, after the
+   two Agent Skills and `llms.txt`/`llms.json` were added, caught an
+   unsigned-commits claim in `SECURITY.md`/`CODEOWNERS` left stale since
+   signing landed 2026-08-27, `hl7-3/AGENTS.md` never updated for its
+   2026-08-19 struct-mode feature, and the benchmark re-measurement's own
+   `er7` version transcribed wrong (`tasks.md` has both accounts in
+   full). The family conventions to converge on: the canonical
+   special-files list (the local
    `spec/special-files-for-public-repos/index.md` was re-synced from the
    `fhir-rust` copy 2026-08-26, typos fixed), MSRV N−2 (raised from N−3
    2026-08-29, per `spec/rust-msrv-n-minus-2/index.md`), `AGENTS.md`-style
