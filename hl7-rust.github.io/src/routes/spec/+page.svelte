@@ -181,7 +181,7 @@
   <h2 id="workspace">The workspace's own specs</h2>
   <p>
     Several specs sit outside any crate, because what they state is true of the whole workspace
-    rather than of one member. Fourteen today. The spec is the normative version in every case; the
+    rather than of one member. Sixteen today. The spec is the normative version in every case; the
     entries below summarise them and link back.
   </p>
   <dl>
@@ -236,7 +236,7 @@
     </dd>
   </dl>
   <p>
-    The six above are about what the crates <em>do</em>. The eight below are about how this
+    The six above are about what the crates <em>do</em>. The ten below are about how this
     repository runs itself — its own practice, not the code's behavior — but the same rule applies:
     the spec is the source of truth, and a root document that disagrees with one is the bug.
   </p>
@@ -315,6 +315,28 @@
       Why crates still publish with a long-lived API token today, and the OIDC-based Trusted
       Publishing this project intends to adopt once it is production-ready across every forge and
       destination it uses.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/agent-skills/index.md`}
+        ><code>spec/agent-skills/index.md</code></a
+      >
+    </dt>
+    <dd>
+      The repository top-level Agent Skills folders — <code>hl7-skill</code> for end users working
+      with HL7® concepts and messages, <code>hl7-rust-maintainer-skill</code> for contributors
+      changing this repository itself. Summarised at
+      <a href="/docs/agent-skill/">Agent skill</a> and
+      <a href="/docs/maintainer-skill/">Maintainer skill</a>.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/llms-json-and-llms-txt/index.md`}
+        ><code>spec/llms-json-and-llms-txt/index.md</code></a
+      >
+    </dt>
+    <dd>
+      The root <code>llms.json</code>/<code>llms.txt</code> AI-guidance files — a curated map of
+      this workspace's most important content for language models — and why the site's own copies
+      under <code>static/</code> rewrite the links rather than repeating the root files verbatim.
     </dd>
   </dl>
 </DocPage>
