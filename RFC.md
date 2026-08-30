@@ -191,8 +191,8 @@ answer of all.
 ## 9. Is the tree worth optimising?
 
 **The question.** Building the generic tree of a 200-observation message
-costs about 1.50 ms, against about 4 µs to read two fields by path — nearly
-400 times more. It has had no optimisation attention.
+costs about 1.44 ms, against about 3.6 µs to read two fields by path —
+nearly 400 times more. It has had no optimisation attention.
 
 **Why it is open.** The guidance is to use paths, and for most integrations
 that is enough, which is why the number has been published rather than

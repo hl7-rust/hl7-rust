@@ -29,7 +29,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! hl7-2 = "0.2"
+//! hl7-2 = "0.3"
 //! ```
 //!
 //! Nothing lives at the root but the modules. A name that means one thing

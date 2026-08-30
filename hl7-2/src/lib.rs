@@ -13,7 +13,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! hl7 = "0.1"
+//! hl7 = "0.2"
 //! ```
 //!
 //! # Trademarks

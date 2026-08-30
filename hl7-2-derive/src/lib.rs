@@ -6,7 +6,7 @@
 //! its `derive` feature, so the dependency to add is:
 //!
 //! ```toml
-//! hl7-2 = { version = "0.2", features = ["derive"] }
+//! hl7-2 = { version = "0.3", features = ["derive"] }
 //! ```
 //!
 //! Keeping the macros in a crate of their own is what lets the default

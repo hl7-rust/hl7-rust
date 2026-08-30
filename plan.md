@@ -131,7 +131,7 @@ posture. Open items for each are in `tasks.md`.
   2026-08-26 against `hl7-2` 0.2.6, but `hl7-2` released twice more since
   (0.2.7, then 0.3.0 on 2026-08-29) without a re-measurement, and the
   figures went stale — the exact failure mode the watch item predicted.
-  Caught and re-measured 2026-08-30 against `hl7-2` 0.3.0 / `er7` 0.1.3
+  Caught and re-measured 2026-08-30 against `hl7-2` 0.3.0 / `er7` 0.2.1
   (`tasks.md` has the full account). The watch item itself doesn't close:
   a claims-accuracy culture has to keep re-checking this every time a
   release moves past the measured version, not just once.

@@ -111,6 +111,7 @@ than of one member.
 | [`NEWS.md`](NEWS.md) | Announcements, project status, where updates appear, and press contacts |
 | [`COMPARISONS.md`](COMPARISONS.md) | Interface engines, HAPI, the other Rust crates — and when this project is the wrong answer |
 | [`BENCHMARKS.md`](BENCHMARKS.md) | Measured figures and the method that produced them |
+| [`llms.txt`](llms.txt) / [`llms.json`](llms.json) | A curated map of this workspace's most important content, for AI tools — see [`spec/llms-json-and-llms-txt/index.md`](spec/llms-json-and-llms-txt/index.md) |
 
 **Before you adopt it, or review it:**
 

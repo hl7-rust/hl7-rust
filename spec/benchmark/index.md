@@ -113,7 +113,7 @@ that changed nothing.
 
 **Machine:** Apple M4 Max, 128 GB, macOS 26.6.1, arm64.
 **Toolchain:** rustc 1.98.0 (88d9e12ae 2026-08-18), release profile.
-**Date:** 2026-08-30. **Crate:** `hl7-2` 0.3.0, `er7` 0.1.3.
+**Date:** 2026-08-30. **Crate:** `hl7-2` 0.3.0, `er7` 0.2.1.
 **Method:** `cargo bench -p hl7-2`, Criterion defaults, machine otherwise
 idle.
 

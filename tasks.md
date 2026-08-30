@@ -468,7 +468,7 @@ Per `spec/free-open-source-funding/index.md`.
         2026-08-26 against `hl7-2` 0.2.6, but `hl7-2` had since released
         twice more (0.2.7, then 0.3.0). Actually re-ran
         `cargo bench -p hl7-2` (not just relabeled the old numbers as
-        historical) against 0.3.0 / `er7` 0.1.3, twice, to also check
+        historical) against 0.3.0 / `er7` 0.2.1, twice, to also check
         whether the previous doc's noted 13% run-to-run swing on
         `render/small` recurred — it didn't (about 1% this time) — and
         updated both files' tables, prose, and the website's
