@@ -206,7 +206,9 @@ pub(crate) fn segment(
 ) -> Node {
     let base = format!("{}[{occurrence}]", seg.name);
     // OBX-5's data type is whatever OBX-2 says it is.
-    let variable = dictionary.variable_type(seg).map(str::to_string);
+    let variable = dictionary
+        .variable_type(seg, separators)
+        .map(str::to_string);
     let mut children = Vec::new();
     for (index, field) in seg.fields.iter().enumerate() {
         if field.is_empty() {

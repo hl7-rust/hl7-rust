@@ -323,7 +323,9 @@ impl Message {
             return Ok(None);
         };
         Ok(match self.dictionary.field_type(&path.segment, field) {
-            Some(crate::dictionary::VARIABLE) => self.dictionary.variable_type(segment),
+            Some(crate::dictionary::VARIABLE) => {
+                self.dictionary.variable_type(segment, &self.raw.separators)
+            }
             other => other,
         }
         .map(str::to_string))

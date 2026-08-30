@@ -220,16 +220,20 @@ impl Dictionary {
     /// carries a coded element. Returns `None` when OBX-2 is empty or names
     /// a type this dictionary does not know as a composite, in which case
     /// the value is treated as a scalar.
+    ///
+    /// Reads via [`er7::Segment::first_value`], decoded — a type code is
+    /// two or three plain letters in every real message, so this differs
+    /// from reading `.raw` directly only in theory, not in any message this
+    /// has been run against.
     #[must_use]
-    pub fn variable_type(&self, segment: &er7::Segment) -> Option<&str> {
-        let named = segment
-            .component(2, 1)?
-            .subcomponent(1)?
-            .raw
-            .trim()
-            .to_string();
+    pub fn variable_type(
+        &self,
+        segment: &er7::Segment,
+        separators: &er7::Separators,
+    ) -> Option<&str> {
+        let named = segment.first_value(2, 1, separators)?;
         self.types
-            .get_key_value(&named)
+            .get_key_value(named.trim())
             .map(|(key, _)| key.as_str())
     }
 
@@ -781,10 +785,13 @@ mod tests {
         let dictionary = Version::V2_5.dictionary();
         let message = er7::parse("MSH|^~\\&|A||||1||ORU^R01|1|P|2.5\rOBX|1|CE|X||a^b").unwrap();
         let obx = message.segment("OBX").unwrap();
-        assert_eq!(dictionary.variable_type(obx), Some("CE"));
+        assert_eq!(
+            dictionary.variable_type(obx, &message.separators),
+            Some("CE")
+        );
         let message = er7::parse("MSH|^~\\&|A||||1||ORU^R01|1|P|2.5\rOBX|1|NM|X||7").unwrap();
         assert_eq!(
-            dictionary.variable_type(message.segment("OBX").unwrap()),
+            dictionary.variable_type(message.segment("OBX").unwrap(), &message.separators),
             None
         );
     }

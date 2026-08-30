@@ -18,8 +18,10 @@ path = "src/main.rs"
 [dependencies]
 # The ER7 encoding layer: parsing, delimiters, escape sequences, paths,
 # rendering, batch splitting. This crate supplies the HL7 v2 dictionary on
-# top of it — see spec/index.md §2.
-er7 = "0.1.0"
+# top of it — see spec/index.md §2. 0.2.1 is the floor rather than 0.1.0
+# because Dictionary::variable_type, in src/dictionary.rs, uses
+# Segment::first_value, which does not exist before it.
+er7 = "0.2.1"
 # The `#[derive(FromHl7)]` / `#[derive(ToHl7)]` macros for struct mode. Off
 # by default so the dependency-free build stays dependency-free; enabling
 # `derive` pulls in syn and quote through this crate only.

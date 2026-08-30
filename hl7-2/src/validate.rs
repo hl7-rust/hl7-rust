@@ -250,6 +250,11 @@ fn starts_present(item: &Item, message: &Message) -> bool {
 }
 
 /// One segment's fields, components, and values.
+// Already at the edge of the line-count lint; threading a `&Separators`
+// through to `variable_type` (er7 R26) tipped it over without adding real
+// complexity. Splitting this walk up would cost more clarity than the
+// count buys back.
+#[allow(clippy::too_many_lines)]
 fn check_segment(
     segment: &Segment,
     occurrence: usize,
@@ -274,7 +279,9 @@ fn check_segment(
         }
         return;
     };
-    let variable = dictionary.variable_type(segment).map(str::to_string);
+    let variable = dictionary
+        .variable_type(segment, separators)
+        .map(str::to_string);
     let defined = fields.len();
     for (index, field) in segment.fields.iter().enumerate() {
         if field.is_empty() {

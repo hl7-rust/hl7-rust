@@ -12,7 +12,10 @@ categories = ["parser-implementations", "command-line-utilities"]
 
 [dependencies]
 # The ER7 encoding layer: parsing, escape sequences, and writing back out.
-er7 = "0.1.0"
+# 0.2.1 rather than 0.1.0: this crate's own er7::Segment and er7::Separators
+# values pass into hl7-2's Dictionary::variable_type, which needs 0.2.1, so
+# both must resolve to the same er7 version in the one workspace Cargo.lock.
+er7 = "0.2.1"
 # The HL7 v2 dictionary: data types, segment field tables, message
 # structures, and the matcher that groups segments. Until 0.5.0 this crate
 # carried its own copies of the v2.5 tables; now it reads them from the

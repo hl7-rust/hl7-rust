@@ -106,7 +106,9 @@ pub fn segment_to_node(
     let seg_name = xml_segment_name(&seg.name);
     let mut node = Node::group(&seg_name);
     // OBX-5 has a variable type declared by the value of OBX-2.
-    let variable = dictionary.variable_type(seg).map(str::to_string);
+    let variable = dictionary
+        .variable_type(seg, separators)
+        .map(str::to_string);
 
     // In schema mode the dictionary decides which positions exist, so that a
     // required-but-empty field still gets an element and nothing outside the
