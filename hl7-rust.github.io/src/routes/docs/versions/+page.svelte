@@ -206,7 +206,7 @@ cargo +1.96 check --workspace --all-targets`;
     </li>
   </ul>
   <p>
-    Pin what you depend on the way you would pin any pre-1.0 crate — <code>hl7-2 = "0.2"</code> —
+    Pin what you depend on the way you would pin any pre-1.0 crate — <code>hl7-2 = "0.3"</code> —
     and read the crate's <code>spec/index.md</code> rather than inferring guarantees from the type
     signatures.
   </p>

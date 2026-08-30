@@ -57,7 +57,7 @@ cargo bench -p hl7-2 -- --baseline before`;
     <strong>Machine:</strong> Apple M4 Max, 128 GB, macOS 26.6.1, arm64.
     <strong>Toolchain:</strong> rustc 1.98.0, release profile.
     <strong>Date:</strong> 30 August 2026.
-    <strong>Crates:</strong> <code>hl7-2</code> 0.3.0 over <code>er7</code> 0.1.3.
+    <strong>Crates:</strong> <code>hl7-2</code> 0.3.0 over <code>er7</code> 0.2.1.
     <strong>Method:</strong> <code>cargo bench -p hl7-2</code>, Criterion defaults, machine
     otherwise idle. The middle column is Criterion's point estimate; the interval is its confidence
     interval, reported rather than quietly dropped.

@@ -17,7 +17,9 @@ description: Technical, implementation-level guidance for maintainers
   workspace itself — repo layout, the spec-first rule, the exact pre-PR
   checklist, adding dictionary coverage, benchmarking a performance
   claim, fixing the website, and what CI actually gates. Use when the
-  task modifies this repository's own crates, specs, docs, or website.
+  task modifies this repository's own crates, specs, docs, or website
+  (not when the task is merely using the published crates to process
+  an HL7® message — see hl7-skill for that).
 ---`;
 
   const checklist = `cargo test                                    # unit and integration tests
