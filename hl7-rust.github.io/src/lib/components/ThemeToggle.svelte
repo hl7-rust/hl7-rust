@@ -1,80 +1,34 @@
 <script lang="ts">
   /**
-   * Light/dark switch.
+   * Light/dark switch — thin site wiring around the published
+   * lily-design-system-svelte-theme-picker package (icon button, WAI-ARIA
+   * APG listbox, localStorage persistence) instead of a hand-rolled toggle.
    *
-   * Writes `data-theme` on <html>, which is the hook both Lily theme files
-   * key off, and remembers the choice in localStorage. The inline script in
-   * app.html applies the stored value before first paint; this component only
-   * has to keep its own label in step with it after hydration.
+   * Both real theme stylesheets (static/lily-light.css and
+   * static/lily-dark.css) are loaded unconditionally in app.html and key
+   * entirely off the data-theme attribute this component sets. The files
+   * under static/themes/ that this component's managed <link> swaps between
+   * are deliberately empty placeholders — see the comment in each — so the
+   * dynamic-load side effect this package is built around never has to do
+   * real work here.
+   *
+   * `storageKey` matches the key app.html's own inline anti-flash script
+   * reads, so an existing stored choice — from this component or its
+   * hand-rolled predecessor, which wrote the same key — never flashes wrong
+   * on first paint. `detectFromSystem` resolves prefers-color-scheme once on
+   * a first visit with no stored choice, matching what the CSS media query
+   * already rendered before hydration, so there is nothing to flash either
+   * way. (It does not keep following a later OS change with no stored
+   * choice, the way the pure-CSS fallback used to — an explicit choice,
+   * once resolved, is what every other themed site does too.)
    */
-  import { onMount } from 'svelte';
-
-  type Theme = 'light' | 'dark';
-
-  let theme = $state<Theme>('light');
-  let ready = $state(false);
-
-  onMount(() => {
-    const attribute = document.documentElement.getAttribute('data-theme');
-    theme =
-      attribute === 'dark' || attribute === 'light'
-        ? attribute
-        : window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light';
-    ready = true;
-  });
-
-  function toggle() {
-    theme = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', theme);
-    try {
-      localStorage.setItem('hl7-rust-theme', theme);
-    } catch {
-      // Private browsing, or storage disabled. The choice still applies to
-      // this page; it just will not survive a reload.
-    }
-  }
+  import { ThemePicker } from 'lily-design-system-svelte-theme-picker';
 </script>
 
-<button
-  type="button"
-  class="theme-toggle"
-  onclick={toggle}
-  aria-pressed={ready ? theme === 'dark' : undefined}
-  aria-label={theme === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
->
-  <span aria-hidden="true">{theme === 'dark' ? '☾' : '☀'}</span>
-  <span class="theme-toggle-text">{theme === 'dark' ? 'Dark' : 'Light'}</span>
-</button>
-
-<style>
-  .theme-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.3125rem 0.625rem;
-    font: inherit;
-    font-size: 0.8125rem;
-    color: inherit;
-    background: transparent;
-    border: 1px solid var(--color-base-300);
-    border-radius: var(--radius-field, 0.25rem);
-    cursor: pointer;
-  }
-
-  .theme-toggle:hover {
-    background: var(--color-base-200);
-  }
-
-  @media (max-width: 40rem) {
-    .theme-toggle-text {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-      white-space: nowrap;
-    }
-  }
-</style>
+<ThemePicker
+  label="Theme"
+  themesUrl="/themes/"
+  themes={['light', 'dark']}
+  detectFromSystem
+  storageKey="hl7-rust-theme"
+/>

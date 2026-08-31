@@ -1,0 +1,6 @@
+/* Intentionally empty. lily-design-system-svelte-theme-picker manages one
+ * <link> and swaps its href to this file when "light" is selected — but the
+ * real light tokens and every Lily component rule already live in the
+ * always-loaded /lily-light.css (see app.html), because they have to be
+ * present before this picker's JavaScript ever runs, or first paint flashes.
+ * This file exists only so that managed <link> resolves without a 404. */

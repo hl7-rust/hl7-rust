@@ -1,0 +1,6 @@
+/* Intentionally empty. lily-design-system-svelte-theme-picker manages one
+ * <link> and swaps its href to this file when "dark" is selected — but the
+ * real dark token overrides already live in the always-loaded
+ * /lily-dark.css (see app.html), scoped to :root[data-theme="dark"], which
+ * is the attribute this picker sets. This file exists only so that managed
+ * <link> resolves without a 404. */

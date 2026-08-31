@@ -10,6 +10,8 @@
   import { page } from '$app/state';
   import { Footer, Header, NavigationMenu, Sidebar, SkipLink } from 'lily-design-system-svelte-headless';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+  import TextSizeControl from '$lib/components/TextSizeControl.svelte';
+  import ShareControl from '$lib/components/ShareControl.svelte';
   import { PRIMARY_NAV, SECTIONS } from '$lib/data/navigation';
   import { ORG, REPO } from '$lib/data/crates';
 
@@ -43,7 +45,11 @@
       {/each}
       <a href={ORG}>GitHub</a>
     </NavigationMenu>
-    <ThemeToggle />
+    <div class="site-controls">
+      <TextSizeControl />
+      <ShareControl />
+      <ThemeToggle />
+    </div>
   </div>
 </Header>
 
@@ -179,6 +185,134 @@
     text-underline-offset: 4px;
   }
 
+  /* ---------------------------------------------------------------------
+     Site controls: text size, share, and theme.
+
+     All three come from separate lily-design-system-svelte-*-picker
+     packages, which ship no CSS of their own — each is an icon button plus
+     an absolutely positioned popup, styled once here through the class
+     hooks common to all three (theme-picker-*, text-size-picker-*,
+     share-picker-*), rather than three near-duplicate rule sets.
+     --------------------------------------------------------------------- */
+
+  .site-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  :global(.site-controls .theme-picker),
+  :global(.site-controls .text-size-picker),
+  :global(.site-controls .share-picker) {
+    position: relative;
+  }
+
+  :global(.site-controls .theme-picker-button),
+  :global(.site-controls .text-size-picker-button),
+  :global(.site-controls .share-picker-button) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    font: inherit;
+    font-size: 1rem;
+    color: inherit;
+    background: transparent;
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-field, 0.25rem);
+    cursor: pointer;
+  }
+
+  :global(.site-controls .theme-picker-button:hover),
+  :global(.site-controls .text-size-picker-button:hover),
+  :global(.site-controls .share-picker-button:hover) {
+    background: var(--color-base-200);
+  }
+
+  :global(.site-controls .theme-picker-icon),
+  :global(.site-controls .text-size-picker-icon),
+  :global(.site-controls .share-picker-icon) {
+    font-size: 1.0625rem;
+    line-height: 1;
+  }
+
+  /* The popup lists: without positioning every one renders in normal flow
+     and shoves the page down when it opens (each package's own README
+     names this as the one thing every consumer has to supply). */
+  :global(.site-controls .theme-picker-list),
+  :global(.site-controls .text-size-picker-list),
+  :global(.site-controls .share-picker-list) {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 0.25rem);
+    right: 0;
+    min-width: 9rem;
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+    background: var(--color-base-100);
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-box, 0.5rem);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+  }
+
+  :global(.site-controls .theme-picker-option),
+  :global(.site-controls .text-size-picker-option) {
+    padding: 0.375rem 0.625rem;
+    border-radius: var(--radius-field, 0.25rem);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  :global(.site-controls .theme-picker-option:hover),
+  :global(.site-controls .text-size-picker-option:hover),
+  :global(.site-controls .theme-picker-option[data-active]),
+  :global(.site-controls .text-size-picker-option[data-active]) {
+    background: var(--color-base-200);
+  }
+
+  :global(.site-controls .theme-picker-option[aria-selected='true']),
+  :global(.site-controls .text-size-picker-option[aria-selected='true']) {
+    font-weight: 700;
+  }
+
+  :global(.site-controls .share-picker-list-item) {
+    display: block;
+  }
+
+  :global(.site-controls .share-picker-target),
+  :global(.site-controls .share-picker-copy) {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.625rem;
+    border: none;
+    border-radius: var(--radius-field, 0.25rem);
+    font: inherit;
+    text-align: left;
+    color: inherit;
+    text-decoration: none;
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  :global(.site-controls .share-picker-target:hover),
+  :global(.site-controls .share-picker-copy:hover) {
+    background: var(--color-base-200);
+  }
+
+  :global(.site-controls .share-picker-status) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    margin: 0;
+  }
+
   .site-shell {
     max-width: 84rem;
     margin: 0 auto;
@@ -290,7 +424,7 @@
       border-color: var(--color-primary);
     }
 
-    /* Brand and theme toggle share the first row; the nav wraps below both. */
+    /* Brand and site controls share the first row; the nav wraps below both. */
     :global(.site-nav) {
       order: 3;
       flex-basis: 100%;
@@ -350,6 +484,23 @@
     background: var(--color-base-100);
     color: var(--color-base-content);
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* text-size-picker sets this attribute; it ships no CSS of its own, on
+     the grounds that mapping a slug to real typography is the consumer's
+     call (WCAG 2.2 §1.4.4 Resize Text / §1.4.12 Text Spacing). Scaling the
+     root font-size, rather than each rule individually, is deliberate:
+     every rem-based measurement elsewhere in this file scales with it. */
+  :global(:root[data-text-size='small']) {
+    font-size: 87.5%;
+  }
+
+  :global(:root[data-text-size='large']) {
+    font-size: 112.5%;
+  }
+
+  :global(:root[data-text-size='x-large']) {
+    font-size: 125%;
   }
 
   /* Lily gives every *-list-item a hairline rule between rows, which is right
