@@ -100,7 +100,12 @@ src/lib/components/CodeSample.svelte Labelled code block with a copy button.
 src/lib/components/CrateMeta.svelte  The facts panel on a crate page.
 src/lib/components/Callout.svelte    Note and warning.
 src/lib/components/LinkCards.svelte  The card grid every index page uses.
-src/lib/components/ThemeToggle.svelte
+src/lib/components/ThemeToggle.svelte     Site wiring around the published
+                                          lily-design-system-svelte-theme-picker.
+src/lib/components/TextSizeControl.svelte Site wiring around the published
+                                          lily-design-system-svelte-text-size-picker.
+src/lib/components/ShareControl.svelte    Site wiring around the published
+                                          lily-design-system-svelte-share-picker.
 
 static/lily-light.css            Lily "light" theme, copied verbatim from
                                  lily-design-system/themes/light.css.
