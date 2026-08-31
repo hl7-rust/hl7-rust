@@ -88,11 +88,21 @@ src/routes/crates/<name>/        One page per workspace member.
 src/routes/help/                 FAQ, troubleshooting, support.
 src/routes/spec/                 Pointers to each crate's normative spec.
 src/routes/sitemap.xml/          Generated from the navigation data.
+src/routes/**/+page.ts           One per route: a `load` returning
+                                 { title }, the page's own bare title —
+                                 see "The page.data.title convention"
+                                 below.
 
 src/lib/data/crates.ts           The crate catalog. Every list, table, and
                                  link to a crate reads it from here.
 src/lib/data/navigation.ts       The site map. The header nav, the sidebar,
                                  previous/next, and the sitemap all read it.
+src/lib/data/site-title.ts       siteTitle(pathname, title): the one rule
+                                 for turning page.data.title into a full
+                                 <title>, used by DocPage and ShareControl.
+src/lib/data/theme.ts            THEMES, and the attribute-based,
+                                 multi-stylesheet theme convention it
+                                 documents.
 
 src/lib/components/DocPage.svelte    Page shell: breadcrumb, title, lede,
                                      on-this-page, previous/next.
@@ -118,17 +128,49 @@ static/lily-dark.css             Only the token block from Lily's "dark"
 ## Adding a page
 
 1. Add the route under `src/routes/`, using `DocPage` for the shell.
-2. Add it to the right section's `links` in `src/lib/data/navigation.ts`.
+2. Add a sibling `+page.ts` next to it, exporting `load` and returning
+   `{ title: '...' }` — see "The `page.data.title` convention" below.
+   `DocPage` reads the title from there; it takes no `title` prop.
+3. Add it to the right section's `links` in `src/lib/data/navigation.ts`.
 
-That second step is what puts it in the sidebar, in the section index, in the
+That third step is what puts it in the sidebar, in the section index, in the
 previous/next chain, and in the sitemap. Nothing else needs editing.
 
 ## Adding a crate
 
 Add an entry to `CRATES` in `src/lib/data/crates.ts`, then add a page under
-`src/routes/crates/<name>/`. The crate index, the architecture tables, the
-install table, the versions table, and the sidebar all pick it up from the
-catalog.
+`src/routes/crates/<name>/` plus its `+page.ts` (`{ title:
+crateBySlug('<name>').name }`, so the crate catalog stays the one place a
+crate's display name is spelled). The crate index, the architecture tables,
+the install table, the versions table, and the sidebar all pick up the new
+crate from the catalog.
+
+## The `page.data.title` convention
+
+Every route's `+page.ts` exports a `load` returning its own bare title, e.g.:
+
+```ts
+import type { PageLoad } from './$types';
+
+export const load: PageLoad = () => ({ title: 'Quick start' });
+```
+
+(A few titles come from a lookup instead of a literal — the crate pages use
+`crateBySlug(slug).name`, the one news post uses `postBySlug(slug).title` —
+so the title can never drift from the catalog it is displayed from anywhere
+else.)
+
+`src/app.d.ts` declares `PageData.title: string`, so `page.data.title` is
+typed everywhere. Two things read it, and only two: `DocPage` (for the h1,
+the breadcrumb, and — run through `$lib/data/site-title.ts`'s `siteTitle()`
+for the site-name suffix — `<svelte:head><title>`) and `ShareControl` in the
+root layout (for the text handed to a share target, run through the same
+`siteTitle()`). Adding a third place that needs a page's title should read
+`page.data.title` too, rather than threading a new prop through every route.
+
+The home page is the one exception worth knowing about: `siteTitle()` leaves
+path `/` alone, so `src/routes/+page.ts` returns the complete string —
+`"HL7 Rust — HL7 v2 and v3 for Rust"` — not a bare title needing the suffix.
 
 ## Updating the theme
 
@@ -136,6 +178,18 @@ catalog.
 not hand-edit it; re-copy it. `static/lily-dark.css` is generated from Lily's
 `themes/dark.css` by taking only its token block and re-scoping it; regenerate
 it the same way if the upstream tokens change.
+
+This site's theme switching is attribute-based, for this multi-stylesheet
+setup: both files above are loaded unconditionally in `app.html`, and
+`ThemeToggle` only ever sets `data-theme` on `<html>` — nothing is fetched or
+swapped when the theme changes; the browser's own cascade picks the active
+stylesheet. `$lib/data/theme.ts` names this convention and is where `THEMES`
+lives; add a theme by adding a stylesheet there and a slug to `THEMES`, not by
+changing how switching works. See that file's own comment for why
+`ThemeToggle`'s `themesUrl` points at placeholder files under `static/themes/`
+rather than real theme CSS — the published `lily-design-system-svelte-theme-picker`
+package's own model assumes one theme fetched on demand, which this site's
+convention deliberately does not use.
 
 ## License
 
