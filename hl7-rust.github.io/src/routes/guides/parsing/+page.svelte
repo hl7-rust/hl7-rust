@@ -80,7 +80,6 @@ let message = v2::parse_with_options(text, &options)?;`;
 </script>
 
 <DocPage
-  title="Parsing"
   lede="hl7-2 offers three parsing modes. They are not three libraries to choose between — they are three stages of the same job, and a real integration walks through them in order."
   {contents}
 >

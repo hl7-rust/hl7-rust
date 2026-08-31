@@ -39,7 +39,7 @@ assert_eq!(root.children_named("PID.3").count(), 2);
 assert_eq!(root.find("HD.1").unwrap().text, "NHS");   // first descendant`;
 </script>
 
-<DocPage title={crate.name} lede={crate.tagline} {contents}>
+<DocPage lede={crate.tagline} {contents}>
   <CrateMeta {crate} />
 
   <h2 id="what">What it is</h2>

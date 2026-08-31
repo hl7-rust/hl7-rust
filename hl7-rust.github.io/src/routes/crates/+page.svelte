@@ -30,7 +30,6 @@ assert_eq!(message.query("PID-5.1")?.as_deref(), Some("SMITH"));`;
 </script>
 
 <DocPage
-  title="Crates"
   lede={`One page per workspace member — ${CRATES.length} of them — with what it does, what it depends on, what its features do, and a tour of its API. Start with hl7 or hl7-2 unless you know otherwise.`}
   {contents}
 >

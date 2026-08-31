@@ -43,7 +43,6 @@ let name = fields[5];`;
 </script>
 
 <DocPage
-  title="Compared with the alternatives"
   lede="Interface engines, the mature Java libraries, the other Rust crates, and the pipe-splitting you were about to write yourself. When each is the right answer, and when this project is the wrong one."
   {contents}
 >

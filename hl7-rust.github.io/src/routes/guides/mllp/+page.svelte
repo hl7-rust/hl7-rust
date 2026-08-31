@@ -72,7 +72,6 @@ cargo run --example tcp_sender       # sends, waits, checks the echo`;
 </script>
 
 <DocPage
-  title="MLLP over TCP"
   lede="The Minimal Lower Layer Protocol is three bytes of framing and nothing else. This guide covers what you actually need on top of it: whole messages out of a chopped-up stream, an acknowledgement that names what it answers, and a bound on what a broken peer can allocate."
   {contents}
 >

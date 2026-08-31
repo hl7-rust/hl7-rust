@@ -58,7 +58,6 @@ cargo +1.96 check --workspace --all-targets`;
 </script>
 
 <DocPage
-  title="Versions and compatibility"
   lede="Which HL7 releases are supported and what “supported” means for each; which crate versions are current; the Rust version floor; and what the five-way license actually gives you."
   {contents}
 >

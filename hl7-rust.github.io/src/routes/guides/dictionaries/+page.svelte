@@ -112,7 +112,6 @@ hl7-2-from-er7-into-xml --dictionary paris.json --schema-shape message.hl7`;
 </script>
 
 <DocPage
-  title="Vendor dictionaries"
   lede="The dictionary is what turns positions into meaning. It is also a JSON file you can write — which is how a vendor's Z-segments become named fields without a release of your software."
   {contents}
 >

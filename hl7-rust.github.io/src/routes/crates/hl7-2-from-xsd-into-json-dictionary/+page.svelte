@@ -52,7 +52,7 @@ std::fs::write("paris.json", document.to_json())?;`;
   const install = `cargo install hl7-2-from-xsd-into-json-dictionary`;
 </script>
 
-<DocPage title={crate.name} lede={crate.tagline} {contents}>
+<DocPage lede={crate.tagline} {contents}>
   <CrateMeta {crate} />
 
   <h2 id="what">What it is</h2>

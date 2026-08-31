@@ -51,7 +51,7 @@ Client.Authorization    403   do not retry — the caller is not allowed
 Server                  500   retry — the far side had a bad moment`;
 </script>
 
-<DocPage title={crate.name} lede={crate.tagline} {contents}>
+<DocPage lede={crate.tagline} {contents}>
   <CrateMeta {crate} />
 
   <h2 id="what">What it is</h2>

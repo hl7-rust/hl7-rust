@@ -110,7 +110,6 @@ exit $status`;
 </script>
 
 <DocPage
-  title="A lossless round trip"
   eyebrow="Tutorial"
   lede="ER7 to XML and back, ER7 to JSON and back — as a shell pipeline, and as a test in your own crate. It is the smoke test the conversion crates use on themselves, and it is the fastest way to find out whether a change broke something."
   {contents}

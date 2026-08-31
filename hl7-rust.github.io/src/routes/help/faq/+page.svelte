@@ -21,7 +21,6 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
 </script>
 
 <DocPage
-  title="FAQ"
   lede="The questions that come up before the first line of code, and a few that come up on the second day."
   {contents}
 >

@@ -10,6 +10,7 @@
   import { page } from '$app/state';
   import { BreadcrumbList, BreadcrumbListItem, BreadcrumbNav, ContentsList, ContentsListItem, ContentsNav } from 'lily-design-system-svelte-headless';
   import { SECTIONS, neighborsFor } from '$lib/data/navigation';
+  import { siteTitle } from '$lib/data/site-title';
 
   export interface TocEntry {
     /** The id of the h2 this links to. */
@@ -18,14 +19,12 @@
   }
 
   let {
-    title,
     lede = undefined,
     eyebrow = undefined,
     contents = [],
     children,
     aside = undefined
   }: {
-    title: string;
     /** One or two sentences under the h1. Plain text. */
     lede?: string;
     /** Overrides the section name shown above the h1. */
@@ -37,11 +36,15 @@
     aside?: Snippet;
   } = $props();
 
+  // The bare title comes from the route's own +page.ts `load`, not a prop —
+  // see src/app.d.ts's PageData.title — so ShareControl can read the exact
+  // same value from `page.data` without DocPage having to hand it anywhere.
+  const title = $derived(page.data.title);
   const pathname = $derived(page.url.pathname);
   const section = $derived(SECTIONS.find((candidate) => pathname.startsWith(candidate.href)));
   const isSectionIndex = $derived(section?.href === pathname);
   const neighbors = $derived(neighborsFor(pathname));
-  const documentTitle = $derived(pathname === '/' ? title : `${title} — HL7 Rust`);
+  const documentTitle = $derived(siteTitle(pathname, title));
 </script>
 
 <svelte:head>

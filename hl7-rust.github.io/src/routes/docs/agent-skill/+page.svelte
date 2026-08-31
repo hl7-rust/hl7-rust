@@ -34,7 +34,6 @@ description: Explain Health Level Seven (HL7®) concepts, terminology,
 </script>
 
 <DocPage
-  title="Agent skill"
   lede="hl7-skill/ is an Agent Skill for Claude Code and any other tool that reads a SKILL.md: HL7 concepts, terminology, and ideas, with worked examples from this repo — for anyone trying to understand a message, not only for people writing code against this workspace."
   {contents}
 >

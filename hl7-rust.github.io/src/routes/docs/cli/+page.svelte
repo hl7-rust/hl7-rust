@@ -107,7 +107,6 @@ hl7-2-from-er7-into-xml in.hl7 | hl7-2-from-xml-into-er7 | diff - in.hl7`;
 </script>
 
 <DocPage
-  title="Command line"
   lede="Six crates ship a binary. They are useful without writing any Rust at all — looking at an unfamiliar message, checking a batch in a shell script, converting a directory of files."
   {contents}
 >

@@ -84,7 +84,6 @@ fn main() -> Result<(), v2::Error> {
 </script>
 
 <DocPage
-  title="Install"
   lede="Every crate, every feature flag, and the command-line tools. Most people need exactly one line of this page."
   {contents}
 >

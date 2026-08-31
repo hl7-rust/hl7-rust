@@ -47,7 +47,6 @@ spec/                workspace-wide specs (the MSRV policy)
 </script>
 
 <DocPage
-  title="Support and contributing"
   lede="Where to file, what to include, and what a change has to satisfy before it can land. Reports that quote a spec section number get fixed fastest."
   {contents}
 >

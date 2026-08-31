@@ -72,7 +72,7 @@ for message in split_messages(batch) {
   | hl7-2-from-xml-into-er7`;
 </script>
 
-<DocPage title={crate.name} lede={crate.tagline} {contents}>
+<DocPage lede={crate.tagline} {contents}>
   <CrateMeta {crate} />
 
   <h2 id="what">What it is</h2>

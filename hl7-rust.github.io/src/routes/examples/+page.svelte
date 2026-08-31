@@ -243,7 +243,6 @@ cargo run --example tcp_sender       # sends, waits, checks the echo`;
 </script>
 
 <DocPage
-  title="Examples"
   lede="Short, copyable snippets grouped by what you are trying to do. Each links to the guide that explains it; nothing here is a substitute for reading the crate's own specification."
   {contents}
 >

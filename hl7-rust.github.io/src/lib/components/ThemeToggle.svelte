@@ -4,13 +4,10 @@
    * lily-design-system-svelte-theme-picker package (icon button, WAI-ARIA
    * APG listbox, localStorage persistence) instead of a hand-rolled toggle.
    *
-   * Both real theme stylesheets (static/lily-light.css and
-   * static/lily-dark.css) are loaded unconditionally in app.html and key
-   * entirely off the data-theme attribute this component sets. The files
-   * under static/themes/ that this component's managed <link> swaps between
-   * are deliberately empty placeholders — see the comment in each — so the
-   * dynamic-load side effect this package is built around never has to do
-   * real work here.
+   * THEMES and the attribute-based, multi-stylesheet convention it
+   * documents live in $lib/data/theme.ts — that file is the reason this
+   * component's `themesUrl` points at harmless placeholder files rather
+   * than real theme CSS.
    *
    * `storageKey` matches the key app.html's own inline anti-flash script
    * reads, so an existing stored choice — from this component or its
@@ -23,12 +20,13 @@
    * once resolved, is what every other themed site does too.)
    */
   import { ThemePicker } from 'lily-design-system-svelte-theme-picker';
+  import { THEMES } from '$lib/data/theme';
 </script>
 
 <ThemePicker
   label="Theme"
   themesUrl="/themes/"
-  themes={['light', 'dark']}
+  themes={[...THEMES]}
   detectFromSystem
   storageKey="hl7-rust-theme"
 />

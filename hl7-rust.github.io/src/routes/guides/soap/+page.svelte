@@ -69,7 +69,6 @@ Server                  500   retry — the far side had a bad moment`;
 </script>
 
 <DocPage
-  title="SOAP over HTTP"
   lede="For HL7 v2, SOAP is the transport an estate ends up with when the messages have to cross a boundary that speaks HTTP. For HL7 v3, SOAP is the transport. Two crates, deliberately the same shape."
   {contents}
 >

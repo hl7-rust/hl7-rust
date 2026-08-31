@@ -101,7 +101,7 @@ let observation = Observation::from_element(&hl7_3::xml::parse(xml)?);   // no R
 cargo add hl7-3 --features derive   # adds #[derive(FromElement)]`;
 </script>
 
-<DocPage title={crate.name} lede={crate.tagline} {contents}>
+<DocPage lede={crate.tagline} {contents}>
   <CrateMeta {crate} />
 
   <h2 id="what">What it is</h2>

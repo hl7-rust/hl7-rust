@@ -13,7 +13,6 @@
 </script>
 
 <DocPage
-  title="Tutorials"
   lede="Longer, start-to-finish walkthroughs you can follow at a keyboard. Each one builds something that runs, and explains the decisions along the way rather than only the API calls."
   {contents}
 >

@@ -85,7 +85,6 @@ assert_eq!(observation.class_code, "OBS");`;
 </script>
 
 <DocPage
-  title="Struct mode and derive"
   lede="Map a struct's fields to HL7 paths once, in the type definition, instead of writing the same accessor calls at every call site — and keep a door open to the parsed message for the day the feed changes."
   {contents}
 >

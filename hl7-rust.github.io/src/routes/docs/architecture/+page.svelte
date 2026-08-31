@@ -54,7 +54,6 @@ pub use hl7_3 as v3;`;
 </script>
 
 <DocPage
-  title="Architecture"
   lede="Fourteen crates in one Cargo workspace, plus er7 outside it. This page is the reasoning: what each seam is for, and why you can stop at any of them."
   {contents}
 >

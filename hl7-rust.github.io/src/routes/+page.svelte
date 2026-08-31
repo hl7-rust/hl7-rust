@@ -3,6 +3,9 @@
   import CodeSample from '$lib/components/CodeSample.svelte';
   import LinkCards from '$lib/components/LinkCards.svelte';
   import { CATEGORIES, CRATES, cratesIn, type CrateCategory } from '$lib/data/crates';
+  import type { PageProps } from './$types';
+
+  let { data }: PageProps = $props();
 
   const start = [
     {
@@ -102,7 +105,7 @@ hl7                                    the umbrella crate — hl7::v2 and
 </script>
 
 <svelte:head>
-  <title>HL7 Rust — HL7 v2 and v3 for Rust</title>
+  <title>{data.title}</title>
   <meta
     name="description"
     content="HL7 Rust: parse, navigate, validate, modify, render, transport, and convert HL7 v2 and v3 messages in Rust. Documentation, guides, tutorials, examples, and a reference page for every crate."

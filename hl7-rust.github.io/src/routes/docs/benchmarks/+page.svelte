@@ -48,7 +48,6 @@ cargo bench -p hl7-2 -- --baseline before`;
 </script>
 
 <DocPage
-  title="Benchmarks"
   lede="Measured figures for the five things hl7-2 is asked to do, the method that produced them, and what they are not evidence of. A number without its method is a marketing claim, so the method is here too."
   {contents}
 >

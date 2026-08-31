@@ -66,7 +66,6 @@ hl7-v2 --null 'PID-11' --er7 in.hl7`;
 </script>
 
 <DocPage
-  title="Modifying and building"
   lede="A system that reads HL7 usually has to answer in it. Setting values, adding segments, rendering valid ER7 back out, and building an acknowledgement that names the message it answers."
   {contents}
 >

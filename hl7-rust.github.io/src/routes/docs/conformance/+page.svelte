@@ -42,7 +42,6 @@ hl7-v2 --check redacted-sample.hl7`;
 </script>
 
 <DocPage
-  title="Conformance"
   lede="What “supports HL7 v2 releases 2.1 through 2.9” means here, stated precisely enough to evaluate against — including everything it does not mean."
   {contents}
 >

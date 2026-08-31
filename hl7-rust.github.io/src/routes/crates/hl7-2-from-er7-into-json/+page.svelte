@@ -59,7 +59,7 @@ let json = hl7_2_from_er7_into_json::convert(er7)?;`;
 let json = convert_with_options(er7, Options { flat: true, compact: true })?;`;
 </script>
 
-<DocPage title={crate.name} lede={crate.tagline} {contents}>
+<DocPage lede={crate.tagline} {contents}>
   <CrateMeta {crate} />
 
   <h2 id="what">What it is</h2>

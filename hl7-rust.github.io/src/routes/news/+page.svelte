@@ -4,7 +4,6 @@
 </script>
 
 <DocPage
-  title="News"
   lede="Releases, decisions, and write-ups. Infrequent by design — a post here means something changed that a user of these crates would want to know."
 >
   <ul class="posts">

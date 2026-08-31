@@ -39,7 +39,7 @@ assert_eq!(observation.class_code, "OBS");
 assert_eq!(observation.raw.attribute("negationInd"), Some("true"));`;
 </script>
 
-<DocPage title={crate.name} lede={crate.tagline} {contents}>
+<DocPage lede={crate.tagline} {contents}>
   <CrateMeta {crate} />
 
   <h2 id="what">What it is</h2>

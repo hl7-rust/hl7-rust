@@ -98,7 +98,6 @@ JONES`;
 </script>
 
 <DocPage
-  title="Navigating"
   lede="How to find a value in a parsed message: the path grammar that addresses one, the tree that names one, and how repetition and groups interact with both."
   {contents}
 >

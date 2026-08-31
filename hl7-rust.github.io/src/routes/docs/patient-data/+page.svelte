@@ -46,7 +46,6 @@ grep -rn "^log = \\|^tracing" --include=Cargo.toml .  # nothing`;
 </script>
 
 <DocPage
-  title="Patient data"
   lede="Every message these crates touch is a clinical record. Here is what they do with it, what they never do with it, and the one place a value can escape into somewhere you did not intend."
   {contents}
 >

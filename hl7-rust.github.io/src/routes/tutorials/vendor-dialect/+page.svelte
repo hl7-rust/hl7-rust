@@ -76,7 +76,6 @@ if let Some(value) = admission.raw.get("ZAC-4")? {
 </script>
 
 <DocPage
-  title="Taming a vendor dialect"
   eyebrow="Tutorial"
   lede="A vendor sends a message with segments the standard has never heard of. This is the common case, not the exception — and the way through it is three stages, in order, each of which leaves you able to ship."
   {contents}

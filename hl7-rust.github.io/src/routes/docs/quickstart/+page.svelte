@@ -113,7 +113,6 @@ $ hl7-2-from-er7-into-xml oru_r01.hl7 | hl7-2-from-xml-into-er7`;
 </script>
 
 <DocPage
-  title="Quick start"
   lede="A real lab result, parsed, queried, validated, answered, and converted — from an empty directory to a working acknowledgement in about five minutes."
   {contents}
 >

@@ -56,7 +56,6 @@ message.set("OBX-5", "90|100")?;`;
 </script>
 
 <DocPage
-  title="Troubleshooting"
   lede="Symptom, cause, and fix for the failures people actually hit. Most of them are one of four things: a repetition, the HL7 null, a release mismatch, or a segment that does not exist yet."
   {contents}
 >

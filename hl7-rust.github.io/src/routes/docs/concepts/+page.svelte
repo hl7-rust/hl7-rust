@@ -76,7 +76,6 @@ JSON   null                key omitted`;
 </script>
 
 <DocPage
-  title="Concepts"
   lede="The vocabulary the rest of this site assumes. If you are new to HL7 this is the page to read first; if you are not, skim it for the two or three places where these crates make a specific choice."
   {contents}
 >

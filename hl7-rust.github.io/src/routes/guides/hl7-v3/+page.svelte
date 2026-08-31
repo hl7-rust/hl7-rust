@@ -86,7 +86,6 @@ assert_eq!(observation.raw.attribute("negationInd"), Some("true"));`;
 </script>
 
 <DocPage
-  title="HL7 v3"
   lede="The Reference Information Model backbone, the data types it is built from, and the three-level message envelope every v3 interaction shares — the part of v3 that is the same everywhere."
   {contents}
 >

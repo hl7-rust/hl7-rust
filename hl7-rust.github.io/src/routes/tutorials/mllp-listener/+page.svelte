@@ -145,7 +145,6 @@ cargo run --example tcp_listener`;
 </script>
 
 <DocPage
-  title="An MLLP listener that answers"
   eyebrow="Tutorial"
   lede="Accept a TCP connection, reassemble frames into whole messages, and send back an acknowledgement that names the message it answers — plus the four things a production listener needs that a demo does not."
   {contents}

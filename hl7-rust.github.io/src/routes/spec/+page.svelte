@@ -102,7 +102,6 @@
 </script>
 
 <DocPage
-  title="Specifications"
   lede="Eleven of the fourteen crates carry a normative spec/index.md — the single source of truth for that crate's behavior. This site does not restate them; it points at them and says what each one covers."
   {contents}
 >

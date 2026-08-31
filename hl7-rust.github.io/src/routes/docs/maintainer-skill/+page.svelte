@@ -32,7 +32,6 @@ cargo +1.96 check --workspace --all-targets   # the MSRV floor
 </script>
 
 <DocPage
-  title="Maintainer skill"
   lede="hl7-rust-maintainer-skill/ is the second Agent Skill in this workspace — implementation-level conventions for changing this repository's own crates, specs, and docs, rather than for using the published crates."
   {contents}
 >

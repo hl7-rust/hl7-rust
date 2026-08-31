@@ -17,7 +17,6 @@
 </script>
 
 <DocPage
-  title="Guides"
   lede="One task per page, each with the API calls that do it and the reasoning behind the choices these crates make. Guides assume you have read the quick start; they do not assume you have read each other."
   {contents}
 >

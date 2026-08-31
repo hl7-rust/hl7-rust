@@ -102,7 +102,7 @@ cargo add hl7-2 --features derive   # library with the derive macros
 cargo install hl7-2                 # command-line tool, named hl7-v2`;
 </script>
 
-<DocPage title={crate.name} lede={crate.tagline} {contents}>
+<DocPage lede={crate.tagline} {contents}>
   <CrateMeta {crate} />
 
   <h2 id="what">What it is</h2>

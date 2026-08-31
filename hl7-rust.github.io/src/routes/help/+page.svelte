@@ -14,7 +14,6 @@
 </script>
 
 <DocPage
-  title="Help"
   lede="Answers to the questions that come up before the first line of code, symptoms and fixes for the failures people actually hit, and where to ask when neither covers it."
   {contents}
 >

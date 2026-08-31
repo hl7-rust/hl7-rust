@@ -44,7 +44,7 @@ let control_act = interaction.control_act;`;
 cargo add hl7 --features derive   # pulls in hl7-2's derive macros`;
 </script>
 
-<DocPage title={crate.name} lede={crate.tagline} {contents}>
+<DocPage lede={crate.tagline} {contents}>
   <CrateMeta {crate} />
 
   <h2 id="what">What it is</h2>

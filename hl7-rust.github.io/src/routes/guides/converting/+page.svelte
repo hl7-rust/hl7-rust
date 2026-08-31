@@ -94,7 +94,6 @@ for message in split_messages(batch) {
 </script>
 
 <DocPage
-  title="Converting formats"
   lede="ER7 to the official v2.xml XML representation or to a typed JSON mapping, and back again. Four small crates, each with a library API and a command-line binary."
   {contents}
 >

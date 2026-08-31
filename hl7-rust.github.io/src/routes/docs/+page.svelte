@@ -17,7 +17,6 @@
 </script>
 
 <DocPage
-  title="Documentation"
   lede="Install it, run it, and learn the vocabulary the rest of the site assumes. If you have never touched HL7 before, read Concepts first; if you have, the quick start is five minutes."
   {contents}
 >

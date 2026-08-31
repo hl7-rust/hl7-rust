@@ -21,7 +21,6 @@ hl7-v2 --check redacted-sample.hl7          # how big is the gap?`;
 </script>
 
 <DocPage
-  title={post.title}
   eyebrow={formatDate(post.date)}
   lede={post.summary}
   {contents}

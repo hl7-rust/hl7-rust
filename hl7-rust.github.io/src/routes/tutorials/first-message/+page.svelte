@@ -135,7 +135,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 </script>
 
 <DocPage
-  title="Your first message"
   eyebrow="Tutorial"
   lede="From an empty directory to a program that reads a lab result, pulls out the patient and every observation, validates it, and produces the acknowledgement the sender is waiting for."
   {contents}

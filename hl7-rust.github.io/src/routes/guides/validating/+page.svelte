@@ -58,7 +58,6 @@ $ echo $?
 </script>
 
 <DocPage
-  title="Validating"
   lede="Parsing never rejects. Checking is a separate call with a separate answer, and its findings are split by whose problem they are — which is the distinction that makes strict mode usable in production."
   {contents}
 >
