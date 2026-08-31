@@ -64,5 +64,9 @@ publish: website-remote
 # branch (see the `publish` comment above) — but unlike `publish`, it
 # refuses outright rather than silently overwriting if that ever stops
 # being true, so prefer this once a repository's history is established.
+#
+# The command itself lives in bin/make-github-pages (a POSIX shell script,
+# not inlined here) — the same three-argument script is the version of this
+# target the sibling repos in the family run too, each with its own prefix.
 github-pages: github-pages-remote
-	git subtree push --prefix=$(WEBSITE_PREFIX) $(GITHUB_PAGES_REMOTE) $(WEBSITE_BRANCH)
+	bin/make-github-pages $(WEBSITE_PREFIX) $(GITHUB_PAGES_REMOTE) $(WEBSITE_BRANCH)
