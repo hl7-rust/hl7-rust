@@ -19,17 +19,31 @@ WEBSITE_REMOTE := website
 WEBSITE_URL    := git@github.com:hl7-rust/hl7-rust.github.io.git
 WEBSITE_BRANCH := main
 
+# Same destination, a second name: spec/monorepo-github-pages/index.md names
+# this the family's shared convention for the sibling repos in this posture
+# (er7-rust, fhir-rust, snomed-rust, openehr-rust), so `make github-pages`
+# exists there too, pointed at each repo's own <name>.github.io. Kept as its
+# own remote name rather than reusing $(WEBSITE_REMOTE) so a clone that only
+# knows the family convention (`git remote -v` showing `github-pages`, not
+# `website`) still finds the right command.
+GITHUB_PAGES_REMOTE := github-pages
+
 .DEFAULT_GOAL := help
-.PHONY: help publish website-remote
+.PHONY: help publish website-remote github-pages github-pages-remote
 
 help:
-	@echo 'make publish   Push $(WEBSITE_PREFIX)/ to $(WEBSITE_URL)'
+	@echo 'make publish       Push $(WEBSITE_PREFIX)/ to $(WEBSITE_URL), forced'
+	@echo 'make github-pages  The same push, via git subtree push, not forced'
 
 # Add the remote if this clone does not have it yet, so a fresh clone can
 # publish without a separate setup step.
 website-remote:
 	@git remote get-url $(WEBSITE_REMOTE) >/dev/null 2>&1 \
 	  || git remote add $(WEBSITE_REMOTE) $(WEBSITE_URL)
+
+github-pages-remote:
+	@git remote get-url $(GITHUB_PAGES_REMOTE) >/dev/null 2>&1 \
+	  || git remote add $(GITHUB_PAGES_REMOTE) $(WEBSITE_URL)
 
 # The push is forced because the two histories are unrelated: the website
 # repository grew on its own before this directory existed, and its history
@@ -41,3 +55,14 @@ publish: website-remote
 	git push $(WEBSITE_REMOTE) \
 	  "$$(git subtree split --prefix=$(WEBSITE_PREFIX))":refs/heads/$(WEBSITE_BRANCH) \
 	  --force
+
+# `git subtree push` is `split` plus a plain (non-forced) push in one step,
+# reusing its own cached split mapping so a second run only ships what
+# changed since the last one. It only fast-forwards, which after the first,
+# force-pushed `publish` is normally true here too — subtree split extends
+# its own prior rewritten history, and nothing else ever commits to the far
+# branch (see the `publish` comment above) — but unlike `publish`, it
+# refuses outright rather than silently overwriting if that ever stops
+# being true, so prefer this once a repository's history is established.
+github-pages: github-pages-remote
+	git subtree push --prefix=$(WEBSITE_PREFIX) $(GITHUB_PAGES_REMOTE) $(WEBSITE_BRANCH)
