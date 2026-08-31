@@ -180,7 +180,7 @@
   <h2 id="workspace">The workspace's own specs</h2>
   <p>
     Several specs sit outside any crate, because what they state is true of the whole workspace
-    rather than of one member. Sixteen today. The spec is the normative version in every case; the
+    rather than of one member. Eighteen today. The spec is the normative version in every case; the
     entries below summarise them and link back.
   </p>
   <dl>
@@ -235,7 +235,7 @@
     </dd>
   </dl>
   <p>
-    The six above are about what the crates <em>do</em>. The ten below are about how this
+    The six above are about what the crates <em>do</em>. The twelve below are about how this
     repository runs itself — its own practice, not the code's behavior — but the same rule applies:
     the spec is the source of truth, and a root document that disagrees with one is the bug.
   </p>
@@ -336,6 +336,28 @@
       The root <code>llms.json</code>/<code>llms.txt</code> AI-guidance files — a curated map of
       this workspace's most important content for language models — and why the site's own copies
       under <code>static/</code> rewrite the links rather than repeating the root files verbatim.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/node-current-version/index.md`}
+        ><code>spec/node-current-version/index.md</code></a
+      >
+    </dt>
+    <dd>
+      The Node.js version this site's tooling targets — currently 26 — and where that figure has to
+      be kept in sync: <code>deploy.yml</code>'s <code>node-version</code>, and this directory's own
+      <code>package.json</code> <code>engines.node</code>.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/monorepo-github-pages/index.md`}
+        ><code>spec/monorepo-github-pages/index.md</code></a
+      >
+    </dt>
+    <dd>
+      Why this site lives inside the workspace monorepo yet publishes from a separate sibling
+      repository — <code>git subtree</code>, not a copy — and the rule that follows from it: edit
+      here, never in the published repository. See "Publishing" in this directory's own
+      <a href={`${REPO}/blob/main/hl7-rust.github.io/README.md`}><code>README.md</code></a> for the
+      how-to.
     </dd>
   </dl>
 </DocPage>

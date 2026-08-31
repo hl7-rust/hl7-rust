@@ -8,7 +8,7 @@ settings where a wrong claim has clinical cost.
 
 Method: **specification-driven development.** Behavior is written down in the
 per-crate `spec/` directories before it is implemented, and repository-level
-policy lives in the workspace `spec/` (7 policy documents, including
+policy lives in the workspace `spec/` (18 policy documents, including
 [`spec/hl7-trademarks-fair-use/`](spec/hl7-trademarks-fair-use/index.md) and
 [`spec/phi/`](spec/phi/index.md)). Nothing in this file is a claim of what
 works — that is what the crates' specs and tests are for. Day-to-day execution

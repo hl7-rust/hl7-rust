@@ -14,7 +14,10 @@ The source of truth is the `hl7-rust.github.io/` directory of the
 [hl7-rust/hl7-rust](https://github.com/hl7-rust/hl7-rust) workspace. The
 standalone [hl7-rust/hl7-rust.github.io](https://github.com/hl7-rust/hl7-rust.github.io)
 repository holds the same directory as its root, published from the workspace
-with `make publish`.
+with `make publish`. This split — one subproject inside the monorepo, exported
+to a sibling read-only repository via `git subtree` — is
+[`spec/monorepo-github-pages/index.md`](../spec/monorepo-github-pages/index.md)'s
+normative policy; this section is the how-to.
 
 It has to work that way: <https://hl7-rust.github.io> is an organization GitHub
 Pages site, and GitHub only ever serves one from a repository named
