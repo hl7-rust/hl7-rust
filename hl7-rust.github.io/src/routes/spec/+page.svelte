@@ -229,7 +229,7 @@
       <a href={`${REPO}/blob/main/spec/rust-fuzz/index.md`}><code>spec/rust-fuzz/index.md</code></a>
     </dt>
     <dd>
-      Why the three crates with fuzz targets keep them outside the main Cargo workspace — each
+      Why the four crates with fuzz targets keep them outside the main Cargo workspace — each
       declares its own empty <code>[workspace]</code> — so fuzzing never pulls the MSRV floor onto a
       nightly-only toolchain.
     </dd>

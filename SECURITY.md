@@ -139,15 +139,17 @@ Each one is checkable in a few minutes, which is the point:
 - **Bounded dictionary nesting**, at 256 levels, so a malformed dictionary
   is an error rather than a stack overflow.
 - **Fuzzing** on the parsing surfaces that take untrusted structured input:
-  five targets across `hl7-2-xml-lite-helper`, `hl7-2-from-xml-into-er7`,
-  and `hl7-2-from-json-into-er7`.
+  six targets across `hl7-2-xml-lite-helper`, `hl7-2-from-xml-into-er7`,
+  `hl7-2-from-json-into-er7`, and — since 2026-09-01 — `hl7-2`'s own
+  schema-mode dictionary reader (`Dictionary::from_json`).
 
 ## Known gaps
 
 A security policy that lists no gaps is a security policy nobody checked.
 
-- **Fuzzing covers 3 of 14 crates.** The ER7 parsing surface in `er7`
-  itself, and `hl7-2`'s dictionary reader, are not fuzzed here.
+- **Fuzzing covers 4 of 14 crates.** The ER7 parsing surface in `er7`
+  itself — a dependency, not a crate this repository publishes — is not
+  fuzzed here.
 - **CI is new, and narrow.** Since 2026-08-26,
   `.github/workflows/ci.yml` runs the [`CONTRIBUTING.md`](CONTRIBUTING.md)
   gates — tests, clippy, formatting, the rustdoc pass, and the MSRV floor —

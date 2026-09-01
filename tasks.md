@@ -271,7 +271,66 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       sweep to catch it. `./bin/check-docs` and `./bin/check-trademarks`
       both still clean after the doc edits; the new `ci.yml` job's YAML
       parsed with `python3 -c "import yaml; yaml.safe_load(...)"` before
-      committing since GitHub only validates it on push.
+      committing since GitHub only validates it on push. Same caveat this
+      file gave the original CI stand-up: the `sbom` job has not yet been
+      observed green on a GitHub-hosted runner — local verification ran
+      the same `cargo cyclonedx` command, not the job's `actions/checkout`
+      → `dtolnay/rust-toolchain` → `Swatinem/rust-cache` →
+      `actions/upload-artifact` sequence, and the runner's disk/network
+      behave differently — pending the next push.
+- [x] Close the "hl7-2's dictionary reader" half of `SECURITY.md`'s
+      "Fuzzing covers 3 of 14 crates" known gap — done 2026-09-01. Found
+      the same way as the SBOM item above, by checking a self-declared gap
+      against `tasks.md` rather than waiting for a sweep:
+      `spec/professionalization/index.md` rule 3 requires every gap named
+      in `SECURITY.md` to be "closed or consciously accepted in
+      `tasks.md`," and this one was neither — `spec/rust-fuzz/index.md`
+      named it as deliberate scope, but only there, not here.
+
+      New `hl7-2/fuzz/` (its own `[workspace]`, matching all three
+      existing fuzz crates' `Cargo.toml` boilerplate verbatim, per
+      `spec/rust-fuzz/index.md`'s rule) with one target, `dictionary`,
+      against `Dictionary::from_json` — schema mode's public entry point
+      for a vendor-supplied dialect file, and the exact untrusted
+      structured input the gap named. Asserts loading is total (any bytes
+      produce a `Dictionary` or an `Error`, never a panic), that
+      `structures` nesting stays within `src/json.rs`'s own `MAX_DEPTH`
+      (256) — a claim `SECURITY.md` already made ("bounded dictionary
+      nesting") and this target is the first thing to actually check
+      rather than assume — and that the three "list the names, then look
+      one up" accessor pairs agree with each other
+      (`segment_names`/`segment_fields`,
+      `type_names`/`is_composite`+`composite_components`,
+      `structure_ids`/`structure`).
+
+      Verified locally: `cargo +nightly fuzz build dictionary` compiled
+      clean, then `cargo +nightly fuzz run dictionary --
+      -max_total_time=30` ran ~6 million executions with zero crashes
+      (`peak_rss_mb: 954`). No seed corpus committed — `corpus/`,
+      `artifacts/`, `target/`, and `fuzz/Cargo.lock` are gitignored inside
+      every fuzz crate here, this one included, matching all three
+      existing ones, none of which ship a seed corpus either.
+
+      `SECURITY.md`, `AI_STATEMENT.md` (§7's fuzz-targets row, version
+      bumped 1.1.0 → 1.2.0 per its own §13 rule that a stale claim is a
+      revision trigger — which also caught and fixed a separate stale
+      cross-reference in the same file, the header table's "Review" row
+      pointing at "§12" where the trigger list has always lived in §13),
+      `spec/rust-fuzz/index.md`, `plan.md`'s opening state, and the
+      website's `/spec/` page (still said "three crates" after the first
+      sweep already corrected a different miscount on the same page) were
+      all updated in the same change; `hl7-2/AGENTS.md` gained the
+      "Fuzzing" section every other fuzzed crate's `AGENTS.md` already
+      carries. `er7` itself — a dependency, not a crate this repository
+      publishes — is the one piece of `SECURITY.md`'s original gap left
+      standing, reworded to say so plainly rather than imply it is next.
+
+      Verified: `cargo test`, `cargo clippy --all-targets -- -D warnings`,
+      `cargo fmt --check`, `cargo +1.96 check --workspace --all-targets`
+      (confirms `hl7-2/fuzz`'s own `[workspace]` keeps it invisible to the
+      MSRV floor, as the rule promises), `cargo rustdoc -p hl7-2 --lib --
+      -W missing-docs`, `./bin/check-docs`, `./bin/check-trademarks`, and
+      the website's `pnpm run check` / `pnpm run build` all clean.
 
 ### Governance
 

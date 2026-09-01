@@ -197,6 +197,30 @@ cargo bench -p hl7-2
 cargo bench -p hl7-2 -- --save-baseline before   # then compare a change
 ```
 
+## Fuzzing
+
+`fuzz/` is a cargo-fuzz workspace of its own (nightly plus
+`libfuzzer-sys`), outside the workspace above so that neither reaches the
+crate's dependency list — see
+[`spec/rust-fuzz/index.md`](../spec/rust-fuzz/index.md).
+
+```sh
+cargo +nightly fuzz run dictionary -- -max_total_time=60
+```
+
+The target is `Dictionary::from_json`, schema mode's public entry point
+for a vendor's dialect file — the untrusted structured input `SECURITY.md`
+used to name as an open gap for this crate specifically. It asserts
+loading is **total** (any bytes produce a `Dictionary` or an `Error`,
+never a panic), that structure nesting stays within `src/json.rs`'s own
+`MAX_DEPTH` (256), and that the three "list the names, then look one up"
+accessor pairs (`segment_names`/`segment_fields`,
+`type_names`/`is_composite`+`composite_components`,
+`structure_ids`/`structure`) agree with each other. A crash writes its
+input to `fuzz/artifacts/dictionary/`; reproduce it with
+`cargo +nightly fuzz run dictionary <that file>`. Corpus and artifacts are
+gitignored.
+
 ---
 
 HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

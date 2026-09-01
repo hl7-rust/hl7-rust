@@ -2,7 +2,7 @@
 
 # Rust fuzzing
 
-Three crates have fuzz targets. All three keep them **outside** the main
+Four crates have fuzz targets. All four keep them **outside** the main
 Cargo workspace, on purpose, and this is the rule that says so and why.
 
 ## The rule
@@ -35,7 +35,7 @@ against the root, so the MSRV floor holds without the fuzz crates ever
 having to compile under it.
 
 A fuzz crate's own `Cargo.toml` says the same thing in its own words,
-verbatim across all three:
+verbatim across all four:
 
 > Its own workspace: the fuzzers need `libfuzzer-sys` and a nightly
 > toolchain, neither of which belongs in the workspace above.
@@ -47,13 +47,16 @@ verbatim across all three:
 | `hl7-2-xml-lite-helper` | `parse` |
 | `hl7-2-from-xml-into-er7` | `convert`, `roundtrip` |
 | `hl7-2-from-json-into-er7` | `convert`, `roundtrip` |
+| `hl7-2` | `dictionary` (since 2026-09-01) |
 
-Five targets across three crates — the parsing surfaces that take
-untrusted structured input from outside the workspace's own control:
-hand-rolled XML and JSON readers, and the two conversions built on the XML
-one. [`SECURITY.md`](../../SECURITY.md) names what is *not* yet covered —
-the ER7 parsing surface in `er7` itself, and `hl7-2`'s dictionary reader —
-as an open gap rather than an oversight to discover later.
+Six targets across four crates — the parsing surfaces that take untrusted
+structured input from outside the workspace's own control: hand-rolled
+XML and JSON readers, the two conversions built on the XML one, and
+`hl7-2`'s own JSON dictionary reader (`Dictionary::from_json`), schema
+mode's public entry point for a vendor-supplied dialect file.
+[`SECURITY.md`](../../SECURITY.md) names what is *not* yet covered — the
+ER7 parsing surface in `er7` itself, a dependency this workspace does not
+publish — as an open gap rather than an oversight to discover later.
 
 ## Running a fuzz target
 

@@ -1,0 +1,24 @@
+[package]
+name = "hl7-2-fuzz"
+version = "0.0.0"
+edition = "2024"
+authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
+publish = false
+
+# Its own workspace: the fuzzers need `libfuzzer-sys` and a nightly
+# toolchain, neither of which belongs in the workspace above.
+[workspace]
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+hl7-2 = { path = ".." }
+
+[[bin]]
+name = "dictionary"
+path = "fuzz_targets/dictionary.rs"
+test = false
+doc = false
+bench = false

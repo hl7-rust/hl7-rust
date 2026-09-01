@@ -15,11 +15,12 @@ works — that is what the crates' specs and tests are for. Day-to-day execution
 items live in [`tasks.md`](tasks.md), where a `[x]` means verified, not
 intended.
 
-## Where the workspace stands (verified 2026-08-30)
+## Where the workspace stands (verified 2026-09-01)
 
 All 14 crates are published to crates.io (latest release recorded in
 `CHANGELOG.md`, 2026-08-29 — the fifth release, an MSRV bump). 363 `#[test]` functions, fuzz
-targets in 3 of 14 crates, Criterion benches in 6. The root document set is nearly
+targets in 4 of 14 crates (`hl7-2`'s own dictionary reader joined the other
+three 2026-09-01), Criterion benches in 6. The root document set is nearly
 complete: GOVERNANCE, SECURITY, LICENSE, CONTRIBUTING, MAINTAINERS,
 AI_STATEMENT, RFC, CODEOWNERS, CITATION.cff, NEWS, COMPARISONS, BENCHMARKS,
 INSTALL, CHANGELOG, and `.github/FUNDING.yml` all exist and are substantive.

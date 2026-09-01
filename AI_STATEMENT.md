@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| Version | 1.1.0 |
-| Effective date | 2026-08-26 |
+| Version | 1.2.0 |
+| Effective date | 2026-09-01 |
 | Status | Active |
 | Author and owner | Joel Parker Henderson, maintainer |
 | Canonical location | `AI_STATEMENT.md` at the workspace root |
 | License | The same five-way choice as the rest of the project — [`LICENSE.md`](LICENSE.md) |
-| Review | At every release that changes the practice described here, and on any trigger in §12 |
+| Review | At every release that changes the practice described here, and on any trigger in §13 |
 
 **Abstract.** This document discloses how artificial-intelligence tools are
 used to develop HL7® for Rust, an open-source workspace of Rust crates for
@@ -141,9 +141,10 @@ cargo +1.96 check --workspace --all-targets   # the MSRV floor
   fixed 2026-08-20 — was exactly the kind a confident-looking
   implementation produces, and the round trip is the assertion that now
   catches it.
-- **Fuzz targets**, in the three crates whose parsing surface takes
+- **Fuzz targets**, in the four crates whose parsing surface takes
   untrusted structured input — `hl7-2-xml-lite-helper`,
-  `hl7-2-from-xml-into-er7`, and `hl7-2-from-json-into-er7`. Three of
+  `hl7-2-from-xml-into-er7`, `hl7-2-from-json-into-er7`, and — since
+  2026-09-01 — `hl7-2` itself, for its JSON dictionary reader. Four of
   fourteen is not coverage; it is the surfaces where malformed input is the
   realistic threat, and the rest is an open gap rather than a decision.
 - **Benchmarks with a published method**
@@ -310,6 +311,7 @@ model for this one.
 |---|---|---|
 | 1.0.0 | 2026-08-26 | First issue. |
 | 1.1.0 | 2026-08-26 | CI stood up (`.github/workflows/ci.yml`); §7 and §12 updated: the quality gates are now machine-enforced on every push and pull request. |
+| 1.2.0 | 2026-09-01 | §7's fuzz-targets row updated: a fourth crate, `hl7-2` itself (its JSON dictionary reader), gained a fuzz target, closing the gap `SECURITY.md` and this file both named. The header table's "Review" row corrected from "§12" to "§13" — the trigger list it points at has always lived in §13, not §12. |
 
 ## Annex B. Machine-readable summary
 
@@ -318,8 +320,8 @@ is authoritative where the two could ever disagree.
 
 ```yaml
 ai-statement:
-  version: 1.1.0
-  last-updated: 2026-08-26
+  version: 1.2.0
+  last-updated: 2026-09-01
   vocabulary: w3c-ai-content-disclosure
   disclosure-default: ai-generated
   tools:
