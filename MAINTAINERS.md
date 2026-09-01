@@ -106,7 +106,10 @@ information for an evaluation:
   formatting, rustdoc, the MSRV floor — on every push and pull request. But
   no workflow publishes anything: a crates.io release is still a manual act
   from one laptop, by one person.
-- **No release signing, no SBOM, no reproducible-build attestation.**
+- **No release signing, no reproducible-build attestation.** A CycloneDX
+  SBOM (one document per crate) generates in CI on every push and pull
+  request since 2026-09-01 — see [`SECURITY.md`](SECURITY.md) — but it is
+  a CI artifact, not something a release carries.
 
 ## Issue response expectation
 

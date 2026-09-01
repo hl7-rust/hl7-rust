@@ -71,15 +71,17 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
    synchronized.
 3. **Met as a practice, with gaps still open.** The gaps closed so far
    (`#![forbid(unsafe_code)]`, CI, dependency auditing via `cargo deny`,
-   and — 2026-08-27 — commit/tag signing) each updated the declaring
-   documents in the closing change; the still-standing declared gaps (no
-   SBOM, no committed security-response window) are each tracked in
-   `tasks.md`.
+   commit/tag signing 2026-08-27, and SBOM generation 2026-09-01) each
+   updated the declaring documents in the closing change; the
+   still-standing declared gap (no committed security-response window,
+   a deliberate stance per `MAINTAINERS.md`, not an open task) is not
+   tracked as an actionable item in `tasks.md` for that reason.
 4. **Met.** `.github/workflows/ci.yml` (2026-08-26) runs the
    CONTRIBUTING.md gates — fmt, clippy, test, rustdoc, the 1.96 MSRV floor —
-   and the rule-5 trademark check on every push and pull request. The
-   `docs` job runs the link check and document-size budget
-   (`bin/check-docs`), and `.github/workflows/security.yml` runs the
+   and the rule-5 trademark check on every push and pull request. Its
+   `sbom` job (2026-09-01) generates a CycloneDX document per crate on the
+   same triggers. The `docs` job runs the link check and document-size
+   budget (`bin/check-docs`), and `.github/workflows/security.yml` runs the
    dependency audit (`cargo deny`, per `deny.toml`) on push and a weekly
    cron.
 5. **Partly met.** The prose rules are implemented, and since later on

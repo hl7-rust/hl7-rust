@@ -24,7 +24,17 @@
 # signal and had to be re-verified by hand afterward (see tasks.md); this
 # job closes the gap so the checkmark means what it looks like it means.
 #
-# Disk, not time, is the constraint these two build jobs manage. A local
+# The `sbom` job closes the "no SBOM" gap SECURITY.md, MAINTAINERS.md, and
+# RFC.md §8 used to name unconditionally: `cargo cyclonedx` writes one
+# CycloneDX 1.3 JSON document per crate, uploaded as a workflow artifact
+# on every push and pull request. It is *generation*, not distribution —
+# nothing attaches these documents to a crates.io release, because
+# publishing itself is still a manual, untagged act (see MAINTAINERS.md's
+# "No release automation"); a reviewer who wants the SBOM for a specific
+# published version has to reconstruct it against that version's
+# `Cargo.lock`, not download it from that release.
+#
+# Disk, not time, is the constraint these three build jobs manage. A local
 # `target/` from ordinary development on this workspace already runs to
 # 9 GB (`du -sh target/`, checked 2026-08-28) — a workspace `target/` is one
 # shared directory across all fourteen members, not one per crate, so
@@ -32,9 +42,9 @@
 # `cargo rustdoc` passes all accumulate into the same place with nothing to
 # release it between them. A GitHub-hosted runner's free space is a few
 # times that, and it starts already spent on toolchains this workspace
-# never touches (Android, .NET, Haskell, CodeQL). Both jobs that build Rust
-# free that space before starting and clean cargo's own output as they go,
-# rather than trusting there is always headroom to spare.
+# never touches (Android, .NET, Haskell, CodeQL). Every job that builds
+# Rust frees that space before starting and cleans cargo's own output as
+# it goes, rather than trusting there is always headroom to spare.
 
 name: ci
 
@@ -100,6 +110,30 @@ jobs:
       - uses: dtolnay/rust-toolchain@1.96
       - name: cargo check --workspace --all-targets
         run: cargo check --workspace --all-targets
+
+  sbom:
+    name: CycloneDX SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Free preinstalled runner bloat
+        run: .github/workflows/free-disk-space.sh
+      - uses: dtolnay/rust-toolchain@stable
+      # `cache-bin` (on by default) restores ~/.cargo/bin, so the install
+      # below is a no-op after the first run rather than a 2-4 minute
+      # build. A distinct key keeps this off the caches the checks/msrv
+      # jobs write.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: cargo-cyclonedx
+      - name: Install cargo-cyclonedx
+        run: cargo install cargo-cyclonedx --locked
+      - name: Generate SBOM (one CycloneDX 1.3 JSON document per crate)
+        run: cargo cyclonedx --format json --all
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: "*/*.cdx.json"
 
   trademarks:
     name: trademark fair-use rules (T1, T2, T3)

@@ -72,10 +72,12 @@ posture. Open items for each are in `tasks.md`.
    on push plus a weekly cron; git tags exist for every crate release (70
    tags, `<crate>-v<version>`, backfilled 2026-08-27 and cut going
    forward); and commits/tags are SSH-signed as of 2026-08-27, verified
-   `verification.verified: true` on GitHub, GitLab, and Codeberg alike.
-   Still open: no SBOM. CI was the keystone — every other check
-   (trademarks, doc links, dependency audit, the website itself) now has a
-   place to run.
+   `verification.verified: true` on GitHub, GitLab, and Codeberg alike;
+   and a CycloneDX SBOM (one document per crate) generates in CI on every
+   push and pull request as of 2026-09-01, though only as a workflow
+   artifact — no release carries one. CI was the keystone — every other
+   check (trademarks, doc links, dependency audit, the SBOM, the website
+   itself) now has a place to run.
 
 4. **Privacy and patient data.** `spec/phi/index.md` is a real PHI analysis
    (9 sections, grep-checkable claims, an honest "what is not defended
@@ -107,7 +109,8 @@ posture. Open items for each are in `tasks.md`.
    `/spec/` page undercounting again after two new specs landed, malformed
    YAML frontmatter in `hl7-skill/SKILL.md`, and `llms.txt`/`llms.json`
    inheriting a consumer-count bug already fixed elsewhere before those
-   two files existed) — `tasks.md` has the full account of all three.
+   two files existed) — `tasks-archive.md` has the full account of all
+   three, moved there 2026-09-01 when `tasks.md` outgrew its 40 KB budget.
    The family conventions to converge on: the canonical
    special-files list (the local
    `spec/special-files-for-public-repos/index.md` was re-synced from the
@@ -142,17 +145,21 @@ posture. Open items for each are in `tasks.md`.
 - The document set's self-declared gaps are now promises. "No CI" fell
   2026-08-26, "no dependency audit" fell the same day (`cargo deny` in
   `security.yml`), "zero git tags" fell 2026-08-27 (70 tags, backfilled and
-  ongoing), and "unsigned commits" fell 2026-08-27 too (SSH signing,
-  verified on all three forges); the remaining declared gap (no SBOM) is
-  still a standing confession, and each release that ships while it stands
-  makes SECURITY.md's candor look like a substitute for the fix rather
-  than a commitment to it.
+  ongoing), "unsigned commits" fell 2026-08-27 too (SSH signing, verified
+  on all three forges), and "no SBOM" fell 2026-09-01 (a `sbom` job in
+  `ci.yml` generates one CycloneDX document per crate on every push and
+  pull request). That last one closes only the generation half, not the
+  distribution half: nothing attaches these documents to a crates.io
+  release, since publishing itself is still a manual, untagged act — a
+  narrower claim than the sibling `fhir-rust`'s SBOM-per-release, stated
+  that way rather than implied to be the same thing.
 - BENCHMARKS.md's watch item made good on itself, once: it was re-measured
   2026-08-26 against `hl7-2` 0.2.6, but `hl7-2` released twice more since
   (0.2.7, then 0.3.0 on 2026-08-29) without a re-measurement, and the
   figures went stale — the exact failure mode the watch item predicted.
   Caught and re-measured 2026-08-30 against `hl7-2` 0.3.0 / `er7` 0.2.1
-  (`tasks.md` has the full account). The watch item itself doesn't close:
+  (`tasks-archive.md` has the full account, moved there 2026-09-01). The
+  watch item itself doesn't close:
   a claims-accuracy culture has to keep re-checking this every time a
   release moves past the measured version, not just once.
 - ~~`CODEOWNERS` asserts the repo has no `.github/` directory; it has one.~~

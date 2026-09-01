@@ -156,11 +156,15 @@ A security policy that lists no gaps is a security policy nobody checked.
   policy in `deny.toml`) on every push plus a weekly cron. CI still gates
   no release, and before that date every check depended on one person's
   laptop.
-- **No release signing (of the crates.io artifact itself), no SBOM, no
+- **No release signing (of the crates.io artifact itself), no
   reproducible-build attestation.** Commits and tags are signed since
   2026-08-27 (SSH, verified on GitHub, GitLab, and Codeberg — see
   [`MAINTAINERS.md`](MAINTAINERS.md)); history from before that date
-  stays unsigned, deliberately, rather than being rewritten.
+  stays unsigned, deliberately, rather than being rewritten. A CycloneDX
+  SBOM (one document per crate) has been generated in CI on every push and
+  pull request since 2026-09-01 (`.github/workflows/ci.yml`'s `sbom` job),
+  but it is a CI artifact, not something attached to a crates.io release —
+  a release itself is still an unsigned, untagged-workflow, manual act.
 - **No published threat model.**
 
 If one of these is what blocks your adoption, say so —

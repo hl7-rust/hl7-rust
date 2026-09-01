@@ -166,10 +166,12 @@ exactly the evidence needed, and nobody would otherwise report it.
 
 **The question.** [`MAINTAINERS.md`](MAINTAINERS.md) states the bus factor
 is one, names every publishing identity, and says there is no release
-signing and no SBOM. (It used to say no CI; a root workflow has run the
-[`CONTRIBUTING.md`](CONTRIBUTING.md) gates on every push since
-2026-08-26.) crates.io releases still publish with a long-lived API token
-rather than Trusted Publishing —
+signing. (It used to say no CI and no SBOM too; a root workflow has run
+the [`CONTRIBUTING.md`](CONTRIBUTING.md) gates on every push since
+2026-08-26, and a `sbom` job has generated a CycloneDX document per crate
+in CI since 2026-09-01 — a CI artifact, not something a crates.io release
+itself carries.) crates.io releases still publish with a long-lived API
+token rather than Trusted Publishing —
 [`spec/trusted-publishing/index.md`](spec/trusted-publishing/index.md)
 says why: it is available for GitHub Actions, but GitLab support is
 GitLab.com-only beta and Codeberg has none yet, so this project is waiting
@@ -180,8 +182,9 @@ best effort rather than a response window.
 **Why it is open.** Those gaps are disclosed rather than fixed, and the
 disclosure is deliberate. But which of them actually blocks adoption is a
 guess. CI is the maintainer's instinct; a procurement reviewer might say
-signed releases, an SBOM, a stated response window, a second maintainer,
-or the long-lived crates.io token specifically, and nothing else.
+signed releases, an SBOM tied to the released artifact rather than only to
+a CI run, a stated response window, a second maintainer, or the
+long-lived crates.io token specifically, and nothing else.
 
 **What would settle it.** If this project failed your supplier review, what
 failed it? Naming the specific checklist item is more useful than a general

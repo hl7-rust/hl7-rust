@@ -146,8 +146,10 @@ make publish   # the only thing the root Makefile does
 
 `.github/workflows/ci.yml`: `cargo fmt --check` / `clippy` / `test`
 (one job), a full workspace `cargo check` pinned to the MSRV toolchain,
-`bin/check-trademarks`, `bin/check-docs`, and the website's
-`pnpm install --frozen-lockfile` → `check` → `build`.
+`bin/check-trademarks`, `bin/check-docs`, a CycloneDX SBOM generated per
+crate (`sbom` job, uploaded as a workflow artifact — not attached to a
+release), and the website's `pnpm install --frozen-lockfile` → `check` →
+`build`.
 `.github/workflows/security.yml` runs `cargo deny --all-features check`
 against [`deny.toml`](../deny.toml) weekly and on demand — the dependency
 tree is small and audited on purpose; see that file's own comments before
