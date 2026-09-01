@@ -331,6 +331,47 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       MSRV floor, as the rule promises), `cargo rustdoc -p hl7-2 --lib --
       -W missing-docs`, `./bin/check-docs`, `./bin/check-trademarks`, and
       the website's `pnpm run check` / `pnpm run build` all clean.
+- [ ] Consciously accept, here, the declared gaps closing the SBOM and
+      fuzzing items above left standing — `spec/professionalization/index.md`
+      rule 3 requires every gap `SECURITY.md` or `MAINTAINERS.md` names be
+      "closed or consciously accepted in `tasks.md`," and naming them in a
+      spec-file status paragraph (which rule 3 itself now does, dated
+      2026-09-01) is not the same as this file doing the accepting. Doing
+      that now rather than leaving the rule's own audit trail with a
+      hole one level deeper than the one this session already closed
+      twice today:
+      - **`er7`'s unfuzzed ER7 parsing surface.** Out of this repository's
+        control — `er7` is a dependency this workspace does not publish,
+        so there is no code here to add a fuzz target to. Would close if
+        `er7` grew its own, or if this project ever vendored the parsing
+        layer, neither planned.
+      - **No release signing (of the crates.io artifact), no
+        reproducible-build attestation.** No mechanism identified.
+        `cargo publish` has no first-party signing story as of this
+        writing; revisit if one appears (Sigstore-for-crates and similar
+        efforts exist but are not something a single-maintainer project
+        can adopt unilaterally — it needs crates.io's side to exist first,
+        the same shape of wait as the Trusted Publishing item above).
+      - **No published threat model.** Not started; no target date. A
+        real threat model for a library that never does I/O, never opens
+        a socket, and never touches PHI directly (`spec/phi/index.md`) is
+        a smaller document than the phrase implies, which is itself a
+        reason to eventually write one rather than a reason it is missing.
+      - **No release automation (`MAINTAINERS.md`).** A crates.io release
+        is still `cargo publish` from the maintainer's own laptop for all
+        fourteen crates. Automating it (a tag-triggered workflow) is real
+        engineering, not a documentation fix, and per
+        `spec/trusted-publishing/index.md`'s policy it would have to carry
+        Trusted Publishing's OIDC flow rather than a workflow-embedded
+        long-lived token, so it is blocked on the same Codeberg wait as
+        that item, not merely deferred alongside it.
+      - **No committed security-response window (`MAINTAINERS.md`).**
+        The one gap on this list that is not awaiting a mechanism: a
+        deliberate stance, stated where it is declared — one person, no
+        on-call rotation, a 14-day escape hatch to publish instead of a
+        deadline nobody could keep. Revisit only if the maintainer model
+        changes (a second maintainer, per `GOVERNANCE.md`'s succession
+        section).
 
 ### Governance
 
