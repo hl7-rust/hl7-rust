@@ -86,16 +86,24 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 - [ ] Adopt Trusted Publishing for crates.io releases, in place of the
       long-lived API token, once it is production-ready across GitHub,
       GitLab, and Codeberg — the policy in
-      `spec/trusted-publishing/index.md`. Checked 2026-08-28, so this is
-      against current fact: GitHub Actions has been GA since July 2025;
-      GitLab CI/CD support is GitLab.com-only beta (self-hosted GitLab
-      unsupported); Codeberg/Forgejo has none on crates.io's side yet,
-      though Forgejo has done OIDC token-issuance work on its own side.
-      Adopting it for GitHub alone would leave the token this project is
-      trying to retire long-lived regardless, since the workflow still has
-      to exist for the other two mirrors — a partial win the stated policy
-      declines. MAINTAINERS.md's publishing-identities section and RFC.md
-      §8 both state this now; revisit when Codeberg lands.
+      `spec/trusted-publishing/index.md`. Re-checked 2026-09-01 (previously
+      2026-08-28), so this is against current fact, not a stale one: GitHub
+      Actions has been GA since July 2025; GitLab CI/CD support is still
+      GitLab.com-only beta (self-hosted GitLab unsupported, per the Rust
+      blog's 2026-01-21 development update); Codeberg/Forgejo still has no
+      support on crates.io's side, and the wait got no closer this check —
+      Forgejo's own tracking issue
+      (`codeberg.org/forgejo/forgejo/issues/9939`) was closed 2026-03-20 as
+      "not actionable," a maintainer stating plainly that trust has to be
+      established from crates.io's side first, which hasn't happened; the
+      "Forgejo has done OIDC token-issuance work on its own side" framing
+      this line carried before is now stale and dropped rather than
+      repeated. Adopting it for GitHub alone would leave the token this
+      project is trying to retire long-lived regardless, since the
+      workflow still has to exist for the other two mirrors — a partial
+      win the stated policy declines. MAINTAINERS.md's
+      publishing-identities section and RFC.md §8 both state this now;
+      revisit when Codeberg lands.
 - [x] Add dependency auditing (`cargo deny` covering advisories, licenses,
       bans, sources — the `fhir-rust` `fhir-security.yml` is the family
       pattern) on push plus a weekly cron — done 2026-08-26: `deny.toml`

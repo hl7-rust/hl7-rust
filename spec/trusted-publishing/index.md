@@ -30,14 +30,16 @@ retiring the token once, for good.
 
 ## Where each forge stands
 
-Checked 2026-08-28, so this is against current fact rather than an old
-assumption:
+Re-checked 2026-09-01 (previously 2026-08-28), so this is against current
+fact rather than an old assumption — and the re-check found the Codeberg
+wait got no closer, not further along as the previous check's wording
+might have implied:
 
 | Forge | Status |
 | --- | --- |
 | GitHub Actions | Generally available on crates.io's side since July 2025. |
-| GitLab CI/CD | Beta, and GitLab.com-only; self-hosted GitLab is not supported. |
-| Codeberg / Forgejo | No support on crates.io's side yet. Forgejo has done OIDC token-issuance work on its own side, but crates.io has not built the corresponding integration, so there is nothing for this project to adopt there today. |
+| GitLab CI/CD | Beta, and GitLab.com-only; self-hosted GitLab is not supported (confirmed against the Rust blog's 2026-01-21 crates.io development update). |
+| Codeberg / Forgejo | No support on crates.io's side. Forgejo's own tracking issue for it (`codeberg.org/forgejo/forgejo/issues/9939`) was closed 2026-03-20 as "not actionable" — a Forgejo maintainer stated the trust relationship has to be established from crates.io's side first, and it hasn't been, so there is nothing here for Forgejo to build against yet, let alone for this project to adopt. |
 
 GitHub Actions alone clearing the bar is what makes adopting Trusted
 Publishing "for GitHub only" a live temptation and, per the policy above,
