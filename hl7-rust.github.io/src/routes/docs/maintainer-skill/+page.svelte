@@ -70,10 +70,24 @@ cargo +1.96 check --workspace --all-targets   # the MSRV floor
     <li>
       Recipes for the contributions that come up most: adding dictionary
       coverage, arguing a performance change with a benchmark
-      before/after, and fixing the website in the right repository.
+      before/after, fixing the website in the right repository, and —
+      since 2026-09-02 — cutting a crates.io release.
     </li>
     <li>Exactly what each CI job in <code>ci.yml</code> gates.</li>
   </ul>
+
+  <Callout type="note" heading="An agentic AI tool can now decide a release is ready">
+    Since 2026-09-02, within a live session on the maintainer's own machine and strictly bounded
+    by
+    <a href="https://github.com/hl7-rust/hl7-rust/blob/main/spec/release-process/index.md"
+      ><code>spec/release-process/index.md</code></a
+    >, Claude Code may decide on its own judgment that a specific, already-landed, CI-green
+    change warrants a crates.io release and execute <code>cargo publish</code> for it — without
+    being told that release as a specific instruction first. See
+    <a href="https://github.com/hl7-rust/hl7-rust/blob/main/AI_STATEMENT.md"
+      ><code>AI_STATEMENT.md</code></a
+    > §5 and §6 for the full policy; accountability is unchanged (§4).
+  </Callout>
 
   <h2 id="checklist">The checklist it exists to save you from forgetting</h2>
   <CodeSample language="sh" code={checklist} />

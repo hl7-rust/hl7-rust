@@ -127,7 +127,7 @@ than of one member.
 | [`MAINTAINERS.md`](MAINTAINERS.md) | Who maintains this, what the bus factor is, and what happens if that person is unavailable |
 | [`GOVERNANCE.md`](GOVERNANCE.md) | Who decides, what binds them, what is in scope, and how to become a maintainer |
 | [`SECURITY.md`](SECURITY.md) | How to report a vulnerability, what counts as one, and the known gaps |
-| [`AI_STATEMENT.md`](AI_STATEMENT.md) | How AI tools are used to build this, who is accountable, and the limits that survive it |
+| [`AI_STATEMENT.md`](AI_STATEMENT.md) | How AI tools are used to build this, who is accountable, and the limits that survive it — including that an agentic AI tool may now decide, on its own judgment, that a specific change is ready to release, within [`spec/release-process/index.md`](spec/release-process/index.md)'s bounds |
 | [`LICENSE.md`](LICENSE.md) | The five-way license choice, its SPDX expression, and what it does not cover |
 
 **If you want to contribute:** [`CONTRIBUTING.md`](CONTRIBUTING.md) — time,

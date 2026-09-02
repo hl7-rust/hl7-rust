@@ -13,11 +13,14 @@ they are depending on.
 Joel Parker Henderson, sole maintainer. [`MAINTAINERS.md`](MAINTAINERS.md)
 is the roster and is candid that the bus factor is one: one person can
 merge, one can change a setting, and one person's credential and authority
-stand behind every release — since 2026-09-02, an agentic tool he directs
-may execute a release on his own judgment, within
-[`spec/release-process/index.md`](spec/release-process/index.md)'s bounds,
-but the decision to grant that scope, and everything the tool is bounded
-by, is still this one person's.
+stand behind every release. One exception, adopted 2026-09-02: an agentic
+AI tool the maintainer directs — Claude Code, per
+[`AI_STATEMENT.md`](AI_STATEMENT.md) §5 — can decide, on its own judgment,
+that a specific already-landed change is ready to release, and execute it,
+strictly within [`spec/release-process/index.md`](spec/release-process/index.md)'s
+bounds. The decision to grant that scope, everything the tool is bounded
+by, and every decision the tool's judgment does not cover, are still this
+one person's alone.
 
 There is no steering committee, no vote, no technical board, and no legal
 entity. Where other projects would say "the maintainers decide by
