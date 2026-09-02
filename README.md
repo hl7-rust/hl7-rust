@@ -123,6 +123,7 @@ than of one member.
 | [`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md) | The minimum supported Rust version policy every member pins to |
 | [`spec/professionalization/index.md`](spec/professionalization/index.md) | What "professional" means here — the rules that bind the maintainer, and an honest status against each |
 | [`spec/trusted-publishing/index.md`](spec/trusted-publishing/index.md) | Why crates.io releases still use a long-lived API token, and what has to be true before that changes |
+| [`spec/release-process/index.md`](spec/release-process/index.md) | The release runbook, and the bounds under which an agentic AI tool may decide to execute one |
 | [`MAINTAINERS.md`](MAINTAINERS.md) | Who maintains this, what the bus factor is, and what happens if that person is unavailable |
 | [`GOVERNANCE.md`](GOVERNANCE.md) | Who decides, what binds them, what is in scope, and how to become a maintainer |
 | [`SECURITY.md`](SECURITY.md) | How to report a vulnerability, what counts as one, and the known gaps |

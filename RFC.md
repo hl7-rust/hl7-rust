@@ -177,7 +177,13 @@ says why: it is available for GitHub Actions, but GitLab support is
 GitLab.com-only beta and Codeberg has none yet, so this project is waiting
 for all three rather than adopting it for GitHub alone.
 [`SECURITY.md`](SECURITY.md) adds a published policy but still promises
-best effort rather than a response window.
+best effort rather than a response window. Since 2026-09-02, one more fact
+belongs on this list for a procurement reviewer: an agentic tool the
+maintainer directs may decide, on its own judgment, that a change warrants
+a release and execute `cargo publish` for it, bounded by
+[`spec/release-process/index.md`](spec/release-process/index.md) —
+[`AI_STATEMENT.md`](AI_STATEMENT.md) §5 states it as the one `autonomous`
+row the document carries.
 
 **Why it is open.** Those gaps are disclosed rather than fixed, and the
 disclosure is deliberate. But which of them actually blocks adoption is a

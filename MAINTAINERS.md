@@ -19,15 +19,20 @@ workspace was assembled and first published; the crates it absorbed are
 older, and their histories are still walkable under their own directories.
 
 **The bus factor of this project is one.** There is exactly one person who
-can accept a pull request, publish a release, or change a repository
-setting. No second maintainer exists, no organisation stands behind the
+can accept a pull request or change a repository setting, and whose
+credential and authority stand behind every release, whoever types the
+command. No second maintainer exists, no organisation stands behind the
 project, and no legal entity is a party to it. The GitHub organisation
 `hl7-rust` is an organisation in the GitHub sense only — it exists because
 an organisation Pages site must be served from an org-owned repository, not
 because there is a group behind it.
 
 Everything else in this file follows from that sentence, and no wording
-elsewhere in the repository should be read as softening it.
+elsewhere in the repository should be read as softening it — including the
+next section's note that an agentic tool may now execute a release: it
+does so on the maintainer's own credential, on his own machine, never with
+authority of its own. See
+[`spec/release-process/index.md`](spec/release-process/index.md).
 
 ## Publishing identities and where they live
 
@@ -38,7 +43,7 @@ down is an inventory nobody can hand over.
 | Identity | What it publishes | Held by | Recovery if the holder is unavailable |
 |---|---|---|---|
 | The GitHub organisation `hl7-rust` and its owner account | The repository, its issues, its settings | The maintainer's GitHub account, as sole owner | None. GitHub's account-recovery process is the only route, and it is between GitHub and the account holder. |
-| A crates.io API token | All fourteen crates | The maintainer, on his own machine | The crates.io owner list is the recovery surface, and it is the maintainer's account. |
+| A crates.io API token | All fourteen crates | The maintainer, on his own machine — since 2026-09-02, also used there by an agentic tool he runs, within [`spec/release-process/index.md`](spec/release-process/index.md)'s bounds; never a separate credential or a CI secret | The crates.io owner list is the recovery surface, and it is the maintainer's account. |
 | An SSH key | Pushes to GitHub, and to the GitLab and Codeberg mirrors, which `origin` fans out to on one `git push` | The maintainer, on his own hardware | None; the key is not escrowed. A successor would use their own. |
 | The same SSH key, via `make publish` | <https://hl7-rust.github.io> — the website, pushed by `git subtree split` into the `hl7-rust.github.io` repository, which deploys it | The maintainer | As above. Deliberately *not* a CI credential: a workflow doing this would need a token able to write another repository's workflow file, and GitHub refuses that. |
 
@@ -101,11 +106,16 @@ information for an evaluation:
   but it promises best effort rather than a deadline, because one person
   with no on-call rotation cannot meet a deadline. What it does give you is
   an escape hatch: no response in 14 days and you should publish.
-- **No release automation.** Since 2026-08-26, `.github/workflows/ci.yml`
-  runs the [`CONTRIBUTING.md`](CONTRIBUTING.md) gates — tests, lints,
-  formatting, rustdoc, the MSRV floor — on every push and pull request. But
-  no workflow publishes anything: a crates.io release is still a manual act
-  from one laptop, by one person.
+- **No release automation, in the CI-workflow sense.** Since 2026-08-26,
+  `.github/workflows/ci.yml` runs the [`CONTRIBUTING.md`](CONTRIBUTING.md)
+  gates — tests, lints, formatting, rustdoc, the MSRV floor — on every push
+  and pull request. No workflow publishes anything, and a release still
+  runs from one laptop — but since 2026-09-02 it is no longer necessarily
+  typed by the person at that laptop: an agentic tool he directs may
+  execute it, within
+  [`spec/release-process/index.md`](spec/release-process/index.md)'s
+  bounds. That is a narrower thing than "automation" — a scheduled or
+  unattended publish is still exactly the gap this bullet names.
 - **No release signing, no reproducible-build attestation.** A CycloneDX
   SBOM (one document per crate) generates in CI on every push and pull
   request since 2026-09-01 — see [`SECURITY.md`](SECURITY.md) — but it is

@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Version | 1.2.0 |
-| Effective date | 2026-09-01 |
+| Version | 2.0.0 |
+| Effective date | 2026-09-02 |
 | Status | Active |
 | Author and owner | Joel Parker Henderson, maintainer |
 | Canonical location | `AI_STATEMENT.md` at the workspace root |
@@ -28,7 +28,9 @@ Directives Part 2 defines them: requirement, recommendation, permission.
 This document covers the use of AI tools in developing everything in this
 workspace: crate code, the release dictionaries and the generator that
 writes them, tests, fuzz targets, benchmarks, the website, the
-specifications under each crate's `spec/`, and this document itself.
+specifications under each crate's `spec/`, and this document itself. Since
+2026-09-02 it also covers *releasing* it — see §5's `autonomous` row and
+[`spec/release-process/index.md`](spec/release-process/index.md).
 
 It does not cover an AI system in the product, because there is none:
 **these crates ship no AI.** No model is trained, embedded, or called at
@@ -100,21 +102,33 @@ anywhere in this document: no defensible method exists for measuring one.
 | Tests, fuzz targets, benchmarks | ai-generated | Held to the same authority as the code they exercise; §7 governs what happens when one fails |
 | The `spec/index.md` documents | ai-generated | The normative layer. A rule in a spec is only there because a test backs it |
 | Documentation, the website, and this statement | ai-generated | Held to the repository's own prose rules |
-| Which HL7 behaviors to model, what a standard's silence means, what ships in a release | none | Decided by the maintainer |
+| Which HL7 behaviors to model, what a standard's silence means | none | Decided by the maintainer |
+| Deciding *that* a specific, already-landed change warrants a crates.io release, and executing `cargo publish` for it | autonomous | The one deliberate exception to the row above — adopted 2026-09-02, at the maintainer's direction, and strictly bounded by [`spec/release-process/index.md`](spec/release-process/index.md): only inside a live interactive session on the maintainer's own machine, never a scheduled or unattended one; only using the crates.io credential already configured there, never a separate one; and only when every precondition that spec states holds (pushed and CI-green, a real landed fix, semver and inter-crate requirements verified, a `CHANGELOG.md` entry, a `tasks.md` record). §4's accountability is unchanged by this row |
 | Accepting a contribution from someone else | none | Prohibited use; see §11 |
 
-**autonomous** appears in no row, and that is the point of the next
-section.
+**autonomous** now appears in exactly the one row above, adopted
+2026-09-02 — see §6.
 
 ## 6. Human oversight
 
 The maintainer directs the work, reads the result, and commits every
-change; nothing lands on its own authority, and no commit or release is
-automated. Where the tools run multi-step sessions, the decisions with
+change; nothing lands on its own authority. Until 2026-09-02, no commit or
+release was automated at all — this document said so flatly, and that
+carve-out is now the only exception: within the bounds
+[`spec/release-process/index.md`](spec/release-process/index.md) states, an
+agentic tool may decide a specific change warrants a release without the
+maintainer naming that release as a specific instruction first, and
+execute it. That is deliberately narrower than "automated" in the
+scheduled-workflow sense — it still requires a human-started, live
+session, the same environment every other agentic action in this
+workspace already runs in — and it is the one row in §5 where the
+decision is not the maintainer's alone. Every other decision with
 consequences — what a coverage gap means, whether an incompleteness is
-acceptable, what a released version claims — are the maintainer's. A
-decision that exists only inside a tool session is not a decision this
-project made.
+acceptable, what a released version *claims* rather than merely *whether
+it ships* — remains the maintainer's. A decision that exists only inside a
+tool session, outside what §5's autonomous row and
+[`spec/release-process/index.md`](spec/release-process/index.md) bound, is
+still not a decision this project made.
 
 ## 7. Quality controls, and what each one proves
 
@@ -241,11 +255,22 @@ This section exists because a disclosure without one is marketing.
   (`cargo deny`, per `deny.toml`) followed the same day in
   `.github/workflows/security.yml`. Everything before 2026-08-26 depended
   on one person remembering to run these gates by hand, and CI still gates
-  no release — publishing to crates.io is still a manual step.
+  no release: nothing publishes to crates.io on a green check by itself.
+  Since 2026-09-02 the human typing `cargo publish` is no longer the only
+  path — an agentic tool may, within
+  [`spec/release-process/index.md`](spec/release-process/index.md)'s
+  bounds — but every precondition that spec states still has to hold
+  first, and CI passing is only one of them.
 - **Review depth is one person's.**
   [`MAINTAINERS.md`](MAINTAINERS.md) says the bus factor is one. "The
   maintainer understands and can explain every committed change" is the
   honest claim; "every line was independently re-derived" would not be.
+  That claim is about the *content* of a change, made in a directed
+  session per §5's other rows, and is unaffected by an agentic tool
+  deciding the *timing* of a release under
+  [`spec/release-process/index.md`](spec/release-process/index.md) — the
+  code being released was still reviewed and committed by the maintainer
+  before the release decision was ever made.
 - **Conformance is self-assessed and incomplete by design.**
   [`spec/conformance/index.md`](spec/conformance/index.md) publishes the
   bound — 24 segments, 42 types, 4 structures — rather than implying
@@ -312,6 +337,7 @@ model for this one.
 | 1.0.0 | 2026-08-26 | First issue. |
 | 1.1.0 | 2026-08-26 | CI stood up (`.github/workflows/ci.yml`); §7 and §12 updated: the quality gates are now machine-enforced on every push and pull request. |
 | 1.2.0 | 2026-09-01 | §7's fuzz-targets row updated: a fourth crate, `hl7-2` itself (its JSON dictionary reader), gained a fuzz target, closing the gap `SECURITY.md` and this file both named. The header table's "Review" row corrected from "§12" to "§13" — the trigger list it points at has always lived in §13, not §12. |
+| 2.0.0 | 2026-09-02 | Major, not minor: §5's table gained an `autonomous` row for the first time since 1.0.0 — the maintainer authorized an agentic tool to decide, on its own judgment, that a specific already-landed change warrants a crates.io release and to execute `cargo publish` for it, strictly bounded by the new [`spec/release-process/index.md`](spec/release-process/index.md). §5, §6, and §12 updated to state the exception precisely rather than let "no commit or release is automated" stand as a claim this version makes false. §4's accountability model is explicitly unchanged. |
 
 ## Annex B. Machine-readable summary
 
@@ -320,8 +346,8 @@ is authoritative where the two could ever disagree.
 
 ```yaml
 ai-statement:
-  version: 1.2.0
-  last-updated: 2026-09-01
+  version: 2.0.0
+  last-updated: 2026-09-02
   vocabulary: w3c-ai-content-disclosure
   disclosure-default: ai-generated
   tools:
@@ -334,10 +360,12 @@ ai-statement:
     documentation: ai-generated
     review: none
     standards-adjudication: none
-    release-decisions: none
+    release-scope: none
+    release-execution: autonomous
   commit-trailers: true
   ships-ai-system: false
-  autonomous-use: none
+  autonomous-use: release-execution
+  autonomous-use-scope: spec/release-process/index.md
 ```
 
 ---

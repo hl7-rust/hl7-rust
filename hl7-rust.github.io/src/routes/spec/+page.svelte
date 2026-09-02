@@ -180,7 +180,7 @@
   <h2 id="workspace">The workspace's own specs</h2>
   <p>
     Several specs sit outside any crate, because what they state is true of the whole workspace
-    rather than of one member. Eighteen today. The spec is the normative version in every case; the
+    rather than of one member. Nineteen today. The spec is the normative version in every case; the
     entries below summarise them and link back.
   </p>
   <dl>
@@ -314,6 +314,16 @@
       Why crates still publish with a long-lived API token today, and the OIDC-based Trusted
       Publishing this project intends to adopt once it is production-ready across every forge and
       destination it uses.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/release-process/index.md`}
+        ><code>spec/release-process/index.md</code></a
+      >
+    </dt>
+    <dd>
+      The release runbook every crates.io release follows, and — since 2026-09-02 — the bounds
+      under which an agentic AI tool may decide, on its own judgment, that a change warrants a
+      release and execute it.
     </dd>
     <dt>
       <a href={`${REPO}/blob/main/spec/agent-skills/index.md`}

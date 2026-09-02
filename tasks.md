@@ -357,9 +357,13 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
         a socket, and never touches PHI directly (`spec/phi/index.md`) is
         a smaller document than the phrase implies, which is itself a
         reason to eventually write one rather than a reason it is missing.
-      - **No release automation (`MAINTAINERS.md`).** A crates.io release
-        is still `cargo publish` from the maintainer's own laptop for all
-        fourteen crates. Automating it (a tag-triggered workflow) is real
+      - **No release automation (`MAINTAINERS.md`), in the CI-workflow
+        sense.** A crates.io release is still `cargo publish` from the
+        maintainer's own laptop for all fourteen crates — 2026-09-02's
+        `spec/release-process/index.md` widened *who on that laptop* may
+        decide to run it (an agentic tool, within its bounds), not *where*
+        it runs from; a scheduled or CI-triggered publish is still exactly
+        this gap. Automating that (a tag-triggered workflow) is real
         engineering, not a documentation fix, and per
         `spec/trusted-publishing/index.md`'s policy it would have to carry
         Trusted Publishing's OIDC flow rather than a workflow-embedded
@@ -385,6 +389,55 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       directory — done 2026-08-26; the same pass reworded "commit
       signatures" to "committer identity", since MAINTAINERS.md says
       plainly that nothing is cryptographically signed.
+- [x] **Authorize an agentic tool to decide, on its own judgment, that a
+      change warrants a crates.io release and execute `cargo publish`** —
+      done 2026-09-02, at the maintainer's explicit direction. Before this,
+      `AI_STATEMENT.md` §5 put "what ships in a release" at level `none`
+      and §6 said flatly "no commit or release is automated"; this is the
+      first time `autonomous` (per the document's own §3 vocabulary) has
+      applied to anything in this workspace.
+
+      New `spec/release-process/index.md` does two things at once: it
+      formalizes the release runbook four prior releases followed ad hoc
+      (semver-per-crate, the inter-crate version-requirement check the
+      fifth release needed on twelve dependencies, `CHANGELOG.md`-entry-
+      first, tag-and-sign, `cargo package` as a manifest sanity check —
+      never written down before, reconstructed from `tasks.md`'s own log),
+      and states the new authorization's bounds on top of it: only inside
+      a live interactive session on the maintainer's own machine, never
+      scheduled or unattended; only the credential already configured
+      there; every precondition (pushed and CI-green, a real landed
+      change, semver and inter-crate requirements verified, a
+      `CHANGELOG.md` entry, a `tasks.md` record) gates the action
+      regardless of who decided it; and a closed list stays exclusively
+      the maintainer's — a new crate's first release, an MSRV bump,
+      anything touching license/trademark/PHI-handling code, or yanking a
+      version.
+
+      Scope was asked directly, not assumed; the maintainer chose the
+      broader of two offered options ("on its own judgment," not "only
+      when told to publish this specifically"), named `autonomous` as
+      such rather than softened.
+
+      Updated in the same change, cross-referencing the new spec
+      rather than restating its bounds independently:
+      `AI_STATEMENT.md` (§1, §5's table split into two rows plus a new
+      `autonomous` one, §6, §12 twice, Annex A, Annex B — version bumped
+      **1.2.0 → 2.0.0**, major rather than minor, because this is the
+      first practice change to cross a vocabulary tier the document has
+      had since 1.0.0, not a factual correction like the two prior minor
+      bumps), `MAINTAINERS.md` (the bus-factor sentence, the crates.io
+      token's table row, and the "no release automation" gap reworded to
+      distinguish CI-workflow automation, still absent, from this),
+      `GOVERNANCE.md` ("who decides"), `RFC.md` §8, and `SECURITY.md`
+      (a new bullet under Known gaps naming exactly what widened and what
+      did not, for a supply-chain reviewer specifically).
+
+      Verified: `./bin/check-docs`/`./bin/check-trademarks` clean across
+      the new spec file and every edited document; Annex B's YAML
+      re-parsed with PyYAML after `release-decisions` split into
+      `release-scope`/`release-execution`, and `autonomous-use` renamed to
+      the one scoped activity plus a pointer to the bounding spec.
 
 ### Compliance — licensing and trademarks
 

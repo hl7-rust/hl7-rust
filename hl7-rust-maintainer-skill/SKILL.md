@@ -142,6 +142,16 @@ and a behavior fix belongs against the crate instead.
 make publish   # the only thing the root Makefile does
 ```
 
+**Cutting a crates.io release** follows the runbook in
+[`spec/release-process/index.md`](../spec/release-process/index.md): the
+semver rule (a `0.x` minor bump is the only one allowed to break, MSRV
+raises included), the inter-crate version-requirement check a bump can
+break, a `CHANGELOG.md` entry before anything publishes, `cargo package`
+as a manifest sanity check, then tag and sign. That same spec states the
+bounds under which an agentic tool may decide, on its own judgment, that a
+release is warranted and execute it — not something to invoke casually
+just because this recipe exists next to it.
+
 ## What CI actually gates
 
 `.github/workflows/ci.yml`: `cargo fmt --check` / `clippy` / `test`

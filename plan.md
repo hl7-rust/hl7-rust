@@ -8,7 +8,7 @@ settings where a wrong claim has clinical cost.
 
 Method: **specification-driven development.** Behavior is written down in the
 per-crate `spec/` directories before it is implemented, and repository-level
-policy lives in the workspace `spec/` (18 policy documents, including
+policy lives in the workspace `spec/` (19 policy documents, including
 [`spec/hl7-trademarks-fair-use/`](spec/hl7-trademarks-fair-use/index.md) and
 [`spec/phi/`](spec/phi/index.md)). Nothing in this file is a claim of what
 works — that is what the crates' specs and tests are for. Day-to-day execution
@@ -52,7 +52,14 @@ posture. Open items for each are in `tasks.md`.
    the file it was contradicting existed); none of them caught it because
    none re-read this workstream's own prose against the file it was
    talking about, only against `tasks.md`'s log, and this file's own
-   summary was the thing that had drifted.
+   summary was the thing that had drifted. A genuinely new decision landed
+   in this workstream 2026-09-02: `spec/release-process/index.md`
+   authorizes an agentic tool to decide, on its own judgment, that a
+   change warrants a crates.io release and execute it, within stated
+   bounds — see `AI_STATEMENT.md` §5's new `autonomous` row. "One person
+   decides" (this file's own governance framing, and GOVERNANCE.md's) is
+   unaffected in substance: the decision to grant that scope, and every
+   bound the tool operates inside, is still the maintainer's alone.
 
 2. **Compliance — licensing and trademarks.** The fair-use work is done for
    the word marks (® on first use per page, the disclaimer footer, per
@@ -173,6 +180,15 @@ posture. Open items for each are in `tasks.md`.
 - ~~`CODEOWNERS` asserts the repo has no `.github/` directory; it has one.~~
   Fixed 2026-08-26. The general watch item stands: small falsehoods in
   governance files are the failure mode this family exists to avoid.
+- **New watch item, 2026-09-02.** `spec/release-process/index.md`
+  authorized an agentic tool to decide, on its own judgment, that a change
+  warrants a crates.io release. The bounds are written down and gate-
+  checked (pushed and CI-green, semver and inter-crate requirements
+  verified, a real landed change, a record left behind), but the first
+  time this authority is actually exercised is the real test of whether
+  the bounds hold in practice, not just on paper — this line should be
+  updated with that first instance's outcome, not left describing only
+  the policy.
 
 ## Trademarks
 

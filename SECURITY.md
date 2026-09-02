@@ -166,7 +166,21 @@ A security policy that lists no gaps is a security policy nobody checked.
   SBOM (one document per crate) has been generated in CI on every push and
   pull request since 2026-09-01 (`.github/workflows/ci.yml`'s `sbom` job),
   but it is a CI artifact, not something attached to a crates.io release —
-  a release itself is still an unsigned, untagged-workflow, manual act.
+  a release itself is still an unsigned, untagged-workflow, manual act,
+  though see the next bullet for what "manual" no longer fully means.
+- **An agentic AI tool, not only the maintainer, can now decide to
+  publish.** Since 2026-09-02, within
+  [`spec/release-process/index.md`](spec/release-process/index.md)'s
+  bounds, Claude Code may decide on its own judgment that an already-landed
+  change warrants a crates.io release and execute it — on the maintainer's
+  own credential, in a live session on his own machine, never a scheduled
+  or unattended one. For a supply-chain reviewer: this widens *who can
+  decide a release is warranted*, not *what preconditions gate the
+  publish* — every existing check (green CI on pushed code, `cargo deny`,
+  semver and inter-crate version verification) still runs first, and a
+  first release of a new crate, an MSRV bump, or anything touching
+  license, trademark, or PHI-handling code stays the maintainer's alone.
+  [`AI_STATEMENT.md`](AI_STATEMENT.md) §5 and §6 have the full policy.
 - **No published threat model.**
 
 If one of these is what blocks your adoption, say so —
