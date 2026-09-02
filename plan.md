@@ -42,10 +42,17 @@ Six workstreams, shared with the sibling repositories (`er7-rust`,
 posture. Open items for each are in `tasks.md`.
 
 1. **Governance.** GOVERNANCE.md, MAINTAINERS.md, and RFC.md exist and are
-   candid about the single-maintainer model. The visible hole is conduct:
-   `CONTRIBUTING.md` §Conduct is four lines with no reporting or enforcement
-   path, and there is no `CODE_OF_CONDUCT.md`. The sibling `fhir-rust` has a
-   Contributor Covenant 2.1 with a claim-accuracy clause to adapt.
+   candid about the single-maintainer model. Conduct closed 2026-08-26:
+   root `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1, adapted from
+   `fhir-rust`, plus a claim-accuracy clause this project takes as
+   seriously as harassment), with `CONTRIBUTING.md` §Conduct pointing to
+   it and carrying the reporting path. This paragraph said the opposite —
+   "there is no `CODE_OF_CONDUCT.md`" — ever since, stale from before this
+   file's own three comprehensive sweeps (all 2026-08-30, four days after
+   the file it was contradicting existed); none of them caught it because
+   none re-read this workstream's own prose against the file it was
+   talking about, only against `tasks.md`'s log, and this file's own
+   summary was the thing that had drifted.
 
 2. **Compliance — licensing and trademarks.** The fair-use work is done for
    the word marks (® on first use per page, the disclaimer footer, per
