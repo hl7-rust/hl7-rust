@@ -47,42 +47,13 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       -D warnings`, `fmt --check`, and the 1.95 MSRV check all passing.
       SECURITY.md's claim and its "known gaps" entry updated in the same
       change.
-- [x] Sign commits and tags going forward. **Tagging is done, 2026-08-27:**
-      the fourth release's tag convention (`<crate>-v<version>`, annotated)
-      was backfilled onto the first three release commits too, so all 56
-      tags (14 crates × 4 releases) exist and are pushed to all three
-      remotes — `git show hl7-2-v0.2.7` and its three predecessors all
-      resolve.
-      **Signing is live, 2026-08-27:** `gpg.format ssh`,
-      `commit.gpgsign`/`tag.gpgsign` both `true`, keyed to a dedicated
-      passphrase-protected signing key (`~/.ssh/id.d/jph-code-signing=...`,
-      created for exactly this rather than reusing a general-purpose
-      identity key) — deliberately not the unattended automation key
-      already used to push, since an unattended signature would not mean
-      anything. A local `allowed_signers` file is wired via
-      `gpg.ssh.allowedSignersFile` for local verification. The gate was
-      exercised three times before the key was loaded — twice attempting a
-      commit with no key in the agent (once against the identity key first
-      proposed, again after switching to the dedicated key), and each time
-      git refused rather than silently signing — and once for real: with
-      the key loaded via `ssh-add --apple-use-keychain` (macOS's system
-      `/usr/bin/ssh-add`, not the Homebrew one earlier on `PATH`, which
-      lacks the flag), both a test commit and a test annotated tag produced
-      a verified local signature (`Good "git" signature for
-      joel@joelparkerhenderson.com`), then were discarded. The first real
-      signed commit landed and was pushed to all three remotes; checked
-      against each host's own API rather than assumed. **GitHub: verified**
-      (`verification.verified: true, reason: "valid"`). **GitLab:
-      verified** (`verification_status: "verified"`, key titled
-      `jph-code-signing`). **Codeberg: verified as of 2026-08-28** —
-      re-checked directly against Codeberg's own API on a later commit
-      (`f6a146d`) rather than assumed from the earlier registration gap:
-      `verification.verified: true`, signer `joelparkerhenderson`, key
-      fingerprint matching. All three remotes now verify the same key on
-      the same commits. MAINTAINERS.md's tagging/signing paragraph was
-      stale by one host at the moment this line was first written, and was
-      corrected in the same commit — the sentence you might expect here
-      promising a follow-up was itself the drift; fixed rather than left.
+- [x] Sign commits and tags going forward — done 2026-08-27. All 56 tags
+      (14 crates x 4 releases, `<crate>-v<version>`, annotated) exist and
+      are pushed; SSH signing (`gpg.format ssh`, a dedicated
+      passphrase-protected key, deliberately not the unattended automation
+      key) verified `true` against GitHub's, GitLab's, and Codeberg's own
+      APIs directly, not assumed. Full account moved to
+      [`tasks-archive.md`](tasks-archive.md) 2026-09-02.
 - [ ] Adopt Trusted Publishing for crates.io releases, in place of the
       long-lived API token, once it is production-ready across GitHub,
       GitLab, and Codeberg — the policy in
@@ -438,6 +409,31 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       re-parsed with PyYAML after `release-decisions` split into
       `release-scope`/`release-execution`, and `autonomous-use` renamed to
       the one scoped activity plus a pointer to the bounding spec.
+- [x] **Make `AI_STATEMENT.md` §4/§10 precise about the `Co-Authored-By:`
+      trailer** — done 2026-09-02, same day, flagged directly: the two
+      sections risked being read as "a tool is never named anywhere,"
+      when actual practice (every commit in this history) literally uses
+      git's own co-authorship trailer convention to name the model. Fixed
+      to say so plainly — the trailer names the tool, deliberately; the
+      `Author:`/`Committer:` fields and any signature stay the
+      maintainer's alone, and that narrower claim is the one that
+      actually matters. Also documented the `Claude-Session:` trailer
+      (added to practice 2026-08-30, never described here until now) and
+      that the disclosed model name varies by session (`Sonnet 5`,
+      `Opus 5`, `Fable 5` all appear in history). `CONTRIBUTING.md` gained
+      a "Using AI tools" section stating the same thing — missing
+      entirely before this, though `fhir-rust`'s copy already has one.
+      `AI_STATEMENT.md` version bumped **2.0.0 → 2.1.0** (a clarifying
+      fix, not a new practice, so minor rather than major again).
+      Verified: `./bin/check-docs`/`./bin/check-trademarks` clean; Annex
+      B's YAML re-parsed after the version bump; `git log --format='%an/%cn'`
+      re-checked before writing the accountability claim rather than
+      assumed — it also surfaced Dependabot's automated commits as the
+      one other non-maintainer actor in this history, out of this
+      document's scope and named as such rather than silently excluded.
+      Freed room for this entry by moving the "Sign commits and tags"
+      entry above to `tasks-archive.md`, its own budget pressure from
+      today's earlier entries.
 
 ### Compliance — licensing and trademarks
 

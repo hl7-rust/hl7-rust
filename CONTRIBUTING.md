@@ -220,6 +220,27 @@ Sponsorship is never a condition of having a bug fixed. A report from
 someone who has paid nothing is treated exactly like one from someone who
 has.
 
+## Using AI tools
+
+You may. This repository is largely built with them and says so in
+[`AI_STATEMENT.md`](AI_STATEMENT.md).
+
+If a contribution contains **ai-generated** content (that document's §3
+vocabulary), say so in the pull-request description — which tool, and what
+it did. An agentic Claude Code session's own commits already carry that
+disclosure as a `Co-Authored-By:`/`Claude-Session:` trailer, per
+[`AI_STATEMENT.md`](AI_STATEMENT.md) §4 and §10 — that trailer is fine as
+it stands, and deliberately names the tool using git's own co-authorship
+convention rather than avoiding the word; for any other tool, put the
+disclosure in the description rather than inventing a one-off trailer
+format for it. You remain fully responsible for the submission: understood,
+explained on request, tested, and honest, exactly as if you had typed every
+character.
+
+The prohibited uses in [`AI_STATEMENT.md`](AI_STATEMENT.md) §11 apply to
+contributors too. The one that matters most: **never weaken a test, an
+expectation, or a gate to make something pass.**
+
 ## Licensing your contribution
 
 Everything here is offered under MIT, Apache-2.0, BSD-3-Clause,

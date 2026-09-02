@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Version | 2.0.0 |
+| Version | 2.1.0 |
 | Effective date | 2026-09-02 |
 | Status | Active |
 | Author and owner | Joel Parker Henderson, maintainer |
@@ -75,14 +75,26 @@ inline completion.
 One named human — the maintainer, listed in
 [`MAINTAINERS.md`](MAINTAINERS.md) — is the author of and accountable for
 every change in this workspace, whatever tool produced the bytes. A tool
-**shall not** be named as the author of, or a signer of, anything here,
-because a tool cannot be responsible for accuracy, integrity, or
-originality, and responsibility that cannot be borne cannot be assigned.
-There is no AI-issued sign-off of any kind.
+**shall not** be named in git's `Author:` or `Committer:` field, and
+**shall not** sign a commit or tag — those are the two mechanisms that
+carry accountability under git's own data model, and a tool cannot be
+responsible for accuracy, integrity, or originality, so responsibility
+that cannot be borne is not assigned there. There is no AI-issued
+cryptographic sign-off of any kind.
 
-The commit trailers described in §10 record *participation*, not
-authorship. The `Author:` field of every commit in this history is the
-maintainer.
+**This is a narrower claim than "a tool is never named anywhere," and
+worth being precise about rather than letting the two blur.** Every
+commit's `Co-Authored-By:` trailer (§10) does literally name the tool,
+using git's own co-authorship convention — that is what the trailer
+format means, on GitHub or any host that parses it, and pretending
+otherwise would be exactly the kind of soft claim this document exists to
+avoid. What it does not do is touch the `Author:`/`Committer:` fields or
+carry a signature: those, and therefore accountability under this
+section, stay the maintainer's alone on every commit an agentic tool
+touched — checkable with `git log --format='%an/%cn'`, which also surfaces
+the one other actor in this history, Dependabot's automated dependency
+bumps, out of scope for this document and disclosed instead where
+[`tasks.md`](tasks.md) records enabling it.
 
 ## 5. Where AI is used, and at what level
 
@@ -214,15 +226,27 @@ Contributors **may** use AI tools. A contribution with **ai-generated**
 content per §3 **should** say so in the pull-request description: which
 tool, and what it did.
 
-**This project records tool participation in commit trailers**, in the
-form `Co-Authored-By: Claude <model> <noreply@anthropic.com>`, and the
-history carries them. That is a deliberate choice and worth naming, because
-it is not universal — some projects require such trailers and others forbid
-them, and there is no ecosystem-wide agreement. The reasoning here is that
-the trailer is a per-commit fact, cheap to record and impossible to
-reconstruct later, while this document is the standing disclosure that
-explains what the trailer means. §4 governs how to read it: the trailer
-records participation, and the `Author:` field records accountability.
+**This project records tool participation in commit trailers**: a
+`Co-Authored-By: Claude <model> <noreply@anthropic.com>` line naming the
+Claude model that made the commit (`Sonnet 5`, `Opus 5`, and `Fable 5` all
+appear in this history, since which model runs a session varies), and —
+added 2026-08-30 — a `Claude-Session:` line carrying that session's own
+URL, so a specific commit's context is reconstructable rather than only
+disclosed in the abstract. The history carries them; this is not aspirational.
+
+Using `Co-Authored-By:` by name is deliberate, and worth being direct
+about rather than soft-pedaling: it is git's own co-authorship trailer
+convention, the same one a host like GitHub parses to mark a commit as
+having more than one author. This project is not avoiding that word — it
+is choosing it, because the trailer records real participation and hiding
+that behind vaguer language would be worse than naming it plainly. What it
+does not do, per §4, is touch the `Author:`/`Committer:` fields or stand
+in for a signature; recording *participation* this way and recording
+*accountability* through those two fields are different claims, and this
+document keeps them that way rather than letting the trailer's own name
+blur them. That is a deliberate choice and worth naming for another
+reason too: it is not universal — some projects require such trailers and
+others forbid them, and there is no ecosystem-wide agreement.
 
 A contributor remains responsible for their submission in full, under the
 same [`CONTRIBUTING.md`](CONTRIBUTING.md) bar as any other work: understood,
@@ -338,6 +362,7 @@ model for this one.
 | 1.1.0 | 2026-08-26 | CI stood up (`.github/workflows/ci.yml`); §7 and §12 updated: the quality gates are now machine-enforced on every push and pull request. |
 | 1.2.0 | 2026-09-01 | §7's fuzz-targets row updated: a fourth crate, `hl7-2` itself (its JSON dictionary reader), gained a fuzz target, closing the gap `SECURITY.md` and this file both named. The header table's "Review" row corrected from "§12" to "§13" — the trigger list it points at has always lived in §13, not §12. |
 | 2.0.0 | 2026-09-02 | Major, not minor: §5's table gained an `autonomous` row for the first time since 1.0.0 — the maintainer authorized an agentic tool to decide, on its own judgment, that a specific already-landed change warrants a crates.io release and to execute `cargo publish` for it, strictly bounded by the new [`spec/release-process/index.md`](spec/release-process/index.md). §5, §6, and §12 updated to state the exception precisely rather than let "no commit or release is automated" stand as a claim this version makes false. §4's accountability model is explicitly unchanged. |
+| 2.1.0 | 2026-09-02 | §4 and §10 made precise about the `Co-Authored-By:` trailer rather than left to imply a stricter rule than this project actually practices: the trailer does literally name the tool as a co-author, using git's own convention, deliberately; what stays exclusively the maintainer's is the `Author:`/`Committer:` fields and any signature. §10 also gained the `Claude-Session:` trailer (added to practice 2026-08-30, undocumented here until now) and named that the disclosed model varies by session. `CONTRIBUTING.md` gained a "Using AI tools" section stating the same thing — missing entirely before this, the family's `fhir-rust` had one and this repository did not. |
 
 ## Annex B. Machine-readable summary
 
@@ -346,7 +371,7 @@ is authoritative where the two could ever disagree.
 
 ```yaml
 ai-statement:
-  version: 2.0.0
+  version: 2.1.0
   last-updated: 2026-09-02
   vocabulary: w3c-ai-content-disclosure
   disclosure-default: ai-generated

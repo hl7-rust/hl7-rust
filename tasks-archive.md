@@ -227,6 +227,48 @@ when adding the SBOM task pushed `tasks.md` over budget.
       checked with the Svelte MCP autofixer, `svelte-check`, and a full
       `vite build`.
 
+## Security and supply chain
+
+Moved here 2026-09-02, when adding the AI release-authority task pushed
+`tasks.md` over budget again.
+
+- [x] Sign commits and tags going forward. **Tagging is done, 2026-08-27:**
+      the fourth release's tag convention (`<crate>-v<version>`, annotated)
+      was backfilled onto the first three release commits too, so all 56
+      tags (14 crates × 4 releases) exist and are pushed to all three
+      remotes — `git show hl7-2-v0.2.7` and its three predecessors all
+      resolve.
+      **Signing is live, 2026-08-27:** `gpg.format ssh`,
+      `commit.gpgsign`/`tag.gpgsign` both `true`, keyed to a dedicated
+      passphrase-protected signing key (`~/.ssh/id.d/jph-code-signing=...`,
+      created for exactly this rather than reusing a general-purpose
+      identity key) — deliberately not the unattended automation key
+      already used to push, since an unattended signature would not mean
+      anything. A local `allowed_signers` file is wired via
+      `gpg.ssh.allowedSignersFile` for local verification. The gate was
+      exercised three times before the key was loaded — twice attempting a
+      commit with no key in the agent (once against the identity key first
+      proposed, again after switching to the dedicated key), and each time
+      git refused rather than silently signing — and once for real: with
+      the key loaded via `ssh-add --apple-use-keychain` (macOS's system
+      `/usr/bin/ssh-add`, not the Homebrew one earlier on `PATH`, which
+      lacks the flag), both a test commit and a test annotated tag produced
+      a verified local signature (`Good "git" signature for
+      joel@joelparkerhenderson.com`), then were discarded. The first real
+      signed commit landed and was pushed to all three remotes; checked
+      against each host's own API rather than assumed. **GitHub: verified**
+      (`verification.verified: true, reason: "valid"`). **GitLab:
+      verified** (`verification_status: "verified"`, key titled
+      `jph-code-signing`). **Codeberg: verified as of 2026-08-28** —
+      re-checked directly against Codeberg's own API on a later commit
+      (`f6a146d`) rather than assumed from the earlier registration gap:
+      `verification.verified: true`, signer `joelparkerhenderson`, key
+      fingerprint matching. All three remotes now verify the same key on
+      the same commits. MAINTAINERS.md's tagging/signing paragraph was
+      stale by one host at the moment this line was first written, and was
+      corrected in the same commit — the sentence you might expect here
+      promising a follow-up was itself the drift; fixed rather than left.
+
 ## Trademarks
 
 HL7®, and FHIR® are the registered trademarks of Health Level Seven
