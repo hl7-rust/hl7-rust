@@ -508,8 +508,11 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       2026-08-26: cites the umbrella `hl7` crate, 0.1.4, released
       2026-08-26 per CHANGELOG.md, with a comment saying the workspace
       versions independently.
-- [ ] Add a DOI to `CITATION.cff` once a Zenodo deposit exists (needs the
-      owner's Zenodo account).
+- [ ] Add a DOI to `CITATION.cff` once a Zenodo deposit exists.
+      **Deliberately deferred, 2026-09-02** — the owner's decision, not a
+      stalled blocker: the deposit needs the owner's own account, the same
+      shape of call as Open Collective below, not happening right now by
+      choice. Revisit only when the owner raises it again.
 
 ### Funding
 
@@ -530,7 +533,8 @@ Per `spec/free-open-source-funding/index.md`.
       collective. `.github/FUNDING.yml`, `CONTRIBUTING.md`, and `NEWS.md`
       say so plainly rather than pointing at a slug that does not exist —
       the last thing a funding page should be is broken. Revisit only when
-      the owner raises it again.
+      the owner raises it again. **Reaffirmed 2026-09-02** alongside the
+      Zenodo deferral above.
 - [x] Add `.github/FUNDING.yml` — already present (`github:
       joelparkerhenderson`), and now comments that an `open_collective:`
       line will be added once the item above is unblocked.

@@ -148,6 +148,12 @@ posture. Open items for each are in `tasks.md`.
 - ~~**CI hosting shape.**~~ Decided 2026-08-26: one workflow at the root
   covering the whole workspace (`.github/workflows/ci.yml`, the `fhir-rust`
   pattern). Nothing here needs engine containers.
+- ~~**Zenodo DOI, and Open Collective.**~~ Decided 2026-09-02: both
+  deferred by the owner's own choice, not blocked on anything this file
+  or `tasks.md` can close — each needs the owner's own account, and
+  neither is happening right now. `tasks.md`'s Outreach and Funding
+  sections carry the full reasoning; revisit only if the owner raises
+  either again.
 
 ## Non-goals (for now)
 
