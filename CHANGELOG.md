@@ -14,6 +14,9 @@ crate is `0.x`, a minor bump is the one allowed to break — including a
 raised minimum supported Rust version, which is always a breaking change
 and never lands in a patch
 ([`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md)).
+The full release runbook — the inter-crate version-requirement check, the
+tag-and-sign step, and who may decide a release is warranted — is
+[`spec/release-process/index.md`](spec/release-process/index.md).
 
 ## 2026-08-29, fifth release
 
