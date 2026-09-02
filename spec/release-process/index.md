@@ -76,6 +76,16 @@ who is permitted to type the command once that decision is made.
   alone; it can now also be an agentic tool's, strictly within the scope
   below.
 
+Concretely: an agent working in this repository may work through the
+runbook's steps 1–4 above — the version bump, the inter-crate
+requirement check, the `CHANGELOG.md` entry, the pre-PR gate set — decide
+for itself that the release meets every one of them, and then carry out
+step 5, `cargo publish`, itself. The maintainer no longer has to tick
+every box personally before that command runs; the bounds in this
+document are what stand in his place. Steps 6–8 (the manifest check, tag
+and sign, and the record) still follow in the same action, per the
+preconditions below — reaching step 5 is not the same as being done.
+
 ## Scope: what "on its own judgment" does and does not mean
 
 - **Only inside a live, interactive session** — a terminal the maintainer
