@@ -64,13 +64,19 @@ commits, not reconstructed from memory.
    this project already controls the output shape of does not need a v2.5
    data-type dictionary, only the position each element or key already
    encodes. They are not part of this chain.
-4. **`3de94a0` — the workspace's `hl7-3` introduction commit**, which is
-   also where `hl7-2/schemas/v2.5.json` first appears. §0 of `hl7-2`'s own
-   spec states the relationship precisely: this file was generated from the
-   conversion crates' own copies (link 1 and 2 above) and is
-   table-for-table identical to them. The other thirteen bundled release
-   files (§3.4 of that spec) are deltas layered over this one, authored the
-   same way, in the same kind of session.
+4. **`e32e462` — "Add hl7-v2: the HL7 v2 dictionary layer, in three
+   modes"**, the founding commit of what is now `hl7-2`, in its own
+   standalone repository, dated 2026-08-17. This is where
+   `hl7-2/schemas/v2.5.json` first appears, as `schemas/v2.5.json`. That
+   history was brought into this monorepo by the `cc0b51e` subtree merge,
+   and the later `3de94a0` (the workspace's `hl7-3` introduction commit)
+   only renames the directory (`hl7-v2` to `hl7-2`), with zero content
+   change to the file. §0 of `hl7-2`'s own spec states the
+   relationship precisely: this file was generated from the conversion
+   crates' own copies (link 1 and 2 above) and is table-for-table
+   identical to them. The other ten bundled release files (§3.4 of that
+   spec) are deltas layered over this one, authored the same way, in the
+   same kind of session.
 
 So: **`hl7-2-from-xml-into-er7`'s founding commit is the true root.**
 Everything else bundled in this workspace is a copy, a JSON re-encoding, or

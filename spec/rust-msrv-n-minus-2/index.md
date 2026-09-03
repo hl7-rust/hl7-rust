@@ -45,9 +45,13 @@ When a new stable Rust release `1.N` appears, the MSRV becomes `1.(N-2)`
    the older toolchain rejects — the MSRV is a floor the code must meet, not a
    ceiling on what the code may need.
 
-Raising the MSRV is therefore routine and expected, not a breaking change to
-be avoided. Lowering it below N-2 (to support an older consumer) is a design
-decision for `plan.md`, not a convenience.
+Raising the MSRV is routine and expected — the maintainer should not be
+reluctant to do it. It is still a breaking change in the semver sense
+([`spec/release-process/index.md`](../release-process/index.md)'s runbook),
+landing in every affected crate's minor version, never a patch; "routine and
+expected" is about the policy stance, not the version-bump classification.
+Lowering it below N-2 (to support an older consumer) is a design decision
+for `plan.md`, not a convenience.
 
 ## CI enforcement
 

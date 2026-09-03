@@ -58,13 +58,14 @@ Publishing, and that is a deliberate wait rather than an oversight** —
 [`spec/trusted-publishing/index.md`](spec/trusted-publishing/index.md)
 states the intent: adopt it once it works the same way across every code
 forge this project publishes from and every destination it publishes to,
-not piecemeal per forge. Checked 2026-08-28, so the wait is against
-current fact rather than an old assumption: crates.io's OIDC-based Trusted
-Publishing has been generally available for GitHub Actions since July
-2025; GitLab CI/CD support landed in 2026 but is GitLab.com only, with
-self-hosted GitLab and Codeberg/Forgejo not yet supported on crates.io's
-side at all. Since this project mirrors to GitHub, GitLab, and Codeberg
-equally, adopting it for GitHub alone would mean the one credential this
+not piecemeal per forge. Re-checked 2026-09-01 (previously 2026-08-28), so
+the wait is against current fact rather than an old assumption:
+crates.io's OIDC-based Trusted Publishing has been generally available
+for GitHub Actions since July 2025; GitLab CI/CD support landed in 2026
+but is GitLab.com only, with self-hosted GitLab and Codeberg/Forgejo not
+yet supported on crates.io's side at all. Since this project mirrors to
+GitHub, GitLab, and Codeberg equally, adopting it for GitHub alone would
+mean the one credential this
 table cannot yet retire staying long-lived regardless — a partial win, not
 the one this project is holding out for. Revisit when Codeberg support
 lands; `tasks.md` tracks it.

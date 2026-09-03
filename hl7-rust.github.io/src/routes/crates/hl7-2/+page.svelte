@@ -231,7 +231,7 @@ cargo install hl7-2                 # command-line tool, named hl7-v2`;
     hand-write their writers — in a domain where dependency trees get audited, a two-crate tree is
     worth a few hundred lines. Enabling the <code>derive</code> feature adds
     <a href="/crates/hl7-2-derive/"><code>hl7-2-derive</code></a>, and with it
-    <code>syn</code> and <code>quote</code>.
+    <code>proc-macro2</code>, <code>quote</code>, and <code>syn</code>.
   </p>
 
   <h2 id="name">A note on the name</h2>

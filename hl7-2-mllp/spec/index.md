@@ -23,6 +23,7 @@ hl7-2                 the HL7 v2 dictionary: releases 2.1-2.9, data
   |
   +-- hl7-2-mllp        this crate: getting those messages across a
   |                      network, and answering them
+  +-- hl7-2-soap        transport: HL7 v2 over HTTP
   +-- hl7-2-from-er7-into-json    format conversions
   +-- hl7-2-from-er7-into-xml
   +-- hl7-2-from-json-into-er7
@@ -39,6 +40,10 @@ reach for a framework:
 - **Neither owns policy.** Whether an `AA` may be sent before the message
   is persisted, how long to wait for a reply, when to reconnect, and what
   to do with a `AR` are decisions only the application can make.
+- **`hl7-2-soap` sits beside this crate, not above it.** Both answer the
+  same question — how does a message get from one system to another, and
+  how does the receiver say what became of it — for two different
+  transports.
 
 ## 1. Scope
 

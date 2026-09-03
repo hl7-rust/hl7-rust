@@ -52,8 +52,8 @@ assert_eq!(admission.raw.get("ZPD-1")?.as_deref(), Some("local"));`;
   <CodeSample language="toml" code={cargo} />
   <p>
     Keeping the macros in a crate of their own is what lets the default build of
-    <code>hl7-2</code> keep exactly one dependency: <code>syn</code> and <code>quote</code> are
-    compiled only for callers who ask for the macros.
+    <code>hl7-2</code> keep exactly one dependency: <code>proc-macro2</code>, <code>quote</code>,
+    and <code>syn</code> are compiled only for callers who ask for the macros.
   </p>
 
   <h2 id="usage">Usage</h2>

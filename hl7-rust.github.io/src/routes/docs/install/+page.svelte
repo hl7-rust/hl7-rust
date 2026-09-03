@@ -141,8 +141,8 @@ fn main() -> Result<(), v2::Error> {
   </div>
   <p>
     The derive macros live in their own crates precisely so that the default build of
-    <code>hl7-2</code> keeps exactly one dependency: <code>syn</code> and <code>quote</code> are
-    compiled only for callers who ask for the macros.
+    <code>hl7-2</code> keeps exactly one dependency: <code>proc-macro2</code>, <code>quote</code>,
+    and <code>syn</code> are compiled only for callers who ask for the macros.
   </p>
   <CodeSample language="sh" caption="MLLP, whose feature set is the most interesting" code={mllp} />
   <Callout type="warning" heading="noncompliance is off for a reason">

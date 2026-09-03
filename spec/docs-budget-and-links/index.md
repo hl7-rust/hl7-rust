@@ -15,8 +15,9 @@ root document.
 1. **Every tracked markdown document is at most 40 KB** (40,960 bytes).
    The budget exists for readers and for agents: a document that must be
    read in one sitting, or loaded into one context, has to have a ceiling.
-   The largest document here today is `hl7-2/spec/index.md` at ~32 KB, so
-   the budget currently binds without forcing a split. When a document
+   The largest document here today is `tasks.md` at 40,917 bytes — 43
+   bytes under the 40,960-byte limit — so the budget is already binding
+   close to the edge, not with room to spare. When a document
    outgrows it, split it by topic with any rule numbers kept in one file,
    or archive the older entries verbatim — never meet the budget by
    deleting the record.

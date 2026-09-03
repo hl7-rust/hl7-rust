@@ -235,7 +235,7 @@
     </dd>
   </dl>
   <p>
-    The six above are about what the crates <em>do</em>. The twelve below are about how this
+    The six above are about what the crates <em>do</em>. The thirteen below are about how this
     repository runs itself — its own practice, not the code's behavior — but the same rule applies:
     the spec is the source of truth, and a root document that disagrees with one is the bug.
   </p>

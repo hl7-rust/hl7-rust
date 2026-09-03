@@ -31,13 +31,13 @@
 PID|1||REDACTED^^^ACME&1.2.3.4&ISO^MR||REDACTED^REDACTED||REDACTED|F
 OBX|1|NM|2093-3^Cholesterol^LN||187|mg/dL|<200|N|||F`;
 
-  const logging = `match message.get("PID-5.1") {
+  const logging = `match message.decode::<Patient>() {
     Err(hl7_2::Error::BadValue { path, expected, .. }) => {
         // Deliberately drops \`found\`, which is text from the message.
         eprintln!("{path}: expected {expected}");
     }
     Err(error) => eprintln!("{error}"),
-    Ok(value) => { /* ... */ }
+    Ok(patient) => { /* ... */ }
 }`;
 
   const review = `cargo tree -p hl7-2                    # one dependency: er7, itself dependency-free

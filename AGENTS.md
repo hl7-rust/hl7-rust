@@ -76,10 +76,13 @@ workspace root, each self-contained in its own `SKILL.md`:
   widens dictionary coverage, adds a way for message content to reach an
   error string, or moves a published benchmark figure updates the
   corresponding one in the same change.
-- Every crate, and the workspace root, has its own `LICENSE.md` — the same
-  multi-license boilerplate byte-for-byte everywhere, matching each
-  `Cargo.toml`'s `license` field. Keep new crates consistent with that;
-  don't invent different license text for one crate.
+- Every crate, and the workspace root, has its own `LICENSE.md`. The 14
+  crate copies are byte-for-byte identical to each other, matching each
+  `Cargo.toml`'s `license` field; the root's `LICENSE.md` is a longer,
+  expanded document (SPDX block, `LICENSES/` reference, per-file
+  SPDX-marking section, trademark-scope section) and is not byte-identical
+  to the crate copies. When adding a new crate, copy an *existing crate's*
+  `LICENSE.md` — not the root's — and don't invent different license text.
 - When a change spans crates (a shared type, a version bump one crate's
   `Cargo.toml` pins another to), update every affected crate's own
   `AGENTS.md`/`spec/index.md` in the same change, the same as when they

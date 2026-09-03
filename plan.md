@@ -15,7 +15,7 @@ works — that is what the crates' specs and tests are for. Day-to-day execution
 items live in [`tasks.md`](tasks.md), where a `[x]` means verified, not
 intended.
 
-## Where the workspace stands (verified 2026-09-01)
+## Where the workspace stands (verified 2026-09-03)
 
 All 14 crates are published to crates.io (latest release recorded in
 `CHANGELOG.md`, 2026-08-29 — the fifth release, an MSRV bump). 363 `#[test]` functions, fuzz
@@ -108,9 +108,18 @@ posture. Open items for each are in `tasks.md`.
    the request is answered. NEWS.md's press posture is ready.
 
 6. **Audit and harmonization.** This file and `tasks.md` are the ongoing
-   findings register and plan/tasks history. Three comprehensive sweeps ran
-   2026-08-30, all prompted by the same plain "update, upgrade,
-   harmonize, annotate, audit, fix" instruction repeated — the second,
+   findings register and plan/tasks history. Four comprehensive sweeps have
+   run — three on 2026-08-30, a fourth on 2026-09-03 with an explicit
+   per-surface checklist and six parallel audits — all prompted by the same
+   plain "update, upgrade, harmonize, annotate, audit, fix" instruction
+   repeated. The fourth found the exact failure mode the family exists to
+   guard against, recurring: the `/spec/` page's miscount (third sweep
+   fixed it once; it drifted back after two more specs landed) and a
+   prior sweep's `hl7-rust-maintainer-skill/SKILL.md` fix that never
+   reached its own website mirror. It also found one genuine code-vs-doc
+   question — a `--strict` CLI exit-code claim wrong in three docs —
+   resolved by tracing the real control flow rather than guessing which
+   side to trust. The second,
    after the two Agent Skills and `llms.txt`/`llms.json` were added,
    caught an unsigned-commits claim in `SECURITY.md`/`CODEOWNERS` left
    stale since signing landed 2026-08-27, `hl7-3/AGENTS.md` never updated

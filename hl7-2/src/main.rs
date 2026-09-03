@@ -45,8 +45,10 @@ Options:
   -h, --help             print this help
   -V, --version          print the crate version
 
-Exit status is 0 on success, 1 on a usage or parse error, and 2 when
---check or --strict found something wrong with the message.
+Exit status is 0 on success, 1 on a usage or parse error — including a
+--strict validation failure, since strict mode turns a validation problem
+into a parse error — and 2 when --check (without --strict) finds a problem
+while still parsing and rendering successfully.
 ";
 
 /// Which of the four outputs to print.

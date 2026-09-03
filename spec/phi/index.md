@@ -58,7 +58,7 @@ Verifiable by reading the manifests and grepping the sources:
 | No telemetry, analytics, or phone-home | No HTTP client anywhere; no network dependency of any kind |
 | No filesystem access from message-handling library code | `std::fs` and `File::open` appear in no message-handling library source, only in the CLI binaries' `main.rs` — and in one deliberate exception that touches no messages: `hl7-2-from-xsd-into-json-dictionary`'s library reads the XSD schema files you name (`src/lib.rs`, `structure_files` and `read_xml`), because reading them is that crate's entire purpose |
 | No environment variables | `std::env` appears in no library source, only in the CLI's argument parsing |
-| No sockets opened | `std::net` appears in no library source; the MLLP crate is generic over a byte stream you supply |
+| No sockets opened | No library source opens a socket; the MLLP crate is generic over a byte stream you supply. `std::net` does appear once, in `hl7-2-mllp/src/lib.rs`, but only inside a rustdoc usage example (`//! use std::net::TcpListener;`) — not runtime library code, and worth knowing about before you go looking, since it is the one `std::net` hit a source grep turns up |
 | No subprocesses | `std::process` appears in no library source |
 | No global or ambient state | Nothing is cached across calls except the lazily parsed bundled dictionaries, which contain no message data |
 | No serialization framework | No `serde`; the JSON reader is hand-written and reads only dictionaries |
@@ -213,10 +213,13 @@ The five things a review usually wants, with where to check each:
    compile time.
 2. **No network or filesystem access from message-handling library code.**
    Grep the sources for `std::net`, `std::fs`, and `std::env`; they appear
-   only in the CLI, with one deliberate exception that touches no messages:
-   `hl7-2-from-xsd-into-json-dictionary`'s library reads the XSD schema
-   files you name, because reading them is that crate's entire purpose (see
-   [What the libraries never do](#what-the-libraries-never-do) above).
+   only in the CLI, with two exceptions that touch no messages: a
+   `std::net::TcpListener` inside a rustdoc usage example in
+   `hl7-2-mllp/src/lib.rs`, not runtime code; and
+   `hl7-2-from-xsd-into-json-dictionary`'s library, which reads the XSD
+   schema files you name because reading them is that crate's entire
+   purpose (see [What the libraries never do](#what-the-libraries-never-do)
+   above).
 3. **No logging.** Grep the manifests for `log` and `tracing`.
 4. **What can appear in an error.**
    [Where a value can escape](#where-a-value-can-escape) above, then

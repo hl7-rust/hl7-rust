@@ -178,8 +178,9 @@ artifact; the schemas are the source.
 ## 6. Dependencies
 
 One: `hl7-2-xml-lite-helper`, the small, dependency-free XML reader shared
-with `hl7-2-soap` and `hl7-2-from-xml-into-er7` (§2.1), re-exported as
-`xml`. Writing a dictionary needs a JSON writer (§5), which is small and
+across five crates — this one, `hl7-2-soap`, `hl7-2-from-xml-into-er7`,
+`hl7-3`, and `hl7-3-soap` (§2.1) — re-exported as `xml`. Writing a
+dictionary needs a JSON writer (§5), which is small and
 specific enough to the one shape involved to live here rather than pull in
 a general-purpose one. `hl7-2` is a dev-dependency only, for §7 — it is
 not needed to build this crate.

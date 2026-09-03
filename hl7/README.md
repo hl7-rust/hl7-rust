@@ -14,12 +14,15 @@ never confused with the same word in another.
 hl7                      this crate: re-exports one module per standard
   |
   +-- hl7::v2 = hl7-2    HL7 v2, releases 2.1-2.9 — parse, navigate,
-                          validate, modify, and render, in three modes:
-                          generic, schema-based, and struct-based
+  |                       validate, modify, and render, in three modes:
+  |                       generic, schema-based, and struct-based
+  +-- hl7::v3 = hl7-3    HL7 v3 — RIM backbone classes, coded values, the
+                          three-level message envelope: a foundation, not
+                          a full implementation
 ```
 
-Today that's just `hl7::v2`. Room is left for `hl7::v3` and `hl7::fhir` as
-those standards get implemented, each its own crate underneath, re-exported
+`hl7::v2` and `hl7::v3` are both here today. Room is left for `hl7::fhir`
+as that standard gets implemented, its own crate underneath, re-exported
 here the same way.
 
 ## Install
@@ -29,10 +32,11 @@ cargo add hl7
 cargo add hl7 --features derive   # pulls in hl7-2's derive macros
 ```
 
-Depend on [`hl7-2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2) directly instead if
-you specifically want v2 with no umbrella indirection — this crate is
-nothing but a thin re-export (`pub use hl7_2 as v2;`) plus room for future
-standards.
+Depend on [`hl7-2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2) (or
+[`hl7-3`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-3)) directly
+instead if you specifically want one standard with no umbrella indirection —
+this crate is nothing but thin re-exports (`pub use hl7_2 as v2;`,
+`pub use hl7_3 as v3;`) plus room for future standards.
 
 ## Use
 

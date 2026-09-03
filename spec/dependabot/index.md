@@ -41,10 +41,11 @@ cannot tell that pin apart from an ordinary action version like
 `actions/checkout@4`, so left unignored it proposes bumping the toolchain
 forward the same way it would bump any other action — and CI's `msrv` job
 correctly fails that PR by design, since the toolchain a routine bump
-proposes is not one the MSRV policy chose. Raising the MSRV is a
-deliberate, spec-driven change per that policy's own Maintenance section,
-never an automated PR, so the pin is excluded rather than left to fail
-weekly. The `dtolnay/rust-toolchain@stable` pin used elsewhere is a
+proposes is not one the MSRV policy chose. That policy's own Maintenance
+section spells out raising the MSRV as a deliberate, multi-step change a
+maintainer makes by hand (bump `rust-version`, bump the CI pin, verify with
+the older toolchain) — not something an automated PR should ever do, so
+the pin is excluded rather than left to fail weekly. The `dtolnay/rust-toolchain@stable` pin used elsewhere is a
 channel name, not a version, so it was never at risk the same way and
 needs no `ignore:` entry.
 

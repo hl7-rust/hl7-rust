@@ -69,6 +69,10 @@ schemas/*.json     Bundled dictionaries. v2.5 is complete; the rest are
 tests/integration.rs  Black-box tests through the public API and the CLI.
 tests/spec.rs      The specification checking itself: every test named in
                    spec/index.md §13 must still exist.
+tests/scratch_nhs.rs  Loads dictionaries from a private NHS Wales corpus;
+                   skips (does not fail) when HL7_2_NHS_DICTIONARIES is unset
+                   or not a directory, which is the case everywhere but the
+                   maintainer's own machine.
 samples/*.hl7      Example messages for the README and manual testing.
 samples/acme.json  A vendor dialect, for the README's schema-mode example
                    and the schema-mode CLI test.

@@ -33,7 +33,7 @@
 //! changes every run — and untraceable, since the control ID is what an
 //! operator greps for when a sender asks what happened to message 99.
 //!
-//! With the `clock` feature, [`acknowledge_now`] fills in the timestamp
+//! With the `clock` feature, `acknowledge_now` fills in the timestamp
 //! from the system clock for callers who genuinely just want the current
 //! time. The control ID stays the caller's: only they know what their own
 //! messages are called.

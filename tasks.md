@@ -90,115 +90,21 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       MAINTAINERS.md now states it (read within a week, a target not a
       contract). `help/outreach/index.md`'s prerequisites updated — the
       trademark question is now its only unmet gate.
-- [x] Enable Dependabot, per `spec/dependabot/index.md` (found at
-      `spec/spec/dependabot/index.md` — a doubled-up path, moved to the
-      canonical `spec/<name>/index.md` location in the same change rather
-      than left as a stray nested directory) — done 2026-08-29, both
-      halves. Security updates: `dependabot_security_updates` was
-      `disabled` (checked via the API before touching it, not assumed);
-      enabled with `PUT /repos/hl7-rust/hl7-rust/automated-security-fixes`,
-      re-checked afterward and now reports `"enabled"`. Vulnerability
-      alerts were already on, which that endpoint needs as a prerequisite.
-      Scheduled updates: `.github/dependabot.yml`, one entry per ecosystem
-      this repository actually has — `cargo` at the root (covers all
-      fourteen members through the one shared `Cargo.lock`),
-      `github-actions` at the root, and `npm` under
-      `hl7-rust.github.io` (GitHub's npm handler reads `pnpm-lock.yaml`
-      natively; there is no separate "pnpm" ecosystem value). Weekly, to
-      match the same best-effort cadence SECURITY.md and MAINTAINERS.md
-      already state elsewhere rather than inventing a daily pace nobody is
-      staffed to keep up with. This is a distinct capability from
-      `cargo deny` above, not a duplicate of it: `deny` catches what is
-      already in the lockfile today; Dependabot opens the PR when a new
-      advisory or a new version appears after that. **First live PRs
-      confirmed it works, and caught a real gap in the config within a
-      day**: ten PRs opened across all three ecosystems; nine passed CI
-      clean, and the tenth — `dtolnay/rust-toolchain` "bumped" from
-      `1.96` to `1.100` — failed, because that pin is not a version to
-      keep current, it *is* the MSRV floor
-      `spec/rust-msrv-n-minus-2/index.md` states. Dependabot's
-      github-actions ecosystem reads the tag the same way it would
-      `checkout@4` → `checkout@7`; CI's `msrv` job correctly rejected the
-      toolchain the policy never chose. Fixed with an `ignore:` rule on
-      that one dependency name — raising the MSRV stays a deliberate,
-      spec-driven change, never an automated PR — and the failing PR
-      closed. The `@stable` pin in the other job was never at risk the
-      same way; it names a channel, not a version, so Dependabot has
-      nothing numeric to bump.
-- [x] Merge the nine remaining PRs — done 2026-08-29. The four
-      cargo/actions ones (`actions/checkout` v4→v7, `syn` 2.0.119→3.0.3,
-      `criterion` 0.5.1→0.8.2, `er7` 0.1.1→0.1.3) really were covered by
-      real CI — `clippy --all-targets`/`test` compile the derive crates
-      against `syn` and the benches against `criterion` — so merged on
-      that evidence, then re-verified with the full local gate set on the
-      combined result before pushing to GitLab and Codeberg, which don't
-      see GitHub PR merges on their own.
-
-      **The five site PRs (TypeScript 5→6, Svelte, SvelteKit,
-      lily-design-system, `vite-plugin-svelte` 5→6) were a different
-      problem: `ci.yml` never runs `pnpm` anything, so their green
-      checkmarks proved nothing about whether the site still builds** —
-      confirmed by grepping the workflow file for `pnpm`/`svelte-check`/
-      `vite build` and finding none. Verified each for real instead:
-      fetched every branch into its own `git worktree`, ran
-      `pnpm run check` (0 errors each) and `pnpm run build` (each wrote a
-      complete `build/` output) before merging any of them. All five
-      touch the same `package.json`/`pnpm-lock.yaml`, so each merge
-      reopened a conflict on the next PR in line — `@dependabot rebase`
-      requested, waited for `mergeable` to flip, re-verified the *rebased*
-      branch (not just re-trusted the old one), merged, repeat, four
-      times. After the tenth PR landed, ran `pnpm run check` and
-      `pnpm run build` once more on the real merged `main` — not a
-      worktree — since five bumps that each pass alone had never been
-      tested together; both came back clean.
-
-      **This is a real, standing gap, not just a one-time inconvenience**:
-      `ci.yml` has no job that builds `hl7-rust.github.io`, so every future
-      site-related Dependabot PR will keep showing a meaningless green
-      check until one is added. Worth its own task — a `site` job running
-      `pnpm install && pnpm run check && pnpm run build` — rather than
-      relying on manual worktree verification each time.
-
-- [x] Add a `site` job to `ci.yml` that runs
-      `pnpm install && pnpm run check && pnpm run build` against
-      `hl7-rust.github.io` on every push/PR — done 2026-08-29. Closes the
-      gap found above: Dependabot's green checkmark on a site-related PR
-      used to prove nothing, since no CI job ever touched `pnpm`.
-
-      First attempt pinned `pnpm/action-setup@v4` to major version 11
-      (matching local `pnpm --version`) with `node-version: lts/*`. That
-      passed a local `pnpm install --frozen-lockfile` / `check` / `build`
-      run, so it looked verified — but the local install was silently
-      using a gitignored, untracked `hl7-rust.github.io/pnpm-workspace.yaml`
-      left over on this machine, which grants `esbuild` permission to run
-      its postinstall script. A real CI run (fresh checkout, no such file)
-      failed at `pnpm install --frozen-lockfile` with
-      `[ERR_PNPM_IGNORED_BUILDS]`: pnpm 10+ no longer reads the
-      `pnpm.onlyBuiltDependencies` field in `package.json` that this repo
-      actually relies on, and refuses to install non-interactively when a
-      build script is silently ignored. The existing (separate, already
-      working) `hl7-rust.github.io/.github/workflows/deploy.yml` — which
-      runs in the sibling `hl7-rust.github.io` repository, triggered by
-      `make publish` — had already solved this by pinning
-      `pnpm/action-setup@v4` to version 9, which still honors that
-      `package.json` field. Fixed the new `site` job to match: version 9,
-      `node-version: 20` (mirroring `deploy.yml` exactly rather than
-      inventing a second convention). Re-verified for real this time by
-      moving the local `pnpm-workspace.yaml` aside, deleting `node_modules`,
-      and running `npx pnpm@9.15.9 install --frozen-lockfile` / `check` /
-      `build` from a clean state that matches what CI actually sees — all
-      three passed — before trusting the fix and re-pushing.
-
-      `pnpm install --frozen-lockfile` (kept from the first attempt) means
-      a PR that edits `package.json` without updating `pnpm-lock.yaml`
-      still fails loudly instead of silently resolving. Also fixed a
-      stale claim this surfaced: `AGENTS.md`
-      already had the corrected wording for the `rust-version.workspace =
-      true` exception (see the MSRV entry above), but `CONTRIBUTING.md`
-      still said flatly "No `[workspace.package]` inheritance... without
-      discussion" with no exception noted — brought into agreement in the
-      same commit, plus the site's own pre-PR gate commands added next to
-      the Rust ones.
+- [x] Enable Dependabot, per `spec/dependabot/index.md` — done 2026-08-29:
+      security updates and scheduled updates (cargo/github-actions/npm,
+      weekly) both live. First live PRs caught a real config gap within a
+      day (`dtolnay/rust-toolchain` "bumped" past the MSRV pin) — fixed
+      with an `ignore:` rule. Full account moved to
+      [`tasks-archive.md`](tasks-archive.md) 2026-09-03.
+- [x] Merge the nine remaining PRs, and add a `site` job to `ci.yml` —
+      done 2026-08-29. The four cargo/actions PRs merged on real CI
+      coverage; the five site PRs exposed that `ci.yml` never ran `pnpm`
+      anything, so their green checkmarks proved nothing — verified each
+      by hand in a worktree, then closed the gap for good with a `site`
+      job (`pnpm install && pnpm run check && pnpm run build`, pinned to
+      match the working `deploy.yml` convention after a first attempt
+      failed on a gitignored local file masking a real CI failure). Full
+      account moved to [`tasks-archive.md`](tasks-archive.md) 2026-09-03.
 - [x] Close the "no SBOM" gap `SECURITY.md`, `MAINTAINERS.md`, `RFC.md` §8,
       and `plan.md`'s risk section all named — done 2026-09-01. Found while
       re-reading `plan.md` against `tasks.md`: the risk section called it
@@ -633,6 +539,26 @@ Per `spec/free-open-source-funding/index.md`.
       malformed YAML frontmatter, a website spec-count undercount
       recurring after being fixed once already). Full account moved to
       [`tasks-archive.md`](tasks-archive.md) 2026-09-01.
+- [x] Fourth comprehensive accuracy sweep — done 2026-09-03, run as six
+      parallel read-only audits (spec/, AGENTS.md/CLAUDE.md, README/root
+      docs, the website, llms.txt/llms.json + agent skills, plan/tasks)
+      against an explicit checklist, then five parallel fix passes.
+      **35 findings, one real code-vs-doc judgment call** (a CLI
+      `--strict` exit-code claim was wrong in three places; traced the
+      actual control flow and fixed the docs, not the already-published
+      binary), **zero false positives**. Highlights: the `/spec/` page's
+      recurring miscount drifted back after two new specs landed
+      (a prior sweep had fixed the same failure mode once already); a
+      README worked example that didn't reproduce when actually run
+      against its own later sample; a prior sweep's `SKILL.md` fix that
+      never reached its website mirror; a false "byte-for-byte identical"
+      `LICENSE.md` claim in two files; `hl7::v3` still called "not yet
+      implemented" in three places despite existing since the first
+      release. Full account moved to
+      [`tasks-archive.md`](tasks-archive.md) 2026-09-03. Verified: full
+      gate set clean (`cargo test --workspace`, `clippy`, `fmt`, MSRV
+      check, `rustdoc` per crate, `check-docs`, `check-trademarks`,
+      the site's `pnpm run check`/`build`).
 
 ## Trademarks
 

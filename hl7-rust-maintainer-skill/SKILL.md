@@ -39,9 +39,12 @@ Cargo.toml          [workspace] members, nothing else — see below
   releases** — see
   [`spec/rust-msrv-n-minus-2/index.md`](../spec/rust-msrv-n-minus-2/index.md).
   Raising it is a breaking change, never a patch.
-- Every crate, and the workspace root, carries the **same license
-  boilerplate byte-for-byte** (`LICENSE.md`), matching its `Cargo.toml`'s
-  `license` field. Don't invent different text for a new crate.
+- Every crate's `LICENSE.md` is **byte-for-byte identical to every other
+  crate's**, matching its `Cargo.toml`'s `license` field. The workspace
+  root's `LICENSE.md` is a longer superset (SPDX block, `LICENSES/`
+  reference, per-file SPDX-marking section, trademark-scope section) —
+  a contributor adding a new crate should copy an existing *crate's*
+  `LICENSE.md`, not the root's.
 
 ## The rule that matters most: spec is source of truth
 
@@ -81,9 +84,13 @@ pnpm run check   # svelte-kit sync && svelte-check
 pnpm run build   # vite build
 ```
 
-All seven checks above (plus the site pair when relevant) are exactly
-what `.github/workflows/ci.yml` runs — passing them locally is passing
-CI, not a proxy for it.
+The seven local checks above (plus the site pair when relevant) map to
+five of `.github/workflows/ci.yml`'s six jobs: `checks` covers fmt,
+clippy, test, and rustdoc in one job; `msrv`, `trademarks`, and `docs`
+each match one local check; `site` matches the site pair. The sixth CI
+job, `sbom`, generates a CycloneDX SBOM with `cargo-cyclonedx` — it isn't
+something a contributor is expected to run before every PR, so there's no
+local step for it above.
 
 ## Conventions a reviewer will otherwise ask about
 
@@ -136,10 +143,14 @@ force-pushes over from here. Nothing on the site is normative — it
 summarizes crate READMEs and specs, so a wording fix there is a docs fix,
 and a behavior fix belongs against the crate instead.
 
-**Publishing the site**:
+**Publishing the site**: the root `Makefile` has two publish targets, both
+`git subtree split`-ing `hl7-rust.github.io/` out and pushing it to the
+`hl7-rust.github.io` repository — plus their `*-remote` helper targets
+that add the needed git remote on a fresh clone.
 
 ```sh
-make publish   # the only thing the root Makefile does
+make publish        # forced push — use for the first publish, or a history rewrite
+make github-pages   # non-forced `git subtree push` — prefer this once history is established
 ```
 
 **Cutting a crates.io release** follows the runbook in

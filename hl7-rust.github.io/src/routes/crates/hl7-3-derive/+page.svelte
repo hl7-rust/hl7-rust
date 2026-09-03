@@ -55,8 +55,8 @@ assert_eq!(observation.raw.attribute("negationInd"), Some("true"));`;
   <CodeSample language="toml" code={cargo} />
   <p>
     Keeping the macro in a crate of its own is what lets the default build of
-    <code>hl7-3</code> keep exactly one dependency: <code>syn</code> and <code>quote</code> are
-    compiled only for callers who ask for it.
+    <code>hl7-3</code> keep exactly one dependency: <code>proc-macro2</code>, <code>quote</code>,
+    and <code>syn</code> are compiled only for callers who ask for it.
   </p>
 
   <h2 id="usage">Usage</h2>

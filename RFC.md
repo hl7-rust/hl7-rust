@@ -29,7 +29,7 @@ you can say is "we send that segment too", that is still an answer.
 - [9. Is the tree worth optimising?](#9-is-the-tree-worth-optimising)
 - [10. What is missing that nobody has mentioned?](#10-what-is-missing-that-nobody-has-mentioned)
 - [11. If HL7® declines naming permission, what should the project be called?](#11-if-hl7-declines-naming-permission-what-should-the-project-be-called)
-- [12. What does a legal review need to know about the dictionary data?](#12-what-does-a-legal-review-need-to-know-about-the-dictionary-data)
+- [12. Is the dictionary data's provenance statement good enough?](#12-is-the-dictionary-datas-provenance-statement-good-enough)
 - [Decided, and not looking for comment](#decided-and-not-looking-for-comment)
 - [How feedback gets handled](#how-feedback-gets-handled)
 

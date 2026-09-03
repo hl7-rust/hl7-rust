@@ -97,7 +97,8 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
 5. **Partly met.** The prose rules are implemented, and since later on
    2026-08-26 `bin/check-trademarks` enforces them in CI over a deliberate,
    documented scope (markdown, crate-root rustdoc, the site's shared
-   footer); the not-yet-covered remainder is recorded in the trademark
+   footer, every publishable crate's `Cargo.toml` `description`); the
+   not-yet-covered remainder is recorded in the trademark
    spec's Assurance section. The beyond-fair-use permission request still
    has no recorded status — tracked under Compliance, and asked as
    `RFC.md` §11.

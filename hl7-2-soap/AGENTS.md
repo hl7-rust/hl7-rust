@@ -37,7 +37,7 @@ behavior.**
 ## Layout
 
 ```
-src/lib.rs         parse(), the Error type, and the crate documentation.
+src/lib.rs         parse() and the crate documentation.
 src/envelope.rs    The SOAP envelope: Header (optional) and the single
                    business payload in Body.
 src/message.rs     What the body carries: v2.xml payloads and ER7 wrapped

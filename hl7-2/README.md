@@ -35,11 +35,11 @@ hl7-2                   this crate: the HL7 v2 dictionary — releases
 **This crate is published standalone as `hl7-2`.** Most users get it
 through the [`hl7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7) umbrella crate instead,
 which re-exports it as `hl7::v2` — each HL7 standard gets a module of its
-own there, leaving room for `hl7::v3` and `hl7::fhir`, because a "message",
-a "segment", and a "code" mean different things in each, and one flat
-namespace would only invite mixing them up. Depend on `hl7-2` directly only
-if you specifically want v2 with no umbrella indirection. The command-line
-tool is `hl7-2` either way.
+own there, alongside `hl7::v3`, leaving room only for `hl7::fhir`, because
+a "message", a "segment", and a "code" mean different things in each, and
+one flat namespace would only invite mixing them up. Depend on `hl7-2`
+directly only if you specifically want v2 with no umbrella indirection.
+The command-line tool is `hl7-v2` either way.
 
 This README is a tour. [`spec/index.md`](spec/index.md) is the normative,
 section-by-section specification of every rule — the single source of truth
@@ -82,6 +82,11 @@ let dictionary = hl7_2::Dictionary::from_json(r#"{
 }"#, "acme")?;
 
 let options = hl7_2::Options::new().with_dictionary(std::sync::Arc::new(dictionary));
+
+// A minimal message of our own, so this example stands on its own
+// rather than depending on samples/vendor.hl7 (see the walkthrough below).
+let text = "MSH|^~\\&|ACME|CLINIC|EHR|HOSP|20260814080000||ADT^A01^ADT_A01|VND0001|P|2.5\r\
+ZAC|7|SMITH^JOHN|20260814\r";
 let message = hl7_2::parse_with_options(text, &options)?;
 
 // The vendor's own segment now reads like any standard one.
@@ -279,7 +284,10 @@ hl7-v2 --set 'PID-8=F' --er7 samples/orm_o01.hl7
 ```
 
 `hl7-v2 --help` lists everything. Exit status is 0 on success, 1 on a usage
-or parse error, and 2 when `--check` or `--strict` found something wrong.
+or parse error — including a `--strict` validation failure, since strict
+mode turns a validation problem into a parse error — and 2 when `--check`
+(without `--strict`) finds a problem while still parsing and rendering
+successfully.
 
 ## Dependencies
 

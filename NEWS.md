@@ -139,8 +139,10 @@ decision in the project, all of which is written down in the specs.
 - **One runtime dependency.** `hl7-2` depends on `er7`, which depends on
   nothing.
 - **No logging, telemetry, network access, or filesystem access** from
-  library code — [`spec/phi/index.md`](spec/phi/index.md) names the greps
-  that confirm it.
+  message-handling library code — [`spec/phi/index.md`](spec/phi/index.md)
+  names the greps that confirm it, and the one named exception: the
+  XSD-to-dictionary generator's library reads the XSD schema files you
+  point it at, because reading them is that crate's entire purpose.
 - **Five licenses at the user's option**, chosen so that a proprietary
   vendor and a public-sector project can both adopt it without asking.
 - **A minimum supported Rust version of current stable minus two**,

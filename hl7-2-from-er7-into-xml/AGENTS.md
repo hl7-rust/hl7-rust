@@ -38,8 +38,10 @@ er7 (dependency)  ER7 parsing, delimiters, escape sequences, batch
                    splitting. Not in this crate — see spec/index.md §2.
 hl7-2 (dependency)  The HL7 v2.5 dictionary: data-type tables, message
                    structures, and the matcher that groups segments (used
-                   with `default-features = false`, dropping MLLP). Not in
-                   this crate — see spec/index.md §2 and §4a.
+                   with `default-features = false`, a no-op here since
+                   `hl7-2` has no default features — MLLP has always lived
+                   in the separate `hl7-2-mllp` crate). Not in this crate —
+                   see spec/index.md §2 and §4a.
 src/lib.rs        Public API: convert(), convert_with_options(),
                    convert_with_dictionary(), Options, Hl7Error,
                    split_messages(), normalize(), root_name.
@@ -63,9 +65,11 @@ contract) is covered in `tests/integration.rs` instead.
 
 - **Rust edition 2024**, two runtime dependencies: the
   [`er7`](https://crates.io/crates/er7) crate for the ER7 encoding layer,
-  and, since 0.5.0, `hl7-2` (with `default-features = false`, dropping
-  MLLP) for the HL7 v2.5 data-type tables and message-structure grammars
-  this crate used to hand-write in `src/types.rs`. Reading those tables
+  and, since 0.5.0, `hl7-2` (with `default-features = false`, which is a
+  no-op — `hl7-2` has no default features, so this drops nothing; MLLP has
+  always lived in the separate `hl7-2-mllp` crate) for the HL7 v2.5
+  data-type tables and message-structure grammars this crate used to
+  hand-write in `src/types.rs`. Reading those tables
   from `hl7-2`'s dictionary is what lets a caller supply
   `--dictionary`/`convert_with_dictionary` with a vendor dialect instead
   of the bundled release — see `spec/index.md` §2 and §4a. Keep the

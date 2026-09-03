@@ -339,10 +339,12 @@ These are intentional scope boundaries, not defects:
   `hl7-2`; not here (§2).
 
 - **Development dependencies are separate.** `criterion` is compiled only
-  for `cargo bench`, and `libfuzzer-sys` only for `cargo +nightly fuzz`
-  in the separate `fuzz/` workspace. Neither is linked into the library
-  or the binary, and neither reaches anyone who depends on this crate,
-  so neither counts against the rule above.
+  for `cargo bench`. This crate has no `fuzz/` directory and no
+  `libfuzzer-sys` dependency — it is not one of the four crates
+  [`spec/rust-fuzz/index.md`](../../spec/rust-fuzz/index.md) lists as
+  fuzzed. `criterion` is not linked into the library or the binary, and
+  does not reach anyone who depends on this crate, so it does not count
+  against the rule above.
 ## 7. References
 
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate

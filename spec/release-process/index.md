@@ -12,7 +12,7 @@ agentic tool may execute `cargo publish` on its own judgment**, adopted
 ## The release runbook
 
 Every release, whoever executes it, follows the same steps. None of this
-is new; it is what the four releases through 2026-08-29 actually did,
+is new; it is what the five releases through 2026-08-29 actually did,
 written down for the first time rather than reconstructed from git history
 each time.
 

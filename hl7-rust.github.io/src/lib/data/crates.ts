@@ -219,7 +219,7 @@ export const CRATES: Crate[] = [
     category: 'tooling',
     version: '0.2.0',
     spec: false,
-    dependencies: ['syn', 'quote'],
+    dependencies: ['proc-macro2', 'quote', 'syn'],
     related: ['hl7-2', 'hl7-3-derive']
   },
   {
@@ -232,7 +232,7 @@ export const CRATES: Crate[] = [
     category: 'tooling',
     version: '0.2.0',
     spec: false,
-    dependencies: ['syn', 'quote'],
+    dependencies: ['proc-macro2', 'quote', 'syn'],
     related: ['hl7-3', 'hl7-2-derive']
   },
   {

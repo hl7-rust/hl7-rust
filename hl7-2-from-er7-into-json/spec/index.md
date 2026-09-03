@@ -146,8 +146,9 @@ crate something it must read as a group, and the segment and every value in
 it would disappear without an error. Stripping the `.` keeps the invariant
 true by construction rather than by hope.
 
-Two lookup tables in `src/types.rs` (byte-for-byte shared with the sibling
-crate) drive typed naming:
+Two lookup tables in `src/types.rs` drive typed naming, matching the same
+tables the sibling crate reads from `hl7_2::Dictionary` (§0) rather than
+hand-carrying:
 
 - `segment_fields(seg)` — the ordered field data types for a known segment
   (MSH, SFT, EVN, PID, PD1, NK1, PV1, PV2, ROL, DG1, PR1, ORC, OBR, OBX,
@@ -300,10 +301,12 @@ Same scope boundaries as the XML sibling, restated for this crate:
   in `er7`, not here (§2).
 
 - **Development dependencies are separate.** `criterion` is compiled only
-  for `cargo bench`, and `libfuzzer-sys` only for `cargo +nightly fuzz`
-  in the separate `fuzz/` workspace. Neither is linked into the library
-  or the binary, and neither reaches anyone who depends on this crate,
-  so neither counts against the rule above.
+  for `cargo bench`. This crate has no `fuzz/` directory and no
+  `libfuzzer-sys` dependency — it is not one of the four crates
+  [`spec/rust-fuzz/index.md`](../../spec/rust-fuzz/index.md) lists as
+  fuzzed. `criterion` is not linked into the library or the binary, and
+  does not reach anyone who depends on this crate, so it does not count
+  against the rule above.
 ## 7. References
 
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate

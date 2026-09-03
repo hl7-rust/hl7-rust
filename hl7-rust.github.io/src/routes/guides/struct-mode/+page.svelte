@@ -106,8 +106,8 @@ assert_eq!(observation.class_code, "OBS");`;
   <p>
     The macros live in <a href="/crates/hl7-2-derive/"><code>hl7-2-derive</code></a>, which you do
     not depend on directly. Keeping them in a crate of their own is what lets the default build of
-    <code>hl7-2</code> hold exactly one dependency: <code>syn</code> and <code>quote</code> are
-    compiled only for callers who ask for the macros.
+    <code>hl7-2</code> hold exactly one dependency: <code>proc-macro2</code>, <code>quote</code>,
+    and <code>syn</code> are compiled only for callers who ask for the macros.
   </p>
 
   <h2 id="reading">Reading: FromHl7</h2>

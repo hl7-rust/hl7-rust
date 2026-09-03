@@ -61,7 +61,8 @@ crate's output, and an element in the XML crate's output all read the same.
 The crate is published standalone as `hl7-2`, and its library is named
 `hl7_2`. Most users instead reach it through the `hl7` umbrella crate,
 whose library re-exports it as `hl7::v2` — one module per HL7 standard,
-leaving `hl7::v3` and `hl7::fhir` free for later. Sources live under `src/`.
+alongside `hl7::v3`, leaving only `hl7::fhir` free for later. Sources live
+under `src/`.
 The command-line tool is `hl7-v2`.
 
 Read one or more HL7 v2 messages in the pipe-delimited **ER7** encoding
@@ -188,7 +189,7 @@ both change what a faithful conversion emits: a **required** field is written
 even when the message leaves it empty, so the position stays visible to a
 validator, and a field that does **not** repeat keeps its repetition
 separator as ordinary text instead of being split into several elements
-(`hl7-2-from-er7-into-xml`, its `spec/index.md` §4).
+(`hl7-2-from-er7-into-xml`, its `spec/index.md` §4a, "Schema mode").
 
 The exact upper bound is not modelled — "at most 10" and "unbounded" both
 read as `"repeats": true`, because nothing downstream distinguishes them.
@@ -555,8 +556,10 @@ validation error; `-o, --output FILE` writes to a file.
 Successive trees are separated by a blank line; the value and ER7 outputs
 are not, so they can be piped into another tool.
 
-Exit status: 0 on success, 1 on a usage or parse error, 2 when `--check` or
-`--strict` found something wrong with the message.
+Exit status: 0 on success, 1 on a usage or parse error — including a
+`--strict` validation failure, since strict mode turns a validation problem
+into a parse error — and 2 when `--check` (without `--strict`) finds a
+problem while still parsing and rendering successfully.
 
 ## 13. Traceability
 
