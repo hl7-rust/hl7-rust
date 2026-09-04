@@ -1,14 +1,14 @@
-# HL7®
+# HL7® implementation using Rust
+
+A Cargo workspace: parse, navigate, validate, modify, and render Health
+Level Seven (HL7) messages in Rust. One crate per layer, one module per
+standard.
 
 > HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.
 >
-> This project uses the HL7® name in its package names, its organization
-> name, and its domain, which is beyond fair use; we are requesting
-> permission from HL7® for that.
+> This project uses the HL7® name in its package names, its organization name, and its domain, which is beyond fair use; we are requesting permission from HL7® for ways forward. The written-permission request was sent on 2026-08-25; the reply is pending.
 
-Health Level Seven (HL7) for Rust, organized by standard: one module per
-release family, so a "message", a "segment", or a "code" in one standard is
-never confused with the same word in another.
+This is organized by standard: one module per release family, so a "message", a "segment", or a "code" in one standard is never confused with the same word in another.
 
 ```
 hl7                      this crate: re-exports one module per standard
