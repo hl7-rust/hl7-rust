@@ -307,6 +307,7 @@ Same scope boundaries as the XML sibling, restated for this crate:
   fuzzed. `criterion` is not linked into the library or the binary, and
   does not reach anyone who depends on this crate, so it does not count
   against the rule above.
+
 ## 7. References
 
 - [`er7`](https://crates.io/crates/er7) — the ER7 encoding layer this crate
