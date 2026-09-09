@@ -244,7 +244,7 @@ dependencies = [
 
 [[package]]
 name = "hl7"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "hl7-2",
  "hl7-3",
