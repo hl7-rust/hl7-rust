@@ -63,21 +63,33 @@ change that completes them, with the evidence named.
 
 ## Release (the runbook in `spec/release-process/index.md`)
 
-- [ ] Step 1–2: first release, 0.1.0 for all three; no existing
-      inter-crate requirement changes (`hl7-2` 0.3.0 and `hl7-3` 0.2.0 are
-      already on crates.io). `cargo check --workspace` clean.
-- [ ] Step 3: `CHANGELOG.md` entry exists (above).
-- [ ] Step 4: the seven local gates pass; the commit is pushed to all
-      three remotes and CI is green on it.
-- [ ] Step 5: `cargo publish` in dependency order — `serde-hl7-v2`,
-      `serde-hl7-v3`, then `serde-hl7`.
-- [ ] Step 6: `cargo package` for each confirms a literal
-      `rust-version = "1.96"` in the published manifest.
-- [ ] Step 7: annotated, SSH-signed tags `serde-hl7-v2-v0.1.0`,
-      `serde-hl7-v3-v0.1.0`, `serde-hl7-v0.1.0`, pushed to all three
-      remotes.
-- [ ] Step 8: recorded here and in `CHANGELOG.md`'s "Released" line, and
-      in root `tasks.md`.
+- [x] Step 1–2: first release, 0.1.0 for all three; no existing
+      inter-crate requirement changes (`hl7-2` 0.3.0 and `hl7-3` 0.2.0 were
+      already on crates.io). `cargo +1.96 check --workspace --all-targets`
+      clean — done 2026-09-10.
+- [x] Step 3: `CHANGELOG.md` entry "2026-09-10, sixth release" written
+      before publishing, in commit `5e17a4e`.
+- [x] Step 4: `cargo test`, `clippy --all-targets -D warnings`, `fmt
+      --check`, `rustdoc -W missing-docs` per new crate, the MSRV check,
+      `bin/check-trademarks`, `bin/check-docs`, and the site's `pnpm run
+      check`/`build` all clean; commit `5e17a4e` pushed to GitHub and
+      Codeberg; GitHub Actions run 34452665459 (`ci`) and 34452665554
+      (`security`) green. **GitLab rejected the push as non-fast-forward:**
+      its `main` holds `9d4d98d`, an earlier version of local `8c622b2`
+      with a different tree (`hl7/Cargo.toml`, `hl7/README.md`), a
+      divergence that predates this work; resolving it needs a force push
+      the maintainer has to choose.
+- [x] Step 5: `cargo publish` in dependency order — `serde-hl7-v2` 0.1.0,
+      `serde-hl7-v3` 0.1.0, then `serde-hl7` 0.1.0 — all three reported
+      "Published … at registry `crates-io`" on 2026-09-10.
+- [x] Step 6: `cargo package` for each confirms a literal
+      `rust-version = "1.96"`, the path dependencies stripped to versions,
+      and the umbrella's `default = ["v2", "v3"]` in the published manifest.
+- [x] Step 7: annotated, SSH-signed tags `serde-hl7-v2-v0.1.0`,
+      `serde-hl7-v3-v0.1.0`, `serde-hl7-v0.1.0` on `5e17a4e`, verified with
+      `git tag -v`, pushed to all three remotes.
+- [x] Step 8: recorded here, in `CHANGELOG.md`'s "Released" line, and in
+      root `tasks.md`.
 
 ## Later
 

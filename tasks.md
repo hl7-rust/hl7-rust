@@ -575,10 +575,17 @@ Per `spec/free-open-source-funding/index.md`.
       in v3, the umbrella's doctest; clippy pedantic, fmt, rustdoc,
       `check-trademarks`, `check-docs` all clean. Checklist in
       [`serde-hl7/tasks.md`](serde-hl7/tasks.md).
-- [ ] **First release of the three** — the maintainer's call
-      (`spec/release-process/index.md`), made explicitly 2026-09-10;
-      runbook steps tracked in [`serde-hl7/tasks.md`](serde-hl7/tasks.md)
-      and recorded here when complete.
+- [x] **First release of the three** — the maintainer's call
+      (`spec/release-process/index.md`), made explicitly 2026-09-10, and
+      done the same day: `serde-hl7-v2` 0.1.0, `serde-hl7-v3` 0.1.0,
+      `serde-hl7` 0.1.0 published in that order from commit `5e17a4e`
+      (CI run 34452665459 green), packaged manifests checked for a literal
+      `rust-version = "1.96"`, three signed `<crate>-v0.1.0` tags pushed.
+      Runbook steps with evidence in
+      [`serde-hl7/tasks.md`](serde-hl7/tasks.md). One loose end, not
+      caused by this release: the GitLab mirror's `main` had diverged
+      earlier (an amended commit) and rejected the push; tags landed
+      there, the branch did not.
 
 ## Trademarks
 
