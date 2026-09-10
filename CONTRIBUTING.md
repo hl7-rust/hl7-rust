@@ -103,7 +103,7 @@ And the conventions that a reviewer will otherwise ask about:
   inheritance beyond `rust-version`**, without discussion — either would
   touch every member's manifest at once. `rust-version` is the one
   deliberate exception: it's pinned once and inherited by every member as
-  `rust-version.workspace = true`, because fourteen crates that must
+  `rust-version.workspace = true`, because seventeen crates that must
   always agree on one MSRV is the case that inheritance exists for.
 - **The license boilerplate is byte-for-byte identical** in every crate.
   Don't invent different text for a new one.

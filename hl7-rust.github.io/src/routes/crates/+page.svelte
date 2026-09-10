@@ -8,12 +8,13 @@
     { id: 'core', label: 'Core' },
     { id: 'transport', label: 'Transports' },
     { id: 'conversion', label: 'Format conversions' },
+    { id: 'serde', label: 'Serde support' },
     { id: 'tooling', label: 'Tooling and helpers' },
     { id: 'er7', label: 'And one crate outside the workspace' },
     { id: 'all', label: 'All of them, at a glance' }
   ];
 
-  const order: CrateCategory[] = ['core', 'transport', 'conversion', 'tooling'];
+  const order: CrateCategory[] = ['core', 'transport', 'conversion', 'serde', 'tooling'];
 
   const er7 = `use er7::Message;
 

@@ -236,7 +236,7 @@ request's status — sent, answered — is written down nowhere, which is
 itself the first thing to fix.
 
 **Why it is open.** If HL7® grants permission, nothing moves. If it
-declines, fourteen published crate names, a GitHub organization, and a
+declines, seventeen published crate names, a GitHub organization, and a
 Pages domain all reopen at once — and renaming published crates is the
 kind of change that strands existing users, so the fallback should be
 chosen before it is needed, not during a takedown letter.

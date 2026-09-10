@@ -97,7 +97,7 @@ description: Explain Health Level Seven (HL7®) concepts, terminology,
     The root <a href="/">README</a> and this site already describe every
     crate at length; the skill exists so an agent that only needs the
     *vocabulary* — what a component is, what the HL7 null means — gets a
-    short, self-contained answer instead of a tour of fourteen crates. It
+    short, self-contained answer instead of a tour of seventeen crates. It
     is deliberately general: the concepts hold for any HL7 v2 system, and
     this workspace supplies the worked examples.
   </p>

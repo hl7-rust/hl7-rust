@@ -132,8 +132,11 @@ executing under the scope above did — never runs unless all of these hold:
 Never delegated, regardless of session or judgment:
 
 - **The first release of a brand-new crate.** Every release this policy
-  covers is to a crate already on crates.io; adding a fifteenth crate is
-  itself outside `plan.md`'s current non-goals in the first place.
+  covers is to a crate already on crates.io; adding a crate is itself
+  outside `plan.md`'s current non-goals in the first place, and the one
+  time it happened — the three `serde-hl7` crates, 2026-09-10 — the
+  maintainer directed it explicitly, in session, which is exactly the
+  path this bullet reserves.
 - **A raised MSRV floor.** Already stated as "a deliberate, spec-driven
   change, never an automated PR" in
   [`spec/rust-msrv-n-minus-2/index.md`](../rust-msrv-n-minus-2/index.md);

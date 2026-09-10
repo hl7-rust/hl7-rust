@@ -48,7 +48,7 @@ export const SECTIONS: NavSection[] = [
       {
         href: '/docs/architecture/',
         label: 'Architecture',
-        blurb: 'How fourteen crates fit together, and why the seams fall where they do.'
+        blurb: 'How seventeen crates fit together, and why the seams fall where they do.'
       },
       {
         href: '/docs/cli/',
@@ -185,7 +185,7 @@ export const SECTIONS: NavSection[] = [
   {
     title: 'Crates',
     href: '/crates/',
-    blurb: 'A reference page for each of the fourteen workspace members.',
+    blurb: 'A reference page for each of the seventeen workspace members.',
     links: CRATES.map((crate) => ({
       href: `/crates/${crate.slug}/`,
       label: crate.name,

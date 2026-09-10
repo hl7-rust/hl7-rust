@@ -11,7 +11,7 @@ repository secrets indefinitely.
 
 This project's current publishing credential is exactly the long-lived
 kind Trusted Publishing exists to retire: a crates.io API token, held on
-the maintainer's own machine, valid for all fourteen crates until revoked
+the maintainer's own machine, valid for all seventeen crates until revoked
 — see [`MAINTAINERS.md`](../../MAINTAINERS.md)'s publishing-identities
 table. Adopting Trusted Publishing means that token goes away in favor of
 a workflow that proves its identity per run.

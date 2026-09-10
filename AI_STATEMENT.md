@@ -100,7 +100,7 @@ bumps, out of scope for this document and disclosed instead where
 
 The tooling is agentic AI coding assistance — Claude Code, by Anthropic,
 in sessions the maintainer directs and reviews. The repository carries
-`AGENTS.md` at the workspace root and in every one of the fourteen crates,
+`AGENTS.md` at the workspace root and in every one of the seventeen crates,
 each with a `CLAUDE.md` beside it pointing at it: those files are the
 standing instructions given to the tools, they are committed, and they are
 readable by anyone evaluating this claim.
@@ -171,7 +171,7 @@ cargo +1.96 check --workspace --all-targets   # the MSRV floor
   untrusted structured input — `hl7-2-xml-lite-helper`,
   `hl7-2-from-xml-into-er7`, `hl7-2-from-json-into-er7`, and — since
   2026-09-01 — `hl7-2` itself, for its JSON dictionary reader. Four of
-  fourteen is not coverage; it is the surfaces where malformed input is the
+  seventeen is not coverage; it is the surfaces where malformed input is the
   realistic threat, and the rest is an open gap rather than a decision.
 - **Benchmarks with a published method**
   ([`spec/benchmark/index.md`](spec/benchmark/index.md)), so a performance

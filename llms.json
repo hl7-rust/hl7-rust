@@ -1,7 +1,7 @@
 {
   "name": "HL7 Rust",
   "trademark_notice": "HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7. This project is an independent work, not affiliated with or endorsed by Health Level Seven International.",
-  "summary": "Parse, navigate, validate, modify, and render Health Level Seven (HL7) messages in Rust. A Cargo workspace of fourteen small, mostly dependency-free crates: HL7 v2 (releases 2.1-2.9) with three parsing modes and a command-line tool, a foundation for HL7 v3, format conversion between ER7 (pipe-delimited), the official v2.xml, and JSON, transports (MLLP, SOAP), and tooling to build a vendor dictionary from a site's own XSDs.",
+  "summary": "Parse, navigate, validate, modify, and render Health Level Seven (HL7) messages in Rust. A Cargo workspace of seventeen small, mostly dependency-free crates: HL7 v2 (releases 2.1-2.9) with three parsing modes and a command-line tool, a foundation for HL7 v3, format conversion between ER7 (pipe-delimited), the official v2.xml, and JSON, transports (MLLP, SOAP), and tooling to build a vendor dictionary from a site's own XSDs.",
   "sections": [
     {
       "title": "Start here",
@@ -29,7 +29,10 @@
         { "title": "hl7-2-from-er7-into-xml", "url": "hl7-2-from-er7-into-xml", "description": "ER7 -> official v2.xml XML" },
         { "title": "hl7-2-from-xml-into-er7", "url": "hl7-2-from-xml-into-er7", "description": "v2.xml XML -> ER7" },
         { "title": "hl7-2-from-xsd-into-json-dictionary", "url": "hl7-2-from-xsd-into-json-dictionary", "description": "HL7 v2.xml XSDs -> the JSON dictionary hl7-2 reads" },
-        { "title": "hl7-2-xml-lite-helper", "url": "hl7-2-xml-lite-helper", "description": "Minimal XML reader shared by hl7-2-soap, hl7-2-from-xml-into-er7, hl7-2-from-xsd-into-json-dictionary, hl7-3, and hl7-3-soap" }
+        { "title": "hl7-2-xml-lite-helper", "url": "hl7-2-xml-lite-helper", "description": "Minimal XML reader shared by hl7-2-soap, hl7-2-from-xml-into-er7, hl7-2-from-xsd-into-json-dictionary, hl7-3, and hl7-3-soap" },
+        { "title": "serde-hl7", "url": "serde-hl7", "description": "Serde umbrella - serde_hl7::v2 and serde_hl7::v3, each behind a feature of the same name, both on by default" },
+        { "title": "serde-hl7-v2", "url": "serde-hl7-v2", "description": "Serde for hl7-2 - the message as ER7 text plus release, the dictionary-named tree, validation findings; Strict<T> for fixtures" },
+        { "title": "serde-hl7-v3", "url": "serde-hl7-v3", "description": "Serde for hl7-3 - the envelope, the six RIM classes, the data types, and the XML element tree; Strict<T> nests to any depth" }
       ]
     },
     {

@@ -9,7 +9,7 @@
  * shown as "latest known", never as a version constraint to copy.
  */
 
-export type CrateCategory = 'core' | 'transport' | 'conversion' | 'tooling';
+export type CrateCategory = 'core' | 'transport' | 'conversion' | 'serde' | 'tooling';
 
 export interface Crate {
   /** Cargo package name, which is also the directory name in the workspace. */
@@ -48,6 +48,10 @@ export const CATEGORIES: Record<CrateCategory, { label: string; blurb: string }>
   conversion: {
     label: 'Format conversions',
     blurb: 'ER7 in both directions against both target formats.'
+  },
+  serde: {
+    label: 'Serde support',
+    blurb: 'Serialize and deserialize the v2 and v3 values with Serde — JSON, YAML, or any other format the caller picks.'
   },
   tooling: {
     label: 'Tooling and helpers',
@@ -261,6 +265,49 @@ export const CRATES: Crate[] = [
     spec: true,
     dependencies: [],
     related: ['hl7-2-soap', 'hl7-3-soap', 'hl7-2-from-xml-into-er7', 'hl7-2-from-xsd-into-json-dictionary']
+  },
+  {
+    name: 'serde-hl7',
+    ident: 'serde_hl7',
+    slug: 'serde-hl7',
+    tagline: 'Serde support for HL7, one module per standard',
+    summary:
+      'The shape of the `hl7` umbrella, one layer up: `serde_hl7::v2` is the `serde-hl7-v2` crate and `serde_hl7::v3` is `serde-hl7-v3`, each behind a Cargo feature of the same name, both on by default. Nothing lives at the root, for the same reason nothing lives at the root of `hl7`.',
+    category: 'serde',
+    version: '0.1.0',
+    spec: false,
+    features: [
+      { name: 'v2', default: true, effect: 'Exposes `serde_hl7::v2`; pulls in `serde-hl7-v2`.' },
+      { name: 'v3', default: true, effect: 'Exposes `serde_hl7::v3`; pulls in `serde-hl7-v3`.' }
+    ],
+    dependencies: ['serde-hl7-v2 (feature `v2`)', 'serde-hl7-v3 (feature `v3`)'],
+    related: ['serde-hl7-v2', 'serde-hl7-v3', 'hl7']
+  },
+  {
+    name: 'serde-hl7-v2',
+    ident: 'serde_hl7_v2',
+    slug: 'serde-hl7-v2',
+    tagline: 'Serde for hl7-2: the message, its tree, and its findings',
+    summary:
+      'A hand-written Serde wrapper per `hl7-2` type. The message travels as its ER7 text plus the release it was read as, and is parsed again on the way back so the dictionary is resolved, never shipped; the dictionary-named tree serializes as one object per node; validation findings round-trip. Two dependencies, `serde` and `hl7-2`, and an opt-in `Strict<T>` that turns a typo in a fixture into an error.',
+    category: 'serde',
+    version: '0.1.0',
+    spec: true,
+    dependencies: ['serde', 'hl7-2'],
+    related: ['serde-hl7', 'hl7-2', 'hl7-2-from-er7-into-json']
+  },
+  {
+    name: 'serde-hl7-v3',
+    ident: 'serde_hl7_v3',
+    slug: 'serde-hl7-v3',
+    tagline: 'Serde for hl7-3: the envelope, the RIM, the data types, the elements',
+    summary:
+      'A Serde wrapper for every public `hl7-3` type — the three-level envelope, the six RIM backbone classes, the data types, and the raw XML element tree beneath them — with keys that are HL7 v3\'s own attribute and element names. Every value round-trips to an equal value; `Strict<T>` catches an unknown key at any depth. Two dependencies, `serde` and `hl7-3`.',
+    category: 'serde',
+    version: '0.1.0',
+    spec: true,
+    dependencies: ['serde', 'hl7-3'],
+    related: ['serde-hl7', 'hl7-3', 'hl7-2-xml-lite-helper']
   }
 ];
 

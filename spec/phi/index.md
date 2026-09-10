@@ -61,7 +61,7 @@ Verifiable by reading the manifests and grepping the sources:
 | No sockets opened | No library source opens a socket; the MLLP crate is generic over a byte stream you supply. `std::net` does appear once, in `hl7-2-mllp/src/lib.rs`, but only inside a rustdoc usage example (`//! use std::net::TcpListener;`) — not runtime library code, and worth knowing about before you go looking, since it is the one `std::net` hit a source grep turns up |
 | No subprocesses | `std::process` appears in no library source |
 | No global or ambient state | Nothing is cached across calls except the lazily parsed bundled dictionaries, which contain no message data |
-| No serialization framework | No `serde`; the JSON reader is hand-written and reads only dictionaries |
+| No serialization framework | No `serde` in any of the fourteen parsing, transport, conversion, and helper crates; the JSON reader is hand-written and reads only dictionaries. The one exception is opt-in and separate: the three `serde-hl7` bridge crates (`serde-hl7`, `serde-hl7-v2`, `serde-hl7-v3`) depend on `serde` and nothing else beyond the crate each wraps, so a caller who never adds them never carries it |
 
 The whole runtime dependency surface of the workspace is `er7`, plus
 `chrono` in `hl7-2-mllp` — optional, off by default, and used only to stamp

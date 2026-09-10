@@ -1,7 +1,7 @@
 # Plan — `hl7` Rust workspace
 
 Goal: a production-grade, spec-driven Rust workspace for the HL7® v2 and v3
-standards — 14 published crates covering messages, derives, MLLP, SOAP, and
+standards — 17 published crates covering messages, derives, MLLP, SOAP, Serde, and
 the ER7/XML/JSON conversions — professionalized for its real audience:
 healthcare professionals and the engineers who serve them, worldwide, in
 settings where a wrong claim has clinical cost.
@@ -17,9 +17,9 @@ intended.
 
 ## Where the workspace stands (verified 2026-09-03)
 
-All 14 crates are published to crates.io (latest release recorded in
-`CHANGELOG.md`, 2026-08-29 — the fifth release, an MSRV bump). 363 `#[test]` functions, fuzz
-targets in 4 of 14 crates (`hl7-2`'s own dictionary reader joined the other
+All 17 crates are published to crates.io (latest release recorded in
+`CHANGELOG.md`, 2026-09-10 — the sixth release, the three `serde-hl7` crates' first). 363 `#[test]` functions, fuzz
+targets in 4 of 17 crates (`hl7-2`'s own dictionary reader joined the other
 three 2026-09-01), Criterion benches in 6. The root document set is nearly
 complete: GOVERNANCE, SECURITY, LICENSE, CONTRIBUTING, MAINTAINERS,
 AI_STATEMENT, RFC, CODEOWNERS, CITATION.cff, NEWS, COMPARISONS, BENCHMARKS,
@@ -168,7 +168,10 @@ posture. Open items for each are in `tasks.md`.
 
 - No interface-engine ambitions (routing, transformation pipelines, UIs).
 - No new crates until the professionalization workstreams are closed; the
-  workspace grows trust before it grows surface.
+  workspace grows trust before it grows surface. Overridden once, by the
+  maintainer's explicit direction on 2026-09-10, for the three `serde-hl7`
+  crates — see [`serde-hl7/plan.md`](serde-hl7/plan.md) for the evaluation
+  and the decision. The rule stands for anything else.
 
 ## Risks & watch items
 

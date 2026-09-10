@@ -1,0 +1,33 @@
+[package]
+name = "serde-hl7"
+version = "0.1.0"
+authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
+edition = "2024"
+rust-version.workspace = true
+description = "Serde support for Health Level Seven (HL7®) messages in Rust: serialize and deserialize HL7 v2 and HL7 v3 values with Serde, so they can flow through JSON, YAML, or any other Serde data format. `serde_hl7::v2` is the `serde-hl7-v2` crate and `serde_hl7::v3` is `serde-hl7-v3`, each behind a feature of the same name. HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7. This project is an independent work."
+license = "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only"
+repository = "https://github.com/hl7-rust/hl7-rust"
+keywords = ["hl7", "serde", "healthcare", "serialization", "v2"]
+categories = ["encoding", "parser-implementations"]
+
+[dependencies]
+# Serde support for HL7 v2, re-exported as `serde_hl7::v2` behind the `v2`
+# feature. Depend on `serde-hl7-v2` directly instead if you specifically
+# want v2 with no umbrella indirection.
+serde-hl7-v2 = { version = "0.1.0", path = "../serde-hl7-v2", optional = true }
+# Serde support for HL7 v3, re-exported as `serde_hl7::v3`, same reasoning.
+serde-hl7-v3 = { version = "0.1.0", path = "../serde-hl7-v3", optional = true }
+
+[features]
+# Both standards on by default, mirroring the `hl7` umbrella crate, which
+# always carries both `hl7::v2` and `hl7::v3`. Turn one off with
+# `default-features = false, features = ["v2"]` to skip the other's
+# dependency tree entirely.
+default = ["v2", "v3"]
+v2 = ["dep:serde-hl7-v2"]
+v3 = ["dep:serde-hl7-v3"]
+
+# For the crate-level doctest only; JSON is the easiest format to read on
+# a page, never a runtime dependency.
+[dev-dependencies]
+serde_json = "1"

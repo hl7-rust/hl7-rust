@@ -37,8 +37,8 @@
 # Disk, not time, is the constraint these three build jobs manage. A local
 # `target/` from ordinary development on this workspace already runs to
 # 9 GB (`du -sh target/`, checked 2026-08-28) — a workspace `target/` is one
-# shared directory across all fourteen members, not one per crate, so
-# `cargo test`, `cargo clippy --all-targets`, and fourteen sequential
+# shared directory across all seventeen members, not one per crate, so
+# `cargo test`, `cargo clippy --all-targets`, and seventeen sequential
 # `cargo rustdoc` passes all accumulate into the same place with nothing to
 # release it between them. A GitHub-hosted runner's free space is a few
 # times that, and it starts already spent on toolchains this workspace
@@ -91,11 +91,14 @@ jobs:
             hl7-2-from-json-into-er7 \
             hl7-2-from-xml-into-er7 \
             hl7-2-from-xsd-into-json-dictionary \
-            hl7-2-xml-lite-helper
+            hl7-2-xml-lite-helper \
+            serde-hl7 \
+            serde-hl7-v2 \
+            serde-hl7-v3
           do
             cargo rustdoc -p "$crate" --lib -- -W missing-docs
             # A workspace has one shared target/, so each iteration's build
-            # output would otherwise sit next to the other thirteen's for
+            # output would otherwise sit next to the other sixteen's for
             # the rest of the job. Free this crate's before moving on.
             cargo clean -p "$crate"
           done

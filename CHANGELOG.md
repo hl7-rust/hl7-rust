@@ -4,7 +4,7 @@ Notable changes to this workspace, newest first.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 loosely, with one deliberate departure: **this workspace has no single
-version number.** Fourteen crates version independently on crates.io, so
+version number.** Seventeen crates version independently on crates.io, so
 each entry below is dated and lists the crate versions that carried it.
 `cargo` resolves per crate; a date here is what a person needs to line up
 "the release where X changed" with what is in their `Cargo.lock`.
@@ -17,6 +17,44 @@ and never lands in a patch
 The full release runbook — the inter-crate version-requirement check, the
 tag-and-sign step, and who may decide a release is warranted — is
 [`spec/release-process/index.md`](spec/release-process/index.md).
+
+## 2026-09-10, sixth release
+
+Three new crates, each at its first version. Nothing already published
+changes: `hl7-2` 0.3.0 and `hl7-3` 0.2.0 are the versions the new crates
+depend on, and no other crate's manifest was touched.
+
+### Added
+
+- **`serde-hl7-v2`**: Serde support for `hl7-2`. A same-named wrapper per
+  public type — `Message` (serialized as `{"version", "er7"}`: the release
+  it was read as plus its ER7 text, re-parsed through `hl7-2` on the way
+  back so the dictionary is resolved, never shipped), `Node` (the
+  dictionary-named tree, six keys per node, `Serialize` only),
+  `Diagnostic`, `Version`, `NodeKind`, `Severity`, `DiagnosticKind` —
+  plus `Strict<T>` for fixture typos and `Message::seed(&options)` for
+  schema mode. Two runtime dependencies, `serde` and `hl7-2`; every impl
+  hand-written; `spec/` with fifteen S-numbered rules checked by
+  `cargo test` against its own coverage table.
+- **`serde-hl7-v3`**: Serde support for `hl7-3`. Wrappers for `Message`,
+  `ControlAct`, `Element`, `Ii`, `Cd`, `Ivl`, `Pq`, `Ed`, `NullFlavor`, and
+  the six RIM classes; keys are the lowerCamelCase field names, which are
+  HL7® v3's own XML names wherever a field has one; `Strict<T>` nests to
+  any depth. The fourteen object types are written by one `macro_rules!`
+  so their shapes and strictness cannot drift. Two runtime dependencies,
+  `serde` and `hl7-3`.
+- **`serde-hl7`**: the umbrella. `serde_hl7::v2` and `serde_hl7::v3`, each
+  behind a feature of the same name, both on by default — the shape of
+  the `hl7` crate, one layer up.
+- **Why these exist** — evaluated first, then built at the maintainer's
+  direction: [`serde-hl7/plan.md`](serde-hl7/plan.md). The workspace's
+  "no serialization framework" property (`spec/phi/index.md`) is
+  unchanged for the fourteen existing crates; these three are the opt-in
+  bridge, the same pattern `serde-er7` uses over `er7`.
+
+### Released
+
+`serde-hl7` 0.1.0 · `serde-hl7-v2` 0.1.0 · `serde-hl7-v3` 0.1.0
 
 ## 2026-08-29, fifth release
 

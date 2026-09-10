@@ -42,6 +42,13 @@ hl7-2                                 the HL7 v2 dictionary: releases
 
 hl7                                     the umbrella crate — hl7::v2 and
                                        hl7::v3 today, room for hl7::fhir
+
+serde-hl7                               Serde support, one module per
+  |                                     standard, mirroring hl7
+  +-- serde-hl7-v2                      Serde for hl7-2's message, tree,
+  |                                     findings, and release
+  +-- serde-hl7-v3                      Serde for hl7-3's envelope, RIM
+                                        classes, data types, and elements
 ```
 
 `er7` is [its own crate](https://crates.io/crates/er7), outside this
@@ -65,6 +72,9 @@ workspace. Everything else above is a member here.
 | [`hl7-2-from-xml-into-er7`](hl7-2-from-xml-into-er7)                         | v2.xml XML → ER7                                                                                                       |
 | [`hl7-2-from-xsd-into-json-dictionary`](hl7-2-from-xsd-into-json-dictionary) | HL7 v2.xml XSDs → the JSON dictionary `hl7-2` reads                                                                    |
 | [`hl7-2-xml-lite-helper`](hl7-2-xml-lite-helper)                             | Minimal XML reader shared by the v2.xml crates and `hl7-3`                                                             |
+| [`serde-hl7`](serde-hl7)                                                     | Serde umbrella. `serde_hl7::v2` and `serde_hl7::v3`, each behind a feature of the same name, both on by default.       |
+| [`serde-hl7-v2`](serde-hl7-v2)                                               | Serde for `hl7-2`: the message (as ER7 text plus release), the dictionary-named tree, validation findings.             |
+| [`serde-hl7-v3`](serde-hl7-v3)                                               | Serde for `hl7-3`: the envelope, the six RIM classes, the data types, and the XML element tree.                        |
 
 Each crate has its own `README.md` (user-facing tour) and, where behavior
 is normative, a `spec/index.md` (single source of truth for that crate).

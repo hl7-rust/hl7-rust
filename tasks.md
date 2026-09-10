@@ -560,6 +560,26 @@ Per `spec/free-open-source-funding/index.md`.
       check, `rustdoc` per crate, `check-docs`, `check-trademarks`,
       the site's `pnpm run check`/`build`).
 
+### Serde support
+
+- [x] **Evaluate extracting code into a `serde-hl7` crate** — done
+      2026-09-10. Finding: nothing to extract; no crate used Serde, and the
+      code a reader might call serialization (struct mode, the converters)
+      is not Serde. Recorded in [`serde-hl7/plan.md`](serde-hl7/plan.md).
+- [x] **Build `serde-hl7`, `serde-hl7-v2`, `serde-hl7-v3`** — done
+      2026-09-10 at the maintainer's direction, overriding the "no new
+      crates" non-goal for these three. Each sub-crate mirrors `serde-er7`:
+      an eleven-section `spec/` whose rule index and §7.1 coverage table
+      are checked by `cargo test`, hand-written impls, two runtime
+      dependencies, `Strict<T>`, examples. 41+12+10 tests in v2, 32+9+17
+      in v3, the umbrella's doctest; clippy pedantic, fmt, rustdoc,
+      `check-trademarks`, `check-docs` all clean. Checklist in
+      [`serde-hl7/tasks.md`](serde-hl7/tasks.md).
+- [ ] **First release of the three** — the maintainer's call
+      (`spec/release-process/index.md`), made explicitly 2026-09-10;
+      runbook steps tracked in [`serde-hl7/tasks.md`](serde-hl7/tasks.md)
+      and recorded here when complete.
+
 ## Trademarks
 
 HL7®, and FHIR® are the registered trademarks of Health Level Seven

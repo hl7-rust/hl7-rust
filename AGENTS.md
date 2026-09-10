@@ -63,7 +63,7 @@ workspace root, each self-contained in its own `SKILL.md`:
   root `Cargo.toml`'s `[workspace.package]` and inherited by every member
   as `rust-version.workspace = true` — see
   [`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md),
-  which also has the mechanical reason: fourteen crates that must always
+  which also has the mechanical reason: seventeen crates that must always
   agree on one value are the case `[workspace.package]` inheritance exists
   for. Check a change against it with
   `cargo +1.96 check --workspace --all-targets`; raising the floor is a

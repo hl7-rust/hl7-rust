@@ -34,7 +34,7 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
     there is no functional difference.
   </p>
 
-  <h3>Do I have to take all fourteen crates?</h3>
+  <h3>Do I have to take all seventeen crates?</h3>
   <p>
     No. Each is a layer you can stop at. Most integrations use one or two:
     <code>hl7</code> plus a transport, or just one conversion binary and no Rust at all. See

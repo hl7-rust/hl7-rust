@@ -244,7 +244,7 @@ dependencies = [
 
 [[package]]
 name = "hl7"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "hl7-2",
  "hl7-3",
@@ -533,6 +533,33 @@ checksum = "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba"
 dependencies = [
  "serde_core",
  "serde_derive",
+]
+
+[[package]]
+name = "serde-hl7"
+version = "0.1.0"
+dependencies = [
+ "serde-hl7-v2",
+ "serde-hl7-v3",
+ "serde_json",
+]
+
+[[package]]
+name = "serde-hl7-v2"
+version = "0.1.0"
+dependencies = [
+ "hl7-2",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "serde-hl7-v3"
+version = "0.1.0"
+dependencies = [
+ "hl7-3",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

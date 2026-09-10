@@ -122,7 +122,7 @@ here, and so the boundary is honest rather than convenient:
 Each one is checkable in a few minutes, which is the point:
 
 - **No `unsafe` code, enforced by the compiler.** Every crate root —
-  fourteen libraries and six binaries — carries
+  seventeen libraries and six binaries — carries
   `#![forbid(unsafe_code)]`. `forbid` outranks any `allow` further down, so
   a crate here cannot regain the ability to write `unsafe` without someone
   deleting that line in a diff you can see.
@@ -147,7 +147,7 @@ Each one is checkable in a few minutes, which is the point:
 
 A security policy that lists no gaps is a security policy nobody checked.
 
-- **Fuzzing covers 4 of 14 crates.** The ER7 parsing surface in `er7`
+- **Fuzzing covers 4 of 17 crates.** The ER7 parsing surface in `er7`
   itself — a dependency, not a crate this repository publishes — is not
   fuzzed here.
 - **CI is new, and narrow.** Since 2026-08-26,

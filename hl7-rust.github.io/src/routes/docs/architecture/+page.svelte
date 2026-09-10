@@ -54,7 +54,7 @@ pub use hl7_3 as v3;`;
 </script>
 
 <DocPage
-  lede="Fourteen crates in one Cargo workspace, plus er7 outside it. This page is the reasoning: what each seam is for, and why you can stop at any of them."
+  lede="Seventeen crates in one Cargo workspace, plus er7 outside it. This page is the reasoning: what each seam is for, and why you can stop at any of them."
   {contents}
 >
   <h2 id="map">The map</h2>
@@ -68,7 +68,7 @@ pub use hl7_3 as v3;`;
   <h2 id="layers">One crate per layer</h2>
   <p>
     Read the map top to bottom and each line is a layer that can be taken on its own. That is the
-    organising principle, and it is worth spelling out because it is what makes fourteen crates
+    organising principle, and it is worth spelling out because it is what makes seventeen crates
     less alarming than it sounds.
   </p>
   <dl>
@@ -196,7 +196,7 @@ pub use hl7_3 as v3;`;
     adding one would touch every member's manifest at once. The one deliberate exception is
     <code>[workspace.package] rust-version</code>, inherited by every member as
     <code>rust-version.workspace = true</code>, because that single value has to move in lockstep
-    across all fourteen crates — see
+    across all seventeen crates — see
     <a href="/docs/versions/#msrv">Versions and compatibility</a>.
   </p>
   <p>

@@ -43,7 +43,7 @@ down is an inventory nobody can hand over.
 | Identity | What it publishes | Held by | Recovery if the holder is unavailable |
 |---|---|---|---|
 | The GitHub organisation `hl7-rust` and its owner account | The repository, its issues, its settings | The maintainer's GitHub account, as sole owner | None. GitHub's account-recovery process is the only route, and it is between GitHub and the account holder. |
-| A crates.io API token | All fourteen crates | The maintainer, on his own machine — since 2026-09-02, also used there by an agentic tool he runs, within [`spec/release-process/index.md`](spec/release-process/index.md)'s bounds; never a separate credential or a CI secret | The crates.io owner list is the recovery surface, and it is the maintainer's account. |
+| A crates.io API token | All seventeen crates | The maintainer, on his own machine — since 2026-09-02, also used there by an agentic tool he runs, within [`spec/release-process/index.md`](spec/release-process/index.md)'s bounds; never a separate credential or a CI secret | The crates.io owner list is the recovery surface, and it is the maintainer's account. |
 | An SSH key | Pushes to GitHub, and to the GitLab and Codeberg mirrors, which `origin` fans out to on one `git push` | The maintainer, on his own hardware | None; the key is not escrowed. A successor would use their own. |
 | The same SSH key, via `make publish` | <https://hl7-rust.github.io> — the website, pushed by `git subtree split` into the `hl7-rust.github.io` repository, which deploys it | The maintainer | As above. Deliberately *not* a CI credential: a workflow doing this would need a token able to write another repository's workflow file, and GitHub refuses that. |
 
