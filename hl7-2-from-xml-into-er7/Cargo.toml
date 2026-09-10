@@ -13,7 +13,7 @@ categories = ["parser-implementations", "command-line-utilities"]
 [dependencies]
 # The ER7 encoding layer: the value tree, escape sequences, and writing
 # back out to the wire format. See spec/index.md §2.
-er7 = "0.1.0"
+er7 = "0.2.1"
 # The XML reader, which this crate used to carry its own copy of. It has no
 # dependencies of its own, so the audit surface is unchanged and there is
 # one parser to read instead of three.
