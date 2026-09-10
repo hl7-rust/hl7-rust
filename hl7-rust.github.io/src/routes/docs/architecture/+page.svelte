@@ -44,13 +44,20 @@ hl7-2                                  the HL7 v2 dictionary: releases
               +-- hl7-3-soap           transport: HL7 v3 over HTTP (SOAP)
 
 hl7                                    the umbrella crate — hl7::v2 and
-                                       hl7::v3 today, room for hl7::fhir`;
+                                       hl7::v3 today, room for hl7::fhir
+
+serde-hl7                              Serde support, one module per
+  |                                    standard, mirroring hl7
+  +-- serde-hl7-v2                     Serde for hl7-2's message, tree,
+  |                                    findings, and release
+  +-- serde-hl7-v3                     Serde for hl7-3's envelope, RIM
+                                       classes, data types, and elements`;
 
   const umbrella = `// hl7/src/lib.rs, in full, minus the documentation
 pub use hl7_2 as v2;
 pub use hl7_3 as v3;`;
 
-  const order: CrateCategory[] = ['core', 'transport', 'conversion', 'tooling'];
+  const order: CrateCategory[] = ['core', 'transport', 'conversion', 'serde', 'tooling'];
 </script>
 
 <DocPage
@@ -96,6 +103,17 @@ pub use hl7_3 as v3;`;
       Four crates covering ER7's two directions against both target formats. They are the layer
       you use when what is downstream is not Rust.
     </dd>
+    <dt>The Serde crates — interchange</dt>
+    <dd>
+      <a href="/crates/serde-hl7-v2/"><code>serde-hl7-v2</code></a> and
+      <a href="/crates/serde-hl7-v3/"><code>serde-hl7-v3</code></a> put the values the two
+      standards' crates produce — a parsed v2 message, its dictionary-named tree, its validation
+      findings; a decoded v3 envelope, RIM class, or data type — through any Serde format, with
+      <a href="/crates/serde-hl7/"><code>serde-hl7</code></a> as the umbrella over both. They sit
+      beside the tree rather than in it: each depends on exactly <code>serde</code> and the crate
+      it wraps, and nothing in the tree depends on them, so a caller who never adds them never
+      carries <code>serde</code>.
+    </dd>
     <dt>The tooling — everything else</dt>
     <dd>
       The derive macros, the dictionary builder, and the shared XML reader. Each is in a crate of
@@ -112,7 +130,9 @@ pub use hl7_3 as v3;`;
     namespace would invite mixing them up — in a domain where mixing them up means a clinical
     record. Depend on <code>hl7-2</code> or <code>hl7-3</code> directly if you want one standard
     without the indirection; the umbrella exists for callers who want the room left for
-    <code>hl7::fhir</code>.
+    <code>hl7::fhir</code>. <a href="/crates/serde-hl7/"><code>serde-hl7</code></a> is the same
+    shape one layer up — <code>serde_hl7::v2</code> and <code>serde_hl7::v3</code>, each behind a
+    Cargo feature of the same name, both on by default.
   </p>
   <Callout heading="One asymmetry to know about">
     <p>
@@ -127,6 +147,9 @@ pub use hl7_3 as v3;`;
     <code>hl7-2</code> has one dependency. <code>hl7-3</code> has one.
     <code>hl7-2-soap</code> has one. <code>hl7-2-xml-lite-helper</code> has none, and intends to
     keep it that way. <code>hl7-2-mllp</code> with <code>--no-default-features</code> has none.
+    Each Serde crate has exactly two, <code>serde</code> and the crate it wraps — every impl is
+    hand-written against Serde's low-level traits, so there is no derive and no proc-macro crate
+    behind it.
   </p>
   <p>
     That is not minimalism for its own sake. Healthcare software gets audited, and a dependency

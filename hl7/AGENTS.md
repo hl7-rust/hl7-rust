@@ -6,7 +6,7 @@ and don't fork the content between the two.
 
 ## What this is
 
-A thin umbrella crate: `src/lib.rs` and nothing else, about fifty-five
+A thin umbrella crate: `src/lib.rs` and nothing else, about sixty
 lines, whose entire content is `pub use hl7_2 as v2;` and
 `pub use hl7_3 as v3;` plus its own doc comment. It exists so a caller can
 `cargo add hl7` and get `hl7::v2` and `hl7::v3` instead of depending on
@@ -16,6 +16,9 @@ the same word in another.
 
 Today that's `hl7::v2` and `hl7::v3`. Room is left for `hl7::fhir` as that
 standard gets implemented, its own crate, re-exported here the same way.
+The sibling `serde-hl7` umbrella is the same shape for Serde support —
+`serde_hl7::v2` is `serde-hl7-v2`, `serde_hl7::v3` is `serde-hl7-v3` — so
+Serde never enters this crate or the crates it re-exports.
 
 ## Layout
 
@@ -61,6 +64,9 @@ crate only re-exports them.
   (and future standard-specific crates' job), never this one's.
 - Flattening the `v2` module away, or otherwise hiding which standard a
   type belongs to. The per-standard namespace is the point.
+- Adding a `serde` feature or dependency. Serde support is the opt-in
+  `serde-hl7` umbrella (`serde-hl7-v2` for `hl7-2`'s types, `serde-hl7-v3`
+  for `hl7-3`'s), kept out of this dependency tree on purpose.
 
 ---
 

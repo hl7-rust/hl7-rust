@@ -31,8 +31,9 @@ audited is better with one parser to read than three.
 
 The name places it in the family rather than claiming a general one. The
 code is not HL7®-specific and could serve anything, but it is maintained for
-these three callers, its trade-offs (§3.2, §6) are chosen for their
-documents, and a neutral name would invite users it is not meant for.
+its callers in this family — those three, joined since by `hl7-3` and
+`hl7-3-soap` — its trade-offs (§3.2, §6) are chosen for their documents,
+and a neutral name would invite users it is not meant for.
 
 ## 3. Reading (`parse`)
 

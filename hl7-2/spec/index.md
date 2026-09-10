@@ -31,6 +31,7 @@ hl7-2                   this crate: the HL7 v2 dictionary — releases
   +-- hl7-2-from-er7-into-xml
   +-- hl7-2-from-json-into-er7
   +-- hl7-2-from-xml-into-er7
+  +-- serde-hl7-v2                Serde for this crate's own types
 
 hl7-2-from-xsd-into-json-dictionary     writes the dictionaries this
                                          crate reads, from HL7 v2.xml XSDs
@@ -55,6 +56,12 @@ dictionaries gets a dialect this crate can read (§3.2.1).
 Node naming (§4.2) is deliberately identical to those crates' key and
 element naming, so a path through this crate's tree, a key in the JSON
 crate's output, and an element in the XML crate's output all read the same.
+
+Serialization: struct mode (§6) is decode and encode of the *caller's*
+structs. Serde for this crate's own `Message`, `Node`, and `Diagnostic` is
+`serde-hl7-v2` (`serde_hl7::v2` through the `serde-hl7` umbrella), an
+opt-in sibling that depends on this crate; this crate never depends on
+`serde`, and has no `serde` feature.
 
 ## 1. Scope
 

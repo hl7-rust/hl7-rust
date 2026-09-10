@@ -13,11 +13,15 @@ foundation, not a complete implementation**. Read `spec/index.md` §1
 before assuming anything is missing is a bug; it almost certainly is
 documented scope.
 
-Unlike the `hl7-2` family, this crate has no sibling transport or format
-crates (no `hl7-3-mllp`, nothing like `hl7-2-from-er7-into-json`) and no
-encoding-layer crate underneath it — HL7 v3 is XML natively, so
+Its siblings are fewer than `hl7-2`'s: `hl7-3-soap` (transport — HL7 v3
+over SOAP/HTTP, reading through the same XML layer without depending on
+this crate) and `serde-hl7-v3` (Serde for this crate's own types, reached
+as `serde_hl7::v3` through the `serde-hl7` umbrella). There is no
+`hl7-3-mllp`, nothing like `hl7-2-from-er7-into-json`, and no
+encoding-layer crate underneath — HL7 v3 is XML natively, so
 `hl7-2-xml-lite-helper` (a sibling crate, not something this one wraps in
-its own module) fills the role `er7` plays for `hl7-2`.
+its own module) fills the role `er7` plays for `hl7-2`. See
+`spec/index.md` §0.
 
 It also has a struct mode: `src/typed.rs`'s `FromElement`/`FromElementValue`
 traits, and the `#[derive(FromElement)]` macro in the sibling crate
@@ -107,6 +111,10 @@ than one module's types together (nothing has, so far).
   structure; that's a different crate's job if it happens.
 - **A CLI**, unlike `hl7-2`. Nothing about this crate's current scope
   needs one.
+- **A `serde` feature or dependency.** Serde for `Message`, `ControlAct`,
+  the RIM classes, and the data types already exists in the opt-in sibling
+  crate `serde-hl7-v3`, which depends on this one; the absence here is
+  deliberate, not a gap.
 
 ---
 

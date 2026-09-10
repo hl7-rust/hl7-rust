@@ -71,9 +71,10 @@ anything crossing module boundaries or using a real sample goes in
 - **Never invent message state.** `Message` carries what `hl7-2` parsed
   and nothing more; deserializing re-parses through `hl7_2`, it does not
   reconstruct a `Message` by hand.
-- Every public item must have a doc comment with an `Example:` block;
-  `src/lib.rs` carries `#![warn(missing_docs, clippy::pedantic)]` and
-  `#![forbid(unsafe_code)]`.
+- Every public item must have a doc comment, and every public type an
+  `Example:` block (`MessageSeed`'s is on `Message::seed`, which builds
+  it); `src/lib.rs` carries `#![warn(missing_docs, clippy::pedantic)]`
+  and `#![forbid(unsafe_code)]`.
 - Before finishing a change, from the workspace root:
   ```sh
   cargo test -p serde-hl7-v2

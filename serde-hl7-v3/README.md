@@ -99,8 +99,9 @@ wrapper reads as absent rather than failing.
   XML and the standard without a translation table.
 - **Format-agnostic**: nothing in this crate mentions JSON, YAML, or any
   other format by name. `serde_json` appears only as a dev-dependency.
-- **Ergonomic wrappers**: every wrapper implements `Deref`/`DerefMut` to
-  its `hl7-3` type, `From` both ways, and `Default`.
+- **Ergonomic wrappers**: every wrapper implements `Deref` to its
+  `hl7-3` type and `From` both ways; the fourteen object wrappers add
+  `DerefMut` and `Default` (`NullFlavor`, an enum, has neither).
 - **Opt-in strict deserialization, nested to any depth**: `Strict<T>` for
   every object type rejects an unrecognized key wherever it appears —
   inside an identifier, a code, or the payload's element tree — where the
@@ -131,7 +132,7 @@ cargo test -p serde-hl7-v3                                   # unit, integration
 cargo clippy -p serde-hl7-v3 --all-targets -- -D warnings    # lint-clean
 cargo fmt --check                                            # formatting
 cargo rustdoc -p serde-hl7-v3 --lib -- -W missing-docs       # every public item documented
-cargo run -p serde-hl7-v3 --example round_trip_via_json      # try an example
+cargo run -p serde-hl7-v3 --example v3_round_trip_via_json      # try an example
 ```
 
 Behavioural changes start in [`spec/`](spec/index.md), not in the code.

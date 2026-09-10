@@ -26,7 +26,13 @@ this crate defines its own JSON mapping, designed to preserve everything
 v2.xml preserves while using idiomatic JSON (real arrays, real `null`)
 instead of XML's constructs. Its inverse is
 [`hl7-2-from-json-into-er7`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-json-into-er7),
-which reads this crate's own JSON output back into ER7.
+which reads this crate's own JSON output back into ER7. This JSON is a
+*format* — keyed by HL7 names, meant to be read and written by other
+systems — and is not the shape
+[`serde-hl7-v2`](https://github.com/hl7-rust/hl7-rust/tree/main/serde-hl7-v2)
+gives `hl7-2`'s `Node` through Serde (a generic
+`name`/`path`/`kind`/`text`/`null`/`children` object): the two share their
+node names but are not interchangeable.
 
 This README is a tour. [`spec/index.md`](spec/index.md) is the normative,
 section-by-section specification of every conversion rule — the single

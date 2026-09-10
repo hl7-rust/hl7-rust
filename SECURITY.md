@@ -135,7 +135,10 @@ Each one is checkable in a few minutes, which is the point:
 - **No logging, telemetry, or analytics**, and no dependency that could
   provide any.
 - **One runtime dependency.** `hl7-2` depends on `er7`, which depends on
-  nothing. `cargo tree` is short enough to read.
+  nothing. `cargo tree` is short enough to read. Serde support is three
+  separate opt-in crates (`serde-hl7`, `serde-hl7-v2`, `serde-hl7-v3`)
+  whose only addition is `serde` itself; no parsing, transport, or
+  conversion crate depends on them, or on it.
 - **Bounded dictionary nesting**, at 256 levels, so a malformed dictionary
   is an error rather than a stack overflow.
 - **Fuzzing** on the parsing surfaces that take untrusted structured input:

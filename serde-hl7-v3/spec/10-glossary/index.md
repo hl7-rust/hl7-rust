@@ -48,7 +48,8 @@ see the `hl7-3` spec.
 **Strict mode**
 : Deserializing through [`Strict<T>`](../11-strict-mode/index.md) rather
   than `T` directly, so an unrecognized key is a `serde::de::Error`
-  instead of being ignored. Opt-in, per call; nests to any depth.
+  instead of being ignored. Opt-in, per call; nests to any depth;
+  `T::deserialize` alone stays tolerant (S8).
 
 ---
 

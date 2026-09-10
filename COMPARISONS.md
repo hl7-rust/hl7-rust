@@ -100,8 +100,9 @@ Those download counts are also the honest size of the Rust HL7 audience
 today: low tens of thousands of pulls, accumulated over years.
 
 What none of them offers is the whole span — a release dictionary,
-validation, mutation and building, format conversion, and both transports,
-maintained together. That gap is the reason this project exists.
+validation, mutation and building, format conversion, both transports,
+and Serde support, maintained together. That gap is the reason this
+project exists.
 
 ## Splitting on pipes yourself
 
@@ -142,6 +143,8 @@ Stated without adjectives, so each one can be checked:
 
 - **One dependency.** `hl7-2` depends on `er7`, which depends on nothing.
   That is the whole tree, which matters where dependency trees get audited.
+  Serde support is three separate crates that add `serde` only for the
+  caller who asks for it.
 - **No runtime.** A static binary, no JVM, no GC pause, and a command-line
   tool an integration analyst can use without writing any Rust.
 - **Byte-for-byte round trip**, as a test rather than an aspiration.

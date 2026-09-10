@@ -108,7 +108,8 @@ envelopes this crate carries, matching elements on their local name so
 It is shared rather than owned because three crates in this family needed
 the same XML subset and each had written its own copy: this crate,
 `hl7-2-from-xml-into-er7`, and `hl7-2-from-xsd-into-json-dictionary`. One
-reader that keeps both text and attributes replaced all three. The helper
+reader that keeps both text and attributes replaced all three, and `hl7-3`
+and `hl7-3-soap` have since joined as its fourth and fifth callers. The helper
 has no dependencies of its own, so the audit surface is unchanged from
 before it existed, and there is one parser to read instead of three.
 

@@ -20,6 +20,7 @@ hl7-2       HL7 v2 itself (`hl7_2::...` directly, or `hl7::v2::...`
                via the `hl7` umbrella crate)
   |
   +-- hl7-2-mllp    this crate: bytes on a wire
+  +-- hl7-2-soap    transport: HL7 v2 over HTTP
   +-- hl7-2-from-er7-into-json / -into-xml / from-json / from-xml
 ```
 

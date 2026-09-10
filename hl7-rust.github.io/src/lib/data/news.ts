@@ -23,6 +23,13 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: 'serde-support-for-hl7',
+    title: 'Sixth release: Serde support for HL7 v2 and v3',
+    date: '2026-09-10',
+    summary:
+      'Three new crates — serde-hl7, serde-hl7-v2, and serde-hl7-v3 — put a parsed HL7 v2 message, its dictionary-named tree, its validation findings, and a decoded HL7 v3 interaction through any Serde format. Two dependencies each, hand-written impls, and the fourteen existing crates unchanged.'
+  },
+  {
     slug: 'what-this-project-claims',
     title: 'What this project claims, and how to check it',
     date: '2026-08-26',

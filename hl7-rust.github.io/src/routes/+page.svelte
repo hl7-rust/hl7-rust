@@ -29,7 +29,7 @@
     {
       href: '/crates/',
       label: 'Crate reference',
-      blurb: 'Fourteen workspace members, each with its features, dependencies, and API tour.'
+      blurb: 'Seventeen workspace members, each with its features, dependencies, and API tour.'
     }
   ];
 
@@ -99,16 +99,23 @@ hl7-2                                  the HL7 v2 dictionary: releases
               +-- hl7-3-soap           transport: HL7 v3 over HTTP (SOAP)
 
 hl7                                    the umbrella crate — hl7::v2 and
-                                       hl7::v3 today, room for hl7::fhir`;
+                                       hl7::v3 today, room for hl7::fhir
 
-  const order: CrateCategory[] = ['core', 'transport', 'conversion', 'tooling'];
+serde-hl7                              Serde support, one module per
+  |                                    standard, mirroring hl7
+  +-- serde-hl7-v2                     Serde for hl7-2's message, tree,
+  |                                    findings, and release
+  +-- serde-hl7-v3                     Serde for hl7-3's envelope, RIM
+                                       classes, data types, and elements`;
+
+  const order: CrateCategory[] = ['core', 'transport', 'conversion', 'serde', 'tooling'];
 </script>
 
 <svelte:head>
   <title>{data.title}</title>
   <meta
     name="description"
-    content="HL7 Rust: parse, navigate, validate, modify, render, transport, and convert HL7 v2 and v3 messages in Rust. Documentation, guides, tutorials, examples, and a reference page for every crate."
+    content="HL7 Rust: parse, navigate, validate, modify, render, transport, convert, and serialize HL7 v2 and v3 messages in Rust. Documentation, guides, tutorials, examples, and a reference page for every crate."
   />
 </svelte:head>
 
@@ -119,9 +126,9 @@ hl7                                    the umbrella crate — hl7::v2 and
     <p class="hero-lede">
       Parse, navigate, validate, modify, and render Health Level Seven messages. HL7 v2 releases
       2.1 through 2.9 with a real dictionary behind them; HL7 v3's RIM backbone and message
-      envelope; MLLP and SOAP transports; and lossless conversion between ER7, v2.xml, and JSON.
-      Small dependency trees, permissive licensing, and a normative specification for every crate
-      whose behavior is normative.
+      envelope; MLLP and SOAP transports; lossless conversion between ER7, v2.xml, and JSON; and
+      opt-in Serde support for both standards. Small dependency trees, permissive licensing, and a
+      normative specification for every crate whose behavior is normative.
     </p>
     <div class="hero-actions">
       <a class="hero-button hero-button-primary" href="/docs/quickstart/">Quick start</a>

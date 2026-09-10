@@ -15,8 +15,10 @@ v  --serialize with F-->  bytes  --deserialize with F-->  v'
 then `v' == v`. Every field of every `hl7-3` type this crate wraps is
 public plain data, and every one of them is on the wire (S3), so nothing
 is derived or dropped in either direction. The integration tests state
-this for a full message parsed from XML, for every RIM class, and for an
-`Element` tree with attributes, text, and children at several depths.
+this for a full message parsed from XML, for every RIM class and data
+type, and for an `Element` tree with attributes and children at several
+depths; `src/element.rs`'s `round_trips_a_tree` adds text beside
+children.
 
 ## 4.2 What is not promised: XML
 
@@ -25,7 +27,7 @@ HL7® v3's own serialization is XML, and a natural question is whether
 crate does not promise that, for two reasons that are `hl7-3`'s, not this
 crate's:
 
-- `hl7-3` has no XML writer (its spec §1), so there is no "back to XML"
+- `hl7-3` has no XML writer (its spec §8.3), so there is no "back to XML"
   step for this crate to be transparent to.
 - `hl7-3`'s reader normalizes on the way in — whitespace-only text beside
   children is dropped, namespace prefixes are kept but not resolved,

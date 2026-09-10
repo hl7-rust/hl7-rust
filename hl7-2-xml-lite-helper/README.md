@@ -13,9 +13,10 @@ attributes, text, and nesting — and skips the rest. No validation, no
 schema, no DTD, no namespace resolution, no streaming.
 
 The name says what it is for. Nothing in the code is HL7-specific, but the
-crate is scoped to serve `hl7-2-soap`, `hl7-2-from-xml-into-er7` and
-`hl7-2-from-xsd-into-json-dictionary`, and its trade-offs are chosen for
-the documents those read. It is not offered as a general-purpose parser,
+crate is scoped to serve its five callers in this family — `hl7-2-soap`,
+`hl7-2-from-xml-into-er7`, `hl7-2-from-xsd-into-json-dictionary`, `hl7-3`,
+and `hl7-3-soap` — and its trade-offs are chosen for the documents those
+read. It is not offered as a general-purpose parser,
 and it does not claim a general-purpose name.
 
 ```rust
@@ -32,7 +33,8 @@ Reading a document produced by a system you are talking to, where you know
 which elements you want and simply need them out: a SOAP envelope, an XML
 Schema, an HL7 v2.xml message. It exists because three crates in this
 family had each written their own version of exactly this, and three copies
-of a parser is three places for a bug.
+of a parser is three places for a bug; `hl7-3` and `hl7-3-soap` have since
+joined them as callers rather than writing a fourth and fifth.
 
 **Not** for untrusted, unbounded, or genuinely unknown documents, and not
 for anyone outside this family who wants a small XML reader. Use

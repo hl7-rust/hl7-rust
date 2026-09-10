@@ -210,6 +210,16 @@ for message in split_messages(batch) {
       that themselves — check whether the value is an array before iterating it.
     </p>
   </Callout>
+  <p>
+    This is not the JSON that <a href="/crates/serde-hl7-v2/"><code>serde-hl7-v2</code></a>
+    produces, and the two are for different consumers. The document above is a fixed, typed
+    mapping for something downstream that is not Rust, and it has a reverse crate. The Serde
+    crate serializes an <code>hl7_2::Message</code> as its ER7 text plus the release it was read
+    as, and its tree — when you ask for one — as one object per node with <code>name</code>,
+    <code>path</code>, <code>kind</code>, <code>text</code>, <code>null</code>, and
+    <code>children</code>, which is a view for Rust code that already holds the message and is
+    not a document format. See <a href="/guides/serde/">Serde: JSON, YAML, and any format</a>.
+  </p>
 
   <h2 id="reverse">Back to ER7</h2>
   <CodeSample language="sh" code={reverseCli} />

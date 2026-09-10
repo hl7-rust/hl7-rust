@@ -3,9 +3,10 @@
 # These crates parse untrusted input in clinical settings, so the dependency
 # tree is evidence someone will be asked to produce. Keeping this green
 # continuously is far cheaper than reconstructing it during an audit. The
-# runtime surface is deliberately tiny — one runtime dependency (`er7`) —
-# but cargo-deny scans the whole graph, dev-dependencies included, because
-# a compromised build-time crate compromises the build.
+# runtime surface is deliberately tiny — `er7`, plus `serde` in the three
+# opt-in `serde-hl7` bridge crates — but cargo-deny scans the whole graph,
+# dev-dependencies included, because a compromised build-time crate
+# compromises the build.
 #
 # Run:  cargo deny --all-features check     (CI: .github/workflows/security.yml)
 

@@ -20,7 +20,7 @@ ecosystem this repository actually has:
 
 | Ecosystem | Directory | Covers |
 | --- | --- | --- |
-| `cargo` | `/` | All fourteen workspace members, which share one root `Cargo.lock` |
+| `cargo` | `/` | All seventeen workspace members, which share one root `Cargo.lock` |
 | `github-actions` | `/` | The actions pinned in `.github/workflows/*.yml` |
 | `npm` | `/hl7-rust.github.io` | The website; GitHub's `npm` ecosystem handler reads `pnpm-lock.yaml` natively — there is no separate `pnpm` value |
 

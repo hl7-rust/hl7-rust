@@ -79,6 +79,13 @@ Nothing here fails when a wrapper is missing — an absent `id`, `sender`,
 or `controlActProcess` reads as `None`, the same lenient-by-default
 reading `hl7-2`'s generic mode uses for v2 messages.
 
+Struct mode (`#[derive(FromElement)]`, behind the `derive` feature) reads
+*your* structs off an element. Serde for this crate's own `Message`,
+`ControlAct`, RIM classes, and data types is the opt-in
+[`serde-hl7-v3`](https://github.com/hl7-rust/hl7-rust/tree/main/serde-hl7-v3)
+crate (`serde_hl7::v3` through the `serde-hl7` umbrella), so `serde` never
+enters this crate's dependency tree.
+
 ## The RIM backbone
 
 ```rust
@@ -144,6 +151,11 @@ crate reads through the XML layer instead of `er7`.
   `hl7::v3`
 - [`hl7-2`](https://crates.io/crates/hl7-2) — HL7 v2, this crate's sibling
   standard
+- [`serde-hl7-v3`](https://crates.io/crates/serde-hl7-v3) — Serde support
+  for this crate's types; `serde_hl7::v3` through the
+  [`serde-hl7`](https://crates.io/crates/serde-hl7) umbrella
+- [`hl7-3-soap`](https://crates.io/crates/hl7-3-soap) — transport: HL7 v3
+  over SOAP/HTTP
 - [`hl7-2-xml-lite-helper`](https://crates.io/crates/hl7-2-xml-lite-helper) —
   the XML reader this crate is built on
 

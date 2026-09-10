@@ -133,6 +133,11 @@ export const SECTIONS: NavSection[] = [
         blurb: 'ER7 to XML or JSON and back, in the library and from the shell.'
       },
       {
+        href: '/guides/serde/',
+        label: 'Serde: JSON, YAML, and any format',
+        blurb: 'The three Serde crates: what each type serializes as, the round trip, and Strict<T>.'
+      },
+      {
         href: '/guides/mllp/',
         label: 'MLLP over TCP',
         blurb: 'Framing, streaming, transports, acknowledgements, and strictness.'

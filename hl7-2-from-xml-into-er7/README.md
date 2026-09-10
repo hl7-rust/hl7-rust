@@ -112,7 +112,7 @@ failing (`spec/index.md` §5).
   exactly the subset v2.xml uses: nested elements, text, the predefined
   entities and numeric character references, with attributes, comments, and
   the XML declaration recognized and skipped. The helper has no
-  dependencies of its own, and is shared with two other crates in this
+  dependencies of its own, and is shared with four other crates in this
   family that need the same subset (see the helper's own `spec/index.md`).
 - **Position-based reconstruction, no data-type dictionary** (`src/reconstruct.rs`):
   every field, component, and subcomponent element's *position* comes from

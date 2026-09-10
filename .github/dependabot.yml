@@ -9,7 +9,7 @@
 # something is vulnerable.
 #
 # One ecosystem per manifest this repository actually has:
-#   - cargo, at the workspace root — one PR run covers all fourteen
+#   - cargo, at the workspace root — one PR run covers all seventeen
 #     members, since they share the one root Cargo.lock (AGENTS.md).
 #   - github-actions, at the root — the actions pinned in
 #     .github/workflows/*.yml (checkout, rust-toolchain, rust-cache).

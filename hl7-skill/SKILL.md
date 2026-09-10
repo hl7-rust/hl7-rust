@@ -178,6 +178,81 @@ Message                       level 1 — transport: sender, receiver, id
     └── domain payload          level 3 — the interaction's own content
 ```
 
+## Getting values in and out of JSON and YAML
+
+Two different questions hide behind "give me this message as JSON", and
+`hl7-rust` answers them with different tools:
+
+- **"Write it down in a shape a human or another program reads."** That is
+  a *conversion* — `hl7-2-from-er7-into-json` (the section above), a fixed
+  document shape the crate's spec defines — one top-level key for the
+  message structure, then segment and field names
+  (`"PID": {"PID.5": {"XPN.1": "EVERYWOMAN"}}`), repeats as arrays — with
+  its own reverse crate to get back to ER7. Not Serde; nothing to implement.
+- **"Carry a parsed value through Serde"** — into `serde_json`,
+  `serde_yaml`, `bincode`, or any other Serde format your program already
+  uses, and get the same value back. That is what the `serde-hl7` crates
+  do (`serde_hl7::v2` and `serde_hl7::v3`, or `serde-hl7-v2` and
+  `serde-hl7-v3` directly). Each wraps a parsed type in a same-named
+  newtype; JSON below is just the easiest format to show on a page.
+
+For **v2**, the round-tripping type is `Message`, and what it writes is
+the ER7 text itself plus the release it was read as — the one form every
+v2 system already agrees on, and one that deserializes by parsing again
+with the version pinned:
+
+```rust
+use serde_hl7_v2::Message;
+
+let message = Message::parse(text)?;          // text: an ER7 message
+let json = serde_json::to_string_pretty(&message)?;
+// {"version": "2.5", "er7": "MSH|^~\\&|LAB|ACME|…"}
+let back: Message = serde_json::from_str(&json)?;
+assert_eq!(back.to_er7(), text);
+assert_eq!(back.version(), message.version());
+```
+
+The dictionary-named tree from earlier — `PID.5`, `XPN.1`, every node an
+object with `name`, `path`, `kind`, `text`, `null`, `children` — is
+`Node`, and it is **serialize-only**: a tree is a view of a message for a
+log or a debugger, and the message is what round-trips. Validation
+findings ride along as `Diagnostic`, which does round-trip:
+
+```rust
+use serde_hl7_v2::{Diagnostic, Node};
+
+let message = hl7_2::parse(text)?;
+let tree = serde_json::to_value(Node(message.tree()))?;
+let findings: Vec<Diagnostic> = message.validate().into_iter().map(Diagnostic).collect();
+```
+
+For **v3**, every wrapped value — the `Message` envelope, `ControlAct`,
+the six RIM classes, the data types, the XML element tree beneath them —
+is an object whose keys are the HL7 v3 XML names in lowerCamelCase
+(`classCode`, `codeSystem`, `interactionId`, `controlAct`); the value
+round-trips, though the XML does not, since `hl7-3` reads XML without
+writing it:
+
+```rust
+use serde_hl7_v3::{Message, Role};
+
+let message = Message::parse(xml)?;           // xml: a v3 interaction
+let json = serde_json::to_string_pretty(&message)?;
+let back: Message = serde_json::from_str(&json)?;
+assert_eq!(back, message);
+
+// The domain payload is an element tree until you say what it is:
+let domain = message.control_act.as_ref().and_then(|act| act.domain.as_ref()).unwrap();
+let patient = Role(hl7_3::rim::Role::from_element(domain));
+```
+
+Both crates ignore unknown keys by default, so a hand-written fixture
+with `"verison"` for `"version"` reads without a word; wrap the type as
+`Strict<Message>` to have the typo reported by name instead. The runnable
+versions of these three snippets are `serde-hl7-v2/examples/` and
+`serde-hl7-v3/examples/` (`cargo run -p serde-hl7-v2 --example
+v2_round_trip_via_json`).
+
 ## Transports: MLLP and SOAP
 
 A v2 message carries no length prefix and no self-delimiting syntax, so a

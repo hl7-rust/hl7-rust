@@ -37,7 +37,8 @@ and the "HL7® FHIR® standard" full form — are enforced by
 Unlike the sibling `er7-rust` project, whose names contain no HL7® word
 mark, this project uses the HL7® name **in names it controls**:
 
-- the crate names (`hl7`, `hl7-2`, `hl7-3`, and the other `hl7-*` crates),
+- the crate names (`hl7`, `hl7-2`, `hl7-3`, the other `hl7-*` crates, and
+  the three `serde-hl7*` crates),
 - the GitHub organisation `hl7-rust`,
 - the domain `hl7-rust.github.io`.
 

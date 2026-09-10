@@ -30,6 +30,7 @@ hl7-2                   this crate: the HL7 v2 dictionary — releases
   +-- hl7-2-from-er7-into-xml
   +-- hl7-2-from-json-into-er7
   +-- hl7-2-from-xml-into-er7
+  +-- serde-hl7-v2                Serde for this crate's own types
 ```
 
 **This crate is published standalone as `hl7-2`.** Most users get it
@@ -219,6 +220,12 @@ assert_eq!(ack.get("MSA-2")?.as_deref(), Some("MSG00042"));
 An unmodified message writes back byte for byte — that guarantee is `er7`'s,
 and this crate does not weaken it.
 
+Struct mode above is decode and encode of *your* structs. Serde for this
+crate's own `Message`, `Node`, and `Diagnostic` is the opt-in
+[`serde-hl7-v2`](https://github.com/hl7-rust/hl7-rust/tree/main/serde-hl7-v2)
+crate (`serde_hl7::v2` through the `serde-hl7` umbrella), so `serde` never
+enters this crate's dependency tree.
+
 ## Validate
 
 Parsing stays lenient: unknown segments, unknown types, and structure
@@ -296,7 +303,8 @@ JSON reader that loads dictionaries is hand-written here for the same
 reason the sibling crates hand-write their writers — in a domain where
 dependency trees get audited, a two-crate tree is worth a few hundred
 lines. Enabling the `derive` feature adds `hl7-2-derive`, and with it
-`syn` and `quote`, for callers who want the macros.
+`syn` and `quote`, for callers who want the macros. There is no `serde`
+feature: Serde support lives in the sibling `serde-hl7-v2` crate instead.
 
 ## Install
 
@@ -314,6 +322,10 @@ umbrella crate (`cargo add hl7`), which re-exports this crate as `hl7::v2`.
 - [`spec/index.md`](spec/index.md) — the normative specification
 - [`er7`](https://github.com/er7-rust/er7-rust) — the ER7 encoding layer
 - [`hl7-2-derive`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-derive) — the derive macros
+- [`serde-hl7-v2`](https://github.com/hl7-rust/hl7-rust/tree/main/serde-hl7-v2) — Serde
+  support for this crate's `Message`, `Node`, and `Diagnostic`; reached as
+  `serde_hl7::v2` through the
+  [`serde-hl7`](https://github.com/hl7-rust/hl7-rust/tree/main/serde-hl7) umbrella
 - [`hl7-2-mllp`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-mllp) — MLLP: sending and
   receiving these messages over TCP
 - [`hl7-2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-json),

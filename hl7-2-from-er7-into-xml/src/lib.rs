@@ -2,10 +2,12 @@
 //! HL7 v2.xml XML representation (`urn:hl7-org:v2xml`).
 //!
 //! The ER7 encoding itself — parsing, delimiters, escape sequences — comes
-//! from the [`er7`] crate. This crate adds the layer above it: the HL7 v2.5
-//! data-type tables that name XML elements, the message-structure grammars
-//! that group segments, and the XML renderer. See `spec/index.md` for the
-//! exact conversion rules (source of truth).
+//! from the [`er7`] crate; the HL7 v2.5 data-type tables that name XML
+//! elements and the message-structure grammars that group segments are
+//! read from the [`hl7_2`] dictionary (a vendor dialect can be supplied
+//! through [`convert_with_dictionary`]). This crate is the XML renderer on
+//! top of the two. See `spec/index.md` for the exact conversion rules
+//! (source of truth).
 //!
 //! ```
 //! let er7 = "MSH|^~\\&|hphis||EPIC||20131011093851||ORM^O01|14AAACVDD|P|2.5\r\

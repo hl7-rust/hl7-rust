@@ -124,7 +124,10 @@ cargo +1.96 check --workspace --all-targets`;
   <h2 id="crate-versions">Crate versions</h2>
   <p>
     Latest published at the time of writing. Each crate is versioned independently — they are
-    released when they change, not on a common cadence.
+    released when they change, not on a common cadence. The dated entries in the repository's
+    <a href={`${REPO}/blob/main/CHANGELOG.md`}><code>CHANGELOG.md</code></a> line up a release
+    with the crate versions that carried it; the most recent, the seventh release on 2026-09-10,
+    added the three Serde crates at 0.1.0 and changed nothing already published.
   </p>
   <div class="table-wrap">
     <table>
@@ -202,6 +205,15 @@ cargo +1.96 check --workspace --all-targets`;
       <a href="/crates/hl7-3/"><code>hl7-3</code></a> is explicitly a foundation. Expect it to grow
       rather than to change shape, but read its scope section before depending on a specific
       behavior.
+    </li>
+    <li>
+      The three Serde crates — <a href="/crates/serde-hl7/"><code>serde-hl7</code></a>,
+      <a href="/crates/serde-hl7-v2/"><code>serde-hl7-v2</code></a>, and
+      <a href="/crates/serde-hl7-v3/"><code>serde-hl7-v3</code></a> — are at 0.1.0, their first
+      release, published 2026-09-10 as the workspace's seventh release. Their compatibility surface
+      is the wire shape of each wrapped type, tabulated in each crate's <code>spec/index.md</code>
+      §2 and governed by its §8; a change to a key name or a required key is what a minor bump
+      would signal.
     </li>
   </ul>
   <p>

@@ -45,7 +45,8 @@ for ER7 terms the `er7` spec's own glossary.
 **Strict mode**
 : Deserializing through [`Strict<T>`](../11-strict-mode/index.md) rather
   than `T` directly, so an unrecognized key is a `serde::de::Error`
-  instead of being ignored. Opt-in, per call.
+  instead of being ignored. Opt-in, per call; `T::deserialize` alone stays
+  tolerant (S8).
 
 ---
 

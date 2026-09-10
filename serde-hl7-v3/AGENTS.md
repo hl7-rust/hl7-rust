@@ -70,9 +70,9 @@ spec/               Normative specification, one directory per section,
   unknown keys (S8); `Strict<T>` rejects them at any depth (S13). Never
   flip the default, and never let a nested value escape the strict flag —
   that is what the seeds in `object.rs` are for.
-- Every public item must have a doc comment with an `Example:` block;
-  `src/lib.rs` carries `#![warn(missing_docs, clippy::pedantic)]` and
-  `#![forbid(unsafe_code)]`.
+- Every public item must have a doc comment, and every public type an
+  `Example:` block; `src/lib.rs` carries
+  `#![warn(missing_docs, clippy::pedantic)]` and `#![forbid(unsafe_code)]`.
 - Before finishing a change, from the workspace root:
   ```sh
   cargo test -p serde-hl7-v3

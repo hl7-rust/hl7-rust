@@ -74,7 +74,7 @@ export const CRATES: Crate[] = [
       { name: 'derive', default: false, effect: 'Forwards to `hl7-2`’s `derive` feature.' }
     ],
     dependencies: ['hl7-2', 'hl7-3'],
-    related: ['hl7-2', 'hl7-3']
+    related: ['hl7-2', 'hl7-3', 'serde-hl7']
   },
   {
     name: 'hl7-2',
@@ -95,7 +95,7 @@ export const CRATES: Crate[] = [
       }
     ],
     dependencies: ['er7'],
-    related: ['hl7', 'hl7-2-derive', 'hl7-2-mllp', 'hl7-2-from-er7-into-xml']
+    related: ['hl7', 'hl7-2-derive', 'hl7-2-mllp', 'hl7-2-from-er7-into-xml', 'serde-hl7-v2']
   },
   {
     name: 'hl7-3',
@@ -111,7 +111,7 @@ export const CRATES: Crate[] = [
       { name: 'derive', default: false, effect: 'Adds `#[derive(FromElement)]`; pulls in `hl7-3-derive`.' }
     ],
     dependencies: ['hl7-2-xml-lite-helper'],
-    related: ['hl7', 'hl7-3-derive', 'hl7-3-soap', 'hl7-2-xml-lite-helper']
+    related: ['hl7', 'hl7-3-derive', 'hl7-3-soap', 'hl7-2-xml-lite-helper', 'serde-hl7-v3']
   },
   {
     name: 'hl7-2-mllp',
@@ -197,7 +197,7 @@ export const CRATES: Crate[] = [
     spec: true,
     binary: 'hl7-2-from-er7-into-json',
     dependencies: ['er7'],
-    related: ['hl7-2-from-json-into-er7', 'hl7-2-from-er7-into-xml']
+    related: ['hl7-2-from-json-into-er7', 'hl7-2-from-er7-into-xml', 'serde-hl7-v2']
   },
   {
     name: 'hl7-2-from-json-into-er7',

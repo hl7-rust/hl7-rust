@@ -39,12 +39,12 @@
 
   <h2 id="moving-messages">Moving messages around</h2>
   <p>
-    Getting a message to or from another system — over a socket, over HTTP, or into a format
-    something downstream can read.
+    Getting a message to or from another system — over a socket, over HTTP, into a format
+    something downstream can read, or through Serde into whatever your own stack already speaks.
   </p>
   <LinkCards
     label="Transport and conversion guides"
-    links={pick('/guides/converting/', '/guides/mllp/', '/guides/soap/')}
+    links={pick('/guides/converting/', '/guides/serde/', '/guides/mllp/', '/guides/soap/')}
   />
 
   <h2 id="other-standards">The other standard</h2>
@@ -83,6 +83,10 @@
     <li>
       <a href="/guides/mllp/">MLLP</a> or <a href="/guides/soap/">SOAP</a> — whichever the far end
       speaks.
+    </li>
+    <li>
+      <a href="/guides/serde/">Serde</a> — when the parsed message has to reach a store, a web
+      framework, or a log in a shape that is not ER7.
     </li>
   </ol>
   <p>

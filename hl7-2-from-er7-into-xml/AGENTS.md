@@ -44,7 +44,7 @@ hl7-2 (dependency)  The HL7 v2.5 dictionary: data-type tables, message
                    see spec/index.md §2 and §4a.
 src/lib.rs        Public API: convert(), convert_with_options(),
                    convert_with_dictionary(), Options, Hl7Error,
-                   split_messages(), normalize(), root_name.
+                   split_messages(); private normalize() and root_name().
 src/structure.rs   Message-structure grammars (ACK, ADT_A01, ORM_O01,
                    ORU_R01) and the greedy matcher that groups segments.
 src/xml.rs         The Node tree, element-name sanitizing, XML rendering.

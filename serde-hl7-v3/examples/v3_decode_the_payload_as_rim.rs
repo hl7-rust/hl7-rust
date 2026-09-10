@@ -1,7 +1,7 @@
 //! Decode the domain payload into a RIM class with `hl7-3`, then serialize
 //! the typed value — `Role`, `Act` — rather than the raw element tree.
 //!
-//! Run with: `cargo run -p serde-hl7-v3 --example decode_the_payload_as_rim`
+//! Run with: `cargo run -p serde-hl7-v3 --example v3_decode_the_payload_as_rim`
 #![forbid(unsafe_code)]
 
 use serde_hl7_v3::{Act, Message, Role};

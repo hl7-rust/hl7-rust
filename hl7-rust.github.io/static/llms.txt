@@ -3,12 +3,13 @@
 > HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.
 
 Parse, navigate, validate, modify, and render Health Level Seven (HL7)
-messages in Rust. A Cargo workspace of fourteen small, mostly
+messages in Rust. A Cargo workspace of seventeen small, mostly
 dependency-free crates: HL7 v2 (releases 2.1-2.9) with three parsing
 modes and a command-line tool, a foundation for HL7 v3, format
 conversion between ER7 (pipe-delimited), the official v2.xml, and JSON,
-transports (MLLP, SOAP), and tooling to build a vendor dictionary from a
-site's own XSDs. This is an independent project, not affiliated with or
+transports (MLLP, SOAP), tooling to build a vendor dictionary from a
+site's own XSDs, and opt-in Serde support in three separate bridge
+crates. This is an independent project, not affiliated with or
 endorsed by Health Level Seven International.
 
 ## Start here
@@ -35,6 +36,9 @@ endorsed by Health Level Seven International.
 - [hl7-2-from-xml-into-er7](https://hl7-rust.github.io/crates/hl7-2-from-xml-into-er7/): v2.xml XML -> ER7
 - [hl7-2-from-xsd-into-json-dictionary](https://hl7-rust.github.io/crates/hl7-2-from-xsd-into-json-dictionary/): HL7 v2.xml XSDs -> the JSON dictionary `hl7-2` reads
 - [hl7-2-xml-lite-helper](https://hl7-rust.github.io/crates/hl7-2-xml-lite-helper/): minimal XML reader shared by the v2.xml crates and `hl7-3`
+- [serde-hl7](https://hl7-rust.github.io/crates/serde-hl7/): Serde umbrella — `serde_hl7::v2` and `serde_hl7::v3`, each behind a feature of the same name, both on by default
+- [serde-hl7-v2](https://hl7-rust.github.io/crates/serde-hl7-v2/): Serde for `hl7-2` — the message as ER7 text plus release, the dictionary-named tree, validation findings; `Strict<T>` for fixtures
+- [serde-hl7-v3](https://hl7-rust.github.io/crates/serde-hl7-v3/): Serde for `hl7-3` — the envelope, the six RIM classes, the data types, and the XML element tree; `Strict<T>` nests to any depth
 
 ## Specifications (normative)
 

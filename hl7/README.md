@@ -4,7 +4,7 @@ A Cargo workspace: parse, navigate, validate, modify, and render Health
 Level Seven (HL7) messages in Rust. One crate per layer, one module per
 standard.
 
-> HL7® and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.
+> HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.
 >
 > This project uses the HL7® name in its package names, its organization name, and its domain, which is beyond fair use; we are requesting permission from HL7® for ways forward. The written-permission request was sent on 2026-08-25; the reply is pending.
 
@@ -23,7 +23,11 @@ hl7                      this crate: re-exports one module per standard
 
 `hl7::v2` and `hl7::v3` are both here today. Room is left for `hl7::fhir`
 as that standard gets implemented, its own crate underneath, re-exported
-here the same way.
+here the same way. Serde support is the same umbrella shape one layer up:
+[`serde-hl7`](https://github.com/hl7-rust/hl7-rust/tree/main/serde-hl7)
+re-exports `serde_hl7::v2` (the `serde-hl7-v2` crate, for `hl7-2`'s
+types) and `serde_hl7::v3` (`serde-hl7-v3`, for `hl7-3`'s), so neither
+`hl7-2` nor `hl7-3` depends on `serde` itself.
 
 ## Install
 
@@ -57,8 +61,15 @@ for the normative specification.
 
 - [`hl7-2`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2) — the HL7 v2 implementation
   this crate re-exports
+- [`hl7-3`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-3) — the HL7 v3 foundation
+  this crate re-exports as `hl7::v3`
 - [`hl7-2-derive`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-derive) — the derive
   macros behind the `derive` feature
+- [`serde-hl7`](https://github.com/hl7-rust/hl7-rust/tree/main/serde-hl7) — Serde support,
+  organized the same way: `serde_hl7::v2` is
+  [`serde-hl7-v2`](https://github.com/hl7-rust/hl7-rust/tree/main/serde-hl7-v2),
+  `serde_hl7::v3` is
+  [`serde-hl7-v3`](https://github.com/hl7-rust/hl7-rust/tree/main/serde-hl7-v3)
 - [`hl7-2-mllp`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-mllp) — MLLP: sending
   and receiving HL7 v2 messages over TCP
 - [`hl7-2-from-er7-into-json`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-from-er7-into-json),

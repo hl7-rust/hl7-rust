@@ -21,6 +21,7 @@ hl7-3                     this crate: RIM backbone classes, the data
   |                       types RIM attributes are built from, the
   |                       three-level message envelope
   +-- hl7-3-soap          transport: HL7 v3 over SOAP/HTTP
+  +-- serde-hl7-v3        Serde for this crate's own types
   |
 hl7                       the umbrella crate — hl7::v3 re-exports this
 ```
@@ -33,6 +34,12 @@ historically dominant transport instead) and any format-conversion crates
 analogous to `hl7-2-from-er7-into-json` and its siblings. HL7 v3 is XML
 natively, so there is no encoding-layer crate underneath this one the way
 `er7` sits under `hl7-2`; `hl7-2-xml-lite-helper` fills that role instead.
+
+Serialization: struct mode (§8) reads the *caller's* structs off an
+element. Serde for this crate's own `Message`, `ControlAct`, the RIM
+classes (§4), and the data types (§3) is `serde-hl7-v3` (`serde_hl7::v3`
+through the `serde-hl7` umbrella), an opt-in sibling that depends on this
+crate; this crate never depends on `serde`, and has no `serde` feature.
 
 ## 1. Scope — read this before filing anything as a bug
 
@@ -73,6 +80,11 @@ Deliberately out of scope, for now:
   RIM and a similar header/body split, but its document model (sections,
   entries, narrative blocks) is its own thing, not modeled here.
 - **A `V3` equivalent of `hl7-2`'s CLI.** No binary ships with this crate.
+- **An XML writer.** This crate reads HL7 v3 XML; it does not render
+  any of its types back to XML (§8.3 says the same for struct mode). A
+  decoded value leaves through the caller's own code, or through the
+  `serde-hl7-v3` crate, which serializes these types with Serde to any
+  Serde data format — a value round trip, not an XML one.
 
 ## 2. The XML layer (the [`hl7-2-xml-lite-helper`] crate)
 

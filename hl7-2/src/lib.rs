@@ -72,7 +72,11 @@
 //! ER7 encoding layer — parsing, delimiters, escape sequences, and
 //! byte-for-byte rendering all belong to [`er7`], which is this crate's
 //! only runtime dependency and has none of its own. It is also not a
-//! transport: MLLP, files, and queues are the caller's business.
+//! transport: MLLP, files, and queues are the caller's business. Nor does
+//! it depend on `serde`: struct mode is decode and encode of the caller's
+//! own structs, and Serde for this crate's [`Message`], [`Node`], and
+//! [`Diagnostic`] is the opt-in sibling crate `serde-hl7-v2`
+//! (`serde_hl7::v2` through the `serde-hl7` umbrella).
 //!
 //! `spec/index.md` in the repository is the normative specification of
 //! everything above; where this documentation and that document disagree,

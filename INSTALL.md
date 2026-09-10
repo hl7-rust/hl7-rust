@@ -76,11 +76,13 @@ cargo add hl7-2-mllp                             # MLLP framing over TCP
 cargo add hl7-2-soap                             # SOAP envelopes over HTTP
 cargo add hl7-2-from-er7-into-json               # one conversion direction
 cargo add hl7-3                                  # the HL7 v3 foundation
+cargo add serde-hl7                              # Serde for v2 and v3, opt-in
 ```
 
 Nothing forces you to take the whole workspace. `hl7-2` depends on `er7`,
 which depends on nothing — that is the entire tree, which matters where
-dependency trees get audited.
+dependency trees get audited. `serde` enters only through the three
+`serde-hl7` crates, and only for the caller who adds them.
 
 ## From source
 
@@ -129,8 +131,9 @@ If you do not have Rust: <https://rustup.rs>.
 
 ## Feature flags
 
-Everything is off by default, so the dependency-free build stays
-dependency-free.
+Almost everything is off by default, so the dependency-free build stays
+dependency-free; the defaults marked **on** below are the ones a crate's
+ordinary use expects.
 
 | Crate | Feature | Default | Effect |
 |---|---|---|---|
@@ -140,10 +143,13 @@ dependency-free.
 | `hl7-2-mllp` | `ack` | **on** | Turn a received message into the acknowledgement HL7 expects; pulls in `hl7-2` |
 | `hl7-2-mllp` | `clock` | off | `acknowledge_now`: take the timestamp from the system clock. Implies `ack`; pulls in `chrono` |
 | `hl7-2-mllp` | `noncompliance` | off | Accept the two framing sins real senders commit: a missing carriage return after the end block, and bytes between frames |
+| `serde-hl7` | `v2` | **on** | `serde_hl7::v2`, the `serde-hl7-v2` crate |
+| `serde-hl7` | `v3` | **on** | `serde_hl7::v3`, the `serde-hl7-v3` crate. Turn either off with `default-features = false` and the other's dependency tree is skipped entirely |
 
 ```sh
 cargo add hl7-2 --features derive
 cargo add hl7-2-mllp --no-default-features   # framing only, zero dependencies
+cargo add serde-hl7 --no-default-features --features v2   # Serde for v2 alone
 ```
 
 ## Verifying the install

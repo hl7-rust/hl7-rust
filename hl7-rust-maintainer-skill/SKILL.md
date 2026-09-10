@@ -25,6 +25,22 @@ Cargo.toml          [workspace] members, nothing else — see below
                      when it was a separate repo
 ```
 
+Seventeen members, grouped by role (the root `README.md` has the full
+table and the dependency graph):
+
+```
+hl7                                    umbrella: hl7::v2 + hl7::v3
+hl7-2, hl7-3                           the two parsers
+hl7-2-derive, hl7-3-derive             proc-macro companions (behind a feature)
+hl7-2-mllp, hl7-2-soap, hl7-3-soap     transports
+hl7-2-from-er7-into-json, -into-xml,   the four ER7 conversions, forward and
+hl7-2-from-json-into-er7, -xml-into-er7  reverse (each is a lib + a bin)
+hl7-2-from-xsd-into-json-dictionary    dictionary tooling (lib + bin)
+hl7-2-xml-lite-helper                  the XML reader hl7-3, both SOAP crates,
+                                       and the XML-reading conversions share
+serde-hl7, serde-hl7-v2, serde-hl7-v3  the Serde bridge: umbrella + one per standard
+```
+
 - **One `Cargo.lock`, at the workspace root.** Never add one inside a
   member.
 - **Members depend on each other by relative path**
@@ -50,9 +66,29 @@ Cargo.toml          [workspace] members, nothing else — see below
 
 Each crate with normative behavior has a `spec/index.md` — the single
 source of truth for what that crate does, numbered section by section.
-**A code change that contradicts the spec is either a bug fix (fix the
-code) or an unstated spec change (update the spec in the same commit).**
-Never let the two drift.
+Thirteen of the seventeen have one (`ls */spec/index.md`); the two
+`*-derive` crates and the two umbrellas, `hl7` and `serde-hl7`, don't,
+and each one's own `AGENTS.md` says why. **A code change that contradicts
+the spec is either a bug fix (fix the code) or an unstated spec change
+(update the spec in the same commit).** Never let the two drift.
+
+Two layouts are sanctioned, and a new crate picks one:
+
+- **One file**, `spec/index.md`, with numbered `##` sections — what the
+  eleven `hl7-*` crates use.
+- **Numbered section directories**, which `serde-hl7-v2` and
+  `serde-hl7-v3` use, mirroring `serde-er7` in the sibling `er7-rust`
+  workspace: `spec/index.md` holds a section table, an S-numbered rule
+  index (`S1`…`S15`, citable from tests and commits), the
+  which-goal-wins list, and the required checks; each section is its own
+  `spec/NN-slug/index.md` (`01-purpose-and-scope` … `11-strict-mode`).
+  §7.1 is a coverage table naming the test behind every rule, and
+  `cargo test -p <crate>` **checks it**: `every_rule_has_a_coverage_row`
+  fails on a rule with no row or a row with no rule, and
+  `every_spec_section_is_indexed_and_present` fails on a section directory
+  the index doesn't list (or vice versa). So in those crates a spec change
+  is: edit `spec/NN-*/index.md`, then the rule index, then the §7.1 row,
+  then the code and tests — in that order.
 
 Workspace-wide claims — not one crate's alone — live under the root
 [`spec/`](../spec/) instead: what "supports HL7 v2 2.1–2.9" means
@@ -70,7 +106,7 @@ affected crate's own `AGENTS.md` in the same change.**
 cargo test                                    # unit and integration tests
 cargo clippy --all-targets -- -D warnings     # lint-clean
 cargo fmt --check                             # formatting
-cargo rustdoc -p <crate> --lib -- -W missing-docs   # per crate — root is a virtual manifest; loop over all 14 libs, per .github/workflows/ci.yml
+cargo rustdoc -p <crate> --lib -- -W missing-docs   # per crate — root is a virtual manifest; loop over all 17 libs, per .github/workflows/ci.yml
 cargo +1.96 check --workspace --all-targets   # the MSRV floor (moves with the policy)
 ./bin/check-trademarks                        # HL7®/FHIR®/CDA® fair-use rules, T1–T3
 ./bin/check-docs                              # doc size budget + relative-link integrity
@@ -100,6 +136,26 @@ local step for it above.
   (`hl7-2-from-xml-into-er7`, `-from-json-into-er7`) — run the round trip
   after touching either:
   `hl7-2-from-er7-into-xml in.hl7 | hl7-2-from-xml-into-er7 | diff - in.hl7`.
+- **Dependencies are per-crate and deliberately few.** `deny.toml`
+  (run weekly by `security.yml`) is the audit trail, so read its comments
+  before adding one anywhere. The three Serde bridge crates are the
+  strictest case: `serde-hl7-v2` and `serde-hl7-v3` each have **exactly
+  two runtime dependencies** — `serde` and the `hl7-2`/`hl7-3` crate it
+  wraps, with `default-features = false` — and a manifest-reading test
+  (`the_crate_has_exactly_two_runtime_dependencies`) fails on a third.
+  `serde_json` is a **dev-dependency only**, for tests, doctests, and
+  examples; no format crate is ever named in `src/`. Every impl there is
+  hand-written against Serde's low-level traits — `macro_rules!` is fine,
+  a `serde_derive`/proc-macro dependency is not. And no other crate in
+  the workspace depends on `serde` at all
+  ([`spec/phi/index.md`](../spec/phi/index.md), "No serialization
+  framework") — keep it that way.
+- **Two umbrellas, same shape.** `serde-hl7` is to `serde-hl7-v2`/`-v3`
+  what `hl7` is to `hl7-2`/`hl7-3`: re-exports only (`serde_hl7::v2`,
+  `serde_hl7::v3`, each behind a same-named feature, both on by default),
+  no code of its own, no `spec/` directory. A behavior fix never lands in
+  an umbrella; a new public item in a wrapped crate is visible through
+  the umbrella with no change there.
 - **PHI care.** Never paste real patient data into an issue, a commit, a
   test fixture, or a prompt to an AI tool — synthesize instead. See
   [`spec/phi/index.md`](../spec/phi/index.md) for what the libraries
@@ -161,7 +217,9 @@ break, a `CHANGELOG.md` entry before anything publishes, `cargo package`
 as a manifest sanity check, then tag and sign. That same spec states the
 bounds under which an agentic tool may decide, on its own judgment, that a
 release is warranted and execute it — not something to invoke casually
-just because this recipe exists next to it.
+just because this recipe exists next to it. The first release of a
+brand-new crate, a raised MSRV floor, and anything touching the license
+or trademark posture stay the maintainer's call, never delegated.
 
 ## What CI actually gates
 

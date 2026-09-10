@@ -2,7 +2,7 @@
 //! wherever in the nested tree it is, instead of the plain type silently
 //! reading the mistyped key as absent.
 //!
-//! Run with: `cargo run -p serde-hl7-v3 --example catch_a_typo_with_strict`
+//! Run with: `cargo run -p serde-hl7-v3 --example v3_catch_a_typo_with_strict`
 #![forbid(unsafe_code)]
 
 use serde_hl7_v3::{Message, Strict};

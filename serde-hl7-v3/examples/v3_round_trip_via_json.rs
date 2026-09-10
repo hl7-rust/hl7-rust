@@ -1,6 +1,6 @@
 //! XML → `Message` → JSON → `Message`, equal — the crate's flagship path.
 //!
-//! Run with: `cargo run -p serde-hl7-v3 --example round_trip_via_json`
+//! Run with: `cargo run -p serde-hl7-v3 --example v3_round_trip_via_json`
 #![forbid(unsafe_code)]
 
 use serde_hl7_v3::Message;

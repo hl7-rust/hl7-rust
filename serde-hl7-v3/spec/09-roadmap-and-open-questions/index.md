@@ -27,7 +27,7 @@ open lives here.
   — attribute names are the document's data, not this crate's keys, so
   `Strict<Element>` checks the four keys of the element object and leaves
   the attribute map alone. Recorded here because the distinction surprises
-  people (`examples/catch_a_typo_with_strict.rs` shows it).
+  people (`examples/v3_catch_a_typo_with_strict.rs` shows it).
 - **Should `Message` carry the root element's tag** — the interaction's
   wire name? `hl7-3` does not currently expose it as a field (its
   `message.rs` says so), so there is nothing to serialize. If `hl7-3` adds

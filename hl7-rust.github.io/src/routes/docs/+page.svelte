@@ -25,7 +25,7 @@
 
   <h2 id="which-crate">Which crate do I need?</h2>
   <p>
-    Fourteen crates is a lot to face on day one. In practice the answer is short, and it depends
+    Seventeen crates is a lot to face on day one. In practice the answer is short, and it depends
     on one question: what does the system at the other end send you?
   </p>
   <dl>
@@ -56,6 +56,13 @@
       <a href="/crates/hl7-3/"><code>hl7-3</code></a> for the model, and
       <a href="/crates/hl7-3-soap/"><code>hl7-3-soap</code></a> for the transport. Read that
       crate's scope section first: it is a foundation, not a complete implementation of v3.
+    </dd>
+    <dt>A parsed message has to reach something that speaks Serde — a document store, a web
+      framework, a structured log</dt>
+    <dd>
+      Add <a href="/crates/serde-hl7/"><code>serde-hl7</code></a> beside <code>hl7</code>. It
+      wraps the v2 and v3 values in Serde-enabled types for any format the caller picks; the parsing
+      crates themselves stay free of <code>serde</code>. See <a href="/guides/serde/">Serde</a>.
     </dd>
   </dl>
   <p>See <a href="/docs/architecture/">Architecture</a> for the full map and the reasoning.</p>

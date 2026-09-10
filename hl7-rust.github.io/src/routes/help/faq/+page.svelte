@@ -135,6 +135,18 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
     the raw file. See <a href="/tutorials/round-trip/">A lossless round trip</a>.
   </p>
 
+  <h3>I want the message as JSON for Serde. Is that <code>hl7-2-from-er7-into-json</code>?</h3>
+  <p>
+    Probably not. That crate defines a fixed, typed JSON document — one key per field, named by
+    data type — for consumers that are not Rust, and it comes with a reverse crate.
+    <a href="/crates/serde-hl7-v2/"><code>serde-hl7-v2</code></a> is for Rust code that already
+    holds an <code>hl7_2::Message</code> and needs it to pass through Serde: the message travels as
+    its ER7 text plus the release it was read as, and the tree, when you ask for one, is one object
+    per node with <code>name</code>, <code>path</code>, <code>kind</code>, <code>text</code>,
+    <code>null</code>, and <code>children</code>. Same message, two different shapes for two
+    different consumers. See <a href="/guides/serde/">Serde</a>.
+  </p>
+
   <h3>Can I convert against my vendor's XSDs rather than the bundled v2.5 tables?</h3>
   <p>
     Yes — generate a dictionary with
@@ -155,8 +167,13 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
   </p>
 
   <h3>Can I write HL7 v3 XML?</h3>
-  <p>Not yet. <code>hl7-3</code> reads; there is no XML-writing capability, which is also why there
-    is no <code>#[derive(ToElement)]</code>.</p>
+  <p>
+    Not yet. <code>hl7-3</code> reads; there is no XML-writing capability, which is also why there
+    is no <code>#[derive(ToElement)]</code>. A decoded value does have a way out in other formats:
+    <a href="/crates/serde-hl7-v3/"><code>serde-hl7-v3</code></a> serializes the envelope, the RIM
+    classes, and the element tree through any Serde format, and promises a value round trip — not
+    the original XML.
+  </p>
 
   <h3>Does <code>hl7</code>'s <code>derive</code> feature give me the v3 macro?</h3>
   <p>
@@ -215,7 +232,9 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
   <p>
     Healthcare software gets audited, and a dependency tree is part of what gets audited. The JSON
     reader in <code>hl7-2</code>, the JSON writer in the dictionary builder, and the shared XML reader
-    are all hand-written for that reason.
+    are all hand-written for that reason. It is also why Serde support lives in three separate
+    crates rather than behind a feature: <code>serde</code> reaches only the callers who add
+    <a href="/crates/serde-hl7/"><code>serde-hl7</code></a>.
   </p>
 
   <h3>Where does <code>er7</code> live?</h3>

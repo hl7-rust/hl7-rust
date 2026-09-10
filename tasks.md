@@ -586,6 +586,14 @@ Per `spec/free-open-source-funding/index.md`.
       caused by this release: the GitLab mirror's `main` had diverged
       earlier (an amended commit) and rejected the push; tags landed
       there, the branch did not.
+- [ ] **Tag `hl7` 0.2.1 and 0.2.2** — found 2026-09-10: both were
+      published 2026-09-09 (crates.io timestamps 11:32 and 11:35 UTC)
+      from the "Improve name distinction" change, with no `CHANGELOG.md`
+      entry and no `hl7-v0.2.1`/`hl7-v0.2.2` tags. The changelog entry
+      ("2026-09-09, sixth release") is now written; the two signed tags
+      are the maintainer's to cut — `hl7-v0.2.1` on `8c622b2` and
+      `hl7-v0.2.2` on `dc80f52`, the commits whose `hl7/Cargo.toml`
+      carries each version.
 
 ## Trademarks
 

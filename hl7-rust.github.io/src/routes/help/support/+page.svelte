@@ -167,7 +167,7 @@ spec/                workspace-wide specs (the MSRV policy)
       <strong>No shared <code>[workspace.dependencies]</code></strong> without discussion — it would
       touch every member's manifest at once. The one deliberate exception is
       <code>rust-version</code>, below, inherited via <code>[workspace.package]</code> because all
-      fourteen members must always agree on that one value.
+      seventeen members must always agree on that one value.
     </li>
     <li>
       <strong>MSRV is current stable minus two.</strong> Raising the floor is routine and expected,

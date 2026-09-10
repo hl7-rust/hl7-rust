@@ -2,7 +2,7 @@
 //! and the validation findings, the two views this crate adds over the
 //! bare ER7 text.
 //!
-//! Run with: `cargo run -p serde-hl7-v2 --example log_the_tree_as_json`
+//! Run with: `cargo run -p serde-hl7-v2 --example v2_log_the_tree_as_json`
 #![forbid(unsafe_code)]
 
 use serde_hl7_v2::{Diagnostic, Node};
@@ -18,7 +18,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // The tree: every node an object with name, path, kind, text, null,
     // and children. Serialize-only — a tree is a view of the message, and
-    // the message is what round-trips (see `round_trip_via_json`).
+    // the message is what round-trips (see `v2_round_trip_via_json`).
     let tree = serde_json::to_value(Node(message.tree()))?;
     let pid = tree["children"]
         .as_array()

@@ -99,8 +99,9 @@ std::fs::write("paris.json", document.to_json())?;
 
 One:
 [`hl7-2-xml-lite-helper`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-xml-lite-helper),
-the small, dependency-free XML reader shared with `hl7-2-soap` and
-`hl7-2-from-xml-into-er7`, re-exported here as `xml` so a caller can name
+the small, dependency-free XML reader shared with `hl7-2-soap`,
+`hl7-2-from-xml-into-er7`, `hl7-3`, and `hl7-3-soap`, re-exported here as
+`xml` so a caller can name
 `xml::Element` without adding its own dependency on it. Reading XSD needs
 an XML reader; writing a dictionary needs a JSON writer, which is small and
 specific enough to the one shape involved to live here rather than pull in

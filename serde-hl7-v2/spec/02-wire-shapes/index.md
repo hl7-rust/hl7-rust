@@ -46,9 +46,10 @@ change (see [§8](../08-versioning-and-compatibility/index.md), rule S10).
   or no kind is not a finding.
 
 - **S6**: `Version` serializes through `hl7_2::Version::as_str` and
-  deserializes through `hl7_2::Version::parse`. Only an exact known
-  release is accepted; a string such as `"2.5.2"` is an `invalid_value`
-  error naming it. The tolerant nearest-release resolution
+  deserializes through `hl7_2::Version::parse`. Only a known release is
+  accepted, spelled exactly (`Version::parse` trims surrounding
+  whitespace, nothing more); a string such as `"2.5.2"` is an
+  `invalid_value` error naming it. The tolerant nearest-release resolution
   `hl7_2::parse` applies to MSH-12 belongs to parsing, not to a field
   that says which release a message *was* read as.
 

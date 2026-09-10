@@ -40,8 +40,10 @@ er7 (dependency)  ER7 parsing, delimiters, escape sequences, batch
 src/lib.rs        Public API: convert(), convert_with_options(), Options,
                    Hl7Error, split_messages(), normalize(), root_name.
 src/types.rs       Data-type tables: segment field types, composite
-                   component types (drives typed JSON key naming). Shared
-                   verbatim with the XML sibling.
+                   component types (drives typed JSON key naming). This
+                   crate's own copy of the v2.5 tables; the XML sibling
+                   reads the same tables from `hl7-2` since its 0.5.0
+                   (spec/index.md §0, hl7-2/spec/index.md §0).
 src/structure.rs   Message-structure grammars (ACK, ADT_A01, ORM_O01,
                    ORU_R01) and the greedy matcher that groups segments.
                    Same grammars as the XML sibling; builds json::Node
@@ -77,8 +79,12 @@ splitting, the CLI contract) is covered in `tests/integration.rs` instead.
   `er7`, not here; see `spec/index.md` §2 for the inherited guarantees.
 - Hand-rolling the JSON writer
   (`src/json.rs`) instead of pulling in `serde_json` is a deliberate part
-  of this crate's value proposition, matching the XML sibling's zero-dep
-  stance.
+  of this crate's value proposition, matching the family's no-`serde`
+  stance. Serde for `hl7-2`'s own types is the opt-in sibling crate
+  `serde-hl7-v2`; its `Node` shape (a generic
+  `name`/`path`/`kind`/`text`/`null`/`children` object) is not this
+  crate's keyed-by-HL7-name JSON, and neither is meant to replace the
+  other.
 - Every public item must have a doc comment; `src/lib.rs` carries
   `#![warn(missing_docs)]` to enforce it. Run `cargo doc --no-deps` (or the
   check below) after adding public API.
@@ -137,7 +143,8 @@ splitting, the CLI contract) is covered in `tests/integration.rs` instead.
   request) motivates it, and give it the same grammar-table treatment as
   the existing four in `src/structure.rs`.
 - Pulling in `serde`/`serde_json` — see the dependency note above; the
-  hand-rolled writer is deliberate.
+  hand-rolled writer is deliberate, and Serde support for the family lives
+  in `serde-hl7-v2`, not here.
 
 ## Benchmarks
 

@@ -58,7 +58,7 @@ change that completes them, with the evidence named.
       `src/routes/crates/<name>/` pages, crate counts updated in the
       spec, FAQ, architecture, and agent-skill pages and the navigation
       blurb; `pnpm run check` and `pnpm run build` pass.
-- [x] `CHANGELOG.md` entry for the sixth release, dated 2026-09-10,
+- [x] `CHANGELOG.md` entry for the seventh release, dated 2026-09-10,
       written before publishing per the runbook's step 3.
 
 ## Release (the runbook in `spec/release-process/index.md`)
@@ -67,7 +67,7 @@ change that completes them, with the evidence named.
       inter-crate requirement changes (`hl7-2` 0.3.0 and `hl7-3` 0.2.0 were
       already on crates.io). `cargo +1.96 check --workspace --all-targets`
       clean — done 2026-09-10.
-- [x] Step 3: `CHANGELOG.md` entry "2026-09-10, sixth release" written
+- [x] Step 3: `CHANGELOG.md` entry "2026-09-10, seventh release" written
       before publishing, in commit `5e17a4e`.
 - [x] Step 4: `cargo test`, `clippy --all-targets -D warnings`, `fmt
       --check`, `rustdoc -W missing-docs` per new crate, the MSRV check,
@@ -93,15 +93,36 @@ change that completes them, with the evidence named.
 
 ## Later
 
-- [ ] `Deserialize` for `serde-hl7-v2::Node`, if `hl7-2` grows a public
-      `Node` constructor (v2 spec §9.1).
-- [ ] Add `serde-hl7` to the "crate family" table in `serde-er7/README.md`
-      in the sibling `er7-rust` repository.
-- [ ] Wire-shape decision recorded for future readers: `serde-hl7-v2`'s
-      `Node` shape is deliberately different from
-      `hl7-2-from-er7-into-json`'s output (a faithful six-key node vs. a
-      name-keyed nested object); cross-link the two READMEs when that
-      crate's docs are next touched.
+- [ ] **GitLab `main` is behind.** `git@gitlab.com:hl7-rust/hl7-rust.git`
+      still holds `9d4d98d` (checked 2026-09-10 with `git ls-remote`); the
+      three `serde-hl7*-v0.1.0` tags did land there. Bringing it forward
+      needs a force push to that one URL (`origin` fans out to all three
+      hosts, so not `git push --force origin`), which is the maintainer's
+      decision, not an agent's.
+- [ ] **`Deserialize` for `serde_hl7_v2::Node`** — only if `hl7-2` adds a
+      public constructor for `hl7_2::Node` (its own decision; v2 spec
+      §9.1). Then: add the impl in `serde-hl7-v2/src/node.rs`, retire rule
+      S14 in `serde-hl7-v2/spec/index.md` and §2.2/§4.3/§9.1 the way
+      `serde-er7`'s §9.2 struck through its resolved question, update the
+      §7.1 coverage row, and release `serde-hl7-v2` — additive, not
+      breaking, per its spec §8.1, so a patch bump suffices.
+- [ ] **`serde-er7/README.md` "The crate family" table** in
+      `~/git/er7-rust/er7-rust` does not list `serde-hl7` (checked
+      2026-09-10): add one row per bridge crate (`serde-hl7`,
+      `serde-hl7-v2`, `serde-hl7-v3`) with their crates.io links, in that
+      repository's own change.
+- [ ] **Cross-link the two JSON shapes of a v2 tree.** `serde-hl7-v2`'s
+      `Node` (a six-key object per node, rule S4) is deliberately not
+      `hl7-2-from-er7-into-json`'s output (an object keyed by HL7® names,
+      groups nested). When `hl7-2-from-er7-into-json/README.md` is next
+      touched, add a sentence pointing at `serde-hl7-v2` for the
+      per-node shape, and add the reverse pointer under "Why the message is
+      text, not a tree" in `serde-hl7-v2/README.md`.
+- [ ] **Next `hl7-2`/`hl7-3` minor release.** Each bridge crate pins its
+      sibling by `version` (`hl7-2 = "0.3.0"`, `hl7-3 = "0.2.0"`); a `0.x`
+      minor bump there fails Cargo's caret rule, so the runbook's step 2
+      must bump the requirement here and release the bridge crate in the
+      same pass.
 
 ## Trademarks
 

@@ -38,7 +38,8 @@ for the section directories and [`index.md`](../index.md).
    isolation: duplicate/missing/unknown keys, every enum variant, forced
    versions, the seed.
 2. **Doctests** (the `Example:` section on every public type, per rule
-   S12) — one realistic, runnable use of that item.
+   S12; `MessageSeed`'s is on `Message::seed`, which builds it) — one
+   realistic, runnable use of that item.
 3. **Integration tests** (`tests/integration.rs`) — black-box, through the
    public API only, exercising real message shapes: `hl7-2`'s own
    `samples/*.hl7` files, read via `include_str!` from the sibling

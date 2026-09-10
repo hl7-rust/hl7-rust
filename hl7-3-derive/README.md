@@ -70,7 +70,9 @@ a write-direction macro would have nothing real to generate.
 ## See also
 
 - [`hl7-3`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-3) — the
-  library this macro is for; its `typed` module documents struct mode
+  library this macro is for;
+  [its `spec/index.md` §8](https://github.com/hl7-rust/hl7-rust/blob/main/hl7-3/spec/index.md)
+  and its `typed` module document struct mode
 - [`hl7-2-xml-lite-helper`](https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2-xml-lite-helper) —
   the XML reader `hl7-3` (and this macro's generated code) reads through
 

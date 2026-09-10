@@ -32,7 +32,7 @@ assert_eq!(back.version(), message.version());`;
 
   const tree = `use serde_hl7_v2::Node;
 
-let json = serde_json::to_value(Node(message.tree()))?;
+let json = serde_json::to_string(&Node(message.tree()))?;
 // {"name":"ORU_R01","path":"","kind":"Group","text":"...","null":false,"children":[
 //   {"name":"MSH","path":"MSH[1]","kind":"Segment", ...},
 //   {"name":"PID","path":"PID[1]","kind":"Segment","children":[
@@ -44,7 +44,8 @@ let json = serde_json::to_value(Node(message.tree()))?;
 
 let findings: Vec<Diagnostic> = message.validate().into_iter().map(Diagnostic).collect();
 let json = serde_json::to_string(&findings)?;
-// [{"severity":"Warning","kind":"SegmentUnknown","path":"ZPD","detail":"..."}]
+// [{"severity":"Warning","kind":"StructureMismatch","path":"","detail":"the standard segments
+//   fit structure ORU_R01, but the message also carries local Z-segments, ..."}]
 
 let back: Vec<Diagnostic> = serde_json::from_str(&json)?;
 assert_eq!(back, findings);`;

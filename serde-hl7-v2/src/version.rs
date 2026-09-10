@@ -11,7 +11,8 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// Serializes as the release string exactly as MSH-12.1 spells it —
 /// `"2.5"`, `"2.5.1"`, `"2.9"` — through [`hl7_2::Version::as_str`], and
 /// deserializes through [`hl7_2::Version::parse`], so only a release
-/// `hl7-2` knows is accepted. (A message whose MSH-12 names a release
+/// `hl7-2` knows is accepted, spelled exactly (surrounding whitespace is
+/// trimmed, nothing more). (A message whose MSH-12 names a release
 /// `hl7-2` does not know is still readable: [`crate::Message`] resolves
 /// that the way `hl7_2::parse` does, to the nearest older release, before
 /// this type is ever involved.)

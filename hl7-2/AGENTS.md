@@ -23,6 +23,7 @@ hl7-2         this crate (`hl7_2::...` directly, or `hl7::v2::...` via
   |
   +-- hl7-2-mllp    transport (MLLP over TCP)
   +-- hl7-2-from-er7-into-json / -into-xml / from-json / from-xml
+  +-- serde-hl7-v2  Serde for this crate's own Message/Node/Diagnostic
 ```
 
 Anything about *how ER7 is written* belongs in `er7`, not here. Anything
@@ -96,6 +97,9 @@ round trips, the CLI contract — goes in `tests/integration.rs` instead.
   `derive` feature is the one sanctioned exception, and it is opt-in.
 - Hand-rolling the JSON reader (`src/json.rs`) instead of pulling in
   `serde_json` is deliberate, matching the family's zero-dependency stance.
+  Serde support for this crate's types exists, but as the opt-in sibling
+  crate `serde-hl7-v2` (`serde_hl7::v2` through the `serde-hl7` umbrella),
+  which depends on this crate — never the other way round.
 - **Fallback-first.** Reading never fails below the MSH header: unknown
   segments, unknown types, unmodelled releases, and structure mismatches
   degrade to positional names and a flat tree, and are *reported* by
@@ -182,6 +186,8 @@ When adding to it:
 - Making the builder read the clock or invent control IDs — both would make
   outbound messages untestable and untraceable.
 - Pulling in `serde`/`serde_json`, or making `derive` a default feature.
+  Serde for `Message`, `Node`, and `Diagnostic` already exists in
+  `serde-hl7-v2`, one layer up; the absence here is not a gap to fill.
 - Adding message-structure grammars speculatively; add one when a real need
   (a failing case, a user request) motivates it, and give it the same
   treatment as the four already in `schemas/v2.5.json`.

@@ -1,7 +1,7 @@
 //! ER7 → `Message` → JSON → `Message` → ER7, unchanged — the crate's
 //! flagship path, with the release the message was read as riding along.
 //!
-//! Run with: `cargo run -p serde-hl7-v2 --example round_trip_via_json`
+//! Run with: `cargo run -p serde-hl7-v2 --example v2_round_trip_via_json`
 #![forbid(unsafe_code)]
 
 use serde_hl7_v2::Message;

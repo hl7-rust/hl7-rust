@@ -3,12 +3,13 @@
 > HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.
 
 Parse, navigate, validate, modify, and render Health Level Seven (HL7)
-messages in Rust. A Cargo workspace of fourteen small, mostly
+messages in Rust. A Cargo workspace of seventeen small, mostly
 dependency-free crates: HL7 v2 (releases 2.1-2.9) with three parsing
 modes and a command-line tool, a foundation for HL7 v3, format
 conversion between ER7 (pipe-delimited), the official v2.xml, and JSON,
-transports (MLLP, SOAP), and tooling to build a vendor dictionary from a
-site's own XSDs. This is an independent project, not affiliated with or
+transports (MLLP, SOAP), tooling to build a vendor dictionary from a
+site's own XSDs, and opt-in Serde support in three separate bridge
+crates. This is an independent project, not affiliated with or
 endorsed by Health Level Seven International.
 
 ## Start here

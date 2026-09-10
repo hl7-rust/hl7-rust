@@ -24,7 +24,7 @@
     { not: 'No environment variables', check: 'std::env appears in no library source, only in the CLI’s argument parsing' },
     { not: 'No sockets opened', check: 'std::net appears in no library source; MLLP is generic over a byte stream you supply' },
     { not: 'No subprocesses', check: 'std::process appears in no library source' },
-    { not: 'No serialization framework', check: 'No serde; the JSON reader is hand-written and reads only dictionaries' }
+    { not: 'No serialization framework', check: 'No serde in any of the fourteen parsing, transport, conversion, and helper crates; the JSON reader is hand-written and reads only dictionaries. The one exception is opt-in and separate: the three serde-hl7 bridge crates depend on serde and nothing else beyond the crate each wraps, so a caller who never adds them never carries it' }
   ];
 
   const redacted = `MSH|^~\\&|LAB|ACME|EHR|CLINIC|20260814080000||ORU^R01|MSG00042|P|2.5

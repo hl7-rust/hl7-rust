@@ -2,7 +2,7 @@
 //! instead of it silently reading the version from MSH-12 as if the key
 //! had never been written.
 //!
-//! Run with: `cargo run -p serde-hl7-v2 --example catch_a_typo_with_strict`
+//! Run with: `cargo run -p serde-hl7-v2 --example v2_catch_a_typo_with_strict`
 #![forbid(unsafe_code)]
 
 use serde_hl7_v2::{Message, Strict};

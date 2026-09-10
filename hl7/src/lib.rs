@@ -36,6 +36,11 @@
 //! in v2 means another in FHIR — a "message", a "segment", a "code" — and
 //! flattening them into one namespace would only invite mixing them up.
 //!
+//! Serde support is the same shape one layer up, in the opt-in `serde-hl7`
+//! umbrella crate: `serde_hl7::v2` is `serde-hl7-v2` (Serde for `hl7-2`'s
+//! types) and `serde_hl7::v3` is `serde-hl7-v3` (for `hl7-3`'s), so
+//! neither this crate nor the crates it re-exports depends on `serde`.
+//!
 //! See [`v2`] for everything HL7 v2, and `hl7-2`'s `spec/index.md` for the
 //! normative specification of it.
 //!

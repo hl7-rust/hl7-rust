@@ -109,9 +109,10 @@ at zero.
 
 ## Benchmarks
 
-Criterion benchmarks live in `benches/` and measure one conversion over a
-short message and a 200-observation result — both synthetic, never real
-patient data. `criterion` is a development dependency, so it is compiled
+Criterion benchmarks live in `benches/parse.rs` and measure parsing over
+the two document shapes this crate exists to read — a 200-observation
+v2.xml message and a SOAP envelope — both synthetic, never real patient
+data. `criterion` is a development dependency, so it is compiled
 for `cargo bench` and never linked into the library or the binary; the
 runtime dependency rule above is unchanged.
 

@@ -79,6 +79,11 @@ workspace. Everything else above is a member here.
 Each crate has its own `README.md` (user-facing tour) and, where behavior
 is normative, a `spec/index.md` (single source of truth for that crate).
 
+Serde is opt-in: the three `serde-hl7` crates are the only place it
+appears, and no parser, transport, or converter depends on them, so JSON,
+YAML, or any other Serde format is one added crate away rather than a
+dependency everyone carries.
+
 ## Agent skills
 
 Two [Agent Skills](https://code.claude.com/docs/en/skills) for Claude

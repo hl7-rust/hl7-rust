@@ -11,7 +11,7 @@
     { id: 'workspace', label: 'The workspace’s own specs' }
   ];
 
-  const order: CrateCategory[] = ['core', 'transport', 'conversion', 'tooling'];
+  const order: CrateCategory[] = ['core', 'transport', 'conversion', 'serde', 'tooling'];
   const specced = CRATES.filter((crate) => crate.spec);
   const unspecced = CRATES.filter((crate) => !crate.spec);
 
@@ -97,6 +97,26 @@
       '§3 reading',
       '§4 writing',
       '§6 what this is not'
+    ],
+    'serde-hl7-v2': [
+      '§1 purpose and scope',
+      '§2 wire shapes',
+      '§3 dependencies and format-agnosticism',
+      '§4 the round-trip guarantee',
+      '§5 error handling',
+      '§7 testing strategy',
+      '§8 versioning and compatibility',
+      '§11 strict mode'
+    ],
+    'serde-hl7-v3': [
+      '§1 purpose and scope',
+      '§2 wire shapes',
+      '§3 dependencies and format-agnosticism',
+      '§4 the round-trip guarantee',
+      '§5 error handling',
+      '§7 testing strategy',
+      '§8 versioning and compatibility',
+      '§11 strict mode'
     ]
   };
 </script>
@@ -156,6 +176,13 @@
         {:else if crate.name === 'hl7-2-derive'}
           macro behavior is documented in the crate's own README and, normatively, in
           <a href={specUrl(CRATES.find((c) => c.name === 'hl7-2')!)}>hl7-2's spec §6 (struct mode)</a>.
+        {:else if crate.name === 'serde-hl7'}
+          a thin re-export, like <code>hl7</code>: <code>serde_hl7::v2</code> and
+          <code>serde_hl7::v3</code> behind two features, with nothing normative of its own to
+          state. Read
+          <a href={specUrl(CRATES.find((c) => c.name === 'serde-hl7-v2')!)}>serde-hl7-v2's spec</a>
+          and <a href={specUrl(CRATES.find((c) => c.name === 'serde-hl7-v3')!)}>serde-hl7-v3's</a>
+          instead.
         {:else}
           macro behavior is documented in the crate's own README and in <code>hl7-3</code>'s
           <code>typed</code> module, rather than as a spec of its own.
@@ -176,6 +203,16 @@
     dictionary at all: every element or key name its forward counterpart writes already carries
     its own position, so reversing the conversion is a purely structural, position-based rebuild.
     That is also why the reverse crates are so much smaller than the forward ones.
+  </p>
+  <p>
+    The two <em>Serde</em> specs are laid out section for section the same way — an index with a
+    rule index of fifteen S-numbered rules, then eleven numbered sections from purpose and scope
+    through strict mode — following the <code>serde-er7</code> spec they were modelled on. §2 in
+    each is the wire-shape table, which is the crate's compatibility surface; §7.1 is a coverage
+    table that <code>cargo test</code> checks against the rule index, so a rule cannot be stated
+    without a test that names it. Where the two differ is in what the rules say, not where they
+    say it: v2's message travels as its ER7 text plus release and its tree is
+    <code>Serialize</code> only; v3 promises a value round trip and not an XML one.
   </p>
   <h2 id="workspace">The workspace's own specs</h2>
   <p>

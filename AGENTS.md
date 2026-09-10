@@ -10,11 +10,13 @@ A Cargo workspace holding every crate in the HL7®-for-Rust project — see
 crate directories are former standalone repositories, merged in with
 `git subtree` so their commit history survived the move (`hl7-2-soap`,
 `hl7-2-xml-lite-helper`, `hl7-2-from-xsd-into-json-dictionary`, `hl7-3`,
-`hl7-3-derive`, and `hl7-3-soap` are the exceptions so far — born directly
-in this workspace, no prior repo). Each crate has its own `README.md`, `AGENTS.md`,
+`hl7-3-derive`, `hl7-3-soap`, `serde-hl7`, `serde-hl7-v2`, and
+`serde-hl7-v3` are the exceptions so far — born directly in this
+workspace, no prior repo). Each crate has its own `README.md`, `AGENTS.md`,
 `CLAUDE.md`, and `LICENSE.md`, and — for behavior that's normative rather
-than incidental — a `spec/index.md` (the two `*-derive` crates, and `hl7`
-itself, don't have one; see each one's own `AGENTS.md` for why), which
+than incidental — a `spec/index.md` (the two `*-derive` crates and the two umbrella
+crates, `hl7` and `serde-hl7`, don't have one; see each one's own
+`AGENTS.md` for why), which
 remains the single source of truth for that crate's behavior. **Read the
 crate's own `AGENTS.md` before working in it**; this file only covers
 workspace-wide concerns.
@@ -76,7 +78,7 @@ workspace root, each self-contained in its own `SKILL.md`:
   widens dictionary coverage, adds a way for message content to reach an
   error string, or moves a published benchmark figure updates the
   corresponding one in the same change.
-- Every crate, and the workspace root, has its own `LICENSE.md`. The 14
+- Every crate, and the workspace root, has its own `LICENSE.md`. The 17
   crate copies are byte-for-byte identical to each other, matching each
   `Cargo.toml`'s `license` field; the root's `LICENSE.md` is a longer,
   expanded document (SPDX block, `LICENSES/` reference, per-file

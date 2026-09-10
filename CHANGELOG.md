@@ -18,7 +18,7 @@ The full release runbook — the inter-crate version-requirement check, the
 tag-and-sign step, and who may decide a release is warranted — is
 [`spec/release-process/index.md`](spec/release-process/index.md).
 
-## 2026-09-10, sixth release
+## 2026-09-10, seventh release
 
 Three new crates, each at its first version. Nothing already published
 changes: `hl7-2` 0.3.0 and `hl7-3` 0.2.0 are the versions the new crates
@@ -55,6 +55,29 @@ depend on, and no other crate's manifest was touched.
 ### Released
 
 `serde-hl7` 0.1.0 · `serde-hl7-v2` 0.1.0 · `serde-hl7-v3` 0.1.0
+
+## 2026-09-09, sixth release
+
+Two **patch** bumps of the `hl7` umbrella crate alone, three minutes
+apart, carrying no code change. Recorded here after the fact, on
+2026-09-10, when the accuracy sweep that followed the seventh release
+found them on crates.io with no changelog entry and no tag: the runbook
+in [`spec/release-process/index.md`](spec/release-process/index.md)
+requires both, and this entry closes the first half of that gap. The
+tags remain the maintainer's to cut.
+
+### Changed
+
+- **`hl7`'s crates.io description wording**, from "HL7® implementation
+  using Rust" to "HL7® message tooling implementation using Rust", so
+  the umbrella's listing reads as tooling for HL7 messages rather than as
+  an implementation of HL7 itself — commit `dc80f52`, "Improve name
+  distinction", which also aligned `hl7/README.md` and the root
+  `README.md` title.
+
+### Released
+
+`hl7` 0.2.1 · `hl7` 0.2.2
 
 ## 2026-08-29, fifth release
 

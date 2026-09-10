@@ -133,8 +133,8 @@ failing (`spec/index.md` §6).
   characters and `\Xhh..\` decodes hex bytes, before XML escaping.
   Unrecognized sequences (formatting commands such as `\.br\`) are kept
   literally.
-- **Typed element names**: built-in HL7 v2.5 tables map each field of the
-  common segments (MSH, SFT, EVN, PID, PD1, NK1, PV1, PV2, ROL, DG1, PR1,
+- **Typed element names**: the `hl7-2` dictionary's HL7 v2.5 tables map
+  each field of the common segments (MSH, SFT, EVN, PID, PD1, NK1, PV1, PV2, ROL, DG1, PR1,
   ORC, OBR, OBX, NTE, AL1, IN1, MRG, MSA, ERR, DSC, BLG, CTI, SPM) to its
   data type, and each composite type (CX, XPN, XCN, XAD, CE, CWE, EI, HD,
   TS, ...) to its component types — producing `<PID.5><XPN.1><FN.1>` style
@@ -148,8 +148,9 @@ failing (`spec/index.md` §6).
   share an encoding.
 - **Message-structure groups**: for known structures the segments are nested
   into their official groups, e.g. `<ORM_O01.PATIENT>` or
-  `<ORU_R01.ORDER_OBSERVATION>`. Grammars are included for ACK, ADT_A01
-  (also used by ADT^A04/A08/A13), ORM_O01, and ORU_R01. The root element
+  `<ORU_R01.ORDER_OBSERVATION>`. The `hl7-2` dictionary bundles grammars
+  for ACK, ADT_A01 (also used by ADT^A04/A08/A13), ORM_O01, and ORU_R01.
+  The root element
   name comes from MSH-9.3 when present, otherwise from MSH-9.1/9.2.
 
 ## Fallback behavior
@@ -157,9 +158,9 @@ failing (`spec/index.md` §6).
 Fidelity degrades gracefully instead of failing:
 
 - A message whose segment sequence does not fit its declared structure
-  (e.g. it contains Z-segments, or uses a structure without a built-in
+  (e.g. it contains Z-segments, or uses a structure without a bundled
   grammar) renders with all segments **flat** under the root element.
-- Fields of unknown segments — and segment fields beyond the built-in
+- Fields of unknown segments — and segment fields beyond the dictionary's
   tables — use positional generic names: `<ZDS.1>`, `<ZDS.1.1>`, and so on.
 
 ## Limitations

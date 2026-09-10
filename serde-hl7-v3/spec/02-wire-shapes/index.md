@@ -82,7 +82,7 @@ Every struct wrapper is an object. Keys are listed in serialization order;
 `#[derive(Serialize)]` cannot be placed on a foreign type, and
 `#[serde(remote = ...)]` would need the `serde_derive` proc-macro crate —
 a third dependency, compiled for every downstream build, to produce what
-a hundred lines of `macro_rules!` produce with none. The shapes here
+some two hundred lines of `macro_rules!` produce with none. The shapes here
 *are* close to what a derive with `rename_all = "camelCase"` would give;
 the reason to hand-write them is the dependency surface, and the reason
 to write them with a local macro is that fourteen hand-written copies of

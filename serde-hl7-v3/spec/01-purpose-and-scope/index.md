@@ -33,7 +33,7 @@ Once an interaction is an `hl7_3::Message`, or a payload has been read into
 a RIM class, a caller often wants to hand it to something that only speaks
 Serde: a document database, a web framework's response type, a structured
 logger, a snapshot test. HL7® v3's own serialization is XML, and `hl7-3`
-deliberately has no XML *writer* (its spec §1) — so without this crate the
+deliberately has no XML *writer* (its spec §8.3) — so without this crate the
 decoded value has no way out at all except the caller's own code. With it,
 `Message`, every RIM class, and the raw `Element` tree are one
 `serde_json::to_string` (or any other format's) away, and come back the
@@ -43,8 +43,9 @@ same way.
 
 - **An XML writer, or XML as a Serde format.** This crate serializes
   `hl7-3`'s *values*; producing HL7 v3 XML from them is a different
-  project, and one `hl7-3`'s spec §1 lists as out of scope for that crate
-  too. `Element` round-trips as a value, not as a document
+  project, and one `hl7-3` itself does not have yet (its spec §8.3: "no
+  XML-serialization capability"). `Element` round-trips as a value, not
+  as a document
   ([§4](../04-round-trip-guarantee/index.md)).
 - **A format.** This crate never mentions JSON, YAML, or any other format
   in its own runtime dependencies or public API. See

@@ -159,7 +159,7 @@ export const load: PageLoad = () => ({ title: 'Quick start' });
 ```
 
 (A few titles come from a lookup instead of a literal — the crate pages use
-`crateBySlug(slug).name`, the one news post uses `postBySlug(slug).title` —
+`crateBySlug(slug).name`, the news posts use `postBySlug(slug).title` —
 so the title can never drift from the catalog it is displayed from anywhere
 else.)
 

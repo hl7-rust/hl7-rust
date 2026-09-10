@@ -63,7 +63,11 @@ allows that; don't try to "fix" it by vendoring types.
 - Attributes that encode HL7® knowledge (segment tables, data types,
   cardinality). The macro maps a field to a path; what a path *means* is the
   dictionary's job, in `hl7-2`. Keep this crate ignorant of HL7.
-- `serde` compatibility or reusing `#[serde(...)]` attributes.
+- `serde` compatibility or reusing `#[serde(...)]` attributes. Serde for
+  `hl7-2`'s own types is the separate opt-in `serde-hl7-v2` crate
+  (`serde_hl7::v2` through the `serde-hl7` umbrella), hand-written
+  against Serde's traits with no derive at all; it is not this macro's
+  job and not a gap here.
 - Deriving for enums or tuple structs: neither has a single message shape or
   the field names the mapping is built on.
 - Runtime behavior of any kind. This crate emits code; it does not parse

@@ -20,10 +20,10 @@ and do not move anything into `hl7-3` that would make its default build
 pull them in.**
 
 The behavior this macro generates against is specified in `hl7-3`'s
-`src/typed.rs` module documentation — there is no `spec/index.md` here or
-in `hl7-3` for struct mode specifically (matching `hl7-2-derive`, which
-also has none); the module doc comment and this file are the source of
-truth for what the attributes mean and how field types convert.
+`spec/index.md` §8 (struct mode), together with `src/typed.rs`'s module
+documentation there — the way `hl7-2-derive` generates against `hl7-2`'s
+spec §6. There is no `spec/index.md` in this crate; those two are the
+source of truth for what the attributes mean and how field types convert.
 
 ## Layout
 
@@ -36,7 +36,7 @@ tests/derive.rs   Tests, which compile real structs against the real
 
 `hl7-3` is a dev-dependency by path, which makes this a dev-dependency
 cycle (`hl7-3` depends on this crate for the `derive` feature). Cargo
-allows that; don't try to "fix" it by vendoring types. Unlike
+allows that; don't try to "fix" it by vendoring types. Like
 `hl7-2-derive`'s equivalent dev-dependency, this one needs no `features =
 [...]` — `hl7-3`'s `FromElement`/`FromElementValue` traits are not gated
 behind the `derive` feature, only the macro re-export is (see
@@ -85,7 +85,11 @@ behind the `derive` feature, only the macro re-export is (see
   and the rest). The macro maps a field to an attribute or child; what a
   code *means* is out of scope for `hl7-3` itself right now (see its
   `spec/index.md` §6), so it is doubly out of scope here.
-- `serde` compatibility or reusing `#[serde(...)]` attributes.
+- `serde` compatibility or reusing `#[serde(...)]` attributes. Serde for
+  `hl7-3`'s own types is the separate opt-in `serde-hl7-v3` crate
+  (`serde_hl7::v3` through the `serde-hl7` umbrella), hand-written
+  against Serde's traits with no derive at all; it is not this macro's
+  job and not a gap here.
 - Deriving for enums or tuple structs: neither has a single element shape
   or the field names the mapping is built on.
 - Runtime behavior of any kind. This crate emits code; it does not parse

@@ -18,7 +18,7 @@ intended.
 ## Where the workspace stands (verified 2026-09-03)
 
 All 17 crates are published to crates.io (latest release recorded in
-`CHANGELOG.md`, 2026-09-10 — the sixth release, the three `serde-hl7` crates' first). 363 `#[test]` functions, fuzz
+`CHANGELOG.md`, 2026-09-10 — the seventh release, the three `serde-hl7` crates' first; the sixth, two `hl7` patch bumps on 2026-09-09, was recorded a day late and is still untagged). 363 `#[test]` functions, fuzz
 targets in 4 of 17 crates (`hl7-2`'s own dictionary reader joined the other
 three 2026-09-01), Criterion benches in 6. The root document set is nearly
 complete: GOVERNANCE, SECURITY, LICENSE, CONTRIBUTING, MAINTAINERS,
@@ -171,7 +171,8 @@ posture. Open items for each are in `tasks.md`.
   workspace grows trust before it grows surface. Overridden once, by the
   maintainer's explicit direction on 2026-09-10, for the three `serde-hl7`
   crates — see [`serde-hl7/plan.md`](serde-hl7/plan.md) for the evaluation
-  and the decision. The rule stands for anything else.
+  and the decision. The same direction stood in for `GOVERNANCE.md`'s
+  issue-first step for a new crate. The rule stands for anything else.
 
 ## Risks & watch items
 

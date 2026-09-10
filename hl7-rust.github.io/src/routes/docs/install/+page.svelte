@@ -28,6 +28,13 @@ cargo add hl7-2 --features derive
 cargo add hl7-3
 cargo add hl7-3 --features derive`;
 
+  const serde = `# Serde support for both standards: serde_hl7::v2 and serde_hl7::v3
+cargo add serde-hl7
+
+# One standard only
+cargo add serde-hl7 --no-default-features --features v2
+cargo add serde-hl7-v2`;
+
   const manifest = `[dependencies]
 hl7 = { version = "0.2", features = ["derive"] }
 
@@ -113,12 +120,19 @@ fn main() -> Result<(), v2::Error> {
   <CodeSample language="sh" code={direct} />
   <p>Or write the manifest yourself:</p>
   <CodeSample language="toml" caption="Cargo.toml" code={manifest} />
+  <p>
+    None of those crates depends on <code>serde</code>. If a parsed message, its tree, or a decoded
+    v3 interaction has to reach something that speaks Serde, add the bridge beside them — it is the
+    same one-module-per-standard shape as <code>hl7</code>:
+  </p>
+  <CodeSample language="sh" code={serde} />
 
   <h2 id="features">Cargo features</h2>
   <p>
-    Nothing in this workspace is on by default that costs you a dependency, with one exception —
+    Nothing in this workspace is on by default that costs you a dependency, with two exceptions —
     <code>hl7-2-mllp</code>'s <code>ack</code> feature, which is on because an MLLP receiver that
-    cannot acknowledge is not much use.
+    cannot acknowledge is not much use, and <code>serde-hl7</code>'s <code>v2</code> and
+    <code>v3</code>, which are on because the umbrella with neither module is an empty crate.
   </p>
   <div class="table-wrap">
     <table>

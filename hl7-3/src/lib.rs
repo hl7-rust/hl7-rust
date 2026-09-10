@@ -63,6 +63,13 @@
 //! struct's fields onto an element's attributes and children once, the way
 //! `hl7-2`'s struct mode does for v2 paths. See [`typed`] for the
 //! attributes and an example.
+//!
+//! That is the caller's structs. Serde for this crate's own
+//! [`message::Message`], [`rim`] classes, and [`vocabulary`] types is the
+//! opt-in sibling crate
+//! [`serde-hl7-v3`](https://crates.io/crates/serde-hl7-v3)
+//! (`serde_hl7::v3` through the `serde-hl7` umbrella); this crate itself
+//! never depends on `serde`.
 
 // No `unsafe` anywhere in this crate, enforced rather than merely true:
 // `forbid` cannot be lifted by an `allow` further down, so this is a

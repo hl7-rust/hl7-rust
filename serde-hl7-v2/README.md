@@ -97,8 +97,9 @@ dictionary — is the tree with `PID.5` and `XPN.1` for names, which is
   the way `parse_with_options` does.
 - **Format-agnostic**: nothing in this crate mentions JSON, YAML, or any
   other format by name. `serde_json` appears only as a dev-dependency.
-- **Ergonomic wrappers**: every wrapper implements `Deref`/`DerefMut` to
-  its `hl7-2` type and `From` both ways, so `message.get("PID-5.1")`,
+- **Ergonomic wrappers**: every wrapper implements `Deref` to its
+  `hl7-2` type (`DerefMut` too for `Message` and `Diagnostic`, the two
+  that are mutable) and `From` both ways, so `message.get("PID-5.1")`,
   `message.tree()`, and the rest work directly on the wrapper.
 - **Opt-in strict deserialization**: `Strict<Message>` and
   `Strict<Diagnostic>` reject an unrecognized key instead of ignoring it —
@@ -130,7 +131,7 @@ cargo test -p serde-hl7-v2                                   # unit, integration
 cargo clippy -p serde-hl7-v2 --all-targets -- -D warnings    # lint-clean
 cargo fmt --check                                            # formatting
 cargo rustdoc -p serde-hl7-v2 --lib -- -W missing-docs       # every public item documented
-cargo run -p serde-hl7-v2 --example round_trip_via_json      # try an example
+cargo run -p serde-hl7-v2 --example v2_round_trip_via_json      # try an example
 ```
 
 Behavioural changes start in [`spec/`](spec/index.md), not in the code.

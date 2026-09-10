@@ -8,6 +8,7 @@
     { id: 'dialects', label: 'Dialects and dictionaries' },
     { id: 'typed', label: 'Typed structs' },
     { id: 'converting', label: 'Converting formats' },
+    { id: 'serde', label: 'Serde' },
     { id: 'transports', label: 'Transports' },
     { id: 'v3', label: 'HL7 v3' },
     { id: 'shell', label: 'Shell one-liners' },
@@ -149,6 +150,31 @@ let er7 = hl7_2_from_json_into_er7::convert(json)?;
 let message = hl7_2_from_xml_into_er7::parse(xml)?;
 assert_eq!(message.query("PID-5.1")?.as_deref(), Some("TEST"));`;
 
+  const serdeRoundTrip = `use serde_hl7::v2;
+
+let message = v2::Message::parse(text)?;
+let json = serde_json::to_string(&message)?;       // {"version":"2.5","er7":"MSH|..."}
+
+let back: v2::Message = serde_json::from_str(&json)?;
+assert_eq!(back.to_er7(), text);`;
+
+  const serdeTree = `use serde_hl7::v2::{Diagnostic, Node};
+
+let tree = serde_json::to_string(&Node(message.tree()))?;   // one object per node
+let findings: Vec<Diagnostic> = message.validate().into_iter().map(Diagnostic).collect();
+let json = serde_json::to_string(&findings)?;               // and back again, if you need it`;
+
+  const serdeStrict = `use serde_hl7::v2::{Message, Strict};
+
+let strict: Result<Strict<Message>, _> = serde_json::from_str(fixture);   // a typo is an error`;
+
+  const serdeV3 = `use serde_hl7::v3;
+
+let message = v3::Message::parse(xml)?;
+let json = serde_json::to_string(&message)?;       // keys are HL7 v3's own names
+let back: v3::Message = serde_json::from_str(&json)?;
+assert_eq!(back, message);`;
+
   const mllpFrame = `use hl7_2_mllp as mllp;
 
 let frame = mllp::encode(message.as_bytes());
@@ -239,7 +265,15 @@ hl7-2-from-er7-into-xml message.hl7 | hl7-2-from-xml-into-er7 | diff - <(hl7-v2 
   const runnable = `# Two programs that talk to each other
 cd hl7-2-mllp
 cargo run --example tcp_listener     # accepts, reads, acknowledges
-cargo run --example tcp_sender       # sends, waits, checks the echo`;
+cargo run --example tcp_sender       # sends, waits, checks the echo
+
+# The Serde crates, from the workspace root
+cargo run -p serde-hl7-v2 --example v2_round_trip_via_json
+cargo run -p serde-hl7-v2 --example v2_log_the_tree_as_json
+cargo run -p serde-hl7-v2 --example v2_catch_a_typo_with_strict
+cargo run -p serde-hl7-v3 --example v3_round_trip_via_json
+cargo run -p serde-hl7-v3 --example v3_decode_the_payload_as_rim
+cargo run -p serde-hl7-v3 --example v3_catch_a_typo_with_strict`;
 </script>
 
 <DocPage
@@ -284,6 +318,13 @@ cargo run --example tcp_sender       # sends, waits, checks the echo`;
   <CodeSample language="rust" caption="With options" code={convertOptions} />
   <CodeSample language="rust" caption="And back again" code={fromXml} />
 
+  <h2 id="serde">Serde</h2>
+  <p>See <a href="/guides/serde/">Serde: JSON, YAML, and any format</a>.</p>
+  <CodeSample language="rust" caption="A v2 message through JSON and back" code={serdeRoundTrip} />
+  <CodeSample language="rust" caption="The dictionary-named tree, and the findings" code={serdeTree} />
+  <CodeSample language="rust" caption="Reject an unknown key instead of ignoring it" code={serdeStrict} />
+  <CodeSample language="rust" caption="A v3 interaction through JSON and back" code={serdeV3} />
+
   <h2 id="transports">Transports</h2>
   <p>See <a href="/guides/mllp/">MLLP</a> and <a href="/guides/soap/">SOAP</a>.</p>
   <CodeSample language="rust" caption="Frame one message" code={mllpFrame} />
@@ -306,7 +347,8 @@ cargo run --example tcp_sender       # sends, waits, checks the echo`;
   <p>
     <code>hl7-2-mllp</code> ships two programs that talk to each other. The listener is commented
     with what it shows and what a production listener also needs — worth reading before writing your
-    own.
+    own. The two Serde crates each ship three, one per thing the crate is for: the round trip, the
+    view it adds over the wrapped crate, and the strict-mode typo catch.
   </p>
   <CodeSample language="sh" code={runnable} />
   <p>

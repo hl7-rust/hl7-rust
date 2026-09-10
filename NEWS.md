@@ -13,13 +13,26 @@ readers rather than for a repository, is at
 | | |
 |---|---|
 | First published | 2026-08-19 |
-| Crates | 14 in this workspace, plus `er7` in its own repository |
+| Crates | 17 in this workspace, plus `er7` in its own repository |
 | Maturity | `0.x`. New, and the API may still break in a minor bump. |
 | Maintainers | One — [`MAINTAINERS.md`](MAINTAINERS.md) states the bus factor plainly |
 | HL7® v2 coverage | Releases 2.1–2.9; 24 segments, 42 composite types, 4 structures, extensible in JSON — [`spec/conformance/index.md`](spec/conformance/index.md) |
 | HL7 v3 | A foundation, not an implementation. No Clinical Document Architecture. |
 | HL7® FHIR® standard | Not implemented |
 | License | MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only |
+
+## 2026-09-10 — Serde support, as three opt-in crates
+
+`serde-hl7-v2`, `serde-hl7-v3`, and the `serde-hl7` umbrella, each at
+0.1.0, put HL7 v2 and v3 values through Serde — JSON, YAML, or any other
+Serde format — without adding `serde` to the parsers themselves. A v2
+message serializes as its release plus its ER7 text and is re-parsed on
+the way back, so the dictionary is resolved rather than shipped; the v3
+wrappers use HL7 v3's own XML names as keys; `Strict<T>` on either side
+turns a typo in a fixture into an error. The fourteen existing crates are
+unchanged, and a caller who never adds these three never carries `serde`.
+The evaluation that preceded the build is in
+[`serde-hl7/plan.md`](serde-hl7/plan.md).
 
 ## 2026-08-26 — What this project claims, and how to check it
 
@@ -127,17 +140,18 @@ decision in the project, all of which is written down in the specs.
 > navigate, validate, modify, and render Health Level Seven (HL7) messages.
 > It covers HL7 v2 releases 2.1 through 2.9 in the ER7 pipe-delimited
 > encoding, transports for MLLP over TCP and SOAP over HTTP, conversions
-> between ER7 and both v2.xml and JSON, and a foundation for HL7 v3. It is
-> multi-licensed under MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, or
-> GPL-3.0-only, at the user's option, and is maintained by Joel Parker
-> Henderson. <https://hl7-rust.github.io>
+> between ER7 and both v2.xml and JSON, opt-in Serde support, and a
+> foundation for HL7 v3. It is multi-licensed under MIT, Apache-2.0,
+> BSD-3-Clause, GPL-2.0-only, or GPL-3.0-only, at the user's option, and
+> is maintained by Joel Parker Henderson. <https://hl7-rust.github.io>
 
 ### Facts a story might need, all checkable
 
-- **Fourteen crates**, published on crates.io from 2026-08-19. The ER7
-  encoding layer, `er7`, is a fifteenth in its own repository.
+- **Seventeen crates**, published on crates.io from 2026-08-19. The ER7
+  encoding layer, `er7`, is an eighteenth in its own repository.
 - **One runtime dependency.** `hl7-2` depends on `er7`, which depends on
-  nothing.
+  nothing. Serde support is three separate opt-in crates that add `serde`
+  only for the caller who asks for them.
 - **No logging, telemetry, network access, or filesystem access** from
   message-handling library code — [`spec/phi/index.md`](spec/phi/index.md)
   names the greps that confirm it, and the one named exception: the

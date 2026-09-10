@@ -28,10 +28,11 @@ use serde::{Serialize, Serializer};
 /// domain payload's tree — a typo four levels down is caught the same as
 /// one at the top.
 ///
-/// Like every wrapper type in this crate (rule S11), `Strict<T>` implements
-/// `Deref`, `DerefMut`, and `From` both ways, plus a `Serialize` impl that
-/// delegates to `T`'s own — strictness is a deserialize-only concept, but a
-/// `Strict<T>` should still be usable anywhere a `T` is.
+/// As rule S11 asks of every wrapper type in this crate, `Strict<T>`
+/// implements `Deref`, `DerefMut`, and `From` both ways, plus a
+/// `Serialize` impl that delegates to `T`'s own — strictness is a
+/// deserialize-only concept, but a `Strict<T>` should still be usable
+/// anywhere a `T` is.
 ///
 /// Example:
 ///

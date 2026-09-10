@@ -65,9 +65,10 @@ Verifiable by reading the manifests and grepping the sources:
 
 The whole runtime dependency surface of the workspace is `er7`, plus
 `chrono` in `hl7-2-mllp` — optional, off by default, and used only to stamp
-a generated acknowledgement with the wall clock. The `syn`, `quote`, and
-`proc-macro2` crates appear in the two `*-derive` crates and run at compile
-time only. `criterion` and `libfuzzer-sys` are development dependencies and
+a generated acknowledgement with the wall clock — and `serde` in the three
+`serde-hl7` bridge crates, which nothing else here depends on. The `syn`,
+`quote`, and `proc-macro2` crates appear in the two `*-derive` crates and
+run at compile time only. `criterion` and `libfuzzer-sys` are development dependencies and
 are never linked into a library or a binary you ship.
 
 ## Where a value can escape
@@ -210,7 +211,8 @@ The five things a review usually wants, with where to check each:
 
 1. **Dependency surface.** `cargo tree -p hl7-2` — one crate, `er7`, itself
    dependency-free. Add `--all-features` to see what `derive` pulls in at
-   compile time.
+   compile time. `cargo tree -p serde-hl7` shows the one crate the opt-in
+   Serde bridges add, `serde`.
 2. **No network or filesystem access from message-handling library code.**
    Grep the sources for `std::net`, `std::fs`, and `std::env`; they appear
    only in the CLI, with two exceptions that touch no messages: a
