@@ -106,18 +106,19 @@ change that completes them, with the evidence named.
       `serde-er7`'s §9.2 struck through its resolved question, update the
       §7.1 coverage row, and release `serde-hl7-v2` — additive, not
       breaking, per its spec §8.1, so a patch bump suffices.
-- [ ] **`serde-er7/README.md` "The crate family" table** in
-      `~/git/er7-rust/er7-rust` does not list `serde-hl7` (checked
-      2026-09-10): add one row per bridge crate (`serde-hl7`,
-      `serde-hl7-v2`, `serde-hl7-v3`) with their crates.io links, in that
-      repository's own change.
-- [ ] **Cross-link the two JSON shapes of a v2 tree.** `serde-hl7-v2`'s
-      `Node` (a six-key object per node, rule S4) is deliberately not
-      `hl7-2-from-er7-into-json`'s output (an object keyed by HL7® names,
-      groups nested). When `hl7-2-from-er7-into-json/README.md` is next
-      touched, add a sentence pointing at `serde-hl7-v2` for the
-      per-node shape, and add the reverse pointer under "Why the message is
-      text, not a tree" in `serde-hl7-v2/README.md`.
+- [x] **`serde-er7/README.md` "The crate family" table** — done
+      2026-09-13 in `~/git/er7-rust/er7-rust`, commit `a7a7a4f`: one row
+      for `serde-hl7-v2` (reached via the `serde-hl7` umbrella), plus a
+      paragraph where that README points at the dictionary layer saying
+      how the two crates' shapes relate. One row, not three: `serde-hl7-v3`
+      has nothing to do with ER7. That repository's checks pass;
+      committed there, not pushed — the maintainer reviews and pushes.
+- [x] **Cross-link the two JSON shapes of a v2 tree** — done 2026-09-10
+      in the fifth accuracy sweep (`fa6e3fd`): `hl7-2-from-er7-into-json`'s
+      README and AGENTS.md say its JSON is a document keyed by HL7® names
+      while `serde-hl7-v2`'s `Node` is a generic six-key object per node,
+      same names, not interchangeable; `serde-hl7-v2/README.md` and the
+      website's converting guide and FAQ say the same from the other side.
 - [ ] **Next `hl7-2`/`hl7-3` minor release.** Each bridge crate pins its
       sibling by `version` (`hl7-2 = "0.3.0"`, `hl7-3 = "0.2.0"`); a `0.x`
       minor bump there fails Cargo's caret rule, so the runbook's step 2
