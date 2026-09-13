@@ -111,8 +111,8 @@ change that completes them, with the evidence named.
       for `serde-hl7-v2` (reached via the `serde-hl7` umbrella), plus a
       paragraph where that README points at the dictionary layer saying
       how the two crates' shapes relate. One row, not three: `serde-hl7-v3`
-      has nothing to do with ER7. That repository's checks pass;
-      committed there, not pushed — the maintainer reviews and pushes.
+      has nothing to do with ER7. That repository's checks pass; pushed
+      to its three remotes 2026-09-13.
 - [x] **Cross-link the two JSON shapes of a v2 tree** — done 2026-09-10
       in the fifth accuracy sweep (`fa6e3fd`): `hl7-2-from-er7-into-json`'s
       README and AGENTS.md say its JSON is a document keyed by HL7® names

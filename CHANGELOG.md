@@ -63,8 +63,11 @@ apart, carrying no code change. Recorded here after the fact, on
 2026-09-10, when the accuracy sweep that followed the seventh release
 found them on crates.io with no changelog entry and no tag: the runbook
 in [`spec/release-process/index.md`](spec/release-process/index.md)
-requires both, and this entry closes the first half of that gap. The
-tags remain the maintainer's to cut.
+requires both; this entry closes the first half of that gap, and the
+tags `hl7-v0.2.1` (on `8c622b2`) and `hl7-v0.2.2` (on `dc80f52`), cut
+2026-09-13 after verifying each published package's `Cargo.toml`,
+`src/lib.rs`, and `README.md` byte-identical to that commit's, close the
+second.
 
 ### Changed
 
