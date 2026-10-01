@@ -1,7 +1,7 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import CodeSample from '$lib/components/CodeSample.svelte';
-  import Callout from '$lib/components/Callout.svelte';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import CodeSample from '#lib/components/CodeSample.svelte';
+  import Callout from '#lib/components/Callout.svelte';
 
   const contents = [
     { id: 'separate-question', label: 'Parsing is lenient; checking is a separate question' },

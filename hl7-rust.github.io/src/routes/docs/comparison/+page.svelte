@@ -1,7 +1,7 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import CodeSample from '$lib/components/CodeSample.svelte';
-  import Callout from '$lib/components/Callout.svelte';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import CodeSample from '#lib/components/CodeSample.svelte';
+  import Callout from '#lib/components/Callout.svelte';
 
   const contents = [
     { id: 'category', label: 'First, which kind of thing do you need?' },

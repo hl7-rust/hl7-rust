@@ -1,8 +1,8 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import CodeSample from '$lib/components/CodeSample.svelte';
-  import Callout from '$lib/components/Callout.svelte';
-  import { postBySlug, formatDate } from '$lib/data/news';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import CodeSample from '#lib/components/CodeSample.svelte';
+  import Callout from '#lib/components/Callout.svelte';
+  import { postBySlug, formatDate } from '#lib/data/news.js';
 
   const post = postBySlug('what-this-project-claims');
 

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Badge } from 'lily-design-system-svelte-headless';
-  import CodeSample from '$lib/components/CodeSample.svelte';
-  import LinkCards from '$lib/components/LinkCards.svelte';
-  import { CATEGORIES, CRATES, cratesIn, type CrateCategory } from '$lib/data/crates';
+  import CodeSample from '#lib/components/CodeSample.svelte';
+  import LinkCards from '#lib/components/LinkCards.svelte';
+  import { CATEGORIES, CRATES, cratesIn, type CrateCategory } from '#lib/data/crates.js';
   import type { PageProps } from './$types';
 
   let { data }: PageProps = $props();

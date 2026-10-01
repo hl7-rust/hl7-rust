@@ -1,6 +1,6 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import CodeSample from '$lib/components/CodeSample.svelte';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import CodeSample from '#lib/components/CodeSample.svelte';
 
   const contents = [
     { id: 'reading', label: 'Reading a message' },

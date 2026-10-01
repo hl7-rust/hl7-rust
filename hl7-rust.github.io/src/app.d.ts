@@ -11,7 +11,7 @@ declare global {
        * truth `DocPage` reads for `<title>`, the h1, and the breadcrumb,
        * and that `ShareControl` in the root layout reads to share the
        * page actually open, not a generic site title. See
-       * `$lib/data/site-title.ts` for how it becomes the full `<title>`.
+       * `#lib/data/site-title.ts` for how it becomes the full `<title>`.
        */
       title: string;
     }

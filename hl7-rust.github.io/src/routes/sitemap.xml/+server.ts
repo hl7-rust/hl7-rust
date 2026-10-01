@@ -1,4 +1,4 @@
-import { ALL_PAGES } from '$lib/data/navigation';
+import { ALL_PAGES } from '#lib/data/navigation.js';
 
 /**
  * The sitemap.

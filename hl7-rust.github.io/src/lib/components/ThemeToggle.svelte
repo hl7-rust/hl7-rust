@@ -20,7 +20,7 @@
    * once resolved, is what every other themed site does too.)
    */
   import { ThemePicker } from 'lily-design-system-svelte-theme-picker';
-  import { THEMES } from '$lib/data/theme';
+  import { THEMES } from '#lib/data/theme.js';
 </script>
 
 <ThemePicker

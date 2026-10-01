@@ -1,9 +1,9 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import CodeSample from '$lib/components/CodeSample.svelte';
-  import Callout from '$lib/components/Callout.svelte';
-  import { postBySlug, formatDate } from '$lib/data/news';
-  import { REPO } from '$lib/data/crates';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import CodeSample from '#lib/components/CodeSample.svelte';
+  import Callout from '#lib/components/Callout.svelte';
+  import { postBySlug, formatDate } from '#lib/data/news.js';
+  import { REPO } from '#lib/data/crates.js';
 
   const post = postBySlug('serde-support-for-hl7');
 

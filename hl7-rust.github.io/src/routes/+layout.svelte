@@ -9,11 +9,11 @@
    */
   import { page } from '$app/state';
   import { Footer, Header, NavigationMenu, Sidebar, SkipLink } from 'lily-design-system-svelte-headless';
-  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-  import TextSizeControl from '$lib/components/TextSizeControl.svelte';
-  import ShareControl from '$lib/components/ShareControl.svelte';
-  import { PRIMARY_NAV, SECTIONS } from '$lib/data/navigation';
-  import { ORG, REPO } from '$lib/data/crates';
+  import ThemeToggle from '#lib/components/ThemeToggle.svelte';
+  import TextSizeControl from '#lib/components/TextSizeControl.svelte';
+  import ShareControl from '#lib/components/ShareControl.svelte';
+  import { PRIMARY_NAV, SECTIONS } from '#lib/data/navigation.js';
+  import { ORG, REPO } from '#lib/data/crates.js';
 
   let { children } = $props();
 

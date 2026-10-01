@@ -1,7 +1,7 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import LinkCards from '$lib/components/LinkCards.svelte';
-  import { SECTIONS } from '$lib/data/navigation';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import LinkCards from '#lib/components/LinkCards.svelte';
+  import { SECTIONS } from '#lib/data/navigation.js';
 
   const guides = SECTIONS.find((section) => section.href === '/guides/')!;
 

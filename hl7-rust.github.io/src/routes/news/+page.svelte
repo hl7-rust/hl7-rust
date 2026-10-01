@@ -1,6 +1,6 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import { POSTS, formatDate } from '$lib/data/news';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import { POSTS, formatDate } from '#lib/data/news.js';
 </script>
 
 <DocPage

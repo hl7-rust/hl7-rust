@@ -1,9 +1,9 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import CodeSample from '$lib/components/CodeSample.svelte';
-  import CrateMeta from '$lib/components/CrateMeta.svelte';
-  import RelatedCrates from '$lib/components/RelatedCrates.svelte';
-  import { crateBySlug } from '$lib/data/crates';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import CodeSample from '#lib/components/CodeSample.svelte';
+  import CrateMeta from '#lib/components/CrateMeta.svelte';
+  import RelatedCrates from '#lib/components/RelatedCrates.svelte';
+  import { crateBySlug } from '#lib/data/crates.js';
 
   const crate = crateBySlug('serde-hl7');
 

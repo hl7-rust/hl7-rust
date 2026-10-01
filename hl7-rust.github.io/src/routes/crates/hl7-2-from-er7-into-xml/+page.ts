@@ -1,4 +1,4 @@
 import type { PageLoad } from './$types';
-import { crateBySlug } from '$lib/data/crates';
+import { crateBySlug } from '#lib/data/crates.js';
 
 export const load: PageLoad = () => ({ title: crateBySlug('hl7-2-from-er7-into-xml').name });

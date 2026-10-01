@@ -1,8 +1,8 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import LinkCards from '$lib/components/LinkCards.svelte';
-  import { SECTIONS } from '$lib/data/navigation';
-  import { ORG, REPO } from '$lib/data/crates';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import LinkCards from '#lib/components/LinkCards.svelte';
+  import { SECTIONS } from '#lib/data/navigation.js';
+  import { ORG, REPO } from '#lib/data/crates.js';
 
   const help = SECTIONS.find((section) => section.href === '/help/')!;
 

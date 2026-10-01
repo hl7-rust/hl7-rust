@@ -1,10 +1,10 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import CodeSample from '$lib/components/CodeSample.svelte';
-  import CrateMeta from '$lib/components/CrateMeta.svelte';
-  import RelatedCrates from '$lib/components/RelatedCrates.svelte';
-  import Callout from '$lib/components/Callout.svelte';
-  import { crateBySlug } from '$lib/data/crates';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import CodeSample from '#lib/components/CodeSample.svelte';
+  import CrateMeta from '#lib/components/CrateMeta.svelte';
+  import RelatedCrates from '#lib/components/RelatedCrates.svelte';
+  import Callout from '#lib/components/Callout.svelte';
+  import { crateBySlug } from '#lib/data/crates.js';
 
   const crate = crateBySlug('hl7-2-from-er7-into-json');
 

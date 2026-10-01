@@ -1,7 +1,7 @@
 <script lang="ts">
   /** The "read next" strip at the foot of a crate page. */
   import LinkCards from './LinkCards.svelte';
-  import { crateBySlug } from '$lib/data/crates';
+  import { crateBySlug } from '#lib/data/crates.js';
 
   let { slugs }: { slugs: string[] } = $props();
 

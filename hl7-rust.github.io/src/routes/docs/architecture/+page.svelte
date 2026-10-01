@@ -1,8 +1,8 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import CodeSample from '$lib/components/CodeSample.svelte';
-  import Callout from '$lib/components/Callout.svelte';
-  import { CATEGORIES, CRATES, cratesIn, type CrateCategory } from '$lib/data/crates';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import CodeSample from '#lib/components/CodeSample.svelte';
+  import Callout from '#lib/components/Callout.svelte';
+  import { CATEGORIES, CRATES, cratesIn, type CrateCategory } from '#lib/data/crates.js';
 
   const contents = [
     { id: 'map', label: 'The map' },

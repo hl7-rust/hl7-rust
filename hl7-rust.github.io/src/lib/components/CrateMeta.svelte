@@ -16,7 +16,7 @@
     repoUrl,
     specUrl,
     type Crate
-  } from '$lib/data/crates';
+  } from '#lib/data/crates.js';
 
   let { crate }: { crate: Crate } = $props();
 

@@ -9,8 +9,8 @@
   import type { Snippet } from 'svelte';
   import { page } from '$app/state';
   import { BreadcrumbList, BreadcrumbListItem, BreadcrumbNav, ContentsList, ContentsListItem, ContentsNav } from 'lily-design-system-svelte-headless';
-  import { SECTIONS, neighborsFor } from '$lib/data/navigation';
-  import { siteTitle } from '$lib/data/site-title';
+  import { SECTIONS, neighborsFor } from '#lib/data/navigation.js';
+  import { siteTitle } from '#lib/data/site-title.js';
 
   export interface TocEntry {
     /** The id of the h2 this links to. */

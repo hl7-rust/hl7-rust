@@ -1,8 +1,8 @@
 <script lang="ts">
-  import DocPage from '$lib/components/DocPage.svelte';
-  import CodeSample from '$lib/components/CodeSample.svelte';
-  import Callout from '$lib/components/Callout.svelte';
-  import { CRATES, REPO } from '$lib/data/crates';
+  import DocPage from '#lib/components/DocPage.svelte';
+  import CodeSample from '#lib/components/CodeSample.svelte';
+  import Callout from '#lib/components/Callout.svelte';
+  import { CRATES, REPO } from '#lib/data/crates.js';
 
   const contents = [
     { id: 'hl7-releases', label: 'HL7 v2 releases 2.1 through 2.9' },

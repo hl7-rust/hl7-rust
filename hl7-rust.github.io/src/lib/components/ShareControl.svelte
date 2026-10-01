@@ -19,7 +19,7 @@
    */
   import { page } from '$app/state';
   import { SharePicker, type ShareTarget } from 'lily-design-system-svelte-share-picker';
-  import { siteTitle } from '$lib/data/site-title';
+  import { siteTitle } from '#lib/data/site-title.js';
 
   const title = $derived(siteTitle(page.url.pathname, page.data.title));
 

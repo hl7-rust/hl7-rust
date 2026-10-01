@@ -5,7 +5,7 @@
    * the same way.
    */
   import { Card } from 'lily-design-system-svelte-headless';
-  import type { NavLink } from '$lib/data/navigation';
+  import type { NavLink } from '#lib/data/navigation.js';
 
   let {
     links,
