@@ -14,7 +14,7 @@ categories = ["parser-implementations", "command-line-utilities"]
 # The ER7 encoding layer: the value tree, escape sequences, and writing
 # back out to the wire format. This crate supplies only the JSON parser and
 # the reconstruction rules on top of it — see spec/index.md §2.
-er7 = "0.1.0"
+er7 = "0.2.1"
 
 # Criterion is a development dependency only: it is compiled for
 # `cargo bench` and never linked into the library or the binary, so the
