@@ -18,6 +18,13 @@ The full release runbook — the inter-crate version-requirement check, the
 tag-and-sign step, and who may decide a release is warranted — is
 [`spec/release-process/index.md`](spec/release-process/index.md).
 
+## 2026-10-16, eighth release
+
+Maintenance release; every crate takes a patch bump. `hl7-2-from-json-into-er7`
+and `hl7-2-from-xml-into-er7` now require `er7` 0.2 (was 0.1). Dependencies
+refreshed with `cargo update`, CI actions and the site toolchain bumped
+(Dependabot #11-#21). No API changes.
+
 ## 2026-09-10, seventh release
 
 Three new crates, each at its first version. Nothing already published

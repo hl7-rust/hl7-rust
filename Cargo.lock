@@ -191,9 +191,9 @@ checksum = "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be"
 
 [[package]]
 name = "er7"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98ef8581cc7b891b8ca7f054d2691f31e4046d06de498e14b758e6d6cfd313ac"
+checksum = "c2495dc0a44dfebe8595757972ab221be465f7aeab0d31f2c82102af612816d5"
 
 [[package]]
 name = "find-msvc-tools"
@@ -238,7 +238,7 @@ dependencies = [
 
 [[package]]
 name = "hl7"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "hl7-2",
  "hl7-3",
@@ -246,7 +246,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "criterion",
  "er7",
@@ -255,7 +255,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-derive"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "hl7-2",
  "proc-macro2",
@@ -265,7 +265,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-from-er7-into-json"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "criterion",
  "er7",
@@ -273,7 +273,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-from-er7-into-xml"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "criterion",
  "er7",
@@ -282,7 +282,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-from-json-into-er7"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "criterion",
  "er7",
@@ -290,7 +290,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-from-xml-into-er7"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "criterion",
  "er7",
@@ -299,7 +299,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-from-xsd-into-json-dictionary"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "hl7-2",
  "hl7-2-xml-lite-helper",
@@ -307,7 +307,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-mllp"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "chrono",
  "hl7-2",
@@ -315,21 +315,21 @@ dependencies = [
 
 [[package]]
 name = "hl7-2-soap"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "hl7-2-xml-lite-helper",
 ]
 
 [[package]]
 name = "hl7-2-xml-lite-helper"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "criterion",
 ]
 
 [[package]]
 name = "hl7-3"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "hl7-2-xml-lite-helper",
  "hl7-3-derive",
@@ -337,7 +337,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-3-derive"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "hl7-3",
  "proc-macro2",
@@ -347,7 +347,7 @@ dependencies = [
 
 [[package]]
 name = "hl7-3-soap"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "hl7-2-xml-lite-helper",
 ]
@@ -531,7 +531,7 @@ dependencies = [
 
 [[package]]
 name = "serde-hl7"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "serde-hl7-v2",
  "serde-hl7-v3",
@@ -540,7 +540,7 @@ dependencies = [
 
 [[package]]
 name = "serde-hl7-v2"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "hl7-2",
  "serde",
@@ -549,7 +549,7 @@ dependencies = [
 
 [[package]]
 name = "serde-hl7-v3"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "hl7-3",
  "serde",
