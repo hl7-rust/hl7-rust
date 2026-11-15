@@ -18,6 +18,13 @@ The full release runbook — the inter-crate version-requirement check, the
 tag-and-sign step, and who may decide a release is warranted — is
 [`spec/release-process/index.md`](spec/release-process/index.md).
 
+## 2026-11-15, ninth release
+
+Maintenance release. `hl7-2` (0.3.2), `hl7-2-from-er7-into-json` (0.5.2),
+`hl7-2-from-er7-into-xml` (0.7.2), `hl7-2-from-json-into-er7` (0.5.2) and
+`hl7-2-from-xml-into-er7` (0.7.2) now require `er7` 0.2.2. Dependencies
+refreshed; site toolchain bumped (TypeScript held at 6). No API changes.
+
 ## 2026-10-16, eighth release
 
 Maintenance release; every crate takes a patch bump. `hl7-2-from-json-into-er7`
