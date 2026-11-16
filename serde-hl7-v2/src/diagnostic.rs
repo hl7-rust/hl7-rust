@@ -208,7 +208,7 @@ mod tests {
             hl7_2::parse("MSH|^~\\&|LAB||EPIC||20240101||ORU^R01|1|P|2.5\rZZZ|1\rOBX|1|NM|X||abc")
                 .unwrap();
         let findings: Vec<Diagnostic> = message.validate().into_iter().map(Diagnostic).collect();
-        assert!(!findings.is_empty());
+        assert_ne!(findings.len(), 0);
         let json = serde_json::to_string(&findings).unwrap();
         let back: Vec<Diagnostic> = serde_json::from_str(&json).unwrap();
         assert_eq!(back, findings);

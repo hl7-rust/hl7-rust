@@ -281,7 +281,7 @@ mod tests {
         assert!(matches!(convert(""), Err(Hl7Error::Empty)));
         assert!(matches!(convert("PID|1"), Err(Hl7Error::MissingMsh)));
         match convert("MSH") {
-            Err(Hl7Error::BadMshHeader(detail)) => assert!(!detail.is_empty()),
+            Err(Hl7Error::BadMshHeader(detail)) => assert_ne!(detail, ""),
             other => panic!("expected a bad-header error, got {other:?}"),
         }
     }

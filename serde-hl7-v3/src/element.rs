@@ -80,7 +80,7 @@ mod tests {
         assert_eq!(back.name, "device");
         assert!(back.attributes.is_empty());
         assert_eq!(back.text, "");
-        assert!(back.children.is_empty());
+        assert_eq!(back.children.len(), 0);
         let err = serde_json::from_str::<Element>(r#"{"text":"x"}"#).unwrap_err();
         assert!(err.to_string().contains("name"), "{err}");
     }

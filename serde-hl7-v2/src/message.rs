@@ -373,7 +373,7 @@ mod tests {
     fn rejects_er7_without_a_header_as_a_deserialize_error() {
         let err = serde_json::from_str::<Message>(r#"{"er7":"PID|1"}"#).unwrap_err();
         // hl7_2's own error text, surfaced through the format's error type.
-        assert!(!err.to_string().is_empty());
+        assert_ne!(err.to_string(), "");
     }
 
     #[test]
