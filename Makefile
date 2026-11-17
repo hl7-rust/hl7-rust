@@ -70,3 +70,8 @@ publish: website-remote
 # target the sibling repos in the family run too, each with its own prefix.
 github-pages: github-pages-remote
 	bin/make-github-pages $(WEBSITE_PREFIX) $(GITHUB_PAGES_REMOTE) $(WEBSITE_BRANCH)
+
+# Check and test on the minimum supported Rust version (N-2) and on N-1.
+.PHONY: test-minimum-supported-rust-version
+test-minimum-supported-rust-version:
+	bin/make-test-minimum-supported-rust-version
