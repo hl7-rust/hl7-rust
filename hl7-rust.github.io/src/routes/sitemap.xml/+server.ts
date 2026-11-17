@@ -6,7 +6,7 @@ import { ALL_PAGES } from '#lib/data/navigation.js';
  * Prerendered like everything else, and generated from the same navigation
  * data the header, the sidebar, and the previous/next links read — so a page
  * added there appears here without a second edit. It is not linked from any
- * page, so svelte.config.js lists it as a prerender entry.
+ * page, so vite.config.ts lists it as a prerender entry.
  */
 export const prerender = true;
 

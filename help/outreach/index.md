@@ -82,7 +82,7 @@ announcement in their space.
 
 Assets that exist today:
 
-- Fifteen published crates on crates.io, plus `er7` outside the workspace.
+- Seventeen published crates on crates.io, plus `er7` outside the workspace.
 - A CLI (`hl7-v2`), which is the single easiest thing for a non-Rust
   integration engineer to try — no toolchain, no dependencies, pipe a
   message in.
