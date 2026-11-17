@@ -2,6 +2,7 @@
 name = "hl7-2-fuzz"
 version = "0.0.0"
 edition = "2024"
+rust-version = "1.98"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 publish = false
 
@@ -22,3 +23,15 @@ path = "fuzz_targets/dictionary.rs"
 test = false
 doc = false
 bench = false
+
+[profile.dev]
+debug = "line-tables-only"
+split-debuginfo = "unpacked"
+
+[profile.dev.package."*"]
+debug = false
+
+[profile.mutants]
+inherits = "test"
+debug = "none"
+incremental = false
