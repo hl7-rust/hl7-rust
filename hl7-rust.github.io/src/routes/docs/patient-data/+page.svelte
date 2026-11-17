@@ -85,7 +85,7 @@ grep -rn "^log = \\|^tracing" --include=Cargo.toml .  # nothing`;
   </div>
   <p>
     The whole runtime dependency surface of the workspace is <code>er7</code>, plus
-    <code>chrono</code> in <a href="/crates/hl7-2-mllp/"><code>hl7-2-mllp</code></a> — optional, off
+    <code>jiff</code> in <a href="/crates/hl7-2-mllp/"><code>hl7-2-mllp</code></a> — optional, off
     by default, used only to stamp a generated acknowledgement with the wall clock. The macro crates
     run at compile time only. Criterion and the fuzzing harness are development dependencies and are
     never linked into anything you ship.

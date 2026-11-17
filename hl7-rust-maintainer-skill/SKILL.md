@@ -107,7 +107,7 @@ cargo test                                    # unit and integration tests
 cargo clippy --all-targets -- -D warnings     # lint-clean
 cargo fmt --check                             # formatting
 cargo rustdoc -p <crate> --lib -- -W missing-docs   # per crate — root is a virtual manifest; loop over all 17 libs, per .github/workflows/ci.yml
-cargo +1.96 check --workspace --all-targets   # the MSRV floor (moves with the policy)
+cargo +1.98 check --workspace --all-targets   # the MSRV floor (moves with the policy)
 ./bin/check-trademarks                        # HL7®/FHIR®/CDA® fair-use rules, T1–T3
 ./bin/check-docs                              # doc size budget + relative-link integrity
 ```

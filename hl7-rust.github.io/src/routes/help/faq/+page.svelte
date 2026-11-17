@@ -50,7 +50,7 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
 
   <h3>Is there an async API?</h3>
   <p>
-    No. The parsing crates are synchronous and CPU-bound, and
+    No. The parsing crates are synjiffus and CPU-bound, and
     <a href="/crates/hl7-2-mllp/"><code>hl7-2-mllp</code></a>'s
     <code>IoTransport</code> works over any <code>Read</code> + <code>Write</code>. Wrapping the
     transport for an async runtime is left to you rather than being baked in, so the crate does not

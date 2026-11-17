@@ -78,7 +78,7 @@ cargo test                                # unit and integration tests
 cargo clippy --all-targets -- -D warnings # lint-clean
 cargo fmt --check                         # formatting
 cargo rustdoc --lib -- -W missing-docs    # every public item documented
-cargo +1.96 check --workspace --all-targets   # the MSRV floor
+cargo +1.98 check --workspace --all-targets   # the MSRV floor
 ```
 
 The MSRV floor is current stable minus two releases, so the exact

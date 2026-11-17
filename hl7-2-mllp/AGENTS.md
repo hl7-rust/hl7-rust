@@ -65,7 +65,7 @@ anything needing a real socket, or crossing module boundaries, goes in
 ## Working conventions
 
 - **Rust edition 2024.** Dependencies: `hl7-2` behind the default-on
-  `ack` feature, `chrono` behind the off-by-default `clock` feature, and
+  `ack` feature, `jiff` behind the off-by-default `clock` feature, and
   nothing else. `--no-default-features` must keep compiling with **zero**
   dependencies — that is a promise in the README, and worth keeping in a
   domain where dependency trees get audited.

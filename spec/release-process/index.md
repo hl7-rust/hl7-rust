@@ -45,7 +45,7 @@ each time.
    published yet).
 6. **`cargo package` each published crate and confirm the manifest carries
    the literal values it should** — a `rust-version` that reads
-   `"1.96"`, not `rust-version.workspace = true`, is the check the fifth
+   `"1.98"`, not `rust-version.workspace = true`, is the check the fifth
    release's own verification used; the same principle applies to any
    value a workspace-level mechanism could otherwise leave unresolved in
    the published `Cargo.toml`.

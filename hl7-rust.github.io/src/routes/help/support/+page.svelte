@@ -31,7 +31,7 @@ cargo fmt --check                         # formatting
 cargo rustdoc --lib -- -W missing-docs    # every public item documented
 
 # And against the minimum supported Rust version
-cargo +1.96 check --workspace --all-targets`;
+cargo +1.98 check --workspace --all-targets`;
 
   const workspace = `Cargo.toml           the workspace: [workspace] members, nothing else
 Cargo.lock           one, at the root — never one inside a member

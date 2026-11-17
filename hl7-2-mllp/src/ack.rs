@@ -205,7 +205,7 @@ pub fn acknowledge_now(payload: &[u8], code: AckCode, control_id: &str) -> Resul
 #[cfg(feature = "clock")]
 #[must_use]
 pub fn now() -> String {
-    chrono::Local::now().format("%Y%m%d%H%M%S").to_string()
+    jiff::Zoned::now().strftime("%Y%m%d%H%M%S").to_string()
 }
 
 /// Read a received payload as an HL7 v2 message.

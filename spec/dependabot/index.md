@@ -36,7 +36,7 @@ else here.
 The `github-actions` entry ignores `dtolnay/rust-toolchain`. That pin is
 not a routine action version — it is the MSRV floor
 [`spec/rust-msrv-n-minus-2/index.md`](../rust-msrv-n-minus-2/index.md)
-states, currently `1.96`, referenced in the `msrv` CI job. Dependabot
+states, currently `1.98`, referenced in the `msrv` CI job. Dependabot
 cannot tell that pin apart from an ordinary action version like
 `actions/checkout@4`, so left unignored it proposes bumping the toolchain
 forward the same way it would bump any other action — and CI's `msrv` job

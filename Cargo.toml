@@ -27,4 +27,4 @@ members = [
 # has to move in lockstep across all seventeen members, not a switch to
 # `[workspace.dependencies]` inheritance generally.
 [workspace.package]
-rust-version = "1.96"
+rust-version = "1.98"

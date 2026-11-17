@@ -125,10 +125,10 @@ export const CRATES: Crate[] = [
     spec: true,
     features: [
       { name: 'ack', default: true, effect: 'Acknowledgement generation; pulls in `hl7-2`.' },
-      { name: 'clock', default: false, effect: '`acknowledge_now`; pulls in `chrono`. Implies `ack`.' },
+      { name: 'clock', default: false, effect: '`acknowledge_now`; pulls in `jiff`. Implies `ack`.' },
       { name: 'noncompliance', default: false, effect: 'The default framing tolerance becomes lenient.' }
     ],
-    dependencies: ['hl7-2 (feature `ack`)', 'chrono (feature `clock`)'],
+    dependencies: ['hl7-2 (feature `ack`)', 'jiff (feature `clock`)'],
     related: ['hl7-2', 'hl7-2-soap']
   },
   {

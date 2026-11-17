@@ -93,12 +93,10 @@ pub fn evaluate(status: u16, body: &str) -> Outcome {
     if let Some(fault) = root.find("Fault") {
         let code = fault
             .child("faultcode")
-            .map(|element| element.text.trim())
-            .unwrap_or_default();
+            .map_or_default(|element| element.text.trim());
         let reason = fault
             .child("faultstring")
-            .map(|element| element.text.trim())
-            .unwrap_or_default();
+            .map_or_default(|element| element.text.trim());
         return Outcome::Rejected(match (code.is_empty(), reason.is_empty()) {
             (true, true) => "SOAP fault".to_string(),
             (true, false) => reason.to_string(),

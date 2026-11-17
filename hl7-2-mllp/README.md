@@ -168,7 +168,7 @@ before acknowledging.
 | feature | default | effect |
 |---|---|---|
 | `ack` | on | acknowledgement generation; pulls in `hl7-2` |
-| `clock` | off | `acknowledge_now`; pulls in `chrono`. Implies `ack` |
+| `clock` | off | `acknowledge_now`; pulls in `jiff`. Implies `ack` |
 | `noncompliance` | off | the default tolerance becomes lenient |
 
 `--no-default-features` gives framing, streaming, and transport with **no

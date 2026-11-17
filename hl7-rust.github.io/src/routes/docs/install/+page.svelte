@@ -70,7 +70,7 @@ cargo test             # every workspace member's tests
 cargo build -p hl7-2   # just one
 
 # Check against the minimum supported Rust version
-cargo +1.96 check --workspace --all-targets`;
+cargo +1.98 check --workspace --all-targets`;
 
   const verify = `use hl7::v2;
 
@@ -102,7 +102,7 @@ fn main() -> Result<(), v2::Error> {
   <p>
     The minimum supported Rust version is <strong>current stable minus two releases</strong>,
     pinned once in the workspace root and inherited by every member. At the time of
-    writing that is <code>1.96</code>. Raising the floor is routine and expected, not a breaking
+    writing that is <code>1.98</code>. Raising the floor is routine and expected, not a breaking
     change to be avoided. See <a href="/docs/versions/">Versions and compatibility</a> for the
     policy in full.
   </p>

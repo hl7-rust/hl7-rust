@@ -72,7 +72,7 @@ workspace root, each self-contained in its own `SKILL.md`:
   which also has the mechanical reason: seventeen crates that must always
   agree on one value are the case `[workspace.package]` inheritance exists
   for. Check a change against it with
-  `cargo +1.96 check --workspace --all-targets`; raising the floor is a
+  `cargo +1.98 check --workspace --all-targets`; raising the floor is a
   breaking change and belongs in a release allowed to break.
 - **Workspace-wide claims live in `spec/`**, not in a crate: `conformance/`
   (what "supports 2.1-2.9" means, with the segment, type, and structure

@@ -190,7 +190,7 @@ cargo run --example tcp_sender       # sends, waits, checks the echo`;
         <tr>
           <td><code>clock</code></td>
           <td>off</td>
-          <td><code>acknowledge_now</code>; pulls in <code>chrono</code>. Implies <code>ack</code>.</td>
+          <td><code>acknowledge_now</code>; pulls in <code>jiff</code>. Implies <code>ack</code>.</td>
         </tr>
         <tr>
           <td><code>noncompliance</code></td>

@@ -41,7 +41,7 @@ is checked at release time per the root runbook's step 2.
 | Item | Value |
 | ---- | ----- |
 | Edition | 2024 |
-| MSRV | 1.96 — inherited from the workspace (`rust-version.workspace = true`) |
+| MSRV | 1.98 — inherited from the workspace (`rust-version.workspace = true`) |
 | `no_std` | not supported; the wrapped types own `String`s and a `BTreeMap` |
 
 The MSRV comes from the workspace-wide **N-2** policy,

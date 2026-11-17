@@ -222,10 +222,7 @@ mod tests {
                 note: FromElementValue::from_child_text(
                     element.child("note").and_then(Element::text_opt),
                 ),
-                component: element
-                    .child("component")
-                    .map(Act::from_element)
-                    .unwrap_or_default(),
+                component: element.child("component").map_or_default(Act::from_element),
                 raw: element.clone(),
             }
         }

@@ -226,8 +226,7 @@ fn structure_files(directory: &Path) -> Result<Vec<PathBuf>, Error> {
 
 fn structure_id(path: &Path) -> String {
     path.file_stem()
-        .map(|stem| stem.to_string_lossy().into_owned())
-        .unwrap_or_default()
+        .map_or_default(|stem| stem.to_string_lossy().into_owned())
 }
 
 fn with_suffix(base: &Path, suffix: &str) -> PathBuf {

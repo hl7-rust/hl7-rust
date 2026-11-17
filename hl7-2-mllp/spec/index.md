@@ -247,7 +247,7 @@ message still arriving.
 | feature | default | effect |
 |---|---|---|
 | `ack` | on | acknowledgement generation (§5); pulls in `hl7-2` |
-| `clock` | off | `acknowledge_now`, `now`; pulls in `chrono`. Implies `ack` |
+| `clock` | off | `acknowledge_now`, `now`; pulls in `jiff`. Implies `ack` |
 | `noncompliance` | off | `Tolerance::default()` becomes `Lenient` (§3.3) |
 
 `--no-default-features` gives framing, streaming, and transport with **no

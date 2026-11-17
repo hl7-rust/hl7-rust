@@ -87,7 +87,7 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
    calls for — a smaller instance of the exact drift this rule exists to
    catch, closed within the hour rather than left for the next sweep.
 4. **Met.** `.github/workflows/ci.yml` (2026-08-26) runs the
-   CONTRIBUTING.md gates — fmt, clippy, test, rustdoc, the 1.96 MSRV floor —
+   CONTRIBUTING.md gates — fmt, clippy, test, rustdoc, the 1.98 MSRV floor —
    and the rule-5 trademark check on every push and pull request. Its
    `sbom` job (2026-09-01) generates a CycloneDX document per crate on the
    same triggers. The `docs` job runs the link check and document-size

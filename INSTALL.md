@@ -110,7 +110,7 @@ Mirrors of the repository are on
 
 | | |
 |---|---|
-| Rust | Current stable minus two releases. Today that is **1.96**. |
+| Rust | Current stable minus two releases. Today that is **1.98**. |
 | Edition | 2024, which needs 1.85 — no longer the binding constraint. |
 | Platform | Anything Rust targets. No platform-specific code, no C dependency, no build script that shells out. |
 | Network | None, at build time or run time. The release dictionaries are compiled into the binary. |
@@ -124,7 +124,7 @@ library that cannot be adopted.
 Check a build against the floor with:
 
 ```sh
-cargo +1.96 check --workspace --all-targets
+cargo +1.98 check --workspace --all-targets
 ```
 
 If you do not have Rust: <https://rustup.rs>.
@@ -141,7 +141,7 @@ ordinary use expects.
 | `hl7-2` | `derive` | off | `#[derive(FromHl7)]` and `#[derive(ToHl7)]`; pulls in `syn` and `quote` at compile time |
 | `hl7-3` | `derive` | off | `#[derive(FromElement)]` |
 | `hl7-2-mllp` | `ack` | **on** | Turn a received message into the acknowledgement HL7 expects; pulls in `hl7-2` |
-| `hl7-2-mllp` | `clock` | off | `acknowledge_now`: take the timestamp from the system clock. Implies `ack`; pulls in `chrono` |
+| `hl7-2-mllp` | `clock` | off | `acknowledge_now`: take the timestamp from the system clock. Implies `ack`; pulls in `jiff` |
 | `hl7-2-mllp` | `noncompliance` | off | Accept the two framing sins real senders commit: a missing carriage return after the end block, and bytes between frames |
 | `serde-hl7` | `v2` | **on** | `serde_hl7::v2`, the `serde-hl7-v2` crate |
 | `serde-hl7` | `v3` | **on** | `serde_hl7::v3`, the `serde-hl7-v3` crate. Turn either off with `default-features = false` and the other's dependency tree is skipped entirely |

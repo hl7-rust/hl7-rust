@@ -7,7 +7,7 @@
 #   cargo clippy --all-targets -- -D warnings # lint-clean
 #   cargo fmt --check                         # formatting
 #   cargo rustdoc --lib -- -W missing-docs    # every public item documented
-#   cargo +1.96 check --workspace --all-targets   # the MSRV floor
+#   cargo +1.98 check --workspace --all-targets   # the MSRV floor
 #
 # The MSRV toolchain below moves with the policy in
 # spec/rust-msrv-n-minus-2/index.md: current stable minus two releases,
@@ -104,13 +104,13 @@ jobs:
           done
 
   msrv:
-    name: MSRV floor (1.96)
+    name: MSRV floor (1.98)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - name: Free preinstalled runner bloat
         run: .github/workflows/free-disk-space.sh
-      - uses: dtolnay/rust-toolchain@1.96
+      - uses: dtolnay/rust-toolchain@1.98
       - name: cargo check --workspace --all-targets
         run: cargo check --workspace --all-targets
 
