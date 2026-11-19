@@ -79,8 +79,9 @@ Two layouts are sanctioned, and a new crate picks one:
 - **Numbered section directories**, which `serde-hl7-v2` and
   `serde-hl7-v3` use, mirroring `serde-er7` in the sibling `er7-rust`
   workspace: `spec/index.md` holds a section table, an S-numbered rule
-  index (`S1`…`S15`, citable from tests and commits), the
-  which-goal-wins list, and the required checks; each section is its own
+  index (stable IDs through `S15`, citable from tests and commits; the v2
+  bridge retains the retired S14 gap rather than renumbering later public
+  rule IDs), the which-goal-wins list, and the required checks; each section is its own
   `spec/NN-slug/index.md` (`01-purpose-and-scope` … `11-strict-mode`).
   §7.1 is a coverage table naming the test behind every rule, and
   `cargo test -p <crate>` **checks it**: `every_rule_has_a_coverage_row`

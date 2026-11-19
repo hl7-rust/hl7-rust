@@ -41,11 +41,11 @@ for behavior.**
 ```
 src/lib.rs          Crate docs, module list, re-exports, `pub use hl7_2`.
 src/message.rs      Message: {"version", "er7"}; MessageSeed for Options.
-src/node.rs         Node: six-key object, Serialize only (S14).
+src/node.rs         Node: six-key object, recursive value round trip (S4).
 src/diagnostic.rs   Diagnostic: four-key object, round-trips.
 src/kind.rs         NodeKind, Severity, DiagnosticKind via variant_string!.
 src/version.rs      Version: the MSH-12 release string.
-src/strict.rs       Strict<T> for Message and Diagnostic.
+src/strict.rs       Strict<T> for Message, Node, and Diagnostic.
 tests/integration.rs  Black-box tests over hl7-2's samples/*.hl7, plus the
                     manifest and spec self-checks.
 examples/           Runnable programs, one concept each (see its README).
@@ -103,8 +103,6 @@ anything crossing module boundaries or using a real sample goes in
 
 - **A tree shape for `Message`.** Declined in spec §2.3; the ER7 tree is
   `serde-er7`'s.
-- **`Deserialize` for `Node`.** Needs a constructor in `hl7-2` first
-  (spec §9.1).
 - **Serde for `Dictionary`** or for struct-mode types.
 - **A `to_json_string` convenience**, or any format named in `src/`.
 - **Pulling in `serde_derive`**, or a third runtime dependency of any kind.

@@ -93,19 +93,17 @@ change that completes them, with the evidence named.
 
 ## Later
 
-- [ ] **GitLab `main` is behind.** `git@gitlab.com:hl7-rust/hl7-rust.git`
-      still holds `9d4d98d` (checked 2026-09-10 with `git ls-remote`); the
-      three `serde-hl7*-v0.1.0` tags did land there. Bringing it forward
-      needs a force push to that one URL (`origin` fans out to all three
-      hosts, so not `git push --force origin`), which is the maintainer's
-      decision, not an agent's.
-- [ ] **`Deserialize` for `serde_hl7_v2::Node`** — only if `hl7-2` adds a
-      public constructor for `hl7_2::Node` (its own decision; v2 spec
-      §9.1). Then: add the impl in `serde-hl7-v2/src/node.rs`, retire rule
-      S14 in `serde-hl7-v2/spec/index.md` and §2.2/§4.3/§9.1 the way
-      `serde-er7`'s §9.2 struck through its resolved question, update the
-      §7.1 coverage row, and release `serde-hl7-v2` — additive, not
-      breaking, per its spec §8.1, so a patch bump suffices.
+- [x] **GitLab `main` is synchronized.** Closed 2026-11-19 without a force
+      push: the ordinary three-mirror push of signed commit `5fa393d` advanced
+      GitLab, and `git ls-remote git@gitlab.com:hl7-rust/hl7-rust.git
+      refs/heads/main` returned that exact commit afterward. The three
+      `serde-hl7*-v0.1.0` tags were already present there.
+- [x] **`Deserialize` for `serde_hl7_v2::Node`** — done 2026-11-19.
+      `hl7-2` now exposes `Node::new` for an explicitly detached tree
+      snapshot (v2 spec §4.6); the bridge restores all six required fields
+      recursively, offers recursively strict `Strict<Node>`, retires S14,
+      and updates the §7.1 coverage table. The addition is non-breaking per
+      §8.1; release remains governed by the root release runbook.
 - [x] **`serde-er7/README.md` "The crate family" table** — done
       2026-09-13 in `~/git/er7-rust/er7-rust`, commit `a7a7a4f`: one row
       for `serde-hl7-v2` (reached via the `serde-hl7` umbrella), plus a

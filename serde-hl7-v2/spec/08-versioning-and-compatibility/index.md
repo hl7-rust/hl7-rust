@@ -22,8 +22,9 @@ bump (pre-1.0) and an update to §2 in the same change:
 - Changing `Message` from ER7 text to a tree (this would also contradict
   [§2.3](../02-wire-shapes/index.md), so it should never happen without
   that section's argument being answered first).
-- Adding a `Deserialize` impl for `Node` is *not* breaking — it is
-  additive — but it changes S14 and needs the spec updated first
+- Adding the `Deserialize` impl for `Node` was additive, not breaking. It
+  landed only after `hl7-2` added the detached constructor specified in its
+  §4.6, with this specification updated first
   ([§9](../09-roadmap-and-open-questions/index.md)).
 
 ## 8.2 What is not part of the compatibility surface

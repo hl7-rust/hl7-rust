@@ -168,7 +168,7 @@ The cross-platform CI job passed on Windows and macOS. It covers file and
 stdin conversion, CR and CRLF rendering, and a loopback MLLP exchange with
 default features. The installation guide records only those tested surfaces.
 
-Workspace line coverage is now 95.15% (8,529 of 8,964 lines) with all
+Workspace line coverage is now 95.25% (8,737 of 9,173 lines) with all
 features enabled. CI enforces a 95% minimum from a clean instrumented target;
 tests, benches, and examples are excluded from the denominator by path.
 [Coverage contract](spec/test-coverage/index.md)

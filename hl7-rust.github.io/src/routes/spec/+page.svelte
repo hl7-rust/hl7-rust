@@ -206,7 +206,7 @@
   </p>
   <p>
     The two <em>Serde</em> specs are laid out section for section the same way — an index with a
-    rule index of fifteen S-numbered rules, then eleven numbered sections from purpose and scope
+    rule index with stable S-numbered IDs, then eleven numbered sections from purpose and scope
     through strict mode — following the <code>serde-er7</code> spec they were modelled on. §2 in
     each is the wire-shape table, which is the crate's compatibility surface; §7.1 is a coverage
     table that <code>cargo test</code> checks against the rule index, so a rule cannot be stated

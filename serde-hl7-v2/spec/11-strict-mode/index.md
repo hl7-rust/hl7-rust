@@ -14,19 +14,20 @@ back to MSH-12, and no error of any kind says so.
 ## 11.2 Rule S13: `Strict<T>` rejects unknown fields; `T` alone still does not
 
 `Strict<T>` is a wrapper type, `pub struct Strict<T>(pub T)`, implementing
-`Deserialize` for `T` in `{Message, Diagnostic}` — the two object-shaped
-types this crate can deserialize. Where the ordinary `T::deserialize`
+`Deserialize` for `T` in `{Message, Node, Diagnostic}` — the three
+object-shaped types this crate can deserialize. Where the ordinary
+`T::deserialize`
 ignores a key it does not recognize (S8), `Strict::<T>::deserialize`
 reports it with `serde::de::Error::unknown_field`, naming the key and the
 field names it could have been.
 
 `Version`, `NodeKind`, `Severity`, and `DiagnosticKind` are bare strings
 that already reject an unrecognized value either way, so there is no
-`Strict` form for them. `Node` has no `Deserialize` at all (S14).
-`Message`'s and `Diagnostic`'s nested values are all strings of those
-kinds, so — unlike `serde-er7`'s `Message`, which nests objects three
-deep — there is no nested-object strictness to carry here; the seeded
-path has `MessageSeed::strict` for the same effect (S15).
+`Strict` form for them. `Node` nests child nodes, and `Strict<Node>` carries
+strictness recursively: an unknown field on the root or any descendant is
+an error. `Message`'s and `Diagnostic`'s nested values are strings of those
+kinds; the seeded message path has `MessageSeed::strict` for the same effect
+at its object boundary (S15).
 
 ## 11.3 This does not change what `T::deserialize` accepts
 

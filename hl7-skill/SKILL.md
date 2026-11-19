@@ -214,15 +214,18 @@ assert_eq!(back.version(), message.version());
 
 The dictionary-named tree from earlier — `PID.5`, `XPN.1`, every node an
 object with `name`, `path`, `kind`, `text`, `null`, `children` — is
-`Node`, and it is **serialize-only**: a tree is a view of a message for a
-log or a debugger, and the message is what round-trips. Validation
-findings ride along as `Diagnostic`, which does round-trip:
+`Node`. It round-trips recursively as a detached snapshot: the six fields
+come back exactly, but the restored tree is not attached to a `Message`.
+Validation findings ride along as `Diagnostic`, which also round-trips:
 
 ```rust
 use serde_hl7_v2::{Diagnostic, Node};
 
 let message = hl7_2::parse(text)?;
-let tree = serde_json::to_value(Node(message.tree()))?;
+let tree = Node(message.tree());
+let json = serde_json::to_value(&tree)?;
+let back: Node = serde_json::from_value(json)?;
+assert_eq!(back, tree);
 let findings: Vec<Diagnostic> = message.validate().into_iter().map(Diagnostic).collect();
 ```
 

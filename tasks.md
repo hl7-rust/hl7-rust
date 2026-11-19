@@ -631,10 +631,9 @@ Per `spec/free-open-source-funding/index.md`.
 ## Test coverage
 
 - [x] **Enforce at least 95% workspace line coverage** (2026-11-19).
-      Added black-box CLI contracts, parser and dictionary error cases,
-      typed-reader delegation, derive input validation, wrapper conversions,
-      and less-common message/builder paths. A clean all-features run covers
-      8,529 of 8,964 lines (95.15%), and CI now fails below 95%.
+      Added CLI, parser, dictionary, typed-reader, derive, wrapper, message,
+      and builder cases. The current clean gate covers 8,737/9,173 lines
+      (95.25%); CI fails below 95%.
       [Coverage specification](spec/test-coverage/index.md)
 
 ## Trademarks

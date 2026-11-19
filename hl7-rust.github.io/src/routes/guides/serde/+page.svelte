@@ -261,10 +261,10 @@ let bytes = serde_json::to_vec(&message)?;           // or bytes for a store`;
     at a leaf.
   </p>
   <p>
-    <code>Node</code> is <code>Serialize</code> only. <code>hl7-2</code> builds a tree only from a
-    parsed message and <code>hl7_2::Node</code> has no public constructor, so the only way back to
-    a tree is through a <code>Message</code>. A tree is a <em>view</em>; the message is what
-    round-trips.
+    <code>Node</code> round-trips recursively. Deserializing restores every name, path, kind, text,
+    null flag, and child as a detached snapshot: it is an equal tree value, not a handle back into
+    the parsed <code>Message</code>. Use <code>Strict&lt;Node&gt;</code> when an unknown key at any depth
+    should be an error instead of being ignored.
   </p>
 
   <h2 id="v2-findings">Validation findings</h2>

@@ -39,12 +39,6 @@ know. Everything else `hl7_2::Message` holds is derived from those two by
 
 ## 4.3 What does not round-trip, and why that is out of scope
 
-- **`Node`** (S14). A tree serializes but does not deserialize; it is a
-  view of a message, and `hl7_2::Node` has no public constructor. The
-  round trip for a tree is `Message` → any format → `Message` →
-  `.tree()`, and `tests/integration.rs`'s
-  `the_tree_after_a_round_trip_serializes_identically` pins down that
-  the tree's own serialization is byte-identical on both sides.
 - **A caller's dictionary through the plain `Deserialize`**, as §4.1
   says. The seed exists for exactly this.
 - **`Options::strict`.** Whether the original was parsed strictly is not
@@ -61,6 +55,11 @@ it is carried explicitly: an absent field has no node, an empty one is not
 emitted either (`hl7-2`'s tree skips empty fields, its spec §4), and the
 explicit null is a node with `"null": true` (S4). The integration test
 `the_explicit_null_is_visible_in_the_tree` pins this down.
+
+`Node` has its own value round trip under S4: serializing a node and
+deserializing it restores equal names, paths, kinds, text, null flags, and
+children at every depth. The restored value is a detached snapshot, not a
+handle into the original `Message`; no `Node` is such a handle.
 
 ## 4.5 `Diagnostic`
 

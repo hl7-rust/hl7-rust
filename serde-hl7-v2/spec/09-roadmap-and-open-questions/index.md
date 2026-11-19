@@ -8,14 +8,15 @@ lives in [`../../serde-hl7/plan.md`](../../../serde-hl7/plan.md) and
 [`../../serde-hl7/tasks.md`](../../../serde-hl7/tasks.md), and what is
 still open lives here.
 
-## 9.1 Deliberately deferred
+## 9.1 Resolved
 
-- **`Deserialize` for `Node`** (S14). Needs a public constructor on
-  `hl7_2::Node`, which is `hl7-2`'s decision: a node whose name and path
-  can disagree with any message is a new kind of value for that crate.
-  If `hl7-2` adds one, this crate adds the impl — an additive change
-  ([§8.1](../08-versioning-and-compatibility/index.md)) — and S14 is
-  retired the way `serde-er7`'s §9.2 retired its open question.
+- **`Deserialize` for `Node`**, resolved 2026-11-19. `hl7-2` now exposes
+  `Node::new` for the explicitly detached snapshot specified in its §4.6;
+  this crate restores the six-field shape recursively through it. The change
+  is additive ([§8.1](../08-versioning-and-compatibility/index.md)), and the
+  former rule S14 is retired.
+
+## 9.2 Deliberately deferred
 - **Serde for `Dictionary`.** Deferred indefinitely for the reason in
   [§1.4](../01-purpose-and-scope/index.md): the JSON dictionary format
   already exists and is the schema-mode contract.
@@ -26,7 +27,7 @@ still open lives here.
   formats in examples. A nice-to-have; JSON demonstrates every shape in
   [§2](../02-wire-shapes/index.md) without ambiguity.
 
-## 9.2 Open questions
+## 9.3 Open questions
 
 - **Should `Node` omit `"children": []` at a leaf?** S4 says no, for
   schema stability. If real consumers find the size cost matters — a
@@ -40,7 +41,7 @@ still open lives here.
   bundled one. Deferred until a real interface shows the need; it would be
   an additive optional key.
 
-## 9.3 Process
+## 9.4 Process
 
 A change here follows the same order `serde-er7` and `hl7-2` use: update
 the matching section of this `spec/` first, then the code, then the tests

@@ -1,13 +1,14 @@
 //! [`Node`]: one node of `hl7-2`'s generic-mode tree, serialized as an
-//! object — `Serialize` only.
+//! object that round-trips as a detached tree snapshot.
 
 use std::fmt;
 use std::ops::Deref;
 
+use serde::de::{self, DeserializeSeed, MapAccess, SeqAccess, Visitor};
 use serde::ser::SerializeStruct;
-use serde::{Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::NodeKind;
+use crate::{NodeKind, Strict};
 
 /// A Serde-enabled [`hl7_2::Node`]: the dictionary-named tree
 /// [`hl7_2::Message::tree`] builds, as an object per node.
@@ -23,13 +24,10 @@ use crate::NodeKind;
 /// | `"null"` | `true` when the sender wrote the explicit null `""` here | [`hl7_2::Node::is_null`] |
 /// | `"children"` | an array of nodes, `[]` at a leaf | [`hl7_2::Node::children`] |
 ///
-/// # Serialize only
-///
-/// There is no `Deserialize` impl. `hl7-2` builds a tree only from a
-/// parsed message — [`hl7_2::Node`] has no public constructor — so the
-/// only way back to a tree is through a [`crate::Message`]. That is a
-/// deliberate asymmetry, stated in the spec (rule S14), not an omission: a
-/// tree is a *view* of a message, and the message is what round-trips.
+/// Deserializing restores all six fields recursively as detached
+/// [`hl7_2::Node`] snapshots. A restored node is not attached to a
+/// [`crate::Message`], just as a node returned by `Message::tree` is a value
+/// rather than a mutable handle into that message.
 ///
 /// Example:
 ///
@@ -88,6 +86,172 @@ impl Serialize for Node {
         S: Serializer,
     {
         NodeRef(&self.0).serialize(serializer)
+    }
+}
+
+const FIELDS: &[&str] = &["name", "path", "kind", "text", "null", "children"];
+
+#[derive(Clone, Copy)]
+struct NodeSeed {
+    strict: bool,
+}
+
+impl<'de> DeserializeSeed<'de> for NodeSeed {
+    type Value = Node;
+
+    fn deserialize<D>(self, deserializer: D) -> Result<Node, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_struct(
+            "Node",
+            FIELDS,
+            NodeVisitor {
+                strict: self.strict,
+            },
+        )
+    }
+}
+
+struct NodeVisitor {
+    strict: bool,
+}
+
+impl<'de> Visitor<'de> for NodeVisitor {
+    type Value = Node;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str(
+            "a Node object with \"name\", \"path\", \"kind\", \"text\", \"null\", and \"children\"",
+        )
+    }
+
+    fn visit_map<V>(self, mut map: V) -> Result<Node, V::Error>
+    where
+        V: MapAccess<'de>,
+    {
+        let mut name: Option<String> = None;
+        let mut path: Option<String> = None;
+        let mut kind: Option<NodeKind> = None;
+        let mut text: Option<String> = None;
+        let mut null: Option<bool> = None;
+        let mut children: Option<Vec<Node>> = None;
+
+        while let Some(key) = map.next_key::<String>()? {
+            match key.as_str() {
+                "name" => read_once(&mut name, "name", &mut map)?,
+                "path" => read_once(&mut path, "path", &mut map)?,
+                "kind" => read_once(&mut kind, "kind", &mut map)?,
+                "text" => read_once(&mut text, "text", &mut map)?,
+                "null" => read_once(&mut null, "null", &mut map)?,
+                "children" => {
+                    if children.is_some() {
+                        return Err(de::Error::duplicate_field("children"));
+                    }
+                    children = Some(map.next_value_seed(ChildrenSeed {
+                        strict: self.strict,
+                    })?);
+                }
+                _ if self.strict => return Err(de::Error::unknown_field(&key, FIELDS)),
+                _ => {
+                    let _ = map.next_value::<de::IgnoredAny>()?;
+                }
+            }
+        }
+
+        let children = children
+            .ok_or_else(|| de::Error::missing_field("children"))?
+            .into_iter()
+            .map(|child| child.0)
+            .collect();
+        Ok(Node(hl7_2::Node::new(
+            name.ok_or_else(|| de::Error::missing_field("name"))?,
+            path.ok_or_else(|| de::Error::missing_field("path"))?,
+            kind.ok_or_else(|| de::Error::missing_field("kind"))?.0,
+            text.ok_or_else(|| de::Error::missing_field("text"))?,
+            null.ok_or_else(|| de::Error::missing_field("null"))?,
+            children,
+        )))
+    }
+}
+
+fn read_once<'de, T, V>(
+    slot: &mut Option<T>,
+    field: &'static str,
+    map: &mut V,
+) -> Result<(), V::Error>
+where
+    T: Deserialize<'de>,
+    V: MapAccess<'de>,
+{
+    if slot.is_some() {
+        return Err(de::Error::duplicate_field(field));
+    }
+    *slot = Some(map.next_value()?);
+    Ok(())
+}
+
+#[derive(Clone, Copy)]
+struct ChildrenSeed {
+    strict: bool,
+}
+
+impl<'de> DeserializeSeed<'de> for ChildrenSeed {
+    type Value = Vec<Node>;
+
+    fn deserialize<D>(self, deserializer: D) -> Result<Vec<Node>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_seq(ChildrenVisitor {
+            strict: self.strict,
+        })
+    }
+}
+
+struct ChildrenVisitor {
+    strict: bool,
+}
+
+impl<'de> Visitor<'de> for ChildrenVisitor {
+    type Value = Vec<Node>;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("an array of Node objects")
+    }
+
+    fn visit_seq<A>(self, mut sequence: A) -> Result<Vec<Node>, A::Error>
+    where
+        A: SeqAccess<'de>,
+    {
+        let mut children = Vec::with_capacity(sequence.size_hint().unwrap_or(0));
+        while let Some(child) = sequence.next_element_seed(NodeSeed {
+            strict: self.strict,
+        })? {
+            children.push(child);
+        }
+        Ok(children)
+    }
+}
+
+impl<'de> Deserialize<'de> for Node {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        NodeSeed { strict: false }.deserialize(deserializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for Strict<Node> {
+    /// See [`Strict`] (rule S13): unknown fields are rejected recursively.
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        NodeSeed { strict: true }
+            .deserialize(deserializer)
+            .map(Strict)
     }
 }
 
@@ -188,5 +352,80 @@ mod tests {
         let node = Node(message.tree());
         assert!(node.find("PID").is_some());
         assert!(node.to_string().starts_with("MSH|"));
+    }
+
+    #[test]
+    fn rejects_a_missing_node_field() {
+        for field in FIELDS {
+            let mut value = serde_json::json!({
+                "name": "PID.5",
+                "path": "PID[1]-5[1]",
+                "kind": "Field",
+                "text": "X",
+                "null": false,
+                "children": [],
+            });
+            value.as_object_mut().unwrap().remove(*field);
+            let error = serde_json::from_value::<Node>(value).unwrap_err();
+            assert!(error.to_string().contains(field), "{field}: {error}");
+        }
+    }
+
+    #[test]
+    fn rejects_every_duplicate_node_field() {
+        let duplicates = [
+            (
+                "name",
+                r#"{"name":"A","name":"B","path":"","kind":"Field","text":"X","null":false,"children":[]}"#,
+            ),
+            (
+                "path",
+                r#"{"name":"A","path":"","path":"X","kind":"Field","text":"X","null":false,"children":[]}"#,
+            ),
+            (
+                "kind",
+                r#"{"name":"A","path":"","kind":"Field","kind":"Group","text":"X","null":false,"children":[]}"#,
+            ),
+            (
+                "text",
+                r#"{"name":"A","path":"","kind":"Field","text":"X","text":"Y","null":false,"children":[]}"#,
+            ),
+            (
+                "null",
+                r#"{"name":"A","path":"","kind":"Field","text":"X","null":false,"null":true,"children":[]}"#,
+            ),
+            (
+                "children",
+                r#"{"name":"A","path":"","kind":"Field","text":"X","null":false,"children":[],"children":[]}"#,
+            ),
+        ];
+        for (field, json) in duplicates {
+            let error = serde_json::from_str::<Node>(json).unwrap_err();
+            assert!(error.to_string().contains(field), "{field}: {error}");
+        }
+    }
+
+    #[test]
+    fn rejects_wrong_node_container_shapes() {
+        let error = serde_json::from_str::<Node>("[]").unwrap_err();
+        assert!(error.to_string().contains("Node object"), "{error}");
+
+        let json = r#"{"name":"A","path":"","kind":"Group","text":"","null":false,"children":{}}"#;
+        let error = serde_json::from_str::<Node>(json).unwrap_err();
+        assert!(error.to_string().contains("array of Node"), "{error}");
+    }
+
+    #[test]
+    fn ignores_an_unknown_node_field_by_default() {
+        let json = r#"{"name":"PID.5","path":"PID[1]-5[1]","kind":"Field","text":"X","null":false,"children":[],"future":1}"#;
+        let node = serde_json::from_str::<Node>(json).unwrap();
+        assert_eq!(node.text(), "X");
+    }
+
+    #[test]
+    fn strict_node_rejects_an_unknown_field_at_any_depth() {
+        let json = r#"{"name":"ROOT","path":"","kind":"Group","text":"X","null":false,"children":[{"name":"PID.5","path":"PID[1]-5[1]","kind":"Field","text":"X","null":false,"children":[],"future":1}]}"#;
+        let error = serde_json::from_str::<Strict<Node>>(json).unwrap_err();
+        assert!(error.to_string().contains("future"), "{error}");
     }
 }

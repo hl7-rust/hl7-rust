@@ -57,7 +57,7 @@
 //! | `hl7-2` type | Wrapper | Serializes as | Deserializes |
 //! |---|---|---|---|
 //! | [`hl7_2::Message`] | [`Message`] | object: `{"version": "2.5", "er7": "MSH\|^~\\&\|…"}` | yes — re-parsed through `hl7_2`, so the dictionary is resolved, not shipped |
-//! | [`hl7_2::Node`] | [`Node`] | object: `{"name", "path", "kind", "text", "null", "children": [...]}` | no — `hl7_2` builds trees only from a parsed message |
+//! | [`hl7_2::Node`] | [`Node`] | object: `{"name", "path", "kind", "text", "null", "children": [...]}` | yes — restored recursively as a detached snapshot |
 //! | [`hl7_2::generic::Kind`] | [`NodeKind`] | one of the strings `"Group"`, `"Segment"`, `"Field"`, `"Component"`, `"Subcomponent"` | yes |
 //! | [`hl7_2::Diagnostic`] | [`Diagnostic`] | object: `{"severity", "kind", "path", "detail"}` | yes |
 //! | [`hl7_2::Severity`] | [`Severity`] | `"Error"` or `"Warning"` | yes |
@@ -74,9 +74,9 @@
 //!
 //! Deserializing an object-shaped type ignores a key it does not recognize,
 //! by default. A caller who wants a typo in a hand-written JSON fixture
-//! reported instead deserializes into [`Strict<Message>`](Strict) or
-//! [`Strict<Diagnostic>`](Strict), which rejects an unknown key rather than
-//! ignoring it.
+//! reported instead deserializes into [`Strict<Message>`](Strict),
+//! [`Strict<Node>`](Strict), or [`Strict<Diagnostic>`](Strict), which rejects
+//! an unknown key rather than ignoring it. Node strictness is recursive.
 //!
 //! A message read through a caller's own dictionary — `hl7-2`'s schema mode
 //! — deserializes through [`Message::seed`], which carries the

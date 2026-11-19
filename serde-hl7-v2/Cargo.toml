@@ -1,6 +1,6 @@
 [package]
 name = "serde-hl7-v2"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 rust-version.workspace = true

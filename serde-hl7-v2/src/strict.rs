@@ -5,7 +5,7 @@ use std::ops::{Deref, DerefMut};
 
 use serde::{Serialize, Serializer};
 
-use crate::{Diagnostic, Message};
+use crate::{Diagnostic, Message, Node};
 
 /// Deserialize `T` strictly: an unrecognized field is a `serde::de::Error`
 /// instead of being ignored.
@@ -18,13 +18,12 @@ use crate::{Diagnostic, Message};
 /// rationale, including why this is a distinct type rather than a flag on
 /// the existing one.
 ///
-/// A `Deserialize` implementation exists for `Strict<Message>` and
-/// `Strict<Diagnostic>` — the two object-shaped types this crate can
-/// deserialize. [`crate::Version`], [`crate::NodeKind`],
+/// A `Deserialize` implementation exists for `Strict<Message>`,
+/// `Strict<Node>`, and `Strict<Diagnostic>` — the three object-shaped types
+/// this crate can deserialize. [`crate::Version`], [`crate::NodeKind`],
 /// [`crate::Severity`], and [`crate::DiagnosticKind`] are bare strings that
-/// already reject an unrecognized value either way, and [`crate::Node`]
-/// has no `Deserialize` at all (rule S14), so none of them has a `Strict`
-/// form.
+/// already reject an unrecognized value either way, so none of them has a
+/// `Strict` form. Node strictness applies recursively to every child.
 ///
 /// As rule S11 asks of every wrapper type in this crate, `Strict<T>`
 /// implements `Deref`, `DerefMut`, and `From` both ways, plus a
@@ -93,6 +92,12 @@ impl From<Strict<Message>> for Message {
 
 impl From<Strict<Diagnostic>> for Diagnostic {
     fn from(outer: Strict<Diagnostic>) -> Diagnostic {
+        outer.0
+    }
+}
+
+impl From<Strict<Node>> for Node {
+    fn from(outer: Strict<Node>) -> Node {
         outer.0
     }
 }

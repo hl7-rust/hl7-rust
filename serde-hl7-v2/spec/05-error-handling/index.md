@@ -41,7 +41,8 @@ alternative *type*, not a flag on this one: [§11](../11-strict-mode/index.md)'s
 
 ## 5.3 Rule S9: a missing required field names itself
 
-`missing_field("er7")`, `missing_field("severity")`, and so on — every
+`missing_field("er7")`, `missing_field("children")`,
+`missing_field("severity")`, and so on — every
 required key uses `serde::de::Error::missing_field`, which every Serde
 format renders with the field's own name. A caller debugging a hand-written
 JSON fixture gets "missing field `er7`," not a generic "invalid input."

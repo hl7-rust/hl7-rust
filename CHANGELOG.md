@@ -18,6 +18,25 @@ The full release runbook — the inter-crate version-requirement check, the
 tag-and-sign step, and who may decide a release is warranted — is
 [`spec/release-process/index.md`](spec/release-process/index.md).
 
+## 2026-11-19, tenth release
+
+Two additive patch releases complete generic-tree round trips without changing
+an existing wire shape or parser behavior.
+
+### Added
+
+- **`hl7-2` 0.3.3**: `Node::new` constructs an explicitly detached generic
+  tree snapshot from its six public parts. The constructor preserves those
+  parts verbatim and does not invent a dictionary or message attachment.
+- **`serde-hl7-v2` 0.1.2**: `Node` now deserializes its documented six-key
+  shape recursively. Default mode ignores unknown keys, while `Strict<Node>`
+  rejects them at every depth; both require every documented field and reject
+  duplicates.
+
+### Released
+
+`hl7-2` 0.3.3 · `serde-hl7-v2` 0.1.2
+
 ## 2026-11-15, ninth release
 
 Maintenance release. `hl7-2` (0.3.2), `hl7-2-from-er7-into-json` (0.5.2),

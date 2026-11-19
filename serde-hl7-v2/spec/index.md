@@ -43,7 +43,7 @@ same one (S1, S2, S7–S13), so the two crates can be discussed together.
 | S1 | Exactly two runtime dependencies: `serde` and `hl7-2` | [§3](03-dependencies-and-format-agnosticism/index.md) |
 | S2 | No format-specific crate is a runtime dependency | [§3](03-dependencies-and-format-agnosticism/index.md) |
 | S3 | `Message` serializes as `{"version", "er7"}` — the release it was read as, and its ER7 text — and deserializes by parsing that text again through `hl7-2` with the version pinned | [§2](02-wire-shapes/index.md), [§4](04-round-trip-guarantee/index.md) |
-| S4 | `Node` serializes as an object with exactly six keys, always all present: `name`, `path`, `kind`, `text`, `null`, `children` | [§2](02-wire-shapes/index.md) |
+| S4 | `Node` serializes and deserializes as an object with exactly six required keys, always all present: `name`, `path`, `kind`, `text`, `null`, `children` | [§2](02-wire-shapes/index.md), [§4](04-round-trip-guarantee/index.md) |
 | S5 | `Diagnostic` serializes as an object with four keys, `severity`, `kind`, `path`, `detail`, all required on deserialize | [§2](02-wire-shapes/index.md) |
 | S6 | `Version` serializes as the release string MSH-12 spells; a release `hl7-2` does not know is a deserialize error | [§2](02-wire-shapes/index.md) |
 | S7 | A C-like enum (`NodeKind`, `Severity`, `DiagnosticKind`) serializes as its variant name, as a string, via `serialize_str` | [§2](02-wire-shapes/index.md) |
@@ -52,8 +52,7 @@ same one (S1, S2, S7–S13), so the two crates can be discussed together.
 | S10 | The wire shape in [§2](02-wire-shapes/index.md) is part of this crate's public API and its SemVer contract | [§8](08-versioning-and-compatibility/index.md) |
 | S11 | Every wrapper type implements `Deref` (and `DerefMut` where the wrapped value is mutable) and `From` both ways | [§6](06-ergonomics/index.md) |
 | S12 | Every public item carries a doc comment; `cargo rustdoc --lib -- -W missing-docs` stays clean | [§7](07-testing-strategy/index.md) |
-| S13 | `Strict<T>` (`T` in `Message`, `Diagnostic`) rejects an unknown field instead of ignoring it; `T::deserialize` alone stays tolerant (S8) | [§11](11-strict-mode/index.md) |
-| S14 | `Node` is `Serialize` only; the way back to a tree is through `Message` | [§2](02-wire-shapes/index.md), [§4](04-round-trip-guarantee/index.md) |
+| S13 | `Strict<T>` (`T` in `Message`, `Node`, `Diagnostic`) rejects an unknown field instead of ignoring it; `T::deserialize` alone stays tolerant (S8), and node strictness applies recursively | [§11](11-strict-mode/index.md) |
 | S15 | `Message::seed(&options)` deserializes under the caller's `hl7_2::Options`; an `Options::version` set there wins over the wire's `"version"`, and `"version"` is otherwise optional, falling back to MSH-12 | [§2](02-wire-shapes/index.md), [§4](04-round-trip-guarantee/index.md) |
 
 ## Which goal wins when two conflict

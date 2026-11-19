@@ -12,7 +12,7 @@ Based on my analysis of your **hl7-rust** workspace (17 Rust crates for HL7 v2/v
 - Promotion blocked pending HL7 trademark resolution (request sent 2026-08-25, pending reply)
 - Limited community engagement channels beyond GitHub
 - Website could be more interactive/educational
-- Workspace line coverage is 95.15%, with a 95% CI floor; mutation and
+- Workspace line coverage is 95.25%, with a 95% CI floor; mutation and
   property-based testing remain opportunities
 - Performance monitoring could be more comprehensive
 
@@ -142,7 +142,7 @@ Since this blocks most promotion:
 
 | Task | Impact | Effort | Owner | Status |
 |------|--------|--------|-------|--------|
-| **Expand test coverage for edge cases in message parsing** | Very High - Bug prevention | High | - | ✅ (95.15% workspace line coverage) |
+| **Expand test coverage for edge cases in message parsing** | Very High - Bug prevention | High | - | ✅ (95.25% workspace line coverage) |
 | **Add property-based testing (proptest or similar)** | Very High - Finds edge cases | Medium | - | ⬜ |
 | **Implement fuzz testing for all parsers** | Very High - Security & robustness | Medium | - | ⬜ |
 | **Add memory usage benchmarks** | High - Complete performance picture | Medium | - | ⬜ |
@@ -366,7 +366,7 @@ If you want immediate impact, focus on these **10 tasks** that can be completed 
 ### Q1 (Months 1-3)
 - Complete all Quick Start tasks
 - Resolve trademark issue and begin outreach sequence
-- ✅ Achieve 90%+ test coverage for core crates (95.15% workspace-wide)
+- ✅ Achieve 90%+ test coverage for core crates (95.25% workspace-wide)
 - Set up comprehensive monitoring
 
 ### Q2 (Months 4-6)

@@ -3,7 +3,9 @@
 //! from the sibling checkout, so a round trip through this crate is checked
 //! against real message shapes, not just literals written for this crate.
 
-use serde_hl7_v2::{Diagnostic, DiagnosticKind, Message, Node, NodeKind, Severity, Version};
+use serde_hl7_v2::{
+    Diagnostic, DiagnosticKind, Message, Node, NodeKind, Severity, Strict, Version,
+};
 
 const ADT: &str = include_str!("../../hl7-2/samples/adt_a01.hl7");
 const ORU: &str = include_str!("../../hl7-2/samples/oru_r01.hl7");
@@ -39,30 +41,26 @@ fn round_trips_pretty_printed_json_too() {
 }
 
 #[test]
-fn the_tree_after_a_round_trip_serializes_identically() {
-    // S14: a tree does not deserialize, but the tree of a round-tripped
-    // message is the same tree — which is the round trip a caller who
-    // ships JSON trees actually needs.
+fn round_trips_a_tree_as_detached_nodes() {
+    // S4: every public node fact survives recursively. The restored tree is
+    // a detached value, not a handle into the parsed Message.
     for sample in [ADT, ORU, ORM, VENDOR] {
         let message = Message::parse(sample).unwrap();
-        let before = serde_json::to_string(&Node(message.tree())).unwrap();
-        let json = serde_json::to_string(&message).unwrap();
-        let back: Message = serde_json::from_str(&json).unwrap();
-        let after = serde_json::to_string(&Node(back.tree())).unwrap();
-        assert_eq!(before, after);
+        let tree = Node(message.tree());
+        let json = serde_json::to_string(&tree).unwrap();
+        let back: Node = serde_json::from_str(&json).unwrap();
+        assert_eq!(back, tree);
+        assert_eq!(serde_json::to_string(&back).unwrap(), json);
     }
 }
 
 #[test]
-fn node_has_no_deserialize_impl() {
-    // S14, stated as a compile-time fact: `Node` is `Serialize` but not
-    // `Deserialize`. If this ever compiles differently, the spec's S14 is
-    // out of date and §9.1 tells you what to do.
-    fn assert_serialize<T: serde::Serialize>() {}
-    assert_serialize::<Node>();
-    // A negative trait check cannot be written directly; the `trybuild`
-    // style of test is more than this one fact is worth. The rustdoc on
-    // `Node` and this test's name are the record.
+fn strict_node_converts_back_to_the_plain_wrapper() {
+    let tree = Node(Message::parse(ADT).unwrap().tree());
+    let json = serde_json::to_string(&tree).unwrap();
+    let strict: Strict<Node> = serde_json::from_str(&json).unwrap();
+    let back: Node = strict.into();
+    assert_eq!(back, tree);
 }
 
 #[test]
@@ -214,7 +212,14 @@ fn every_rule_has_a_coverage_row() {
     let declared = rule_ids(include_str!("../spec/index.md"));
     let covered = rule_ids(include_str!("../spec/07-testing-strategy/index.md"));
 
-    assert_eq!(declared.len(), 15, "the rule index should hold S1–S15");
+    let expected: Vec<String> = (1..=15)
+        .filter(|number| *number != 14)
+        .map(|number| format!("S{number}"))
+        .collect();
+    assert_eq!(
+        declared, expected,
+        "the rule index should hold S1–S13 and S15; S14 is retired"
+    );
     let missing: Vec<&String> = declared.iter().filter(|s| !covered.contains(s)).collect();
     assert!(missing.is_empty(), "no row in §7.1 for {missing:?}");
     let orphan: Vec<&String> = covered.iter().filter(|s| !declared.contains(s)).collect();

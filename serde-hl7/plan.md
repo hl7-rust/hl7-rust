@@ -41,9 +41,11 @@ typos; runnable examples; README, AGENTS.md, CLAUDE.md, LICENSE.md.
   crates specifying one wire shape. `Node` is where v2's tree-shaped
   effort goes, because only `hl7-2` has the dictionary that names it.
   `serde-hl7-v2/spec/02-wire-shapes/index.md` §2.3.
-- **v2's `Node` is `Serialize` only.** `hl7_2::Node` has no public
-  constructor, and adding one is `hl7-2`'s decision. Rule S14, roadmap
-  §9.1.
+- **v2's `Node` now round-trips as a detached snapshot.** The initial
+  release was `Serialize` only because `hl7_2::Node` had no public
+  constructor. Resolved 2026-11-19: `hl7-2` §4.6 defines `Node::new` as
+  detached from any message, `serde-hl7-v2` restores all six fields
+  recursively, and the former rule S14 is retired.
 - **v2's `MessageSeed`.** Schema mode (a caller's own dictionary) cannot
   reach a stateless `Deserialize`; a `DeserializeSeed` carrying
   `hl7_2::Options` can. Rule S15.

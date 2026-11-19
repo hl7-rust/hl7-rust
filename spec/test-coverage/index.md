@@ -12,6 +12,10 @@ enabled. CI MUST fail when the measured value is below that threshold.
 The first conforming measurement, on 2026-11-19, covered 8,529 of 8,964
 lines: **95.15%**.
 
+After the detached-node constructor and recursive `serde-hl7-v2` node
+deserializer landed later that day, the same clean measurement covered 8,737
+of 9,173 lines: **95.25%**.
+
 ## 2. Denominator
 
 The denominator is every instrumented Rust source file in the Cargo workspace,

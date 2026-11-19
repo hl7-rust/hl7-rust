@@ -60,6 +60,33 @@ pub struct Node {
 }
 
 impl Node {
+    /// Construct a detached node from its public parts.
+    ///
+    /// A detached node is a snapshot for restoring a serialized tree or
+    /// building synthetic tooling data. The values are preserved exactly:
+    /// this does not consult a dictionary, validate that `name`, `path`, and
+    /// `kind` agree, derive `text` from `children`, or attach the node to a
+    /// [`crate::Message`]. Trees returned by [`crate::Message::tree`] remain
+    /// derived from their parsed message.
+    #[must_use]
+    pub fn new(
+        name: impl Into<String>,
+        path: impl Into<String>,
+        kind: Kind,
+        text: impl Into<String>,
+        null: bool,
+        children: Vec<Node>,
+    ) -> Node {
+        Node {
+            name: name.into(),
+            path: path.into(),
+            kind,
+            text: text.into(),
+            null,
+            children,
+        }
+    }
+
     /// This node's dictionary-derived name, e.g. `PID.5` or `XPN.1`.
     #[must_use]
     pub fn name(&self) -> &str {
@@ -449,5 +476,33 @@ mod tests {
         let named = tree.find_all("PID.3").count();
         assert_eq!(named, 2);
         assert!(count > named);
+    }
+
+    #[test]
+    fn constructs_a_detached_node_from_public_parts() {
+        let child = Node::new(
+            "XPN.1",
+            "PID[1]-5[1].1",
+            Kind::Component,
+            "SMITH",
+            true,
+            Vec::new(),
+        );
+        let node = Node::new(
+            "PID.5",
+            "PID[1]-5[1]",
+            Kind::Field,
+            "deliberately independent text",
+            false,
+            vec![child],
+        );
+
+        assert_eq!(node.name(), "PID.5");
+        assert_eq!(node.path(), "PID[1]-5[1]");
+        assert_eq!(node.kind(), Kind::Field);
+        assert_eq!(node.text(), "deliberately independent text");
+        assert!(!node.is_null());
+        assert_eq!(node.children()[0].name(), "XPN.1");
+        assert!(node.children()[0].is_null());
     }
 }

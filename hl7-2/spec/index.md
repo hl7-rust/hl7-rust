@@ -331,6 +331,20 @@ where an unexpected segment belongs, and a wrong guess is worse than no
 grouping. `Message::tree_with_options(false)` asks for a flat tree
 outright, and `Message::layout` exposes the match itself.
 
+### 4.6 Detached nodes
+
+`Node::new` constructs a standalone snapshot from the same six facts the
+accessors expose: name, path, kind, text, explicit-null state, and children.
+Every value is preserved exactly. The constructor does not consult a
+dictionary, validate that a name agrees with a path or kind, derive a parent's
+text from its children, or attach the node to a `Message`.
+
+That distinction is deliberate: a tree produced by `Message::tree` remains
+derived from one parsed message under one dictionary, while a detached node is
+for restoring a previously serialized tree or building synthetic tooling data.
+Changing a detached node cannot change a message, and its caller is responsible
+for any consistency between its fields.
+
 ## 5. Schema mode (`Dictionary::from_json`, `Options::with_dictionary`)
 
 Schema mode is generic mode with a dictionary the caller supplies:
@@ -597,6 +611,7 @@ tests in `tests/integration.rs`; derive tests in
 | 4.3 | the explicit null survives | `generic::tests::the_explicit_null_survives` |
 | 4.4 | OBX-5 typed by OBX-2 | `generic::tests::obx_5_takes_its_type_from_obx_2`, `dictionary::tests::resolves_obx_5_through_obx_2` |
 | 4.5 | grouping, and its all-or-nothing fallback | `structure::tests::*`, `generic::tests::groups_nest_under_the_structure_id`, `message::tests::falls_back_to_a_flat_tree_when_the_structure_does_not_fit` |
+| 4.6 | detached node construction preserves every public part | `generic::tests::constructs_a_detached_node_from_public_parts` |
 | 5 | schema mode end to end | `integration::schema_mode_teaches_the_parser_one_vendors_dialect` |
 | 6 | the four attributes | `derive::reads_each_annotated_field_from_its_path`, `derive::nests_structs_and_keeps_the_raw_message` |
 | 6.1 | required, optional, repeating, bad values | `typed::tests::reads_scalars_repetitions_and_absences`, `typed::tests::a_required_field_that_is_absent_is_an_error`, `typed::tests::a_value_of_the_wrong_shape_names_the_path`, `typed::tests::booleans_read_the_spellings_senders_use` |

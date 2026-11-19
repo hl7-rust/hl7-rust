@@ -65,7 +65,7 @@ cargo add serde-hl7-v2
 | `hl7-2` type | Wrapper | Serializes as | Deserializes |
 |---|---|---|---|
 | `Message` | `Message` | `{"version": "2.5", "er7": "MSH\|^~\\&\|…"}` | yes: the text is parsed again, the version pinned, the dictionary resolved |
-| `Node` | `Node` | `{"name": "PID.5", "path": "PID[1]-5[1]", "kind": "Field", "text": "SMITH^JOHN", "null": false, "children": [...]}` | no: a tree is a view of a message; the message is what round-trips |
+| `Node` | `Node` | `{"name": "PID.5", "path": "PID[1]-5[1]", "kind": "Field", "text": "SMITH^JOHN", "null": false, "children": [...]}` | yes: recursively, as a detached snapshot |
 | `generic::Kind` | `NodeKind` | `"Group"`, `"Segment"`, `"Field"`, `"Component"`, `"Subcomponent"` | yes |
 | `Diagnostic` | `Diagnostic` | `{"severity": "Error", "kind": "ValueFormat", "path": "OBX[1]-5[1]", "detail": "…"}` | yes |
 | `Severity` | `Severity` | `"Error"` or `"Warning"` | yes |
@@ -102,7 +102,8 @@ dictionary — is the tree with `PID.5` and `XPN.1` for names, which is
   that are mutable) and `From` both ways, so `message.get("PID-5.1")`,
   `message.tree()`, and the rest work directly on the wrapper.
 - **Opt-in strict deserialization**: `Strict<Message>` and
-  `Strict<Diagnostic>` reject an unrecognized key instead of ignoring it —
+  `Strict<Node>`, and `Strict<Diagnostic>` reject an unrecognized key instead
+  of ignoring it — recursively for a node tree —
   for catching a typo in a hand-written JSON fixture.
 
 ## What it deliberately does not do

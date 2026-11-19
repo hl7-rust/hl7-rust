@@ -11,7 +11,7 @@ change (see [§8](../08-versioning-and-compatibility/index.md), rule S10).
 | Type | Shape | Example | Deserializes |
 |------|-------|---------|--------------|
 | `Message` | object, fields `"version"`, `"er7"` | `{"version": "2.5", "er7": "MSH\|^~\\&\|LAB\rPID\|1"}` | yes (S3) |
-| `Node` | object, fields `"name"`, `"path"`, `"kind"`, `"text"`, `"null"`, `"children"` | `{"name": "PID.5", "path": "PID[1]-5[1]", "kind": "Field", "text": "SMITH^JOHN", "null": false, "children": [...]}` | no (S14) |
+| `Node` | object, fields `"name"`, `"path"`, `"kind"`, `"text"`, `"null"`, `"children"` | `{"name": "PID.5", "path": "PID[1]-5[1]", "kind": "Field", "text": "SMITH^JOHN", "null": false, "children": [...]}` | yes (S4) |
 | `NodeKind` | one of the strings `"Group"`, `"Segment"`, `"Field"`, `"Component"`, `"Subcomponent"` | `"Field"` | yes |
 | `Diagnostic` | object, fields `"severity"`, `"kind"`, `"path"`, `"detail"` | `{"severity": "Error", "kind": "ValueFormat", "path": "OBX[1]-5[1]", "detail": "..."}` | yes (S5) |
 | `Severity` | `"Error"` or `"Warning"` | `"Warning"` | yes |
@@ -38,7 +38,10 @@ change (see [§8](../08-versioning-and-compatibility/index.md), rule S10).
   everywhere included. A fixed schema is worth more to a consumer in a
   typed language, or writing a JSON-path query, than the bytes omitting
   the defaults would save. `"kind"` goes through `NodeKind` (S7);
-  `"path"` is the `er7` path, empty at the root.
+  `"path"` is the `er7` path, empty at the root. All six fields are
+  required on deserialize and are restored recursively through
+  `hl7_2::Node::new`; the result is the detached snapshot defined by the
+  `hl7-2` spec §4.6, not a node attached to a `Message`.
 
 - **S5**: `Diagnostic` serializes its four public fields under their own
   names, `severity` and `kind` through `Severity` and `DiagnosticKind`
@@ -59,14 +62,6 @@ change (see [§8](../08-versioning-and-compatibility/index.md), rule S10).
   at the cost of the compact index a binary format could otherwise use
   (the same trade `serde-er7` makes for `Terminator`). An unrecognized
   string is an `unknown_variant` error listing the accepted names.
-
-- **S14**: `Node` has no `Deserialize` impl. `hl7_2::Node` has no public
-  constructor — `hl7-2` builds trees only from a parsed message, so that a
-  node's name, path, and text can never disagree with the message they
-  describe. Inventing a constructor here would mean inventing one in
-  `hl7-2`, which is that crate's decision to make
-  ([§9](../09-roadmap-and-open-questions/index.md)). The way back to a
-  tree is `Message` → `.tree()`.
 
 - **S15**: the plain `Message::deserialize` has no way to be handed
   `hl7_2::Options`, so it reads through the bundled dictionary for the
@@ -98,6 +93,8 @@ What only this crate can offer — because only `hl7-2` has the dictionary
 ## 2.4 Deserializing: what is required and what is optional
 
 - `Message` requires `"er7"`; `"version"` is optional (S15).
+- `Node` requires all six of `"name"`, `"path"`, `"kind"`, `"text"`,
+  `"null"`, and `"children"`, recursively (S4).
 - `Diagnostic` requires all four of `"severity"`, `"kind"`, `"path"`,
   `"detail"`.
 - Every object ignores keys it does not recognize (S8), so a value
