@@ -161,10 +161,9 @@ The runnable Latin-1 example decodes a synthetic frame in the caller,
 sets the reply's MSH-18, and checks the exact encoded reply frame.
 [Encoding contract](spec/conformance/index.md#hl7-v2-encoding)
 
-The cross-platform CI job now names the evidence it collects on Windows and
-macOS. It covers file and stdin conversion, CR and CRLF rendering, and a
-loopback MLLP exchange. The platform claim in the installation guide remains
-narrow until the first run passes on both runners.
+The cross-platform CI job passed on Windows and macOS. It covers file and
+stdin conversion, CR and CRLF rendering, and a loopback MLLP exchange with
+default features. The installation guide records only those tested surfaces.
 
 ## Open decisions (awaiting a call, not code)
 

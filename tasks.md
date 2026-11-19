@@ -481,13 +481,14 @@ Per `spec/free-open-source-funding/index.md`.
       The runnable example verified byte preservation, the UTF-8 helper's
       `NotText` error, and the exact Latin-1 reply frame with MSH-18 set
       to `8859/1`. [Runnable example and test](hl7-2-mllp/examples/latin1_ack.rs)
-- [ ] **Establish cross-platform evidence.** Run stdin and file conversion,
-      CR and CRLF handling, and a loopback MLLP exchange on Windows and
-      macOS in CI. Record runner, toolchain, features, and results before
-      updating the platform row in [INSTALL.md](INSTALL.md). The named
-      stable/default-feature matrix job and its CLI parity regression are
-      implemented; completion awaits its first green run on
-      `macos-latest` and `windows-latest`.
+- [x] **Establish cross-platform evidence** (2026-11-19). The
+      default-feature interoperability jobs passed file/stdin conversion,
+      CR/CRLF rendering, and loopback MLLP on Rust 1.100.0. The runners
+      were `macos-26-arm64` with host
+      `aarch64-apple-darwin`, and Microsoft Windows Server 2025
+      image `windows-2025-vs2026` with host
+      `x86_64-pc-windows-msvc`.
+      [GitHub Actions run](https://github.com/hl7-rust/hl7-rust/actions/runs/44510248558)
 
 - [x] Re-sync `spec/special-files-for-public-repos/index.md` with the
       `fhir-rust` canonical version (it was missing CODE_OF_CONDUCT.md,

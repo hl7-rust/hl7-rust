@@ -112,7 +112,7 @@ Mirrors of the repository are on
 |---|---|
 | Rust | Current stable minus two releases. Today that is **1.98**. |
 | Edition | 2024, which needs 1.85 — no longer the binding constraint. |
-| Platform | Workspace CI runs on Linux. For another host or cross-compilation target, check the crates and features you deploy on that target. |
+| Platform | Workspace gates run on Linux. File/stdin conversion, CR/CRLF rendering, and loopback MLLP also run on macOS ARM64 and Windows x86-64 with default features. |
 | Network | Cargo needs access to dependencies on the first build unless they are cached or vendored. Bundled release dictionaries are compiled into the binary and require no runtime download. |
 
 The Rust floor is a rolling window, and the policy behind it is

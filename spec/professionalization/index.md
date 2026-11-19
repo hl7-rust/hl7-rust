@@ -90,7 +90,7 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
    CONTRIBUTING.md gates — fmt, clippy, test, rustdoc, the 1.98 MSRV floor —
    and the rule-5 trademark check on every push and pull request. Its
    interoperability matrix runs named CLI, terminator, and loopback MLLP
-   regressions on stable Rust with default features on macOS and Windows.
+   regressions on Rust 1.100.0 with default features on macOS and Windows.
    Its `sbom` job (2026-09-01) generates a CycloneDX document per crate
    on the same triggers. The `docs` job runs the link check and
    document-size budget (`bin/check-docs`), and
