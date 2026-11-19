@@ -102,8 +102,12 @@ change that completes them, with the evidence named.
       `hl7-2` now exposes `Node::new` for an explicitly detached tree
       snapshot (v2 spec §4.6); the bridge restores all six required fields
       recursively, offers recursively strict `Strict<Node>`, retires S14,
-      and updates the §7.1 coverage table. The addition is non-breaking per
-      §8.1; release remains governed by the root release runbook.
+      and updates the §7.1 coverage table. Released as `hl7-2` 0.3.3 from
+      signed commit `0964f86` and `serde-hl7-v2` 0.1.2 from signed commit
+      `f2b8218`; CI/security runs 44572755623/44572755632 were green. Package
+      verification caught and corrected the bridge's minimum `hl7-2` version
+      before its upload; normalized manifests carry literal Rust 1.98 and
+      `hl7-2 = "0.3.3"`. Both signed tags are on all three mirrors.
 - [x] **`serde-er7/README.md` "The crate family" table** — done
       2026-09-13 in `~/git/er7-rust/er7-rust`, commit `a7a7a4f`: one row
       for `serde-hl7-v2` (reached via the `serde-hl7` umbrella), plus a

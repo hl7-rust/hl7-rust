@@ -618,6 +618,9 @@ Per `spec/free-open-source-funding/index.md`.
       caused by this release: the GitLab mirror's `main` had diverged
       earlier (an amended commit) and rejected the push; tags landed
       there, the branch did not.
+- [x] **Node round-trip patch release** — 2026-11-19: `hl7-2` 0.3.3 and
+      `serde-hl7-v2` 0.1.2; evidence in
+      [`serde-hl7/tasks.md`](serde-hl7/tasks.md).
 - [x] **Tag `hl7` 0.2.1 and 0.2.2** — found 2026-09-10: both were
       published 2026-09-09 (crates.io 11:32 and 11:35 UTC) from the
       "Improve name distinction" change with no `CHANGELOG.md` entry and no
@@ -631,9 +634,7 @@ Per `spec/free-open-source-funding/index.md`.
 ## Test coverage
 
 - [x] **Enforce at least 95% workspace line coverage** (2026-11-19).
-      Added CLI, parser, dictionary, typed-reader, derive, wrapper, message,
-      and builder cases. The current clean gate covers 8,737/9,173 lines
-      (95.25%); CI fails below 95%.
+      Current clean gate: 8,737/9,173 lines (95.25%); CI floor: 95%.
       [Coverage specification](spec/test-coverage/index.md)
 
 ## Trademarks
