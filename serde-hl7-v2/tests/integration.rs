@@ -168,7 +168,7 @@ fn the_crate_has_exactly_two_runtime_dependencies() {
         manifest_dependencies("[dependencies]"),
         [
             r#"serde = "1""#,
-            r#"hl7-2 = { version = "0.3.0", path = "../hl7-2", default-features = false }"#
+            r#"hl7-2 = { version = "0.3.3", path = "../hl7-2", default-features = false }"#
         ]
     );
 }

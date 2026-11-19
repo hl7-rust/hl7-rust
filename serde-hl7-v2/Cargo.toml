@@ -14,10 +14,11 @@ categories = ["encoding", "parser-implementations"]
 # the trait vocabulary this crate implements against, and `hl7-2` is the
 # value tree it wraps. See spec/03-dependencies-and-format-agnosticism/index.md.
 # `default-features = false` keeps `hl7-2`'s opt-in `derive` feature off, so
-# no proc-macro crate is pulled in through this one.
+# no proc-macro crate is pulled in through this one. 0.3.3 introduced
+# Node::new, required to restore the detached tree during deserialization.
 [dependencies]
 serde = "1"
-hl7-2 = { version = "0.3.0", path = "../hl7-2", default-features = false }
+hl7-2 = { version = "0.3.3", path = "../hl7-2", default-features = false }
 
 # serde_json is not a runtime dependency of this crate — it is deliberately
 # format-agnostic — but it is the natural format to exercise in tests,

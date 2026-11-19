@@ -118,7 +118,7 @@ change that completes them, with the evidence named.
       same names, not interchangeable; `serde-hl7-v2/README.md` and the
       website's converting guide and FAQ say the same from the other side.
 - [ ] **Next `hl7-2`/`hl7-3` minor release.** Each bridge crate pins its
-      sibling by `version` (`hl7-2 = "0.3.0"`, `hl7-3 = "0.2.0"`); a `0.x`
+      sibling by `version` (`hl7-2 = "0.3.3"`, `hl7-3 = "0.2.0"`); a `0.x`
       minor bump there fails Cargo's caret rule, so the runbook's step 2
       must bump the requirement here and release the bridge crate in the
       same pass.
