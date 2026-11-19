@@ -217,9 +217,10 @@ impl Builder {
 
 /// Build an `ACK` acknowledging `message`, in the release `message` speaks.
 ///
-/// MSA-2 echoes the control ID being acknowledged, which is what lets the
-/// sender match the answer to the question; the acknowledgement's own
-/// control ID and timestamp are the caller's to supply.
+/// The reply uses the received message's separators and swaps its complete
+/// sending and receiving application and facility fields. MSA-2 echoes the
+/// received control ID so the sender can match the reply to the request.
+/// The caller supplies the reply's own control ID and timestamp.
 ///
 /// ```
 /// let message = hl7_2::parse("MSH|^~\\&|LAB|L|EPIC|E|20240101||ORU^R01|99|P|2.5\rPID|1")?;
@@ -232,13 +233,22 @@ impl Builder {
 #[must_use]
 pub fn acknowledge(message: &Message, code: &str, control_id: &str, timestamp: &str) -> Builder {
     let value = |path: &str| message.get(path).ok().flatten().unwrap_or_default();
-    Builder::new(message.version())
+    let version = message.version();
+    let mut builder = Builder::new(version);
+    if let Some(received) = message.raw().header() {
+        let reply = builder.message.raw_mut();
+        reply.separators = *message.separators();
+        // Copy the delimiter declaration and the swapped routing fields as
+        // parsed ER7, preserving component boundaries and escapes.
+        for (index, field) in [1, 2, 5, 6, 3, 4].into_iter().enumerate() {
+            reply.segments[0].fields[index] = received.field(field).cloned().unwrap_or_default();
+        }
+        builder = builder.set("MSH-12", &version.to_string());
+    }
+    builder
         .message_type("ACK", &value("MSH-9.2"))
         .control_id(control_id)
         .timestamp(timestamp)
-        // Sender and receiver swap: the acknowledgement goes back.
-        .sending(&value("MSH-5.1"), &value("MSH-6.1"))
-        .receiving(&value("MSH-3.1"), &value("MSH-4.1"))
         .processing_id(&value("MSH-11.1"))
         .segment("MSA")
         .set("MSA-1", code)
@@ -316,6 +326,23 @@ mod tests {
         assert_eq!(ack.get("MSH-5.1").unwrap().as_deref(), Some("LAB"));
         assert_eq!(ack.get("MSH-6.1").unwrap().as_deref(), Some("LAB1"));
         assert_eq!(ack.get("MSH-3.1").unwrap().as_deref(), Some("EPIC"));
+    }
+
+    #[test]
+    fn swaps_complete_routing_fields() {
+        let message = crate::parse(concat!(
+            "MSH|^~\\&|LAB^1.2.3^ISO|SITE^1.2.4^ISO",
+            "|EHR^urn:ehr^URI|^1.2.5^ISO|20260814||ORU^R01|MSG1|P|2.5",
+        ))
+        .unwrap();
+        let ack = acknowledge(&message, "AA", "ACK1", "20260814")
+            .build_valid()
+            .unwrap();
+        let received = message.segment("MSH").unwrap();
+        let sent = ack.segment("MSH").unwrap();
+        for (from, to) in [(3, 5), (4, 6), (5, 3), (6, 4)] {
+            assert_eq!(sent.field(to), received.field(from), "MSH-{to}");
+        }
     }
 
     #[test]

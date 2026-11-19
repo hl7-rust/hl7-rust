@@ -44,12 +44,25 @@ crate applies to v2.xml; see §3.
 
 This crate includes its own minimal JSON reader (RFC 8259) rather than
 depending on one, matching its sibling crates' one-dependency policy. It
-reads the full JSON grammar — objects (keys keep first-appearance order),
+reads objects (keys keep first-appearance order),
 arrays, strings (with all standard escapes, including `\uXXXX` surrogate
 pairs), numbers, `true`/`false`, and `null` — even though the forward crate
 never emits a number or a boolean itself (that crate's spec §4.2, §6): the
 input may be hand-edited, and a document with an unexpected scalar should
 still convert rather than fail.
+
+Strings, including member names, must decode to Unicode scalar values.
+Literal UTF-8 and its escaped spelling yield the same sequence of scalars.
+Combining marks stay in their original order. Each `\u` escape takes four
+hexadecimal digits. An unpaired UTF-16 surrogate or an unescaped control
+character (U+0000 through U+001F) produces `Hl7Error::Json`. Rejecting
+unpaired surrogates is this reader's interoperability choice. [RFC 8259 §8.2](https://www.rfc-editor.org/rfc/rfc8259#section-8.2)
+
+Numbers follow the JSON number grammar, including ASCII digits, a decimal
+point followed by digits when present, and an optional signed exponent.
+The integer part has no leading zero unless it is zero. The converter
+copies the complete numeric spelling into the field, including trailing
+fractional zeros and the exponent. [RFC 8259 §6](https://www.rfc-editor.org/rfc/rfc8259#section-6)
 
 A JSON value read where this crate expects a string (§4's leaf rule) is
 coerced:
@@ -65,6 +78,9 @@ Anything that isn't well-formed JSON by this reader's rules — an unterminated
 string, a missing comma, trailing data after the top-level value — is
 `Hl7Error::Json`, the only category of failure this crate reports that
 isn't about what the JSON means as HL7.
+
+A single leading UTF-8 byte-order mark is accepted. Error offsets count
+bytes from the start of the supplied text, including that mark.
 
 ### 2.1 Nesting limit
 

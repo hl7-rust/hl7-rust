@@ -35,8 +35,8 @@ every line is checkable against the code and the tests.
 
 ## The one-paragraph answer
 
-`hl7-2` reads and writes **any** syntactically well-formed ER7 message from
-**any** release, losing nothing and rejecting nothing. What varies by
+`hl7-2` reads syntactically well-formed ER7 supplied as UTF-8 text from
+any release. Its default parser renders the normalized text back. What varies by
 release, and what the dictionary bounds, is how much of the message it can
 *name*: which fields it knows the data type of, which segments it can check
 against a structure, and which values it can validate. It ships a complete
@@ -45,10 +45,9 @@ structures, and models the other thirteen releases as deltas of it. A
 message using a segment or structure outside that set parses completely and
 reads positionally.
 
-If your evaluation criterion is "does it handle our feed without losing
-data", the answer is yes for any ER7 input. If it is "does it know what
-every field in our feed means", the answer is bounded by the table below,
-and extending it is one JSON file.
+For a feed that uses a legacy character set, the receiving application
+decodes the wire bytes before parsing. For a feed that uses local fields,
+the dictionary table below shows where a site may want to supply names.
 
 ## The governing principle: degrade, never reject
 
@@ -59,12 +58,13 @@ the design decision the rest of the document elaborates:
 difference costs you a *name*, never a *value*.** The field reads with a
 positional generic name instead of its data type; the message still parses,
 every value is still reachable by path, and rendering still returns the
-original bytes.
+normalized ER7 text.
 
-Only four things fail a call: a message with no usable MSH header, a path
-that is not a path, a dictionary that will not load, and — in struct mode —
-a value that does not fit the Rust type you asked for. Everything below the
-header degrades and is reported by `validate()` if you want to know.
+With default options, parsing requires a usable MSH header. Call
+`validate()` to inspect findings below the header, or enable strict mode
+to turn error-severity findings into parse failures. Querying, mutation,
+dictionary loading, and struct decoding have their own failure conditions.
+[Parser specification §10](../../hl7-2/spec/index.md#10-errors)
 
 This is why the incompleteness below is bounded rather than dangerous. A
 library that rejected what it did not recognize would turn every gap into a
@@ -139,7 +139,7 @@ the number matters to you:
 | A data type not in the 42 | Treated as primitive: the value is a scalar |
 
 In every row the message parses, every value is reachable by path, and the
-round trip is byte for byte.
+round trip preserves the normalized text.
 
 **Extending it is deliberately cheap.** A dictionary is JSON. Add segments,
 types, structures, or a whole vendor dialect at run time with schema mode,
@@ -149,8 +149,16 @@ release and state only its differences.
 
 ## HL7 v2: encoding
 
-Encoding conformance is `er7`'s, and it is the layer where this project
-makes its strongest claims:
+`hl7_2::parse` accepts a Rust `&str`, and the `hl7-v2` CLI reads files and
+stdin as UTF-8. MSH-18 is message data. A receiver handling another wire
+encoding must decode it using the sender's agreed character set and apply
+the agreed encoding again when writing bytes to that interface.
+MLLP framing can carry those bytes directly. Its acknowledgement helper
+requires UTF-8 and returns `Error::NotText` on invalid UTF-8. [MLLP specification §§5.4 and 8](../../hl7-2-mllp/spec/index.md)
+The [Latin-1 example](../../hl7-2-mllp/examples/latin1_ack.rs) shows how to
+set the reply's MSH-18 and encode the reply before framing it.
+
+The following rules apply to ER7 parsing and rendering.
 
 - **Delimiters come from the message.** MSH-1 and MSH-2 declare them;
   `|^~\&` is a default, not an assumption. A sender using different
@@ -242,6 +250,11 @@ directions. What matters for conformance:
   the v2.5 tables, generated from the same source and table-for-table
   identical — they move across one at a time.
 - The round trip ER7 → XML → ER7 is a test, not an aspiration.
+- The typed JSON → ER7 converter preserves multilingual text written
+  literally or as Unicode escapes, including supplementary characters
+  and decomposed accents. An unpaired surrogate returns a JSON error.
+  A numeric field supplied as a JSON number keeps its spelling, including
+  fractional zeros and exponent. [Converter specification §2](../../hl7-2-from-json-into-er7/spec/index.md)
 
 ## HL7 v3
 
@@ -278,8 +291,10 @@ Do not take the above on trust; it takes about an hour to check.
    redacted sample prints every node, its value, and its path. A field that
    reads as `PID.34` rather than by its data type is a dictionary gap, and
    you will see exactly which ones you have.
-2. **Check the round trip.** Parse and render one of your messages and
-   diff it against the input. It should be byte-identical.
+2. **Check the round trip.** Decode a sample from the interface's wire
+   encoding, parse and render it, and compare it with the UTF-8 text after
+   the input normalization described above. Include a non-ASCII field
+   value and check its exact characters.
 3. **Run `validate` over a day of redacted traffic** and count the
    warnings by kind. `SegmentUnknown` and `StructureUnknown` tell you the
    size of the gap between this dictionary and your feed.

@@ -217,6 +217,9 @@ let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "2026081408010
 assert_eq!(ack.get("MSA-2")?.as_deref(), Some("MSG00042"));
 ```
 
+The acknowledgement uses the received separators and swaps the complete
+sending and receiving application and facility fields.
+
 An unmodified message writes back byte for byte — that guarantee is `er7`'s,
 and this crate does not weaken it.
 

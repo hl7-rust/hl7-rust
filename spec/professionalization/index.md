@@ -89,9 +89,12 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
 4. **Met.** `.github/workflows/ci.yml` (2026-08-26) runs the
    CONTRIBUTING.md gates — fmt, clippy, test, rustdoc, the 1.98 MSRV floor —
    and the rule-5 trademark check on every push and pull request. Its
-   `sbom` job (2026-09-01) generates a CycloneDX document per crate on the
-   same triggers. The `docs` job runs the link check and document-size
-   budget (`bin/check-docs`), and `.github/workflows/security.yml` runs the
+   interoperability matrix runs named CLI, terminator, and loopback MLLP
+   regressions on stable Rust with default features on macOS and Windows.
+   Its `sbom` job (2026-09-01) generates a CycloneDX document per crate
+   on the same triggers. The `docs` job runs the link check and
+   document-size budget (`bin/check-docs`), and
+   `.github/workflows/security.yml` runs the
    dependency audit (`cargo deny`, per `deny.toml`) on push and a weekly
    cron.
 5. **Partly met.** The prose rules are implemented, and since later on

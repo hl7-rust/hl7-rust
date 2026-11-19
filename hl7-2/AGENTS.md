@@ -66,7 +66,7 @@ src/message.rs     Message: version, structure ID, get/set/clear, segments,
                    tree, layout, round-tripping.
 src/typed.rs       Struct mode: FromHl7/ToHl7, value conversion, Raw.
 src/validate.rs    Diagnostics, severities, and the format checks.
-src/builder.rs     Builder and acknowledge().
+src/builder.rs     Builder and acknowledge(), including routing field swaps.
 src/main.rs        CLI: tree / query / check / er7, edits, schema, strict.
 schemas/*.json     Bundled dictionaries. v2.5 is complete; the rest are
                    deltas of it (spec/index.md §3.4).

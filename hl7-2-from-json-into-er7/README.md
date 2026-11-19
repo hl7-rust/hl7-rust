@@ -96,10 +96,10 @@ gracefully rather than failing (`spec/index.md` §5).
 
 ## What it does
 
-- **A minimal, dependency-free JSON reader** (`src/json.rs`), the full RFC
-  8259 grammar including `\uXXXX` surrogate pairs, with numbers and
-  booleans tolerated (coerced to text) even though the forward crate never
-  emits them.
+- **A dependency-free JSON reader** (`src/json.rs`) accepts literal Unicode
+  and escaped surrogate pairs. An unpaired surrogate reports a conversion
+  error. Numeric values keep their exact spelling, and booleans convert
+  to text even though the forward crate emits neither.
 - **Position-based reconstruction, no data-type dictionary** (`src/reconstruct.rs`):
   every field, component, and subcomponent key's *position* comes from the
   number after its key's last `.`, so this crate reconstructs a message

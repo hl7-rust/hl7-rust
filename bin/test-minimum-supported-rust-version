@@ -1,40 +1,45 @@
 #!/usr/bin/env bash
-# Check and test on the minimum supported Rust version (N-2) and on N-1.
-# MSRV comes from the first literal `rust-version = "1.X"` found in a
-# Cargo.toml; N-1 is that minor plus one.
+# Check and test the workspace on its MSRV and on the following Rust minor.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-msrv=$(grep -rhE --include=Cargo.toml --exclude-dir=target --exclude-dir=node_modules \
-  '^rust-version[[:space:]]*=[[:space:]]*"[0-9]+\.[0-9]+' . | head -n 1 | sed -E 's/.*"([0-9]+\.[0-9]+).*/\1/')
-if [ -z "$msrv" ]; then
-  echo "error: no rust-version found in any Cargo.toml" >&2
+msrv=$(sed -nE 's/^rust-version[[:space:]]*=[[:space:]]*"([0-9]+\.[0-9]+)".*/\1/p' Cargo.toml)
+if [[ -z "$msrv" ]]; then
+  echo "error: no literal rust-version found in the workspace Cargo.toml" >&2
   exit 1
 fi
 major=${msrv%%.*}
 minor=${msrv##*.}
 n_minus_1="$major.$((minor + 1))"
 
-# Every directory whose Cargo.toml declares a [workspace].
-roots=$(grep -rlE --include=Cargo.toml --exclude-dir=target --exclude-dir=node_modules '^\[workspace\]' . | xargs -n1 dirname | sort)
-
-for tc in "$msrv" "$n_minus_1"; do
-  if ! rustup toolchain list | grep -qE "^$tc([.-]|[[:space:]]|$)"; then
-    echo "error: Rust toolchain $tc is not installed; run: rustup toolchain install $tc" >&2
+# A minor alias (1.98) and a patch-specific installation (1.98.1) have
+# different rustup names. Resolve each candidate for rustup's default host.
+installed=$(rustup toolchain list)
+for version in "$msrv" "$n_minus_1"; do
+  toolchain=
+  while read -r name _; do
+    release=${name%%-*}
+    case "$release" in
+      "$version"|"$version".[0-9]*) ;;
+      *) continue ;;
+    esac
+    if rustup run "$release" rustc --version >/dev/null 2>&1; then
+      toolchain=$release
+      break
+    fi
+  done <<< "$installed"
+  if [[ -z "$toolchain" ]]; then
+    echo "error: install a native toolchain for Rust $version with rustup toolchain install $version" >&2
     exit 1
   fi
-  for root in $roots; do
-    echo "==> $tc: $root"
-    (
-      cd "$root"
-      export RUSTUP_TOOLCHAIN="$tc"
-      extra=()
-      case "$root" in */fuzz) ;; *) extra=(--workspace) ;; esac
-      cargo check --all-targets "${extra[@]}"
-      # Fuzz crates need nightly sanitizers; they are compile-checked only.
-      case "$root" in */fuzz) ;; *) cargo test "${extra[@]}" ;; esac
-    )
+  echo "==> $toolchain: workspace"
+  cargo "+$toolchain" check --locked --workspace --all-targets
+  cargo "+$toolchain" test --locked --workspace
+
+  for manifest in */fuzz/Cargo.toml; do
+    echo "==> $toolchain: ${manifest%/Cargo.toml}"
+    (cd "${manifest%/Cargo.toml}" && cargo "+$toolchain" check --all-targets)
   done
 done
 echo "OK: MSRV $msrv and N-1 $n_minus_1 pass"

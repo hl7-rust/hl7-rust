@@ -91,6 +91,41 @@ fn a_conversation_over_a_real_socket() {
 
 #[test]
 #[cfg(feature = "ack")]
+fn a_framed_acknowledgement_swaps_complete_routing_fields() {
+    let payload = concat!(
+        "MSH*%$!?*LAB!S!APP%1.2.3%ISO*ACME%urn:acme%URI",
+        "*EHR%1.2.4%ISO*%urn:clinic%URI*20260814**ORU%R01*MSG!F!42*P*2.5",
+    );
+    let frame = ack::acknowledge(payload.as_bytes(), AckCode::Accept, "ACK1", "20260814").unwrap();
+    let reply = ack::parse(hl7_2_mllp::decode(&frame).unwrap()).unwrap();
+
+    for (path, expected) in [
+        ("MSH-3.1", "EHR"),
+        ("MSH-3.2", "1.2.4"),
+        ("MSH-3.3", "ISO"),
+        ("MSH-4.1", ""),
+        ("MSH-4.2", "urn:clinic"),
+        ("MSH-4.3", "URI"),
+        ("MSH-5.1", "LAB%APP"),
+        ("MSH-5.2", "1.2.3"),
+        ("MSH-5.3", "ISO"),
+        ("MSH-6.1", "ACME"),
+        ("MSH-6.2", "urn:acme"),
+        ("MSH-6.3", "URI"),
+        ("MSA-2", "MSG*42"),
+    ] {
+        assert_eq!(
+            reply.get(path).unwrap().as_deref(),
+            Some(expected),
+            "{path}"
+        );
+    }
+    assert_eq!(reply.get("MSH-1").unwrap().as_deref(), Some("*"));
+    assert_eq!(reply.get("MSH-2").unwrap().as_deref(), Some("%$!?"));
+}
+
+#[test]
+#[cfg(feature = "ack")]
 fn many_messages_over_one_connection() {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let address = listener.local_addr().unwrap();

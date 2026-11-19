@@ -1,4 +1,4 @@
-# Quality Improvement Tasks for HL7-Rust Project
+# Quality Improvement Tasks for the HL7® Rust Project
 
 Based on my analysis of your **hl7-rust** workspace (17 Rust crates for HL7 v2/v3 parsing, validation, conversion, and transport), here are **prioritized, actionable improvement tasks** across your requested categories.
 
@@ -120,7 +120,7 @@ Since this blocks most promotion:
 |------|--------|--------|-------|--------|
 | **Create HL7 v2 Deep Dive series (segments, fields, data types)** | High - Educational value | High | - | ⬜ |
 | **Add ER7 encoding explanation with interactive examples** | High - Core concept clarity | Medium | - | ⬜ |
-| **Create comparison: HL7 v2 vs v3 vs FHIR** | High - Helps understanding | Medium | - | ⬜ |
+| **Compare HL7 v2, v3, and the HL7® FHIR® standard** | High - Helps understanding | Medium | - | ⬜ |
 | **Build message validation workshop materials** | Medium - Hands-on learning | Medium | - | ⬜ |
 | **Create case studies: "How we used hl7-rust to solve X"** | Medium - Real-world examples | Medium | - | ⬜ |
 
@@ -383,7 +383,7 @@ If you want immediate impact, focus on these **10 tasks** that can be completed 
 ### Q4 (Months 10-12)
 - Foundation backing (LFPH or similar)
 - Complete security audit
-- Expand to additional HL7 standards (FHIR?)
+- Expand to additional HL7 standards (HL7® FHIR®?)
 - Establish as de facto Rust HL7 library
 
 ---
@@ -451,3 +451,7 @@ Pick **one category** that excites you most and start with the **highest priorit
 ---
 
 **Need help prioritizing?** The single most impactful task you could do today is **resolving the trademark issue**, as it unblocks all promotion activities. While waiting for that, **adding property-based testing to hl7-2** would provide immediate engineering value.
+
+---
+
+HL7®, and FHIR® are the registered trademarks of Health Level Seven International and their use of these trademarks does not constitute an endorsement by HL7.

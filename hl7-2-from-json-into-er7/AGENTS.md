@@ -106,6 +106,9 @@ round trips, the CLI contract) is covered in `tests/integration.rs` instead.
   for parsing/reconstruction rules, and an integration test in
   `tests/integration.rs` for anything that touches the public API surface,
   the CLI contract, or a full-document round trip.
+- Preserve Unicode scalar values and numeric spelling. The public tests exercise
+  multilingual text in literal and escaped form, numeric spelling, and
+  the errors for input that cannot be represented faithfully (§2).
 - Fallback-first design: this crate never fails on unrecognized input below
   the header (unknown segments, unparseable positions, deeper nesting than
   the forward crate ever produces, an unexpected number/boolean scalar all

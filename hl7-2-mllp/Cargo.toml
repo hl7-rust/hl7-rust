@@ -21,7 +21,7 @@ hl7-2 = { version = "0.3.0", path = "../hl7-2", optional = true }
 # opt-in and the explicit-timestamp call is always there.
 jiff = { version = "0.2", optional = true, default-features = false, features = ["std", "tz-system"] }
 
-# Both examples acknowledge, so they need the feature that can.
+# These examples need acknowledgement generation.
 [[example]]
 name = "tcp_listener"
 required-features = ["ack"]
@@ -29,6 +29,11 @@ required-features = ["ack"]
 [[example]]
 name = "tcp_sender"
 required-features = ["ack"]
+
+[[example]]
+name = "latin1_ack"
+required-features = ["ack"]
+test = true
 
 [features]
 default = ["ack"]

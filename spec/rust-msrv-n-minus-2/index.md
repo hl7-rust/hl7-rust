@@ -65,9 +65,17 @@ The `msrv` job is separate from the `test` job so a failure names the cause
 directly: `test` red means a behavior regression, `msrv` red means the code
 started requiring a newer toolchain than the policy allows.
 
+## Local verification
+
+For a local check across both supported older minors, run
+`make test-minimum-supported-rust-version`. It reads the floor from the
+root manifest, picks an installed native toolchain for each minor, and
+checks all workspace targets and runs the workspace tests on both. It
+also compile-checks the separate fuzz crates. Running fuzz campaigns
+uses their own nightly workflow.
+
 ## Current value
 
-As of the most recent update to this document, stable Rust is **1.98**, so the
-MSRV is **1.98**. If stable has moved on since, this document is stale in its
-example only — the rule above is what binds, and `Cargo.toml` must be brought
-back in line with it.
+The repository pins Rust **1.100.0** for development and **1.98** as the
+workspace MSRV. The release rule above determines when those pins need to
+move. [Development toolchain](../../rust-toolchain.toml) · [Workspace manifest](../../Cargo.toml)

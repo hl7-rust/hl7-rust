@@ -439,8 +439,10 @@ stays a chain; `build_valid` additionally refuses a message that fails §8.
 The builder takes no timestamp from the clock and invents no control ID:
 both are the caller's, because a message that made up its own would be
 untraceable and untestable. `builder::acknowledge` builds an `ACK` for a
-received message, echoing its control ID into MSA-2 and swapping sender and
-receiver.
+received message using its ER7 separators. It copies the complete routing
+fields MSH-3 and MSH-4 to MSH-5 and MSH-6, and MSH-5 and MSH-6 to MSH-3
+and MSH-4. This preserves namespace IDs, universal IDs, universal ID types,
+empty components, and escape sequences. MSA-2 echoes the received control ID.
 
 ## 8. Validation (`src/validate.rs`)
 
@@ -603,6 +605,7 @@ tests in `tests/integration.rs`; derive tests in
 | 7.2 | clearing versus nulling | `message::tests::distinguishes_clearing_from_nulling` |
 | 7.3 | segment add and remove; MSH is kept | `message::tests::adds_and_removes_segments` |
 | 7.4 | building, and `acknowledge` | `builder::tests::*`, `integration::building_a_reply_to_a_message`, `integration::a_builder_makes_a_message_from_nothing_that_parses_back` |
+| 7.4 | complete routing fields swap using the received separators | `builder::tests::swaps_complete_routing_fields` |
 | 8 | every diagnostic kind | `validate::tests::*` |
 | 8.1 | Z-segment leniency | `validate::tests::unknown_segments_and_fields_are_warnings_not_errors`, `integration::the_samples_parse_and_report_what_they_should` |
 | 8.2 | strict mode | `tests::strict_mode_turns_diagnostics_into_a_failure`, `integration::strict_mode_is_the_difference_between_reporting_and_refusing` |

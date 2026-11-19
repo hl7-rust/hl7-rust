@@ -142,6 +142,30 @@ posture. Open items for each are in `tasks.md`.
    2026-08-29, per `spec/rust-msrv-n-minus-2/index.md`), `AGENTS.md`-style
    playbooks, and automated doc gates.
 
+## Production interoperability review (2026-11-19)
+
+The first priority is fidelity at an interface boundary. The typed JSON
+converter accepted a lone surrogate as the replacement character and
+accepted malformed numbers as observation text. The converter now returns
+a JSON error for these cases. A valid large number keeps its source
+spelling, and literal and escaped multilingual text render identically.
+The public converter tests exercise all three outcomes.
+[JSON reader contract](hl7-2-from-json-into-er7/spec/index.md#2-json-parsing-srcjsonrs)
+
+The acknowledgement builder now swaps the full application and facility
+fields using the received ER7 separators. A framed regression covers an
+empty namespace, escaped data, and the echoed control ID.
+[MLLP acknowledgement contract](hl7-2-mllp/spec/index.md#51-what-is-generated)
+
+The runnable Latin-1 example decodes a synthetic frame in the caller,
+sets the reply's MSH-18, and checks the exact encoded reply frame.
+[Encoding contract](spec/conformance/index.md#hl7-v2-encoding)
+
+The cross-platform CI job now names the evidence it collects on Windows and
+macOS. It covers file and stdin conversion, CR and CRLF rendering, and a
+loopback MLLP exchange. The platform claim in the installation guide remains
+narrow until the first run passes on both runners.
+
 ## Open decisions (awaiting a call, not code)
 
 - **HL7 written permission.** The request was sent 2026-08-25; the reply is

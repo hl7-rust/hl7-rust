@@ -105,7 +105,8 @@ handing back a truncated clinical message.
 
 MLLP has no acknowledgement of its own. The reply HL7 expects is an HL7
 message: an `ACK` whose `MSA-2` echoes the control ID of the message being
-answered.
+answered. The reply uses the received separators and swaps the complete
+application and facility fields.
 
 ```rust
 use hl7_2_mllp::{AckCode, ack};
@@ -126,6 +127,14 @@ let message = ack::parse(&payload)?;
 let mut nack = ack::acknowledge_message(&message, AckCode::Error, "N1", "20260814080100")?;
 nack.set("MSA-3", "OBR-4 is required")?;
 transport.send(nack.to_er7().as_bytes())?;
+```
+
+For an interface using ISO-8859-1, the [Latin-1 example](examples/latin1_ack.rs)
+shows how to decode the received bytes, set the reply's character set
+declaration, and encode it before framing. Run it from the workspace root.
+
+```sh
+cargo run -p hl7-2-mllp --example latin1_ack
 ```
 
 Every call takes the acknowledgement's own control ID and timestamp as

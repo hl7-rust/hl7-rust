@@ -159,3 +159,31 @@ fn a_second_input_is_an_error_even_when_it_is_a_dash() {
     // One input still works, from either form.
     assert!(run(&["samples/misc.xml"]).0);
 }
+
+#[test]
+fn cli_converts_the_same_sample_from_a_file_and_stdin() {
+    use std::io::Write;
+    use std::process::{Command, Stdio};
+
+    let binary = env!("CARGO_BIN_EXE_hl7-2-from-xml-into-er7");
+    let from_file = Command::new(binary)
+        .arg("samples/orm_o01.xml")
+        .output()
+        .expect("failed to run the CLI with a file");
+    assert!(from_file.status.success(), "{from_file:?}");
+
+    let input = std::fs::read("samples/orm_o01.xml").unwrap();
+    let mut child = Command::new(binary)
+        .arg("-")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("failed to run the CLI with stdin");
+    child.stdin.take().unwrap().write_all(&input).unwrap();
+    let from_stdin = child.wait_with_output().unwrap();
+    assert!(from_stdin.status.success(), "{from_stdin:?}");
+
+    assert_eq!(from_stdin.stdout, from_file.stdout);
+    assert!(from_file.stdout.windows(5).any(|bytes| bytes == b"\rPID|"));
+}

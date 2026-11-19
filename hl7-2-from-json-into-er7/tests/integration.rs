@@ -1,6 +1,65 @@
 use hl7_2_from_json_into_er7::{
-    convert, convert_with_options, er7::RenderOptions, er7::Terminator,
+    Hl7Error, convert, convert_with_options, er7::RenderOptions, er7::Terminator,
 };
+
+fn convert_observation(value: &str) -> Result<String, Hl7Error> {
+    let document = r#"{"X":{"MSH":{"MSH.1":"|","MSH.2":"^~\\&"},"OBX":{"OBX.5":VALUE}}}"#;
+    convert(&document.replace("VALUE", value))
+}
+
+#[test]
+fn literal_and_escaped_multilingual_text_render_identically() {
+    let expected = "MSH|^~\\&\rOBX|||||東京 / مختبر / e\u{301} / 𠮷 / �";
+    for value in [
+        r#""東京 / مختبر / é / 𠮷 / �""#,
+        r#""\u6771\u4eac / مختبر / e\u0301 / \ud842\udfb7 / \uFFFD""#,
+    ] {
+        assert_eq!(convert_observation(value).unwrap(), expected);
+    }
+}
+
+#[test]
+fn strings_that_cannot_be_decoded_return_a_json_error() {
+    for value in [
+        r#""\ud800""#,
+        r#""\udfff""#,
+        r#""\ud800\u0041""#,
+        r#""\u+041""#,
+        r#""\u123""#,
+        "\"a\nb\"",
+        "\"a\0b\"",
+    ] {
+        assert!(
+            matches!(convert_observation(value), Err(Hl7Error::Json(_))),
+            "{value:?}"
+        );
+    }
+}
+
+#[test]
+fn numeric_fields_keep_the_exact_json_number_spelling() {
+    for value in [
+        "0",
+        "-0",
+        "12",
+        "-0.0100",
+        "1E+002",
+        "12345678901234567890e-999",
+    ] {
+        assert_eq!(
+            convert_observation(value).unwrap(),
+            format!("MSH|^~\\&\rOBX|||||{value}")
+        );
+    }
+    for value in [
+        "-", "00", "-01", "1.", "1e", "1e+", "3.4.5", "1+2", "+2", ".5",
+    ] {
+        assert!(
+            matches!(convert_observation(value), Err(Hl7Error::Json(_))),
+            "{value}"
+        );
+    }
+}
 
 /// The exact converted-JSON document the sibling `hl7-2-from-er7-into-json`
 /// crate's own golden test produces from

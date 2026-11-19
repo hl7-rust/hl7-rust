@@ -114,6 +114,25 @@ jobs:
       - name: cargo check --workspace --all-targets
         run: cargo check --workspace --all-targets
 
+  interoperability:
+    name: interoperability (${{ matrix.os }}, stable, default features)
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Record Rust toolchain
+        run: rustc --version --verbose
+      - name: CLI file and stdin conversion
+        run: cargo test -p hl7-2-from-xml-into-er7 --test integration cli_converts_the_same_sample_from_a_file_and_stdin
+      - name: CR and CRLF rendering
+        run: cargo test -p hl7-2-from-xml-into-er7 --test integration render_options_choose_the_terminator
+      - name: Loopback MLLP exchange
+        run: cargo test -p hl7-2-mllp --test integration a_conversation_over_a_real_socket
+
   sbom:
     name: CycloneDX SBOM
     runs-on: ubuntu-latest

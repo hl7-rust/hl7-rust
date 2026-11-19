@@ -64,8 +64,12 @@ impl std::error::Error for JsonError {}
 /// where parsing gave up.
 pub fn parse_document(text: &str) -> Result<Value, JsonError> {
     let mut cursor = Cursor {
-        s: text.strip_prefix('\u{feff}').unwrap_or(text),
-        pos: 0,
+        s: text,
+        pos: if text.starts_with('\u{feff}') {
+            '\u{feff}'.len_utf8()
+        } else {
+            0
+        },
         depth: 0,
     };
     cursor.skip_ws();
@@ -254,33 +258,38 @@ impl<'a> Cursor<'a> {
                         Some('t') => out.push('\t'),
                         Some('u') => {
                             self.advance_char();
-                            let high = self.read_hex4()?;
-                            let code = if (0xD800..=0xDBFF).contains(&high)
-                                && self.starts_with(r"\u")
-                            {
-                                self.advance_char(); // consume the backslash
-                                self.advance_char(); // consume the 'u'
-                                let low = self.read_hex4()?;
-                                if !(0xDC00..=0xDFFF).contains(&low) {
-                                    return Err(self.err("invalid low surrogate"));
-                                }
-                                0x10000 + (u32::from(high - 0xD800) << 10) + u32::from(low - 0xDC00)
-                            } else {
-                                u32::from(high)
-                            };
-                            out.push(char::from_u32(code).unwrap_or('\u{FFFD}'));
+                            out.push(self.read_unicode_escape()?);
                             continue; // hex digits already consumed; don't advance_char again
                         }
                         _ => return Err(self.err("invalid escape sequence")),
                     }
                     self.advance_char();
                 }
+                Some('\0'..='\u{1f}') => return Err(self.err("unescaped control character")),
                 Some(c) => {
                     out.push(c);
                     self.advance_char();
                 }
             }
         }
+    }
+
+    fn read_unicode_escape(&mut self) -> Result<char, JsonError> {
+        let first = self.read_hex4()?;
+        let scalar = if (0xD800..=0xDBFF).contains(&first) {
+            if !self.starts_with(r"\u") {
+                return Err(self.err("expected a low surrogate"));
+            }
+            self.pos += 2;
+            let low = self.read_hex4()?;
+            if !(0xDC00..=0xDFFF).contains(&low) {
+                return Err(self.err("invalid low surrogate"));
+            }
+            0x10000 + (u32::from(first - 0xD800) << 10) + u32::from(low - 0xDC00)
+        } else {
+            u32::from(first)
+        };
+        char::from_u32(scalar).ok_or_else(|| self.err("unpaired low surrogate"))
     }
 
     /// Read exactly four hex digits (a `\u` escape's payload) and advance
@@ -291,6 +300,9 @@ impl<'a> Cursor<'a> {
             return Err(self.err("truncated \\u escape"));
         }
         let digits = &rest[..4];
+        if !digits.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+            return Err(self.err("invalid \\u escape"));
+        }
         let value = u16::from_str_radix(digits, 16).map_err(|_| self.err("invalid \\u escape"))?;
         self.pos += 4;
         Ok(value)
@@ -299,19 +311,36 @@ impl<'a> Cursor<'a> {
     fn parse_number(&mut self) -> Result<Value, JsonError> {
         let start = self.pos;
         if self.peek() == Some('-') {
-            self.advance_char();
+            self.pos += 1;
         }
-        let digits = self
-            .rest()
-            .find(|c: char| {
-                !c.is_ascii_digit() && c != '.' && c != 'e' && c != 'E' && c != '+' && c != '-'
-            })
-            .unwrap_or(self.rest().len());
-        self.pos += digits;
-        if self.pos == start {
-            return Err(self.err("invalid number"));
+        if self.peek() == Some('0') {
+            self.pos += 1;
+        } else {
+            self.read_digits()?;
+        }
+        if self.peek() == Some('.') {
+            self.pos += 1;
+            self.read_digits()?;
+        }
+        if matches!(self.peek(), Some('e' | 'E')) {
+            self.pos += 1;
+            if matches!(self.peek(), Some('+' | '-')) {
+                self.pos += 1;
+            }
+            self.read_digits()?;
         }
         Ok(Value::Number(self.s[start..self.pos].to_string()))
+    }
+
+    fn read_digits(&mut self) -> Result<(), JsonError> {
+        let start = self.pos;
+        while matches!(self.peek(), Some('0'..='9')) {
+            self.pos += 1;
+        }
+        if self.pos == start {
+            return Err(self.err("expected a digit in number"));
+        }
+        Ok(())
     }
 }
 
@@ -376,6 +405,13 @@ mod tests {
     #[test]
     fn rejects_trailing_data() {
         assert!(parse_document("{} {}").is_err());
+    }
+
+    #[test]
+    fn error_offsets_include_the_bom_and_multibyte_text() {
+        let text = "\u{feff}\"東京\n\"";
+        let error = parse_document(text).unwrap_err();
+        assert!(matches!(error, JsonError::Malformed(_, at) if at == text.find('\n').unwrap()));
     }
 
     #[test]

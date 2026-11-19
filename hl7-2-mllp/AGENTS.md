@@ -55,6 +55,7 @@ src/ack.rs         AckCode and acknowledgement generation (feature `ack`).
 tests/integration.rs  Black-box tests, including real TCP connections.
 examples/tcp_listener.rs  A working listener that acknowledges.
 examples/tcp_sender.rs    The other end, which checks the echoed control ID.
+examples/latin1_ack.rs    Caller-managed ISO-8859-1 acknowledgement exchange.
 spec/index.md      Normative specification (source of truth).
 ```
 

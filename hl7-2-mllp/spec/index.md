@@ -190,9 +190,9 @@ does not compare it will eventually treat one answer as another's.
 
 `acknowledge` parses the payload, builds the `ACK`, and frames it. It is
 built by `hl7_2::builder::acknowledge`, so per that crate's spec §7.4:
-sender and receiver swap (`MSH-3`/`MSH-4` ↔ `MSH-5`/`MSH-6`), `MSA-2`
-echoes `MSH-10`, and the reply is in the release the sender declared in
-`MSH-12`.
+the complete sender and receiver fields swap (`MSH-3`/`MSH-4` ↔
+`MSH-5`/`MSH-6`), `MSA-2` echoes `MSH-10`, and the reply uses the
+sender's ER7 separators and resolved release.
 
 `acknowledge_message` takes a parsed message and returns the `ACK`
 unframed, for a receiver that wants to add an `ERR` segment or a reason in
@@ -269,7 +269,9 @@ dependencies at all**.
   not implemented; the enhanced-mode HL7 codes in §5.2 are a different
   thing at a different layer, and are supported.
 - **UTF-8 assumed for acknowledgement.** `MSH-18` may declare another
-  character set; decode it yourself and use `acknowledge_message`.
+  character set. Decode the payload using the agreed character set, use
+  `acknowledge_message`, set the reply's MSH-18, and encode the reply
+  before framing it. [Latin-1 example](../examples/latin1_ack.rs)
 
 ## 9. Traceability
 
@@ -289,10 +291,12 @@ a rule nobody is holding.
 | 4.2 | an error discards the buffer | `framer::tests::a_second_start_block_is_an_unfinished_frame_not_a_payload`, `framer::tests::a_reset_discards_a_half_read_message` |
 | 4.3 | the limit bounds allocation | `framer::tests::a_peer_that_never_ends_a_frame_cannot_exhaust_memory` |
 | 5.1 | the acknowledgement's shape and echo | `ack::tests::answers_a_message_with_its_own_control_id`, `ack::tests::sender_and_receiver_change_places`, `ack::tests::answers_in_the_release_the_sender_spoke` |
+| 5.1 | a framed acknowledgement preserves complete routing fields | `a_framed_acknowledgement_swaps_complete_routing_fields` |
 | 5.1 | a receiver can say why | `ack::tests::a_receiver_can_say_what_was_wrong` |
 | 5.2 | every code reaches MSA-1 | `ack::tests::every_code_reaches_msa_1` |
 | 5.3 | the clock feature | `ack::tests::the_clock_feature_fills_in_the_timestamp` |
 | 5.4 | the two ways a payload is not a message | `ack::tests::a_payload_that_is_not_a_message_says_which_way_it_failed`, `an_unreadable_payload_can_still_be_answered` |
+| 5.4, 8 | caller-managed Latin-1 exchange and reply declaration | `examples/latin1_ack.rs::a_latin1_exchange_matches_the_declared_encoding` |
 | 6 | send and receive over a stream, and a real socket | `transport::tests::receives_messages_however_the_stream_chops_them`, `transport::tests::sends_one_framed_message`, `a_conversation_over_a_real_socket`, `many_messages_over_one_connection` |
 | 6.1 | clean close versus mid-frame close | `transport::tests::a_clean_close_between_frames_is_the_end_of_the_stream`, `transport::tests::a_peer_that_hangs_up_mid_message_is_an_error_not_a_message`, `a_sender_that_hangs_up_mid_message_does_not_produce_half_a_message` |
 | 6.2 | the exact bytes on the wire | `the_wire_bytes_are_exactly_what_the_standard_says` |
@@ -302,6 +306,7 @@ a rule nobody is holding.
 
 - HL7 v2 standards, including the transport specification that defines
   MLLP: <https://www.hl7.org/implement/standards/>
+- Character set codes (table 0211): <https://terminology.hl7.org/en/CodeSystem-v2-0211.html>
 - `hl7-2` (HL7 v2 itself): <https://github.com/hl7-rust/hl7-rust/tree/main/hl7-2>
 - `er7` (the ER7 encoding): <https://crates.io/crates/er7>
 

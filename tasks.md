@@ -461,6 +461,34 @@ Per `spec/free-open-source-funding/index.md`.
 
 ### Audit and harmonization
 
+- [x] **Preserve JSON scalar values or report a conversion error**
+      (2026-11-19). Public converter regressions failed on a lone surrogate
+      and a bare minus before the fix. Valid cases cover CJK, Arabic, a
+      decomposed accent, a supplementary character, a literal replacement
+      character, and exact decimal and exponent spellings.
+      [Converter integration tests](hl7-2-from-json-into-er7/tests/integration.rs)
+- [x] **Restore the local compiler compatibility check** (2026-11-19).
+      The Make target now invokes the existing script and accepts installed
+      patch releases. On Apple Silicon, the target ran the workspace suite
+      and compile-checked all four fuzz workspaces on Rust 1.98.1 and
+      1.99.1. [MSRV verification](spec/rust-msrv-n-minus-2/index.md#local-verification)
+- [x] **Return complete routing identities in acknowledgements** (2026-11-19).
+      The framed regression first failed on a missing universal ID. It now
+      verifies all four composite fields, an empty namespace, nondefault
+      separators, escaped data, and the exact echoed control ID.
+      [MLLP integration tests](hl7-2-mllp/tests/integration.rs)
+- [x] **Demonstrate a legacy-encoded MLLP exchange** (2026-11-19).
+      The runnable example verified byte preservation, the UTF-8 helper's
+      `NotText` error, and the exact Latin-1 reply frame with MSH-18 set
+      to `8859/1`. [Runnable example and test](hl7-2-mllp/examples/latin1_ack.rs)
+- [ ] **Establish cross-platform evidence.** Run stdin and file conversion,
+      CR and CRLF handling, and a loopback MLLP exchange on Windows and
+      macOS in CI. Record runner, toolchain, features, and results before
+      updating the platform row in [INSTALL.md](INSTALL.md). The named
+      stable/default-feature matrix job and its CLI parity regression are
+      implemented; completion awaits its first green run on
+      `macos-latest` and `windows-latest`.
+
 - [x] Re-sync `spec/special-files-for-public-repos/index.md` with the
       `fhir-rust` canonical version (it was missing CODE_OF_CONDUCT.md,
       PHI.md, LICENSES/, FUNDING.yml, and a status section, and carried two
