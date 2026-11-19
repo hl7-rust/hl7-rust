@@ -79,11 +79,16 @@ cargo clippy --all-targets -- -D warnings # lint-clean
 cargo fmt --check                         # formatting
 cargo rustdoc --lib -- -W missing-docs    # every public item documented
 cargo +1.98 check --workspace --all-targets   # the MSRV floor
+cargo llvm-cov --workspace --all-features --summary-only \
+  --ignore-filename-regex '/(tests|benches|examples)/' \
+  --fail-under-lines 95                   # workspace line coverage
 ```
 
 The MSRV floor is current stable minus two releases, so the exact
 toolchain in that last line moves; the rule is in
 [`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md).
+The coverage denominator and clean-run requirement are defined in
+[`spec/test-coverage/index.md`](spec/test-coverage/index.md).
 
 Touching `hl7-rust.github.io/`? Run its own two gates from inside that
 directory before opening the pull request:

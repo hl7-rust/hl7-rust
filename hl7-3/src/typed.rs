@@ -263,4 +263,92 @@ mod tests {
         assert!(!bool::from_attribute(Some("yes")));
         assert!(!bool::from_attribute(None));
     }
+
+    #[test]
+    fn every_scalar_implementation_reads_attributes_and_child_text() {
+        use crate::vocabulary::NullFlavor;
+
+        macro_rules! assert_number {
+            ($($type:ty),*) => {$({
+                let seven: $type = "7".parse().unwrap();
+                let eight: $type = "8".parse().unwrap();
+                assert_eq!(<$type>::from_attribute(Some(" 7 ")), seven);
+                assert_eq!(<$type>::from_child_text(Some(" 8 ")), eight);
+            })*};
+        }
+        assert_number!(
+            i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize, f32, f64
+        );
+        assert!(bool::from_child_text(Some("true")));
+        assert!(!bool::from_child_text(Some("false")));
+        assert_eq!(String::from_child_text(Some("text")), "text");
+        assert_eq!(
+            Option::<String>::from_attribute(Some("text")).as_deref(),
+            Some("text")
+        );
+
+        assert_eq!(
+            Option::<NullFlavor>::from_attribute(Some("UNK")),
+            Some(NullFlavor::Unknown)
+        );
+        assert_eq!(
+            Option::<NullFlavor>::from_child_text(Some("NA")),
+            Some(NullFlavor::NotApplicable)
+        );
+    }
+
+    #[test]
+    fn nested_implementations_delegate_to_the_model_readers() {
+        let element = crate::xml::parse(
+            r#"<value classCode="ACT" moodCode="EVN" typeCode="COMP"
+                      value="12" unit="mg" mediaType="text/plain">body
+                  <low value="1"/><high value="2"/>
+               </value>"#,
+        )
+        .unwrap();
+
+        assert_eq!(
+            <crate::vocabulary::Ivl as FromElement>::from_element(&element)
+                .value
+                .as_deref(),
+            Some("12")
+        );
+        assert_eq!(
+            <crate::vocabulary::Pq as FromElement>::from_element(&element)
+                .unit
+                .as_deref(),
+            Some("mg")
+        );
+        assert_eq!(
+            <crate::vocabulary::Ed as FromElement>::from_element(&element)
+                .text
+                .as_deref()
+                .map(str::trim),
+            Some("body")
+        );
+        assert_eq!(
+            <crate::rim::Act as FromElement>::from_element(&element).class_code,
+            "ACT"
+        );
+        assert_eq!(
+            <crate::rim::Entity as FromElement>::from_element(&element).class_code,
+            "ACT"
+        );
+        assert_eq!(
+            <crate::rim::Role as FromElement>::from_element(&element).class_code,
+            "ACT"
+        );
+        assert_eq!(
+            <crate::rim::Participation as FromElement>::from_element(&element).type_code,
+            "COMP"
+        );
+        assert_eq!(
+            <crate::rim::ActRelationship as FromElement>::from_element(&element).type_code,
+            "COMP"
+        );
+        assert_eq!(
+            <crate::rim::RoleLink as FromElement>::from_element(&element).type_code,
+            "COMP"
+        );
+    }
 }

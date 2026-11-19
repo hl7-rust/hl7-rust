@@ -358,3 +358,83 @@ fn the_cli_reports_bad_usage_without_a_stack_trace() {
     assert_eq!(status, 0);
     assert!(out.contains("Usage: hl7-v2"), "{out}");
 }
+
+#[test]
+fn the_cli_exercises_remaining_options_and_file_io() {
+    let (status, version) = cli(&["--version"], "");
+    assert_eq!(status, 0);
+    assert!(version.starts_with("hl7-v2 "));
+
+    let (status, tree) = cli(&["--paths"], ORU);
+    assert_eq!(status, 0);
+    assert!(tree.contains("[PID[1]-5[1].1]"), "{tree}");
+
+    let (status, er7) = cli(&["--null", "PID-8", "--er7"], ORU);
+    assert_eq!(status, 0);
+    assert!(er7.contains("|19620320|\"\"\r"), "{er7}");
+
+    let (status, out) = cli(&["--hl7-version", "2.4", "--query", "MSH-12"], ORU);
+    assert_eq!((status, out.as_str()), (0, "2.5\n"));
+
+    let directory = std::env::temp_dir().join(format!("hl7-v2-cli-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    let input = directory.join("input.hl7");
+    let output = directory.join("output.txt");
+    std::fs::write(&input, ORU).unwrap();
+    let result = std::process::Command::new(env!("CARGO_BIN_EXE_hl7-v2"))
+        .arg(&input)
+        .arg("--query")
+        .arg("MSH-10")
+        .arg("--output")
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(std::fs::read_to_string(&output).unwrap(), "MSG00042\n");
+    std::fs::remove_dir_all(directory).unwrap();
+}
+
+#[test]
+fn the_cli_rejects_missing_or_invalid_option_values() {
+    for args in [
+        &["--query"][..],
+        &["--set"][..],
+        &["--set", "PID-8"][..],
+        &["--null"][..],
+        &["--hl7-version"][..],
+        &["--hl7-version", "9.9"][..],
+        &["--dictionary"][..],
+        &["--dictionary", "missing.json"][..],
+        &["--output"][..],
+        &["first.hl7", "second.hl7"][..],
+    ] {
+        assert_eq!(cli(args, ORU).0, 1, "{args:?}");
+    }
+    assert_eq!(cli(&[], "not a message").0, 1);
+    assert_eq!(cli(&["--strict"], "MSH|^~\\&|A||||1||ACK^A01|1|P|2.5").0, 1);
+}
+
+#[test]
+fn less_common_message_accessors_and_edges_are_covered() {
+    let mut message = hl7_2::parse(ORU).unwrap();
+    assert!(message.raw_mut().segment("MSH").is_some());
+    assert_eq!(message.segments().count(), 8);
+    assert!(message.segment("PID").is_some());
+    assert!(message.segment_at("OBX", 2).is_some());
+    assert_eq!(message.repetitions("OBX").unwrap().len(), 2);
+    assert_eq!(message.repetitions("OBX[2]-5.2").unwrap(), ["Rh positive"]);
+    assert_eq!(message.type_of("OBX").unwrap(), None);
+    assert_eq!(message.type_of("ZZZ-1").unwrap(), None);
+    assert_eq!(message.type_of("OBX[9]-5").unwrap(), None);
+    assert_eq!(message.to_string(), message.to_er7());
+    assert_eq!(
+        message.to_er7_with(hl7_2::er7::RenderOptions {
+            terminator: hl7_2::er7::Terminator::Lf,
+            trailing_terminator: true,
+        }),
+        message.to_er7().replace('\r', "\n") + "\n"
+    );
+    assert!(message.remove_segment("MSH", 1).is_none());
+    assert!(message.remove_segment("OBX", 9).is_none());
+    assert!(message.into_raw().segment("MSH").is_some());
+}

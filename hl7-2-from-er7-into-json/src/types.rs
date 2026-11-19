@@ -191,4 +191,23 @@ mod tests {
         assert_eq!(composite_components("ST"), None);
         assert_eq!(composite_components("DTM"), None);
     }
+
+    #[test]
+    fn every_declared_composite_and_segment_is_reachable() {
+        for data_type in [
+            "AD", "AUI", "CCD", "CE", "CNE", "CNN", "CP", "CQ", "CWE", "CX", "DLD", "DLN", "DR",
+            "ED", "EI", "EIP", "ELD", "ERL", "FC", "FN", "HD", "JCC", "MO", "MOC", "MSG", "NDL",
+            "PL", "PRL", "PT", "RI", "RP", "SAD", "SN", "SPS", "TQ", "TS", "VID", "XAD", "XCN",
+            "XON", "XPN", "XTN",
+        ] {
+            assert!(composite_components(data_type).is_some(), "{data_type}");
+        }
+        for segment in [
+            "AL1", "BLG", "CTI", "DG1", "DSC", "ERR", "EVN", "IN1", "MRG", "MSA", "MSH", "NK1",
+            "NTE", "OBR", "OBX", "ORC", "PD1", "PID", "PR1", "PV1", "PV2", "ROL", "SFT", "SPM",
+        ] {
+            assert!(segment_fields(segment).is_some(), "{segment}");
+        }
+        assert_eq!(field_type("PID", 0), None);
+    }
 }

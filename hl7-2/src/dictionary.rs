@@ -895,6 +895,57 @@ mod tests {
     }
 
     #[test]
+    fn reports_every_malformed_dictionary_section() {
+        for text in [
+            "[]",
+            r#"{"inherits":1}"#,
+            r#"{"version":1}"#,
+            r#"{"types":[]}"#,
+            r#"{"segments":[]}"#,
+            r#"{"aliases":[]}"#,
+            r#"{"aliases":{"A":1}}"#,
+            r#"{"structures":[]}"#,
+            r#"{"structures":{"A":{}}}"#,
+            r#"{"segments":{"A":1}}"#,
+            r#"{"segments":{"A":{"x":"ST"}}}"#,
+            r#"{"segments":{"A":[{}]}}"#,
+            r#"{"segments":{"A":[{"type":1}]}}"#,
+            r#"{"segments":{"A":[{"type":"ST","required":1}]}}"#,
+            r#"{"structures":{"A":[1]}}"#,
+            r#"{"structures":{"A":[{"segment":1}]}}"#,
+            r#"{"structures":{"A":[{"group":1,"items":[]}]}}"#,
+            r#"{"structures":{"A":[{}]}}"#,
+        ] {
+            assert!(Dictionary::from_json(text, "x").is_err(), "accepted {text}");
+        }
+    }
+
+    #[test]
+    fn public_iterators_and_structure_resolution_cover_all_routes() {
+        let dictionary = Dictionary::from_json(
+            r#"{
+                "types":{"PAIR":["ST","ST"]},
+                "segments":{"AAA":["ST"]},
+                "structures":{"AAA_Z01":["AAA"],"ACK":["AAA"]},
+                "aliases":{"AAA_Z02":"AAA_Z01"}
+            }"#,
+            "x",
+        )
+        .unwrap();
+        assert_eq!(dictionary.type_names().collect::<Vec<_>>(), ["PAIR"]);
+        assert_eq!(dictionary.segment_names().collect::<Vec<_>>(), ["AAA"]);
+        assert_eq!(
+            dictionary.structure_ids().collect::<Vec<_>>(),
+            ["AAA_Z01", "ACK"]
+        );
+        assert_eq!(dictionary.structure_id("", ""), "HL7Message");
+        assert_eq!(dictionary.structure_id("AAA", "Z02"), "AAA_Z01");
+        assert_eq!(dictionary.structure_id("AAA", "Z01"), "AAA_Z01");
+        assert_eq!(dictionary.structure_id("ACK", "A01"), "ACK");
+        assert_eq!(dictionary.structure_id("NEW", "N01"), "NEW_N01");
+    }
+
+    #[test]
     fn layering_over_an_explicit_base_ignores_inherits() {
         let base = Dictionary::from_json(r#"{"segments": {"AAA": ["ST"]}}"#, "base").unwrap();
         let over = Dictionary::from_json_over(

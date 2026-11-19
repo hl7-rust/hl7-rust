@@ -3,6 +3,7 @@
 
 use hl7_2_from_xsd_into_json_dictionary::{Item, Options, convert_directory};
 use std::path::PathBuf;
+use std::process::Command;
 
 fn samples() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("samples/example")
@@ -154,4 +155,74 @@ fn reports_a_directory_it_cannot_read_as_a_dictionary() {
     let error =
         convert_directory(&PathBuf::from("no/such/directory"), &Options::default()).unwrap_err();
     assert!(error.to_string().contains("no/such/directory"), "{error}");
+}
+
+#[test]
+fn cli_contract_covers_conversion_and_argument_errors() {
+    let binary = env!("CARGO_BIN_EXE_hl7-2-from-xsd-into-json-dictionary");
+    let samples = samples();
+    let directory = std::env::temp_dir().join(format!("hl7-xsd-json-cli-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    let output_path = directory.join("dictionary.json");
+
+    let output = Command::new(binary)
+        .arg("--name")
+        .arg("example")
+        .arg("--version-id")
+        .arg("2.5.1")
+        .arg("--inherits")
+        .arg("2.5")
+        .arg("--alias")
+        .arg("ADT_A40=ADT_A39")
+        .arg("--structure")
+        .arg("ADT_A39")
+        .arg(&samples)
+        .arg("--output")
+        .arg(&output_path)
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let json = std::fs::read_to_string(&output_path).unwrap();
+    assert!(json.contains(r#""version": "2.5.1""#));
+    assert!(json.contains(r#""ADT_A40": "ADT_A39""#));
+
+    for flag in ["--help", "--version"] {
+        assert!(
+            Command::new(binary)
+                .arg(flag)
+                .output()
+                .unwrap()
+                .status
+                .success()
+        );
+    }
+    for args in [
+        vec!["--unknown"],
+        vec!["--output"],
+        vec!["--name"],
+        vec!["--version-id"],
+        vec!["--inherits"],
+        vec!["--structure"],
+        vec!["--alias"],
+        vec!["--alias", "invalid"],
+        vec!["first", "second"],
+    ] {
+        let output = Command::new(binary).args(args).output().unwrap();
+        assert!(!output.status.success());
+    }
+    assert!(!Command::new(binary).output().unwrap().status.success());
+    assert!(
+        !Command::new(binary)
+            .arg("missing-directory")
+            .output()
+            .unwrap()
+            .status
+            .success()
+    );
+
+    std::fs::remove_dir_all(directory).unwrap();
 }

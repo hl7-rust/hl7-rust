@@ -311,4 +311,41 @@ mod tests {
         };
         assert!(error.to_string().contains("belong on fields"), "{error}");
     }
+
+    #[test]
+    fn rejects_shapes_and_field_attributes_it_cannot_map() {
+        for source in ["struct S(u32);", "enum S { A }", "union S { a: u32 }"] {
+            let input: DeriveInput = syn::parse_str(source).unwrap();
+            assert!(named_fields(&input).is_err(), "accepted {source}");
+        }
+        for source in [
+            r"struct S { #[hl7(raw)] #[hl7(nested)] f: u32 }",
+            r"struct S { #[hl7(other)] f: u32 }",
+        ] {
+            let input: DeriveInput = syn::parse_str(source).unwrap();
+            let field = named_fields(&input).unwrap().next().unwrap();
+            assert!(mapping(field).is_err(), "accepted {source}");
+        }
+    }
+
+    #[test]
+    fn both_directions_generate_every_mapping_shape() {
+        let input: DeriveInput = syn::parse_str(
+            r#"struct S {
+                #[hl7("PID-1")] value: String,
+                #[hl7(nested)] nested: N,
+                #[hl7(raw)] raw: R,
+                defaulted: u32,
+            }"#,
+        )
+        .unwrap();
+        let from = from_hl7(&input).unwrap().to_string();
+        let to = to_hl7(&input).unwrap().to_string();
+        assert!(from.contains("FromHl7Value"));
+        assert!(from.contains("FromHl7"));
+        assert!(from.contains("clone"));
+        assert!(from.contains("default"));
+        assert!(to.contains("ToHl7Value"));
+        assert!(to.contains("ToHl7"));
+    }
 }

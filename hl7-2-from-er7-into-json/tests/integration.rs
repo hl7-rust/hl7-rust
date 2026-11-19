@@ -1,4 +1,76 @@
 use hl7_2_from_er7_into_json::{Options, convert, convert_with_options, split_messages};
+use std::io::Write;
+use std::process::{Command, Output, Stdio};
+
+fn run_cli(args: &[&str], stdin: &str) -> Output {
+    let mut child = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-er7-into-json"))
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(stdin.as_bytes())
+        .unwrap();
+    child.wait_with_output().unwrap()
+}
+
+#[test]
+fn cli_contract_covers_success_and_argument_errors() {
+    let message = "MSH|^~\\&|APP||||20260814||XXX^X01|1|P|2.5\rPID|1";
+
+    let output = run_cli(&["--compact", "--flat", "-"], message);
+    assert!(output.status.success());
+    assert!(
+        String::from_utf8(output.stdout)
+            .unwrap()
+            .contains("\"PID.1\":\"1\"")
+    );
+
+    for flag in ["--help", "--version"] {
+        assert!(run_cli(&[flag], "").status.success());
+    }
+    for args in [
+        &["--unknown"][..],
+        &["--output"][..],
+        &["first", "second"][..],
+    ] {
+        let output = run_cli(args, "");
+        assert!(!output.status.success());
+        assert!(String::from_utf8(output.stderr).unwrap().contains("error:"));
+    }
+    assert!(!run_cli(&[], "not a message").status.success());
+}
+
+#[test]
+fn cli_reads_and_writes_named_files() {
+    let directory = std::env::temp_dir().join(format!("hl7-er7-json-cli-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    let input = directory.join("input.hl7");
+    let output = directory.join("output.json");
+    std::fs::write(&input, "MSH|^~\\&|APP||||20260814||XXX^X01|1|P|2.5\rPID|1").unwrap();
+    let result = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-er7-into-json"))
+        .arg(&input)
+        .arg("--output")
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(
+        std::fs::read_to_string(&output)
+            .unwrap()
+            .contains("\"PID.1\": \"1\"")
+    );
+    std::fs::remove_dir_all(directory).unwrap();
+}
 
 /// The spec's ORM^O01 example (with an ORC/OBR order so the message is a
 /// complete ORM_O01), checked against the exact expected JSON document,
@@ -257,4 +329,15 @@ fn a_segment_key_never_carries_a_dot() {
     assert!(json.contains("\"Z1\""), "{json}");
     assert!(!json.contains("\"Z.1\""), "{json}");
     assert!(json.contains("\"Z1.1\": \"value1\""), "{json}");
+}
+
+#[test]
+fn unknown_components_and_subcomponents_keep_positional_names() {
+    let er7 = "MSH|^~\\&|APP||||20260814||XXX^X01|1|P|2.5\rZDS|a&b&&c^d&e";
+    let json = convert(er7).unwrap();
+    assert!(json.contains("\"ZDS.1.1.1\": \"a\""), "{json}");
+    assert!(json.contains("\"ZDS.1.1.2\": \"b\""), "{json}");
+    assert!(json.contains("\"ZDS.1.1.4\": \"c\""), "{json}");
+    assert!(json.contains("\"ZDS.1.2.1\": \"d\""), "{json}");
+    assert!(json.contains("\"ZDS.1.2.2\": \"e\""), "{json}");
 }

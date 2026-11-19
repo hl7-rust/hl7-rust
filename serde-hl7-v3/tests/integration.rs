@@ -146,6 +146,23 @@ fn every_type_round_trips_through_pretty_json() {
 }
 
 #[test]
+fn public_wrapper_conversions_and_mutation_are_exercised() {
+    let mut act = Act::from(hl7_3::rim::Act {
+        class_code: "ACT".into(),
+        ..Default::default()
+    });
+    act.mood_code = "EVN".into();
+    let inner: hl7_3::rim::Act = act.into();
+    assert_eq!(inner.mood_code, "EVN");
+
+    let wrapper = NullFlavor::from(hl7_3::NullFlavor::Unknown);
+    assert_eq!(*wrapper, hl7_3::NullFlavor::Unknown);
+    assert_eq!(wrapper.to_string(), "UNK");
+    let inner: hl7_3::NullFlavor = wrapper.into();
+    assert_eq!(inner, hl7_3::NullFlavor::Unknown);
+}
+
+#[test]
 fn absent_and_empty_stay_distinct() {
     // §4.4: `None` is `null`, `Some("")` is `""`, never merged.
     let none = Ii(hl7_3::Ii {

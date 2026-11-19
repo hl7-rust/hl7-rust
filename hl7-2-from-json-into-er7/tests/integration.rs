@@ -1,6 +1,85 @@
 use hl7_2_from_json_into_er7::{
     Hl7Error, convert, convert_with_options, er7::RenderOptions, er7::Terminator,
 };
+use std::io::Write;
+use std::process::{Command, Output, Stdio};
+
+fn run_cli(args: &[&str], stdin: &str) -> Output {
+    let mut child = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-json-into-er7"))
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(stdin.as_bytes())
+        .unwrap();
+    child.wait_with_output().unwrap()
+}
+
+#[test]
+fn cli_contract_covers_success_and_argument_errors() {
+    let json = r#"{"X":{"MSH":{"MSH.1":"|","MSH.2":"^~\\&"},"PID":{"PID.1":"1"}}}"#;
+    let output = run_cli(
+        &["--terminator", "crlf", "--trailing-terminator", "-"],
+        json,
+    );
+    assert!(output.status.success());
+    assert_eq!(
+        String::from_utf8(output.stdout).unwrap(),
+        "MSH|^~\\&\r\nPID|1\r\n"
+    );
+
+    for flag in ["--help", "--version"] {
+        assert!(run_cli(&[flag], "").status.success());
+    }
+    assert!(run_cli(&["--terminator", "lf"], json).status.success());
+    for args in [
+        &["--unknown"][..],
+        &["--output"][..],
+        &["--terminator"][..],
+        &["--terminator", "other"][..],
+        &["first", "second"][..],
+    ] {
+        let output = run_cli(args, "");
+        assert!(!output.status.success());
+        assert!(String::from_utf8(output.stderr).unwrap().contains("error:"));
+    }
+    assert!(!run_cli(&[], "not json").status.success());
+}
+
+#[test]
+fn cli_reads_and_writes_named_files() {
+    let directory = std::env::temp_dir().join(format!("hl7-json-er7-cli-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    let input = directory.join("input.json");
+    let output = directory.join("output.hl7");
+    std::fs::write(
+        &input,
+        r#"{"X":{"MSH":{"MSH.1":"|","MSH.2":"^~\\&"},"PID":{"PID.1":"1"}}}"#,
+    )
+    .unwrap();
+    let result = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-json-into-er7"))
+        .arg(&input)
+        .arg("--output")
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert_eq!(
+        std::fs::read_to_string(&output).unwrap(),
+        "MSH|^~\\&\rPID|1"
+    );
+    std::fs::remove_dir_all(directory).unwrap();
+}
 
 fn convert_observation(value: &str) -> Result<String, Hl7Error> {
     let document = r#"{"X":{"MSH":{"MSH.1":"|","MSH.2":"^~\\&"},"OBX":{"OBX.5":VALUE}}}"#;

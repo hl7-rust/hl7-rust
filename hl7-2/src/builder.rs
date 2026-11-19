@@ -302,6 +302,36 @@ mod tests {
     }
 
     #[test]
+    fn alternate_constructors_and_fallible_steps_are_exercised() {
+        struct Invalid;
+        impl crate::ToHl7 for Invalid {
+            fn to_hl7(&self, message: &mut Message) -> Result<(), Error> {
+                message.set("PID-1", "1")
+            }
+        }
+
+        let message = Builder::with_dictionary(Version::V2_5, Version::V2_5.dictionary())
+            .message_type("ACK", "A01")
+            .control_id("1")
+            .build()
+            .unwrap();
+        assert_eq!(message.structure_id(), "ACK");
+        assert!(Builder::from_message(message).build().is_ok());
+        assert!(
+            Builder::new(Version::V2_5)
+                .encode(&Invalid)
+                .build()
+                .is_err()
+        );
+        assert!(
+            Builder::new(Version::V2_5)
+                .set_er7("PID-1", "already\\F\\encoded")
+                .build()
+                .is_err()
+        );
+    }
+
+    #[test]
     fn build_valid_rejects_an_incomplete_message() {
         // No message type and no control ID: not something to send.
         let error = Builder::new(Version::V2_5).build_valid().unwrap_err();

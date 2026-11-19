@@ -624,6 +624,16 @@ Per `spec/free-open-source-funding/index.md`.
       downloading both `.crate` files from static.crates.io and confirming
       `Cargo.toml`, `src/lib.rs`, and `README.md` byte-identical to each
       commit's.
+
+## Test coverage
+
+- [x] **Enforce at least 95% workspace line coverage** (2026-11-19).
+      Added black-box CLI contracts, parser and dictionary error cases,
+      typed-reader delegation, derive input validation, wrapper conversions,
+      and less-common message/builder paths. A clean all-features run covers
+      8,529 of 8,964 lines (95.15%), and CI now fails below 95%.
+      [Coverage specification](spec/test-coverage/index.md)
+
 ## Trademarks
 
 HL7®, and FHIR® are the registered trademarks of Health Level Seven

@@ -187,3 +187,68 @@ fn cli_converts_the_same_sample_from_a_file_and_stdin() {
     assert_eq!(from_stdin.stdout, from_file.stdout);
     assert!(from_file.stdout.windows(5).any(|bytes| bytes == b"\rPID|"));
 }
+
+#[test]
+fn cli_options_output_and_usage_errors_are_covered() {
+    use std::process::Command;
+
+    let binary = env!("CARGO_BIN_EXE_hl7-2-from-xml-into-er7");
+    for flag in ["--help", "--version"] {
+        assert!(
+            Command::new(binary)
+                .arg(flag)
+                .output()
+                .unwrap()
+                .status
+                .success()
+        );
+    }
+    for args in [
+        &["--unknown"][..],
+        &["--output"][..],
+        &["--terminator"][..],
+        &["--terminator", "other"][..],
+        &["missing.xml"][..],
+    ] {
+        assert!(
+            !Command::new(binary)
+                .args(args)
+                .output()
+                .unwrap()
+                .status
+                .success()
+        );
+    }
+
+    let directory = std::env::temp_dir().join(format!("hl7-xml-er7-cli-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    let output = directory.join("output.hl7");
+    let result = Command::new(binary)
+        .arg("--terminator")
+        .arg("crlf")
+        .arg("--trailing-terminator")
+        .arg("samples/misc.xml")
+        .arg("--output")
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read(&output).unwrap();
+    assert!(text.ends_with(b"\r\n"));
+    assert!(text.windows(6).any(|bytes| bytes == b"\r\nPID|"));
+    assert!(
+        Command::new(binary)
+            .arg("--terminator")
+            .arg("lf")
+            .arg("samples/misc.xml")
+            .output()
+            .unwrap()
+            .status
+            .success()
+    );
+    std::fs::remove_dir_all(directory).unwrap();
+}

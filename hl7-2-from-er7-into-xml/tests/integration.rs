@@ -1,6 +1,88 @@
 use hl7_2_from_er7_into_xml::{
     Options, convert, convert_with_dictionary, convert_with_options, split_messages,
 };
+use std::io::Write;
+use std::process::{Command, Output, Stdio};
+
+fn run_cli(args: &[&str], stdin: &str) -> Output {
+    let mut child = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-er7-into-xml"))
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(stdin.as_bytes())
+        .unwrap();
+    child.wait_with_output().unwrap()
+}
+
+#[test]
+fn cli_contract_covers_success_and_argument_errors() {
+    let message = "MSH|^~\\&|APP||||20260814||XXX^X01|1|P|2.5\rPID|1";
+    let output = run_cli(&["--flat", "-"], message);
+    assert!(output.status.success());
+    assert!(
+        String::from_utf8(output.stdout)
+            .unwrap()
+            .contains("<PID.1>1</PID.1>")
+    );
+
+    for flag in ["--help", "--version"] {
+        assert!(run_cli(&[flag], "").status.success());
+    }
+    for args in [
+        &["--unknown"][..],
+        &["--output"][..],
+        &["--dictionary"][..],
+        &["first", "second"][..],
+    ] {
+        let output = run_cli(args, "");
+        assert!(!output.status.success());
+        assert!(String::from_utf8(output.stderr).unwrap().contains("error:"));
+    }
+    assert!(!run_cli(&[], "not a message").status.success());
+    assert!(
+        !run_cli(&["--dictionary", "missing.json"], message)
+            .status
+            .success()
+    );
+}
+
+#[test]
+fn cli_uses_a_dictionary_and_output_file() {
+    let directory = std::env::temp_dir().join(format!("hl7-er7-xml-cli-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    let input = directory.join("input.hl7");
+    let dictionary = directory.join("dictionary.json");
+    let output = directory.join("output.xml");
+    std::fs::write(&input, "MSH|^~\\&|APP||||20260814||XXX^X01|1|P|2.5\rPID|1").unwrap();
+    std::fs::write(&dictionary, r#"{"inherits":"2.5"}"#).unwrap();
+    let result = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-er7-into-xml"))
+        .arg("--dictionary")
+        .arg(&dictionary)
+        .arg("--schema-shape")
+        .arg(&input)
+        .arg("--output")
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(
+        std::fs::read_to_string(&output)
+            .unwrap()
+            .contains("<PID.1>1</PID.1>")
+    );
+    std::fs::remove_dir_all(directory).unwrap();
+}
 
 /// The spec's ORM^O01 example (with an ORC/OBR order so the message is a
 /// complete ORM_O01), checked against the exact expected v2.xml document,

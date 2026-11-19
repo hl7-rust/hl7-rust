@@ -581,4 +581,55 @@ mod tests {
         assert_eq!(found[0].severity, Severity::Error);
         assert_eq!(found[0].path, "MSH-10");
     }
+
+    #[test]
+    fn missing_header_values_unknown_segments_and_extra_components_are_reported() {
+        let found = diagnostics("MSH|^~\\&|A||||20240101|||1|P|\rABC|x");
+        assert!(
+            found
+                .iter()
+                .any(|item| item.kind == Kind::Header && item.path == "MSH-9.1"),
+            "{found:?}"
+        );
+        assert!(
+            found
+                .iter()
+                .any(|item| item.kind == Kind::Header && item.path == "MSH-12"),
+            "{found:?}"
+        );
+        assert!(
+            found.iter().any(|item| item.kind == Kind::SegmentUnknown),
+            "{found:?}"
+        );
+
+        let found =
+            diagnostics("MSH|^~\\&|A||||20240101||ACK^A01|1|P|2.5\rMSA|AA|1||||a^b^c^d^e^f^g");
+        assert!(
+            found.iter().any(|item| item.kind == Kind::ComponentUnknown),
+            "{found:?}"
+        );
+    }
+
+    #[test]
+    fn value_shape_helpers_cover_empty_and_offset_edges() {
+        let mut found = Vec::new();
+        check_value("NM", "", "X-1", &mut found);
+        check_value("SI", "12", "X-1", &mut found);
+        check_value("DT", "20240101", "X-1", &mut found);
+        check_value("TM", "093000", "X-1", &mut found);
+        check_value("OTHER", "anything", "X-1", &mut found);
+        assert_eq!(found, []);
+
+        for (kind, value) in [
+            ("SI", "1.5"),
+            ("DT", "2024-01"),
+            ("TM", "0930+01"),
+            ("DTM", "20240101+01"),
+        ] {
+            check_value(kind, value, "X-1", &mut found);
+        }
+        assert_eq!(found.len(), 4);
+        assert_eq!(split_offset("0930+0100"), ("0930", true));
+        assert_eq!(split_offset("0930-ABCD"), ("0930", false));
+    }
 }

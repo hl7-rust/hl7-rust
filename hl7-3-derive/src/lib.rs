@@ -291,4 +291,40 @@ mod tests {
         };
         assert!(error.to_string().contains("belong on fields"), "{error}");
     }
+
+    #[test]
+    fn rejects_shapes_and_field_attributes_it_cannot_map() {
+        for source in ["struct S(u32);", "enum S { A }", "union S { a: u32 }"] {
+            let input: DeriveInput = syn::parse_str(source).unwrap();
+            assert!(named_fields(&input).is_err(), "accepted {source}");
+        }
+        for source in [
+            r#"struct S { #[element(raw)] #[element("name")] f: u32 }"#,
+            r"struct S { #[element(other)] f: u32 }",
+        ] {
+            let input: DeriveInput = syn::parse_str(source).unwrap();
+            let field = named_fields(&input).unwrap().next().unwrap();
+            assert!(mapping(field).is_err(), "accepted {source}");
+        }
+    }
+
+    #[test]
+    fn generates_every_mapping_shape() {
+        let input: DeriveInput = syn::parse_str(
+            r#"struct S {
+                #[element("classCode")] attribute: String,
+                #[element(child = "note")] child: String,
+                #[element(nested = "component")] nested: N,
+                #[element(raw)] raw: R,
+                defaulted: u32,
+            }"#,
+        )
+        .unwrap();
+        let generated = from_element(&input).unwrap().to_string();
+        assert!(generated.contains("from_attribute"));
+        assert!(generated.contains("from_child_text"));
+        assert!(generated.contains("from_element"));
+        assert!(generated.contains("clone"));
+        assert!(generated.contains("default"));
+    }
 }

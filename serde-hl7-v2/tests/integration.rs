@@ -3,7 +3,7 @@
 //! from the sibling checkout, so a round trip through this crate is checked
 //! against real message shapes, not just literals written for this crate.
 
-use serde_hl7_v2::{Diagnostic, Message, Node, Version};
+use serde_hl7_v2::{Diagnostic, DiagnosticKind, Message, Node, NodeKind, Severity, Version};
 
 const ADT: &str = include_str!("../../hl7-2/samples/adt_a01.hl7");
 const ORU: &str = include_str!("../../hl7-2/samples/oru_r01.hl7");
@@ -102,6 +102,28 @@ fn diagnostics_round_trip_for_every_sample() {
         let back: Vec<Diagnostic> = serde_json::from_str(&json).unwrap();
         assert_eq!(back, findings);
     }
+}
+
+#[test]
+fn public_wrapper_conversions_and_mutation_are_exercised() {
+    let finding = Message::parse(VENDOR).unwrap().validate().remove(0);
+    let mut wrapper = Diagnostic::from(finding.clone());
+    assert_eq!(wrapper.to_string(), finding.to_string());
+    wrapper.detail.push('!');
+    let inner: hl7_2::Diagnostic = wrapper.into();
+    assert!(inner.detail.ends_with('!'));
+
+    let node_kind = NodeKind::from(hl7_2::generic::Kind::Segment);
+    assert_eq!(*node_kind, hl7_2::generic::Kind::Segment);
+    let _: hl7_2::generic::Kind = node_kind.into();
+
+    let severity = Severity::from(hl7_2::Severity::Warning);
+    assert_eq!(severity.to_string(), "Warning");
+    let _: hl7_2::Severity = severity.into();
+
+    let kind = DiagnosticKind::from(hl7_2::validate::Kind::SegmentUnknown);
+    assert_eq!(kind.to_string(), "SegmentUnknown");
+    let _: hl7_2::validate::Kind = kind.into();
 }
 
 #[test]

@@ -447,6 +447,57 @@ mod tests {
     }
 
     #[test]
+    fn rejects_each_malformed_json_shape() {
+        for text in [
+            "tru",
+            "fals",
+            "nul",
+            "-",
+            "[1 2]",
+            "[1,]",
+            "{1:2}",
+            r#"{"a":1 "b":2}"#,
+            r#""line
+break""#,
+            r#""\q""#,
+            r#""\"#,
+            r#""\u12""#,
+            r#""\u12xz""#,
+            r#""\ud800""#,
+            r#""\ud800\u0041""#,
+            r#""\udfff""#,
+        ] {
+            assert!(parse(text).is_err(), "accepted {text:?}");
+        }
+    }
+
+    #[test]
+    fn all_value_kinds_and_escape_spellings_are_observable() {
+        let escaped = parse(r#""\"\\\/\b\f\n\r\t\u0041\ud83d\ude00""#).unwrap();
+        assert_eq!(escaped.as_str(), Some("\"\\/\u{8}\u{c}\n\r\tA😀"));
+
+        let values = [
+            Value::Null,
+            Value::Bool(false),
+            Value::Number(1.0),
+            Value::String(String::new()),
+            Value::Array(Vec::new()),
+            Value::Object(Vec::new()),
+        ];
+        assert_eq!(
+            values.iter().map(Value::kind).collect::<Vec<_>>(),
+            ["null", "boolean", "number", "string", "array", "object"]
+        );
+        for value in &values[..5] {
+            assert_eq!(value.as_object(), None);
+        }
+        assert_eq!(Value::Null.as_array(), None);
+        assert_eq!(Value::Null.as_bool(), None);
+        assert_eq!(Value::Null.as_str(), None);
+        assert_eq!(Value::Null.get("x"), None);
+    }
+
+    #[test]
     fn nesting_past_the_limit_is_an_error_not_a_stack_overflow() {
         // Reading is recursive, so nesting depth is stack depth. Without a
         // limit these aborted the process — a crash the caller cannot catch,
