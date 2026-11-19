@@ -8,7 +8,7 @@ settings where a wrong claim has clinical cost.
 
 Method: **specification-driven development.** Behavior is written down in the
 per-crate `spec/` directories before it is implemented, and repository-level
-policy lives in the workspace `spec/` (19 policy documents, including
+policy lives in the workspace `spec/` (21 policy documents, including
 [`spec/hl7-trademarks-fair-use/`](spec/hl7-trademarks-fair-use/index.md) and
 [`spec/phi/`](spec/phi/index.md)). Nothing in this file is a claim of what
 works — that is what the crates' specs and tests are for. Day-to-day execution
@@ -75,8 +75,8 @@ posture. Open items for each are in `tasks.md`.
    the commit cites no source. The trademark rules are checked by
    `bin/check-trademarks` in CI as of 2026-08-26.
 
-3. **Security and supply chain.** SECURITY.md is substantive and honest. What
-   it disclosed was the work list; four entries are now closed:
+3. **Security and supply chain.** SECURITY.md is substantive and honest. Its
+   declared gaps have been the work list; closed entries include:
    `#![forbid(unsafe_code)]` is in all 20 crate roots; CI exists as of
    2026-08-26 — `.github/workflows/ci.yml` runs the CONTRIBUTING.md gates
    (fmt, clippy, test, rustdoc, MSRV) on every push and pull request, plus
@@ -92,7 +92,10 @@ posture. Open items for each are in `tasks.md`.
    push and pull request as of 2026-09-01, though only as a workflow
    artifact — no release carries one. CI was the keystone — every other
    check (trademarks, doc links, dependency audit, the SBOM, the website
-   itself) now has a place to run.
+   itself) now has a place to run. The published threat model landed
+   2026-11-19; it names complete-input resource exhaustion as a residual risk
+   instead of mistaking JSON/XML depth limits or the incomplete-frame MLLP
+   limit for universal byte limits.
 
 4. **Privacy and patient data.** `spec/phi/index.md` is a real PHI analysis
    (9 sections, grep-checkable claims, an honest "what is not defended

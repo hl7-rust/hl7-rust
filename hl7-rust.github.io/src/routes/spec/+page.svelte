@@ -217,7 +217,7 @@
   <h2 id="workspace">The workspace's own specs</h2>
   <p>
     Several specs sit outside any crate, because what they state is true of the whole workspace
-    rather than of one member. Nineteen today. The spec is the normative version in every case; the
+    rather than of one member. Twenty-one today. The spec is the normative version in every case; the
     entries below summarise them and link back.
   </p>
   <dl>
@@ -235,6 +235,15 @@
     <dd>
       What these crates do with protected health information, what they never do, and where a value
       can escape into a log. Summarised at <a href="/docs/patient-data/">Patient data</a>.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/threat-model/index.md`}
+        ><code>spec/threat-model/index.md</code></a
+      >
+    </dt>
+    <dd>
+      The assets, trust boundaries, credible attackers, controls, and residual risks across
+      parsers, converters, transports, command-line tools, and the release process.
     </dd>
     <dt>
       <a href={`${REPO}/blob/main/spec/benchmark/index.md`}><code>spec/benchmark/index.md</code></a>
@@ -272,7 +281,7 @@
     </dd>
   </dl>
   <p>
-    The six above are about what the crates <em>do</em>. The thirteen below are about how this
+    The seven above are about what the crates <em>do</em>. The fourteen below are about how this
     repository runs itself — its own practice, not the code's behavior — but the same rule applies:
     the spec is the source of truth, and a root document that disagrees with one is the bug.
   </p>
@@ -309,6 +318,14 @@
       A size budget and a link-integrity rule binding every markdown document this repository
       tracks, checked by <code>bin/check-docs</code> in CI. Its first run found nine broken links in
       a stray draft the same day it was adopted.
+    </dd>
+    <dt>
+      <a href={`${REPO}/blob/main/spec/test-coverage/index.md`}
+        ><code>spec/test-coverage/index.md</code></a
+      >
+    </dt>
+    <dd>
+      The reproducible workspace line-coverage measurement and the 95% minimum enforced in CI.
     </dd>
     <dt>
       <a href={`${REPO}/blob/main/spec/serial-comma/index.md`}

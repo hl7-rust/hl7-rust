@@ -40,6 +40,7 @@
       "links": [
         { "title": "spec/conformance", "url": "spec/conformance/index.md", "description": "What \"supports HL7 v2 releases 2.1-2.9\" means, exactly - segments, types, and structures by name" },
         { "title": "spec/phi", "url": "spec/phi/index.md", "description": "What these crates do with protected health information, and where a value can escape into a log" },
+        { "title": "spec/threat-model", "url": "spec/threat-model/index.md", "description": "Assets, trust boundaries, controls, and residual security risks" },
         { "title": "spec/benchmark", "url": "spec/benchmark/index.md", "description": "How the published performance figures are measured" },
         { "title": "spec/rust-msrv-n-minus-2", "url": "spec/rust-msrv-n-minus-2/index.md", "description": "The minimum supported Rust version policy" }
       ],

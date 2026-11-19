@@ -7,6 +7,8 @@ Read the last part first if you are performing a supplier review: this is a
 single-maintainer project, and this document says so rather than implying a
 response capacity that does not exist.
 [`MAINTAINERS.md`](MAINTAINERS.md) has the full picture.
+The workspace threat model — assets, trust boundaries, controls, and residual
+risks — is [`spec/threat-model/index.md`](spec/threat-model/index.md).
 
 ## Reporting a vulnerability
 
@@ -145,6 +147,9 @@ Each one is checkable in a few minutes, which is the point:
   six targets across `hl7-2-xml-lite-helper`, `hl7-2-from-xml-into-er7`,
   `hl7-2-from-json-into-er7`, and — since 2026-09-01 — `hl7-2`'s own
   schema-mode dictionary reader (`Dictionary::from_json`).
+- **A published threat model** covering input integrity, resource exhaustion,
+  confidentiality, transport boundaries, and supply-chain residual risks:
+  [`spec/threat-model/index.md`](spec/threat-model/index.md).
 
 ## Known gaps
 
@@ -184,8 +189,6 @@ A security policy that lists no gaps is a security policy nobody checked.
   first release of a new crate, an MSRV bump, or anything touching
   license, trademark, or PHI-handling code stays the maintainer's alone.
   [`AI_STATEMENT.md`](AI_STATEMENT.md) §5 and §6 have the full policy.
-- **No published threat model.**
-
 If one of these is what blocks your adoption, say so —
 [`RFC.md`](RFC.md) §8 asks exactly that question, because which gap matters
 most is currently a guess.

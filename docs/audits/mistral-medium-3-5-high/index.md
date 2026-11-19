@@ -12,7 +12,8 @@ Based on my analysis of your **hl7-rust** workspace (17 Rust crates for HL7 v2/v
 - Promotion blocked pending HL7 trademark resolution (request sent 2026-08-25, pending reply)
 - Limited community engagement channels beyond GitHub
 - Website could be more interactive/educational
-- Test coverage could be expanded for edge cases
+- Workspace line coverage is 95.15%, with a 95% CI floor; mutation and
+  property-based testing remain opportunities
 - Performance monitoring could be more comprehensive
 
 ---
@@ -141,7 +142,7 @@ Since this blocks most promotion:
 
 | Task | Impact | Effort | Owner | Status |
 |------|--------|--------|-------|--------|
-| **Expand test coverage for edge cases in message parsing** | Very High - Bug prevention | High | - | ⬜ |
+| **Expand test coverage for edge cases in message parsing** | Very High - Bug prevention | High | - | ✅ (95.15% workspace line coverage) |
 | **Add property-based testing (proptest or similar)** | Very High - Finds edge cases | Medium | - | ⬜ |
 | **Implement fuzz testing for all parsers** | Very High - Security & robustness | Medium | - | ⬜ |
 | **Add memory usage benchmarks** | High - Complete performance picture | Medium | - | ⬜ |
@@ -210,7 +211,7 @@ cargo fuzz init
 | **Add mutation testing (cargo-mutants)** | Very High - Test quality | Medium | - | ⬜ |
 | **Implement integration tests across crate boundaries** | Very High - System integrity | Medium | - | ⬜ |
 | **Add snapshot testing for message rendering** | High - Prevents regressions | Medium | - | ⬜ |
-| **Create test coverage reports and set minimum thresholds** | High - Code quality metric | Low | - | ⬜ |
+| **Create test coverage reports and set minimum thresholds** | High - Code quality metric | Low | - | ✅ ([95% CI floor](../../../spec/test-coverage/index.md)) |
 
 ### Medium Priority
 
@@ -277,7 +278,7 @@ cargo mutants
 |------|--------|--------|-------|--------|
 | **Add formal verification for core parsing logic** | Low - Extreme assurance | Very High | - | ⬜ |
 | **Implement runtime security monitoring** | Low - Production monitoring | High | - | ⬜ |
-| **Create threat model documentation** | Low - Security design | Medium | - | ⬜ |
+| **Create threat model documentation** | Low - Security design | Medium | - | ✅ ([Threat model](../../../spec/threat-model/index.md)) |
 
 ### Security Infrastructure
 
@@ -365,7 +366,7 @@ If you want immediate impact, focus on these **10 tasks** that can be completed 
 ### Q1 (Months 1-3)
 - Complete all Quick Start tasks
 - Resolve trademark issue and begin outreach sequence
-- Achieve 90%+ test coverage for core crates
+- ✅ Achieve 90%+ test coverage for core crates (95.15% workspace-wide)
 - Set up comprehensive monitoring
 
 ### Q2 (Months 4-6)

@@ -40,6 +40,7 @@
       "links": [
         { "title": "spec/conformance", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/spec/conformance/index.md", "description": "What \"supports HL7 v2 releases 2.1-2.9\" means, exactly - segments, types, and structures by name" },
         { "title": "spec/phi", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/spec/phi/index.md", "description": "What these crates do with protected health information, and where a value can escape into a log" },
+        { "title": "spec/threat-model", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/spec/threat-model/index.md", "description": "Assets, trust boundaries, controls, and residual security risks" },
         { "title": "spec/benchmark", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/spec/benchmark/index.md", "description": "How the published performance figures are measured" },
         { "title": "spec/rust-msrv-n-minus-2", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/spec/rust-msrv-n-minus-2/index.md", "description": "The minimum supported Rust version policy" },
         { "title": "Specifications index", "url": "https://hl7-rust.github.io/spec/", "description": "Every crate's own spec/index.md, the single source of truth for that crate's behavior - where anything else disagrees with it, the spec wins" }

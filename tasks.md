@@ -208,7 +208,7 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
       MSRV floor, as the rule promises), `cargo rustdoc -p hl7-2 --lib --
       -W missing-docs`, `./bin/check-docs`, `./bin/check-trademarks`, and
       the website's `pnpm run check` / `pnpm run build` all clean.
-- [ ] Consciously accept, here, the declared gaps closing the SBOM and
+- [x] Consciously accept, here, the declared gaps closing the SBOM and
       fuzzing items above left standing — `spec/professionalization/index.md`
       rule 3 requires every gap `SECURITY.md` or `MAINTAINERS.md` names be
       "closed or consciously accepted in `tasks.md`," and naming them in a
@@ -229,11 +229,14 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
         efforts exist but are not something a single-maintainer project
         can adopt unilaterally — it needs crates.io's side to exist first,
         the same shape of wait as the Trusted Publishing item above).
-      - **No published threat model.** Not started; no target date. A
-        real threat model for a library that never does I/O, never opens
-        a socket, and never touches PHI directly (`spec/phi/index.md`) is
-        a smaller document than the phrase implies, which is itself a
-        reason to eventually write one rather than a reason it is missing.
+      - **No published threat model — closed 2026-11-19.**
+        [`spec/threat-model/index.md`](spec/threat-model/index.md) now names
+        the assets, trust boundaries, attackers, controls, and residual risks.
+        It records that recursive JSON/XML depth and incomplete
+        MLLP buffering are bounded while complete inputs have no universal
+        byte limit, and gives the deployment controls that therefore remain
+        the caller's responsibility. `SECURITY.md` and the public repository
+        maps link to it in the same change.
       - **No release automation (`MAINTAINERS.md`), in the CI-workflow
         sense.** A crates.io release is still `cargo publish` from the
         maintainer's own laptop for all fourteen crates — 2026-09-02's

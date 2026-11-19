@@ -71,14 +71,15 @@ Assessed 2026-08-26, rule by rule, with evidence paths. Open items cite the
    synchronized.
 3. **Met, including for the gaps still open.** The gaps closed so far
    (`#![forbid(unsafe_code)]`, CI, dependency auditing via `cargo deny`,
-   commit/tag signing 2026-08-27, SBOM generation 2026-09-01, and fuzz
-   coverage widening from 3 to 4 of 14 crates the same day) each updated
-   the declaring documents in the closing change. Five declared gaps
-   remain open — `SECURITY.md`'s "no release signing," "no
-   reproducible-build attestation," "no published threat model," and
-   `er7`'s own unfuzzed ER7 parsing surface (a dependency, not a crate
-   this repository publishes); `MAINTAINERS.md`'s "no release
-   automation" and "no committed security-response window" — all five
+   commit/tag signing 2026-08-27, SBOM generation 2026-09-01, fuzz
+   coverage widening from 3 to 4 of 14 crates the same day, and the
+   published threat model 2026-11-19) each updated the declaring documents
+   in the closing change. Five declared gaps were open before the threat
+   model landed; four entries remain — `SECURITY.md`'s combined "no release
+   signing or reproducible-build attestation" entry and `er7`'s own
+   unfuzzed ER7 parsing surface (a dependency, not a crate this repository
+   publishes), plus `MAINTAINERS.md`'s "no release automation" and "no
+   committed security-response window" — all four
    consciously accepted in `tasks.md` (2026-09-01), each with why it has
    no smaller closing action right now and what would change that, per
    rule 3's own text on where that acceptance belongs. The first

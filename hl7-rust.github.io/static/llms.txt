@@ -44,6 +44,7 @@ endorsed by Health Level Seven International.
 
 - [spec/conformance](https://github.com/hl7-rust/hl7-rust/blob/main/spec/conformance/index.md): what "supports HL7 v2 releases 2.1-2.9" means, exactly — segments, types, and structures by name
 - [spec/phi](https://github.com/hl7-rust/hl7-rust/blob/main/spec/phi/index.md): what these crates do with protected health information, and where a value can escape into a log
+- [spec/threat-model](https://github.com/hl7-rust/hl7-rust/blob/main/spec/threat-model/index.md): assets, trust boundaries, controls, and residual security risks
 - [spec/benchmark](https://github.com/hl7-rust/hl7-rust/blob/main/spec/benchmark/index.md): how the published performance figures are measured
 - [spec/rust-msrv-n-minus-2](https://github.com/hl7-rust/hl7-rust/blob/main/spec/rust-msrv-n-minus-2/index.md): the minimum supported Rust version policy
 - [Specifications index](https://hl7-rust.github.io/spec/): every crate's own `spec/index.md`, the single source of truth for that crate's behavior — where anything else disagrees with it, the spec wins
