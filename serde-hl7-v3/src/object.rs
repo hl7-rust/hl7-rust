@@ -36,6 +36,17 @@ pub(crate) trait StrictDeserialize: Sized {
         D: Deserializer<'de>;
 }
 
+pub(crate) fn ensure_field_empty<T, E: de::Error>(
+    slot: Option<&T>,
+    field: &'static str,
+) -> Result<(), E> {
+    if slot.is_some() {
+        Err(E::duplicate_field(field))
+    } else {
+        Ok(())
+    }
+}
+
 /// Deserializes one `T`, strictly or not.
 pub(crate) struct Seed<T> {
     strict: bool,
@@ -322,9 +333,7 @@ macro_rules! object_wrapper {
                         match key.as_str() {
                             $(
                                 $key => {
-                                    if $field.is_some() {
-                                        return Err(serde::de::Error::duplicate_field($key));
-                                    }
+                                    $crate::object::ensure_field_empty::<_, V::Error>($field.as_ref(), $key)?;
                                     $field = Some(field!(@read map, self.strict, $mode $ty));
                                 }
                             )+
@@ -382,4 +391,34 @@ macro_rules! object_wrapper {
             }
         };
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Ii;
+
+    #[test]
+    fn seed_visitors_name_the_container_shape_they_require() {
+        let map = serde::de::value::MapDeserializer::<_, serde::de::value::Error>::new(
+            std::iter::empty::<(String, String)>(),
+        );
+        let error = OptionSeed::<Ii>::new(false).deserialize(map).unwrap_err();
+        assert!(error.to_string().contains("object or null"), "{error}");
+
+        let scalar = serde::de::value::BoolDeserializer::<serde::de::value::Error>::new(true);
+        let error = VecSeed::<Ii>::new(false).deserialize(scalar).unwrap_err();
+        assert!(error.to_string().contains("array of objects"), "{error}");
+
+        let error = serde_json::from_str::<Ii>("[]").unwrap_err();
+        assert!(error.to_string().contains("II object"), "{error}");
+    }
+
+    #[test]
+    fn optional_seed_accepts_the_deserializer_unit_form() {
+        let value: Result<Option<Ii>, serde::de::value::Error> =
+            serde::de::Visitor::visit_unit(OptionSeed::<Ii>::new(false));
+        let value = value.unwrap();
+        assert!(value.is_none());
+    }
 }

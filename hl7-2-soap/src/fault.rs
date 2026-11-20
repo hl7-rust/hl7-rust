@@ -120,6 +120,7 @@ mod tests {
         assert_eq!(Fault::authorization("x").status, 403);
         assert_eq!(Fault::server("x").status, 500);
         assert_eq!(Fault::configuration("x").status, 500);
+        assert_eq!(Fault::client("bad").to_string(), "Client (400): bad");
     }
 
     #[test]

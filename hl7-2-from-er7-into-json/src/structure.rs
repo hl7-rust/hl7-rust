@@ -295,3 +295,26 @@ fn match_items(
     }
     true
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn matcher_reports_missing_required_items_and_partly_started_groups() {
+        let optional_group = Grp("EMPTY", false, false, &[Seg("AAA", false, false)]);
+        assert!(!optional_group.can_start("BBB"));
+
+        let required = [Seg("AAA", true, false)];
+        assert!(group_segments("X", &required, &[]).is_none());
+
+        let partly_started = [Grp(
+            "GROUP",
+            true,
+            false,
+            &[Seg("AAA", false, false), Seg("BBB", true, false)],
+        )];
+        let segments = [("AAA".to_string(), Node::leaf("AAA", ""))];
+        assert!(group_segments("X", &partly_started, &segments).is_none());
+    }
+}

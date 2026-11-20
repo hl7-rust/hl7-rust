@@ -210,6 +210,9 @@ mod tests {
         let mut transport = IoTransport::new(Pipe::new(b"", 64));
         transport.send_str("MSH|^~\\&|LAB").unwrap();
         assert_eq!(transport.stream().outgoing, b"\x0bMSH|^~\\&|LAB\x1c\r");
+        assert!(transport.framer().is_empty());
+        transport.stream_mut().bite = 1;
+        assert_eq!(transport.into_stream().bite, 1);
     }
 
     #[test]

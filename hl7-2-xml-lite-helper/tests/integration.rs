@@ -169,6 +169,40 @@ fn it_says_what_is_wrong_and_where() {
             .to_string()
             .contains("never closed")
     );
+
+    assert_eq!(Error::NoRootElement.to_string(), "no root element found");
+    assert_eq!(
+        Error::Mismatched {
+            open: "a".into(),
+            close: "b".into(),
+        }
+        .to_string(),
+        "<a> is closed by </b>"
+    );
+    assert_eq!(
+        Error::Malformed("bad input".into(), 7).to_string(),
+        "bad input at byte 7"
+    );
+}
+
+#[test]
+fn every_malformed_xml_route_is_a_recoverable_error() {
+    for xml in [
+        "<?never closed",
+        "<a",
+        "<>",
+        "<a ",
+        "<a attribute",
+        "<a attribute >",
+        "<a attribute='never closed",
+        "<a></a ",
+        "<a><![CDATA[never closed",
+    ] {
+        assert!(matches!(parse(xml), Err(Error::Malformed(..))), "{xml:?}");
+    }
+
+    let root = parse("<a>&not-an-entity-without-a-semicolon</a>").unwrap();
+    assert_eq!(root.text, "&not-an-entity-without-a-semicolon");
 }
 
 // --------------------------------------------------------------------

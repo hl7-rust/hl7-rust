@@ -191,9 +191,7 @@ pub fn segments(root: &Element, types: &Types) -> BTreeMap<String, Vec<Field>> {
             let Some(position) = field_position(&reference.name) else {
                 continue;
             };
-            if fields.len() < position {
-                fields.resize(position, Field::default());
-            }
+            fields.resize_with(position.max(fields.len()), Field::default);
             fields[position - 1] = Field {
                 data_type: types.data_type(&reference.name).to_string(),
                 required: reference.required,
@@ -440,25 +438,56 @@ mod tests {
                 repeats: false
             }
         );
-        match &items[1] {
-            Item::Group {
-                name,
-                required,
-                repeats,
-                items,
-            } => {
-                assert_eq!(name, "PROCEDURE");
-                assert!(!required && *repeats);
-                assert_eq!(items.len(), 2);
-                assert!(matches!(&items[0], Item::Segment { name, .. } if name == "PR1"));
-            }
-            segment @ Item::Segment { .. } => panic!("expected a group, got {segment:?}"),
-        }
+        assert!(matches!(&items[1], Item::Group { .. }));
+        assert!(matches!(
+            &items[1],
+            Item::Group { name, required: false, repeats: true, items }
+                if name == "PROCEDURE"
+                    && items.len() == 2
+                    && matches!(&items[0], Item::Segment { name, .. } if name == "PR1")
+        ));
     }
 
     #[test]
     fn a_structure_the_file_does_not_declare_is_none() {
         let root = parse(r#"<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"/>"#).unwrap();
         assert!(structure(&root, "ADT_A05").is_none());
+    }
+
+    #[test]
+    fn malformed_or_recursive_schema_declarations_degrade_without_looping() {
+        let root = parse(
+            r#"<schema>
+                <element name="A" type="A.CONTENT"/>
+                <element name="missing-type"/>
+                <complexType/>
+                <complexType name="A.CONTENT"><simpleContent><extension base="B"/></simpleContent></complexType>
+                <complexType name="B"><simpleContent><extension base="A.CONTENT"/></simpleContent></complexType>
+            </schema>"#,
+        )
+        .unwrap();
+        let mut types = Types::default();
+        types.absorb(&root);
+        assert_eq!(types.data_type("A"), "A.CONTENT");
+
+        let segments_root = parse(
+            r#"<schema>
+                <complexType/>
+                <complexType name="X.1.CONTENT"><sequence><element ref="X.1"/></sequence></complexType>
+                <complexType name="ZED.CONTENT"><sequence>
+                    <element ref="not-a-position"/>
+                    <element ref="ZED.3"/>
+                </sequence></complexType>
+            </schema>"#,
+        )
+        .unwrap();
+        let segments = segments(&segments_root, &types);
+        assert_eq!(segments["ZED"].len(), 3);
+
+        let contents = BTreeMap::new();
+        assert_eq!(
+            items_of("missing", &contents, "X", &mut Vec::new()).len(),
+            0
+        );
     }
 }

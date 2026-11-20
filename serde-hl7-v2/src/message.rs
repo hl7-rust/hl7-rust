@@ -381,6 +381,11 @@ mod tests {
         let err = serde_json::from_str::<Message>(r#"{"er7":"MSH|^~\\&|A","er7":"MSH|^~\\&|B"}"#)
             .unwrap_err();
         assert!(err.to_string().contains("duplicate"), "{err}");
+        let err = serde_json::from_str::<Message>(
+            r#"{"version":"2.5","version":"2.4","er7":"MSH|^~\\&|A"}"#,
+        )
+        .unwrap_err();
+        assert!(err.to_string().contains("duplicate"), "{err}");
     }
 
     #[test]
@@ -470,5 +475,17 @@ mod tests {
         let message = Message::parse(ADT).unwrap();
         assert_eq!(message.get("PID-5.1").unwrap().as_deref(), Some("SMITH"));
         assert_eq!(message.to_string(), ADT);
+    }
+
+    #[test]
+    fn conversions_mutation_and_shape_expectation_are_public() {
+        let inner = hl7_2::parse(ADT).unwrap();
+        let mut outer = Message::from(inner);
+        outer.set("PID-5.2", "JANE").unwrap();
+        let inner: hl7_2::Message = outer.into();
+        assert_eq!(inner.get("PID-5.2").unwrap().as_deref(), Some("JANE"));
+
+        let error = serde_json::from_str::<Message>("[]").unwrap_err();
+        assert!(error.to_string().contains("Message object"), "{error}");
     }
 }

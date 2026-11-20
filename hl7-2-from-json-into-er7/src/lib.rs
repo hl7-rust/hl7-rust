@@ -135,6 +135,15 @@ mod tests {
     #[test]
     fn maps_json_errors_onto_this_crates_type() {
         assert!(matches!(convert("not json"), Err(Hl7Error::Json(_))));
+        let parser_error = json::parse_document("not json").unwrap_err();
+        for (error, fragment) in [
+            (Hl7Error::from(parser_error), "malformed JSON"),
+            (Hl7Error::Empty, "no HL7 segments"),
+            (Hl7Error::MissingMsh, "does not start"),
+            (Hl7Error::BadMshHeader("bad".into()), "bad"),
+        ] {
+            assert!(error.to_string().contains(fragment), "{error}");
+        }
     }
 
     #[test]

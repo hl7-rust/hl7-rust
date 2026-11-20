@@ -320,16 +320,14 @@ mod tests {
 
     #[test]
     fn the_feature_chooses_the_default_and_nothing_else() {
-        // Whichever way this build is compiled, the default is one of the
-        // two tolerances, and both remain reachable by name.
+        // Whichever way this build is compiled, the default matches the
+        // feature-selected value, and both remain reachable by name.
         let missing_carriage_return = b"\x0bMSH|\x1c";
-        if cfg!(feature = "noncompliance") {
-            assert_eq!(Tolerance::default(), Tolerance::Lenient);
-            assert_eq!(decode(missing_carriage_return).unwrap(), b"MSH|");
-        } else {
-            assert_eq!(Tolerance::default(), Tolerance::Strict);
-            assert_eq!(decode(missing_carriage_return), Err(Error::Incomplete));
-        }
+        assert_eq!(Tolerance::default(), Tolerance::default_tolerance());
+        #[cfg(feature = "noncompliance")]
+        assert_eq!(decode(missing_carriage_return).unwrap(), b"MSH|");
+        #[cfg(not(feature = "noncompliance"))]
+        assert_eq!(decode(missing_carriage_return), Err(Error::Incomplete));
         assert_eq!(
             decode_with(missing_carriage_return, Tolerance::strict()),
             Err(Error::Incomplete)
@@ -352,6 +350,10 @@ mod tests {
         let lenient = Tolerance::lenient();
         assert_eq!(decode_with(b"\x0bMSH|\x1c", lenient).unwrap(), b"MSH|");
         assert_eq!(decode_with(b"\x0bMSH|\x1c\r", lenient).unwrap(), b"MSH|");
+        assert_eq!(
+            decode_with(b"\x0bMSH|\x1cextra", lenient),
+            Err(Error::TrailingBytes(5))
+        );
         // Still not a frame, however tolerant we are being.
         assert_eq!(decode_with(b"MSH|\x1c", lenient), Err(Error::NoStartBlock));
         assert_eq!(
@@ -365,5 +367,25 @@ mod tests {
         let error = std::io::Error::from(Error::NoStartBlock);
         assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
         assert!(error.to_string().contains("start block"));
+    }
+
+    #[test]
+    fn every_framing_error_has_a_useful_display() {
+        for (error, fragment) in [
+            (Error::NoCarriageReturn, "carriage return"),
+            (Error::Incomplete, "incomplete"),
+            (Error::TrailingBytes(2), "2 byte(s)"),
+            (Error::EmbeddedStartBlock, "ambiguous"),
+            (Error::LeadingBytes(3), "3 byte(s)"),
+            (
+                Error::TooLarge {
+                    buffered: 9,
+                    limit: 8,
+                },
+                "9 bytes",
+            ),
+        ] {
+            assert!(error.to_string().contains(fragment), "{error}");
+        }
     }
 }

@@ -476,4 +476,60 @@ mod tests {
         let root = parse_document(r#"{"X": {"PID": {"PID.1": "1"}}}"#).unwrap();
         assert!(matches!(reconstruct(&root), Err(Hl7Error::MissingMsh)));
     }
+
+    #[test]
+    fn malformed_shapes_degrade_or_report_the_document_boundary() {
+        for document in [
+            Value::Null,
+            Value::Object(vec![("X".into(), Value::Null)]),
+            Value::Object(vec![(
+                "X".into(),
+                Value::Object(vec![("X.GROUP".into(), Value::String("skip".into()))]),
+            )]),
+        ] {
+            assert!(matches!(reconstruct(&document), Err(Hl7Error::Empty)));
+        }
+
+        for json in [
+            r#"{"X":{"MSH":{}}}"#,
+            r#"{"X":{"MSH":"not an object"}}"#,
+            r#"{"X":{"MSH":{"MSH.1":false}}}"#,
+        ] {
+            let document = parse_document(json).unwrap();
+            assert!(matches!(
+                reconstruct(&document),
+                Err(Hl7Error::BadMshHeader(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn fallback_shapes_cover_every_infallible_leaf_route() {
+        let minimal = reconstruct_er7(r#"{"X":{"MSH":{"MSH.1":"|"}}}"#);
+        assert_eq!(minimal, "MSH|");
+
+        let scalar_segment =
+            reconstruct_er7(r#"{"X":{"MSH":{"MSH.1":"|","MSH.2":"^~\\&"},"PID":false}}"#);
+        assert!(scalar_segment.ends_with("\rPID"), "got {scalar_segment:?}");
+
+        let json = r#"{"X":{
+            "MSH":{"MSH.1":"|","MSH.2":"^~\\&"},
+            "PID":{
+                "PID.1":true,
+                "PID.2":false,
+                "PID.5":{
+                    "XPN.1":null,
+                    "XPN.2":{"FN.2":"x"},
+                    "XPN.3":[],
+                    "XPN.4":{"X.1":{}}
+                }
+            }
+        }}"#;
+        let message = reconstruct(&parse_document(json).unwrap()).unwrap();
+        assert_eq!(message.query("PID-1").unwrap().as_deref(), Some("1"));
+        assert_eq!(message.query("PID-2").unwrap().as_deref(), Some("0"));
+        assert_eq!(message.query("PID-5.2").unwrap().as_deref(), Some("&x"));
+        assert_eq!(message.query("PID-5.3").unwrap().as_deref(), Some(""));
+        assert_eq!(message.query("PID-5.4.1").unwrap().as_deref(), Some(""));
+    }
 }

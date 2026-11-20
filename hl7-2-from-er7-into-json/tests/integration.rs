@@ -38,12 +38,51 @@ fn cli_contract_covers_success_and_argument_errors() {
         &["--unknown"][..],
         &["--output"][..],
         &["first", "second"][..],
+        &["first", "-"][..],
     ] {
         let output = run_cli(args, "");
         assert!(!output.status.success());
         assert!(String::from_utf8(output.stderr).unwrap().contains("error:"));
     }
     assert!(!run_cli(&[], "not a message").status.success());
+    assert!(!run_cli(&[], "").status.success());
+
+    let directory =
+        std::env::temp_dir().join(format!("hl7-er7-json-cli-errors-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    assert!(
+        !run_cli(&["--output", directory.to_str().unwrap()], message)
+            .status
+            .success()
+    );
+    let output = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-er7-into-json"))
+        .stdin(Stdio::from(std::fs::File::open(&directory).unwrap()))
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(
+        !Command::new(env!("CARGO_BIN_EXE_hl7-2-from-er7-into-json"))
+            .arg(directory.join("missing.hl7"))
+            .output()
+            .unwrap()
+            .status
+            .success()
+    );
+
+    let mut child = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-er7-into-json"))
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    drop(child.stdout.take());
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(message.as_bytes())
+        .unwrap();
+    assert!(!child.wait().unwrap().success());
+    std::fs::remove_dir_all(directory).unwrap();
 }
 
 #[test]

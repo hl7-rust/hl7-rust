@@ -190,7 +190,8 @@ fn cli_converts_the_same_sample_from_a_file_and_stdin() {
 
 #[test]
 fn cli_options_output_and_usage_errors_are_covered() {
-    use std::process::Command;
+    use std::io::Write;
+    use std::process::{Command, Stdio};
 
     let binary = env!("CARGO_BIN_EXE_hl7-2-from-xml-into-er7");
     for flag in ["--help", "--version"] {
@@ -250,5 +251,55 @@ fn cli_options_output_and_usage_errors_are_covered() {
             .status
             .success()
     );
+    assert!(
+        Command::new(binary)
+            .arg("--terminator")
+            .arg("cr")
+            .arg("samples/misc.xml")
+            .output()
+            .unwrap()
+            .status
+            .success()
+    );
+    assert!(
+        !Command::new(binary)
+            .arg("samples/misc.xml")
+            .arg("--output")
+            .arg(&directory)
+            .output()
+            .unwrap()
+            .status
+            .success()
+    );
+    let result = Command::new(binary)
+        .stdin(Stdio::from(std::fs::File::open(&directory).unwrap()))
+        .output()
+        .unwrap();
+    assert!(!result.status.success());
+
+    let mut invalid = Command::new(binary)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::null())
+        .spawn()
+        .unwrap();
+    invalid.stdin.take().unwrap().write_all(b"not xml").unwrap();
+    assert!(!invalid.wait().unwrap().success());
+
+    let large_input = directory.join("large.xml");
+    std::fs::write(
+        &large_input,
+        format!(
+            r#"<X><MSH><MSH.1>|</MSH.1><MSH.2>^~\&amp;</MSH.2></MSH><NTE><NTE.3>{}</NTE.3></NTE></X>"#,
+            "x".repeat(128 * 1024)
+        ),
+    )
+    .unwrap();
+    let mut closed = Command::new(binary)
+        .arg(&large_input)
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    drop(closed.stdout.take());
+    assert!(!closed.wait().unwrap().success());
     std::fs::remove_dir_all(directory).unwrap();
 }

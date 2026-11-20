@@ -345,20 +345,21 @@ fn check_segment(
                                 found,
                             ),
                             Some(subtypes) => {
-                                for (index, subcomponent) in
-                                    component.subcomponents.iter().enumerate()
+                                for (index, subcomponent, subtype) in component
+                                    .subcomponents
+                                    .iter()
+                                    .enumerate()
+                                    .filter(|(_, value)| !value.is_empty() && !value.is_null())
+                                    .filter_map(|(index, value)| {
+                                        subtypes.get(index).map(|subtype| (index, value, subtype))
+                                    })
                                 {
-                                    if subcomponent.is_empty() || subcomponent.is_null() {
-                                        continue;
-                                    }
-                                    if let Some(subtype) = subtypes.get(index) {
-                                        check_value(
-                                            subtype,
-                                            &subcomponent.value(separators),
-                                            &format!("{path}.{}", index + 1),
-                                            found,
-                                        );
-                                    }
+                                    check_value(
+                                        subtype,
+                                        &subcomponent.value(separators),
+                                        &format!("{path}.{}", index + 1),
+                                        found,
+                                    );
                                 }
                             }
                         }
@@ -631,5 +632,16 @@ mod tests {
         assert_eq!(found.len(), 4);
         assert_eq!(split_offset("0930+0100"), ("0930", true));
         assert_eq!(split_offset("0930-ABCD"), ("0930", false));
+    }
+
+    #[test]
+    fn empty_and_null_nested_values_are_skipped() {
+        let text = concat!(
+            "MSH|^~\\&|A||||20240101||ADT^A01|1|P|2.5\r",
+            "PID|1||~\"\"~123||^SMITH&\"\"&JOHN"
+        );
+        let found = diagnostics(text);
+        assert!(!found.iter().any(|item| item.path.contains("PID-3[1]")));
+        assert!(!found.iter().any(|item| item.path.contains("PID-3[2]")));
     }
 }

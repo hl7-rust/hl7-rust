@@ -124,8 +124,10 @@ mod tests {
 
     #[test]
     fn deref_and_display_reach_the_inner_value() {
-        let version = Version(hl7_2::Version::V2_3_1);
+        let version = Version::from(hl7_2::Version::V2_3_1);
         assert_eq!(version.as_str(), "2.3.1");
         assert_eq!(version.to_string(), "2.3.1");
+        let inner: hl7_2::Version = version.into();
+        assert_eq!(inner, hl7_2::Version::V2_3_1);
     }
 }

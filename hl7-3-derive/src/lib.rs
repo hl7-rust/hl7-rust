@@ -86,10 +86,9 @@ use syn::{Data, DeriveInput, Field, Fields, LitStr, Path, Token, parse_macro_inp
 #[proc_macro_derive(FromElement, attributes(element))]
 pub fn derive_from_element(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
-    match from_element(&input) {
-        Ok(tokens) => tokens.into(),
-        Err(error) => error.to_compile_error().into(),
-    }
+    from_element(&input)
+        .unwrap_or_else(syn::Error::into_compile_error)
+        .into()
 }
 
 /// What one field's `#[element(...)]` attribute asked for.
@@ -262,7 +261,7 @@ mod tests {
 
     #[test]
     fn defaults_to_the_absolute_crate_name() {
-        assert_eq!(resolved(""), "::hl7_3");
+        assert_eq!(resolved("#[allow(dead_code)]"), "::hl7_3");
     }
 
     #[test]
@@ -286,9 +285,9 @@ mod tests {
     fn a_struct_attribute_that_is_not_crate_says_so() {
         let input: DeriveInput = syn::parse_str("#[element(\"classCode\")] struct S { f: u32 }")
             .expect("test input parses");
-        let Err(error) = crate_path(&input) else {
-            panic!("a name literal is not a struct option");
-        };
+        let error = crate_path(&input)
+            .err()
+            .expect("attribute must be rejected");
         assert!(error.to_string().contains("belong on fields"), "{error}");
     }
 
@@ -299,7 +298,7 @@ mod tests {
             assert!(named_fields(&input).is_err(), "accepted {source}");
         }
         for source in [
-            r#"struct S { #[element(raw)] #[element("name")] f: u32 }"#,
+            r#"struct S { #[allow(dead_code)] #[element(raw)] #[element("name")] f: u32 }"#,
             r"struct S { #[element(other)] f: u32 }",
         ] {
             let input: DeriveInput = syn::parse_str(source).unwrap();

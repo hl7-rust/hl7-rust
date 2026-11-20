@@ -1,0 +1,51 @@
+#!/bin/sh
+set -eu
+
+# cargo-llvm-cov's summary can count one source line more than once when Rust
+# compiles it into several test or generic compilation units.  The workspace
+# specification instead defines coverage over distinct shipped source lines,
+# so merge LCOV records by source path and line number before enforcing 100%.
+coverage_target=target/llvm-cov-target
+report=$coverage_target/workspace.lcov
+
+unset RUSTC_WRAPPER
+unset CARGO_TARGET_AARCH64_APPLE_DARWIN_RUNNER
+cargo clean --target-dir "$coverage_target"
+cargo llvm-cov --workspace --all-features --lcov --output-path "$report" \
+  --ignore-filename-regex '/(tests|benches|examples)/'
+
+awk '
+  /^SF:/ {
+    source = substr($0, 4)
+    include = source !~ /\/(tests|benches|examples)\//
+    next
+  }
+  /^DA:/ && include {
+    split(substr($0, 4), fields, ",")
+    key = source SUBSEP fields[1]
+    count = fields[2] + 0
+    if (!(key in seen)) {
+      seen[key] = 1
+      total++
+    }
+    if (count > hits[key]) {
+      hits[key] = count
+    }
+  }
+  END {
+    for (key in seen) {
+      if (hits[key] > 0) {
+        covered++
+      }
+    }
+    if (total == 0) {
+      print "coverage report contained no source lines" > "/dev/stderr"
+      exit 1
+    }
+    printf "workspace source line coverage: %d/%d (%.2f%%)\n", \
+      covered, total, 100 * covered / total
+    if (covered != total) {
+      exit 1
+    }
+  }
+' "$report"

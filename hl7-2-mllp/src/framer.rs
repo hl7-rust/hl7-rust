@@ -37,11 +37,10 @@ impl Tolerance {
     /// "everything on this deployment talks to that one sender".
     #[must_use]
     pub fn default_tolerance() -> Tolerance {
-        if cfg!(feature = "noncompliance") {
-            Tolerance::Lenient
-        } else {
-            Tolerance::Strict
-        }
+        #[cfg(feature = "noncompliance")]
+        return Tolerance::Lenient;
+        #[cfg(not(feature = "noncompliance"))]
+        return Tolerance::Strict;
     }
 
     /// The strict reading, whatever the features say.
@@ -331,12 +330,28 @@ mod tests {
         assert_eq!(framer.next_frame(), Err(Error::LeadingBytes(7)));
 
         let mut framer = strict();
+        framer.push(b"garbage");
+        assert_eq!(framer.next_frame(), Err(Error::LeadingBytes(7)));
+
+        let mut framer = strict();
         framer.push(b"\x0bMSH|\x1cX");
         assert_eq!(framer.next_frame(), Err(Error::NoCarriageReturn));
 
         let mut framer = Framer::new().with_tolerance(Tolerance::Lenient);
         framer.push(b"garbage\x0bMSH|\x1cX");
         assert_eq!(framer.next_frame().unwrap().unwrap(), b"MSH|");
+
+        let mut framer = Framer::new().with_tolerance(Tolerance::Lenient);
+        framer.push(b"garbage");
+        assert_eq!(framer.next_frame().unwrap(), None);
+        assert!(framer.is_empty());
+    }
+
+    #[test]
+    fn configuration_accessors_report_the_selected_values() {
+        let framer = Framer::default().with_tolerance(Tolerance::Lenient);
+        assert_eq!(framer.tolerance(), Tolerance::Lenient);
+        assert_eq!(Tolerance::default(), Tolerance::default_tolerance());
     }
 
     #[test]

@@ -220,6 +220,9 @@ mod tests {
             serde_json::from_str::<Diagnostic>(r#"{"severity":"Error","kind":"Header","path":""}"#)
                 .unwrap_err();
         assert!(err.to_string().contains("detail"), "{err}");
+        let err = serde_json::from_str::<Diagnostic>(r#"{"kind":"Header","path":"","detail":""}"#)
+            .unwrap_err();
+        assert!(err.to_string().contains("severity"), "{err}");
     }
 
     #[test]
@@ -229,6 +232,14 @@ mod tests {
         )
         .unwrap_err();
         assert!(err.to_string().contains("duplicate"), "{err}");
+        for duplicate in [
+            r#"{"severity":"Error","kind":"Header","kind":"ValueFormat","path":"","detail":""}"#,
+            r#"{"severity":"Error","kind":"Header","path":"a","path":"b","detail":""}"#,
+            r#"{"severity":"Error","kind":"Header","path":"","detail":"a","detail":"b"}"#,
+        ] {
+            let err = serde_json::from_str::<Diagnostic>(duplicate).unwrap_err();
+            assert!(err.to_string().contains("duplicate"), "{err}");
+        }
     }
 
     #[test]
@@ -259,5 +270,7 @@ mod tests {
         let diagnostic = sample();
         assert_eq!(diagnostic.path, "OBX[1]-5[1]");
         assert_eq!(diagnostic.to_string(), diagnostic.0.to_string());
+        let error = serde_json::from_str::<Diagnostic>("[]").unwrap_err();
+        assert!(error.to_string().contains("Diagnostic object"), "{error}");
     }
 }

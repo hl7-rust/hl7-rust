@@ -122,3 +122,16 @@ impl From<hl7_2_xml_lite_helper::Error> for Error {
         Error::Xml(error)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn xml_errors_keep_the_parser_detail() {
+        let parser_error = xml::parse("<").unwrap_err();
+        let error = Error::from(parser_error);
+        assert!(matches!(error, Error::Xml(_)));
+        assert!(error.to_string().contains("not well-formed XML"), "{error}");
+    }
+}

@@ -38,18 +38,60 @@ fn cli_contract_covers_success_and_argument_errors() {
         assert!(run_cli(&[flag], "").status.success());
     }
     assert!(run_cli(&["--terminator", "lf"], json).status.success());
+    assert!(run_cli(&["--terminator", "cr"], json).status.success());
     for args in [
         &["--unknown"][..],
         &["--output"][..],
         &["--terminator"][..],
         &["--terminator", "other"][..],
         &["first", "second"][..],
+        &["first", "-"][..],
     ] {
         let output = run_cli(args, "");
         assert!(!output.status.success());
         assert!(String::from_utf8(output.stderr).unwrap().contains("error:"));
     }
     assert!(!run_cli(&[], "not json").status.success());
+
+    let directory =
+        std::env::temp_dir().join(format!("hl7-json-er7-cli-errors-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    assert!(
+        !run_cli(&["--output", directory.to_str().unwrap()], json)
+            .status
+            .success()
+    );
+    let output = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-json-into-er7"))
+        .stdin(Stdio::from(std::fs::File::open(&directory).unwrap()))
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(
+        !Command::new(env!("CARGO_BIN_EXE_hl7-2-from-json-into-er7"))
+            .arg(directory.join("missing.json"))
+            .output()
+            .unwrap()
+            .status
+            .success()
+    );
+
+    let large_input = directory.join("large.json");
+    std::fs::write(
+        &large_input,
+        format!(
+            r#"{{"X":{{"MSH":{{"MSH.1":"|","MSH.2":"^~\\&"}},"OBX":{{"OBX.5":"{}"}}}}}}"#,
+            "x".repeat(128 * 1024)
+        ),
+    )
+    .unwrap();
+    let mut child = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-json-into-er7"))
+        .arg(&large_input)
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    drop(child.stdout.take());
+    assert!(!child.wait().unwrap().success());
+    std::fs::remove_dir_all(directory).unwrap();
 }
 
 #[test]

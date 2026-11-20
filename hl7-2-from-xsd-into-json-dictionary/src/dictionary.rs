@@ -282,10 +282,13 @@ mod tests {
     fn escapes_what_json_requires() {
         assert_eq!(quote("a\"b\\c"), "\"a\\\"b\\\\c\"");
         assert_eq!(quote("a\u{1}b"), "\"a\\u0001b\"");
+        assert_eq!(quote("a\nb\rc\td"), "\"a\\nb\\rc\\td\"");
     }
 
     #[test]
     fn an_empty_document_is_still_valid_json() {
         assert_eq!(Document::default().to_json(), "{\n\n}\n");
+        assert_eq!(object(1, std::iter::empty()), "{}");
+        assert_eq!(array(1, &[]), "[]");
     }
 }

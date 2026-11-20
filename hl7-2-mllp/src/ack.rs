@@ -291,9 +291,22 @@ mod tests {
             acknowledge(&[0xff, 0xfe], AckCode::Accept, "1", "2"),
             Err(Error::NotText)
         );
-        match acknowledge(b"not hl7", AckCode::Accept, "1", "2") {
-            Err(Error::NotHl7(_)) => {}
-            other => panic!("expected a parse failure, got {other:?}"),
+        assert!(matches!(
+            acknowledge(b"not hl7", AckCode::Accept, "1", "2"),
+            Err(Error::NotHl7(_))
+        ));
+    }
+
+    #[test]
+    fn acknowledgement_errors_preserve_their_cause_in_display() {
+        let parse_error = v2::parse("not hl7").unwrap_err();
+        for (error, fragment) in [
+            (Error::NotText, "UTF-8"),
+            (Error::NotHl7(parse_error.clone()), "not an HL7 message"),
+            (Error::Build(parse_error), "could not build"),
+            (Error::from(FrameError::Incomplete), "incomplete"),
+        ] {
+            assert!(error.to_string().contains(fragment), "{error}");
         }
     }
 

@@ -169,9 +169,7 @@ impl Version {
                     Dictionary::from_json_resolving(text, format!("v{name}"), |base| {
                         Version::parse(base).map(Version::dictionary)
                     })
-                    .unwrap_or_else(|error| {
-                        panic!("bundled dictionary v{name} is invalid: {error}")
-                    });
+                    .expect("bundled dictionary must be valid");
                 Arc::new(dictionary)
             })
             .clone()

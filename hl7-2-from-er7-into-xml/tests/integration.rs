@@ -40,17 +40,66 @@ fn cli_contract_covers_success_and_argument_errors() {
         &["--output"][..],
         &["--dictionary"][..],
         &["first", "second"][..],
+        &["first", "-"][..],
     ] {
         let output = run_cli(args, "");
         assert!(!output.status.success());
         assert!(String::from_utf8(output.stderr).unwrap().contains("error:"));
     }
     assert!(!run_cli(&[], "not a message").status.success());
+    assert!(!run_cli(&[], "").status.success());
     assert!(
         !run_cli(&["--dictionary", "missing.json"], message)
             .status
             .success()
     );
+
+    let directory =
+        std::env::temp_dir().join(format!("hl7-er7-xml-cli-errors-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    let invalid_dictionary = directory.join("invalid.json");
+    std::fs::write(&invalid_dictionary, "{").unwrap();
+    assert!(
+        !run_cli(
+            &["--dictionary", invalid_dictionary.to_str().unwrap()],
+            message
+        )
+        .status
+        .success()
+    );
+    assert!(
+        !run_cli(&["--output", directory.to_str().unwrap()], message)
+            .status
+            .success()
+    );
+    let output = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-er7-into-xml"))
+        .stdin(Stdio::from(std::fs::File::open(&directory).unwrap()))
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(
+        !Command::new(env!("CARGO_BIN_EXE_hl7-2-from-er7-into-xml"))
+            .arg(&directory)
+            .output()
+            .unwrap()
+            .status
+            .success()
+    );
+
+    let mut child = Command::new(env!("CARGO_BIN_EXE_hl7-2-from-er7-into-xml"))
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    drop(child.stdout.take());
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(message.as_bytes())
+        .unwrap();
+    assert!(!child.wait().unwrap().success());
+    std::fs::remove_dir_all(directory).unwrap();
 }
 
 #[test]
@@ -246,6 +295,17 @@ fn repetitions_become_sibling_elements() {
     assert_eq!(xml.matches("<PID.3>").count(), 2);
     assert!(xml.contains("<CX.1>111</CX.1>"));
     assert!(xml.contains("<CX.1>222</CX.1>"));
+}
+
+/// Blank repetitions are absent outside schema-shape mode rather than
+/// becoming empty sibling elements.
+#[test]
+fn blank_repetitions_are_skipped() {
+    let er7 = "MSH|^~\\&|APP||||20260814||XXX^X01|1|P|2.5\rPID|1||111~~222";
+    let xml = convert(er7).unwrap();
+    assert_eq!(xml.matches("<PID.3>").count(), 2, "{xml}");
+    assert!(xml.contains("<CX.1>111</CX.1>"), "{xml}");
+    assert!(xml.contains("<CX.1>222</CX.1>"), "{xml}");
 }
 
 /// Subcomponents of a composite component use its own type's names,

@@ -348,6 +348,23 @@ mod tests {
         raw: Raw,
     }
 
+    #[derive(Debug)]
+    struct Empty;
+
+    impl FromHl7Text for Empty {
+        fn from_hl7_text(_text: &str, _path: &str) -> Result<Empty, Error> {
+            Ok(Empty)
+        }
+    }
+
+    impl ToHl7Text for Empty {
+        fn to_hl7_text(&self) -> Option<String> {
+            None
+        }
+    }
+
+    scalars!(Empty);
+
     // The shape `#[derive(FromHl7)]` generates, written out so the trait is
     // tested without the derive feature.
     impl FromHl7 for Patient {
@@ -371,6 +388,10 @@ mod tests {
         assert_eq!(patient.middle, None);
         // And the escape hatch still reaches what the struct does not model.
         assert_eq!(patient.raw.get("PID-8").unwrap().as_deref(), Some("M"));
+        assert_eq!(patient.raw.message().version(), crate::Version::V2_5);
+        assert_eq!(patient.raw.get_all("PID-3.1").unwrap(), ["241900", "99"]);
+        assert!(patient.raw.tree().find("PID.5").is_some());
+        assert_eq!(patient.raw.to_er7(), TEXT);
     }
 
     #[test]
@@ -396,6 +417,7 @@ mod tests {
 
     #[test]
     fn writes_scalars_options_and_repetitions_back() {
+        assert!(Empty::from_hl7_text("", "PID-1").is_ok());
         let mut message = crate::parse("MSH|^~\\&|A||||1||ADT^A01|1|P|2.5\rPID|1").unwrap();
         "SMITH"
             .to_string()
@@ -407,6 +429,8 @@ mod tests {
         vec!["A".to_string(), "B".to_string()]
             .to_hl7_value(&mut message, "PID-3.1")
             .unwrap();
+        assert_eq!("literal".to_hl7_text().as_deref(), Some("literal"));
+        Empty.to_hl7_value(&mut message, "PID-2").unwrap();
         assert_eq!(message.get("PID-5.1").unwrap().as_deref(), Some("SMITH"));
         assert_eq!(message.get("PID-1").unwrap().as_deref(), Some("7"));
         assert_eq!(message.get("PID-30").unwrap().as_deref(), Some("Y"));
@@ -416,6 +440,7 @@ mod tests {
     #[test]
     fn rewrites_a_path_to_address_one_repetition() {
         assert_eq!(with_repetition("PID-3.1", 2).unwrap(), "PID-3[2].1");
+        assert_eq!(with_repetition("PID-3.1.2", 2).unwrap(), "PID-3[2].1.2");
         assert_eq!(with_repetition("OBX[2]-5", 1).unwrap(), "OBX[2]-5[1]");
         assert!(with_repetition("PID", 1).is_err());
     }

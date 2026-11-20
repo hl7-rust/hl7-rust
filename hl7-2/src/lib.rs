@@ -350,13 +350,14 @@ mod tests {
         let text = "MSH|^~\\&|A||||20240101||ACK^A01|1|P|2.5"; // no MSA
         assert!(parse(text).is_ok(), "lenient by default");
         let strict = Options::new().strict();
-        match parse_with_options(text, &strict) {
-            Err(Error::Invalid(diagnostics)) => {
-                assert_eq!(diagnostics.len(), 1);
-                assert_eq!(diagnostics[0].kind, validate::Kind::SegmentMissing);
-            }
-            other => panic!("expected a validation failure, got {other:?}"),
-        }
+        let error = parse_with_options(text, &strict).unwrap_err();
+        assert!(
+            matches!(&error, Error::Invalid(diagnostics)
+            if diagnostics.len() == 1
+                && diagnostics[0].kind == validate::Kind::SegmentMissing),
+            "{error:?}"
+        );
+        assert!(error.to_string().contains("failed validation"), "{error}");
         // Warnings alone do not fail: an unknown structure is this crate's
         // gap, not the sender's error.
         let text = "MSH|^~\\&|A||||20240101||ZZZ^Z01|1|P|2.5";
@@ -371,6 +372,50 @@ mod tests {
         assert_eq!(message.version(), Version::V2_3);
         // v2.3's ERR has one field where v2.5's has twelve.
         assert_eq!(message.dictionary().segment_fields("ERR").unwrap().len(), 1);
+    }
+
+    #[test]
+    fn every_public_error_preserves_its_context_in_display() {
+        let dictionary_error = Dictionary::from_json("{", "broken").unwrap_err();
+        for (error, fragment) in [
+            (Error::Empty, "no HL7 segments"),
+            (Error::MissingMsh, "does not start"),
+            (
+                Error::BadMshHeader("bad separators".into()),
+                "bad separators",
+            ),
+            (Error::Path("bad path".into()), "bad path"),
+            (
+                Error::NoSuchSegment {
+                    name: "PID".into(),
+                    occurrence: 2,
+                },
+                "occurrence 2",
+            ),
+            (Error::UnwritablePath("MSH".into()), "cannot write"),
+            (
+                Error::MissingField {
+                    path: "PID-3".into(),
+                },
+                "PID-3",
+            ),
+            (
+                Error::BadValue {
+                    path: "PID-1".into(),
+                    expected: "u32".into(),
+                    found: "x".into(),
+                },
+                "expected u32",
+            ),
+            (Error::from(dictionary_error), "invalid dictionary"),
+        ] {
+            assert!(error.to_string().contains(fragment), "{error}");
+        }
+
+        assert!(matches!(
+            Error::from(er7::Error::BadPath("bad".into())),
+            Error::Path(detail) if detail == "bad"
+        ));
     }
 
     #[test]

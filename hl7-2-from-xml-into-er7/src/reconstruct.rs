@@ -456,4 +456,25 @@ mod tests {
         let root = parse("<X><PID><PID.1>1</PID.1></PID></X>").unwrap();
         assert!(matches!(reconstruct(&root), Err(Hl7Error::MissingMsh)));
     }
+
+    #[test]
+    fn malformed_or_short_headers_report_or_use_er7_defaults() {
+        let missing_separator = parse("<X><MSH><MSH.2>^~\\&amp;</MSH.2></MSH></X>").unwrap();
+        assert!(matches!(
+            reconstruct(&missing_separator),
+            Err(Hl7Error::BadMshHeader(detail)) if detail.contains("MSH.1")
+        ));
+
+        let short = parse("<X><MSH><MSH.1>|</MSH.1></MSH></X>").unwrap();
+        let message = reconstruct(&short).unwrap();
+        assert_eq!(message.segments[0].fields.len(), 2);
+    }
+
+    #[test]
+    fn nesting_below_subcomponents_degrades_to_empty() {
+        let xml = r#"<X><MSH><MSH.1>|</MSH.1><MSH.2>^~\&amp;</MSH.2></MSH>
+            <ZED><ZED.1><ZED.1.1><ZED.1.1.1><TOO.DEEP>x</TOO.DEEP></ZED.1.1.1></ZED.1.1></ZED.1></ZED></X>"#;
+        let message = reconstruct(&parse(xml).unwrap()).unwrap();
+        assert_eq!(message.query("ZED-1.1.1").unwrap().as_deref(), Some(""));
+    }
 }

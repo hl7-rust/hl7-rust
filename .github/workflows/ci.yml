@@ -8,7 +8,7 @@
 #   cargo fmt --check                         # formatting
 #   cargo rustdoc --lib -- -W missing-docs    # every public item documented
 #   cargo +1.98 check --workspace --all-targets   # the MSRV floor
-#   cargo llvm-cov ... --fail-under-lines 95  # workspace line coverage
+#   ./bin/coverage                         # workspace source line coverage
 #
 # The MSRV toolchain below moves with the policy in
 # spec/rust-msrv-n-minus-2/index.md: current stable minus two releases,
@@ -116,7 +116,7 @@ jobs:
         run: cargo check --workspace --all-targets
 
   coverage:
-    name: workspace line coverage (95% minimum)
+    name: workspace line coverage (100% required)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -129,13 +129,8 @@ jobs:
           cache-targets: false
       - name: Install cargo-llvm-cov 0.9.1
         run: cargo install cargo-llvm-cov --version 0.9.1 --locked
-      - name: Clean instrumented target
-        run: cargo clean --target-dir target/llvm-cov-target
-      - name: Enforce at least 95% workspace line coverage
-        run: >-
-          cargo llvm-cov --workspace --all-features --summary-only
-          --ignore-filename-regex '/(tests|benches|examples)/'
-          --fail-under-lines 95
+      - name: Enforce 100% workspace line coverage
+        run: ./bin/coverage
 
   interoperability:
     name: interoperability (${{ matrix.os }}, Rust 1.100.0, default features)

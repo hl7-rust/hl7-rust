@@ -307,6 +307,10 @@ fn the_cli_prints_a_tree_by_default() {
     assert!(out.contains("      XPN.1 = EVERYWOMAN"), "{out}");
     assert!(out.contains("ORU_R01.ORDER_OBSERVATION"), "{out}");
 
+    let (status, explicit) = cli(&["--tree", "-"], ORU);
+    assert_eq!(status, 0);
+    assert_eq!(explicit, out);
+
     let (_, flat) = cli(&["--flat"], ORU);
     assert!(!flat.contains("ORDER_OBSERVATION"), "{flat}");
     assert!(flat.contains("XPN.1 = EVERYWOMAN"), "{flat}");
@@ -340,6 +344,9 @@ fn the_cli_reads_a_batch_and_a_dictionary() {
     let batch = std::fs::read_to_string("samples/batch.hl7").unwrap();
     let (status, out) = cli(&["-q", "MSH-10"], &batch);
     assert_eq!((status, out.as_str()), (0, "MSG00001\nMSG00002\n"));
+    let (status, trees) = cli(&[], &batch);
+    assert_eq!(status, 0);
+    assert!(trees.contains("\n\n"), "{trees}");
 
     let (status, out) = cli(
         &["-d", "samples/acme.json", "--flat", "-q", "ZAC-2.2"],
@@ -381,6 +388,12 @@ fn the_cli_exercises_remaining_options_and_file_io() {
     let input = directory.join("input.hl7");
     let output = directory.join("output.txt");
     std::fs::write(&input, ORU).unwrap();
+    let invalid_dictionary = directory.join("invalid.json");
+    std::fs::write(&invalid_dictionary, "not json").unwrap();
+    assert_eq!(
+        cli(&["--dictionary", invalid_dictionary.to_str().unwrap()], ORU).0,
+        1
+    );
     let result = std::process::Command::new(env!("CARGO_BIN_EXE_hl7-v2"))
         .arg(&input)
         .arg("--query")
@@ -391,6 +404,29 @@ fn the_cli_exercises_remaining_options_and_file_io() {
         .unwrap();
     assert!(result.status.success());
     assert_eq!(std::fs::read_to_string(&output).unwrap(), "MSG00042\n");
+
+    let directory_input = std::fs::File::open(&directory).unwrap();
+    let status = std::process::Command::new(env!("CARGO_BIN_EXE_hl7-v2"))
+        .stdin(std::process::Stdio::from(directory_input))
+        .status()
+        .unwrap();
+    assert!(!status.success());
+
+    let mut child = std::process::Command::new(env!("CARGO_BIN_EXE_hl7-v2"))
+        .arg("--er7")
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    drop(child.stdout.take());
+    let mut stdin = child.stdin.take().unwrap();
+    use std::io::Write as _;
+    for _ in 0..3000 {
+        stdin.write_all(ORU.as_bytes()).unwrap();
+        stdin.write_all(b"\r").unwrap();
+    }
+    drop(stdin);
+    assert!(!child.wait().unwrap().success());
     std::fs::remove_dir_all(directory).unwrap();
 }
 
@@ -411,6 +447,8 @@ fn the_cli_rejects_missing_or_invalid_option_values() {
         assert_eq!(cli(args, ORU).0, 1, "{args:?}");
     }
     assert_eq!(cli(&[], "not a message").0, 1);
+    assert_eq!(cli(&[], "").0, 1);
+    assert_eq!(cli(&["--set", "PID-0=x"], ORU).0, 1);
     assert_eq!(cli(&["--strict"], "MSH|^~\\&|A||||1||ACK^A01|1|P|2.5").0, 1);
 }
 
@@ -426,6 +464,14 @@ fn less_common_message_accessors_and_edges_are_covered() {
     assert_eq!(message.type_of("OBX").unwrap(), None);
     assert_eq!(message.type_of("ZZZ-1").unwrap(), None);
     assert_eq!(message.type_of("OBX[9]-5").unwrap(), None);
+    assert_eq!(message.type_of("OBX[2]-5").unwrap().as_deref(), Some("CE"));
+    assert_eq!(
+        message.repetitions("OBX[2]-5").unwrap(),
+        ["D^Rh positive^LN"]
+    );
+    message.clear("PID-5.9").unwrap();
+    message.clear("PID-5.1.9").unwrap();
+    message.clear("PID-5.9.1").unwrap();
     assert_eq!(message.to_string(), message.to_er7());
     assert_eq!(
         message.to_er7_with(hl7_2::er7::RenderOptions {
@@ -436,5 +482,6 @@ fn less_common_message_accessors_and_edges_are_covered() {
     );
     assert!(message.remove_segment("MSH", 1).is_none());
     assert!(message.remove_segment("OBX", 9).is_none());
+    assert_eq!(message.remove_segment("OBX", 2).unwrap().name, "OBX");
     assert!(message.into_raw().segment("MSH").is_some());
 }

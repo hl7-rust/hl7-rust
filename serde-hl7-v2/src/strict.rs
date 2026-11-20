@@ -108,8 +108,10 @@ mod tests {
 
     #[test]
     fn deref_reaches_the_inner_value() {
-        let strict = Strict(Message::parse("MSH|^~\\&|LAB").unwrap());
+        let mut strict = Strict(Message::parse("MSH|^~\\&|LAB").unwrap());
         assert_eq!(strict.to_er7(), "MSH|^~\\&|LAB");
+        strict.set("MSH-3", "APP").unwrap();
+        assert_eq!(strict.get("MSH-3").unwrap().as_deref(), Some("APP"));
     }
 
     #[test]
@@ -118,6 +120,17 @@ mod tests {
         let strict: Strict<Message> = message.clone().into();
         let back: Message = strict.into();
         assert_eq!(back.to_er7(), message.to_er7());
+
+        let diagnostic = Diagnostic(hl7_2::Diagnostic {
+            severity: hl7_2::Severity::Warning,
+            kind: hl7_2::validate::Kind::SegmentUnknown,
+            path: "ZZZ".into(),
+            detail: "unknown".into(),
+        });
+        let _: Diagnostic = Strict::from(diagnostic).into();
+
+        let node = Node(Message::parse("MSH|^~\\&|LAB").unwrap().tree());
+        let _: Node = Strict::from(node).into();
     }
 
     #[test]

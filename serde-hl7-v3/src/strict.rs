@@ -103,8 +103,10 @@ mod tests {
 
     #[test]
     fn deref_reaches_the_inner_value() {
-        let strict = Strict(ii());
+        let mut strict = Strict(ii());
         assert_eq!(strict.root, "1");
+        strict.root = "2".into();
+        assert_eq!(strict.root, "2");
     }
 
     #[test]

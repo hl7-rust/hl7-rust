@@ -294,10 +294,11 @@ impl Reader<'_> {
                     while matches!(self.peek(), Some(b) if b & 0xc0 == 0x80) {
                         self.pos += 1;
                     }
-                    match std::str::from_utf8(&self.bytes[start..self.pos]) {
-                        Ok(text) => out.push_str(text),
-                        Err(_) => return Err(self.error("invalid UTF-8 in string")),
-                    }
+                    // The input is a `str`, and the loop advances through one
+                    // complete UTF-8 scalar, so this slice is UTF-8 by construction.
+                    let text = std::str::from_utf8(&self.bytes[start..self.pos])
+                        .expect("a scalar sliced from a str remains UTF-8");
+                    out.push_str(text);
                 }
             }
         }
@@ -341,10 +342,9 @@ impl Reader<'_> {
         } else {
             high
         };
-        match char::from_u32(scalar) {
-            Some(c) => out.push(c),
-            None => return Err(self.error("escape is not a Unicode scalar value")),
-        }
+        // `hex4` is at most 0xffff, while the pair calculation is at most
+        // 0x10ffff; the surrogate ranges were rejected above.
+        out.push(char::from_u32(scalar).expect("validated JSON escape is a Unicode scalar"));
         Ok(())
     }
 
@@ -432,6 +432,7 @@ mod tests {
             Some("aé😀\n\"\\")
         );
         assert_eq!(parse("\"caf\u{e9}\"").unwrap().as_str(), Some("café"));
+        assert_eq!(parse(r#""\uABCD""#).unwrap().as_str(), Some("ꯍ"));
     }
 
     #[test]

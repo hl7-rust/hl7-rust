@@ -174,6 +174,24 @@ mod tests {
             evaluate(200, &body),
             Outcome::Rejected("Client.Validation: bad interaction".into())
         );
+        assert_eq!(
+            evaluate(200, "<Envelope><Body><Fault/></Body></Envelope>"),
+            Outcome::Rejected("SOAP fault".into())
+        );
+        assert_eq!(
+            evaluate(
+                200,
+                "<Envelope><Body><Fault><faultstring>reason</faultstring></Fault></Body></Envelope>",
+            ),
+            Outcome::Rejected("reason".into())
+        );
+        assert_eq!(
+            evaluate(
+                200,
+                "<Envelope><Body><Fault><faultcode>Code</faultcode></Fault></Body></Envelope>",
+            ),
+            Outcome::Rejected("Code".into())
+        );
     }
 
     #[test]

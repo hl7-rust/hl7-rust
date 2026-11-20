@@ -247,6 +247,8 @@ mod tests {
         assert!(err.to_string().contains("Fatal"), "{err}");
         let err = serde_json::from_str::<DiagnosticKind>(r#""Typo""#).unwrap_err();
         assert!(err.to_string().contains("Typo"), "{err}");
+        let err = serde_json::from_str::<NodeKind>("1").unwrap_err();
+        assert!(err.to_string().contains("Group"), "{err}");
     }
 
     #[test]

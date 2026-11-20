@@ -99,17 +99,16 @@ fn main() -> ExitCode {
     };
     let text = document.to_json();
 
-    match output {
+    let written = match output {
         Some(path) => {
-            if let Err(error) = std::fs::write(&path, text) {
-                return fail(&format!("writing {path}: {error}"));
-            }
+            std::fs::write(&path, text).map_err(|error| format!("writing {path}: {error}"))
         }
-        None => {
-            if let Err(error) = std::io::stdout().write_all(text.as_bytes()) {
-                return fail(&format!("writing stdout: {error}"));
-            }
-        }
+        None => std::io::stdout()
+            .write_all(text.as_bytes())
+            .map_err(|error| format!("writing stdout: {error}")),
+    };
+    if let Err(error) = written {
+        return fail(&error);
     }
     ExitCode::SUCCESS
 }

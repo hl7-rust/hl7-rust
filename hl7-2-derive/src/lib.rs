@@ -79,10 +79,9 @@ use syn::{Data, DeriveInput, Field, Fields, LitStr, Path, Token, parse_macro_inp
 #[proc_macro_derive(FromHl7, attributes(hl7))]
 pub fn derive_from_hl7(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
-    match from_hl7(&input) {
-        Ok(tokens) => tokens.into(),
-        Err(error) => error.to_compile_error().into(),
-    }
+    from_hl7(&input)
+        .unwrap_or_else(syn::Error::into_compile_error)
+        .into()
 }
 
 /// Derive `ToHl7`: write each annotated field back to its path.
@@ -93,10 +92,9 @@ pub fn derive_from_hl7(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(ToHl7, attributes(hl7))]
 pub fn derive_to_hl7(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
-    match to_hl7(&input) {
-        Ok(tokens) => tokens.into(),
-        Err(error) => error.to_compile_error().into(),
-    }
+    to_hl7(&input)
+        .unwrap_or_else(syn::Error::into_compile_error)
+        .into()
 }
 
 /// What one field's `#[hl7(...)]` attribute asked for.
@@ -281,7 +279,7 @@ mod tests {
 
     #[test]
     fn defaults_to_the_absolute_crate_name() {
-        assert_eq!(resolved(""), "::hl7_2");
+        assert_eq!(resolved("#[allow(dead_code)]"), "::hl7_2");
     }
 
     #[test]
@@ -306,9 +304,9 @@ mod tests {
     fn a_struct_attribute_that_is_not_crate_says_so() {
         let input: DeriveInput =
             syn::parse_str("#[hl7(\"PID-5\")] struct S { f: u32 }").expect("test input parses");
-        let Err(error) = crate_path(&input) else {
-            panic!("a path literal is not a struct option");
-        };
+        let error = crate_path(&input)
+            .err()
+            .expect("attribute must be rejected");
         assert!(error.to_string().contains("belong on fields"), "{error}");
     }
 

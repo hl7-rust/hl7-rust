@@ -162,4 +162,20 @@ mod tests {
         ));
         assert!(matches!(convert("<X></X>"), Err(Hl7Error::Empty)));
     }
+
+    #[test]
+    fn every_error_has_context_and_xml_conversion_is_preserved() {
+        let xml_error = xml::parse("<").unwrap_err();
+        for (error, fragment) in [
+            (Hl7Error::from(xml_error), "malformed XML"),
+            (Hl7Error::Empty, "no HL7 segments"),
+            (Hl7Error::MissingMsh, "does not start"),
+            (
+                Hl7Error::BadMshHeader("bad delimiters".into()),
+                "bad delimiters",
+            ),
+        ] {
+            assert!(error.to_string().contains(fragment), "{error}");
+        }
+    }
 }

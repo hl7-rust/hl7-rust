@@ -463,4 +463,72 @@ mod tests {
     fn escapes_text() {
         assert_eq!(escape_xml("a&b<c>d"), "a&amp;b&lt;c&gt;d");
     }
+
+    #[test]
+    fn degradation_trees_cover_empty_and_unexpected_shapes() {
+        let separators = Separators::default();
+        let dictionary = Dictionary::from_json(
+            r#"{
+                "types": {
+                    "PAIR": ["ST", "ST"],
+                    "LOOP": ["LOOP"]
+                }
+            }"#,
+            "test",
+        )
+        .unwrap();
+
+        assert!(Node::leaf("EMPTY", "").text.is_none());
+        assert!(
+            declared_empty("UNKNOWN", None, &dictionary, 0)
+                .kids
+                .is_empty()
+        );
+        assert!(
+            !declared_empty("LOOP", Some("LOOP"), &dictionary, 0)
+                .kids
+                .is_empty()
+        );
+
+        let unexpected = Component {
+            subcomponents: vec![
+                Subcomponent::new(""),
+                Subcomponent::new("middle"),
+                Subcomponent::new(""),
+            ],
+        };
+        let generic = component_node(
+            "PAIR.1",
+            Some("ST"),
+            &unexpected,
+            &separators,
+            &dictionary,
+            false,
+        );
+        assert_eq!(generic.kids.len(), 1);
+        assert_eq!(generic.kids[0].text.as_deref(), Some("middle"));
+
+        let composite = component_node(
+            "OUTER.1",
+            Some("PAIR"),
+            &unexpected,
+            &separators,
+            &dictionary,
+            false,
+        );
+        assert_eq!(composite.kids.len(), 1);
+
+        let positional = repeat_node(
+            "ZED.1",
+            None,
+            &Repetition {
+                components: vec![Component::default(), unexpected],
+            },
+            &separators,
+            &dictionary,
+            false,
+        );
+        assert_eq!(positional.kids.len(), 1);
+        assert_eq!(positional.kids[0].name, "ZED.1.2");
+    }
 }

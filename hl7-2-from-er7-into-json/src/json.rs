@@ -390,21 +390,18 @@ mod tests {
             Node::leaf("PID.3", "222"),
             Node::leaf("PID.5", "SMITH"),
         ];
-        let Value::Object(entries) = nodes_to_object(&nodes) else {
-            panic!("expected object")
-        };
-        assert_eq!(entries.len(), 2);
-        assert_eq!(entries[0].0, "PID.3");
-        assert!(matches!(&entries[0].1, Value::Array(v) if v.len() == 2));
-        assert_eq!(entries[1].0, "PID.5");
-        assert!(matches!(&entries[1].1, Value::String(s) if s == "SMITH"));
+        let value = nodes_to_object(&nodes);
+        assert_eq!(
+            render_compact(&value),
+            r#"{"PID.3":["111","222"],"PID.5":"SMITH"}"#
+        );
     }
 
     #[test]
     fn escapes_strings() {
         let mut out = String::new();
-        write_string("a\"b\\c\nd\u{1}e", &mut out);
-        assert_eq!(out, "\"a\\\"b\\\\c\\nd\\u0001e\"");
+        write_string("a\"b\\c\rd\te\nf\u{1}g", &mut out);
+        assert_eq!(out, "\"a\\\"b\\\\c\\rd\\te\\nf\\u0001g\"");
     }
 
     #[test]
@@ -412,5 +409,48 @@ mod tests {
         assert_eq!(render_compact(&Value::Null), "null");
         assert_eq!(render_compact(&Value::Object(vec![])), "{}");
         assert_eq!(render_compact(&Value::Array(vec![])), "[]");
+        assert_eq!(
+            render_compact(&Value::Array(vec![Value::Null, Value::String("x".into())])),
+            "[null,\"x\"]"
+        );
+    }
+
+    #[test]
+    fn degradation_trees_keep_only_meaningful_positions() {
+        let separators = Separators::default();
+        assert!(Node::leaf("EMPTY", "").text.is_none());
+        assert!(Node::leaf("NULL", "\"\"").text.is_none());
+
+        let component = Component {
+            subcomponents: vec![
+                er7::Subcomponent::new(""),
+                er7::Subcomponent::new("middle"),
+                er7::Subcomponent::new(""),
+            ],
+        };
+        let generic = component_node("PAIR.1", Some("ST"), &component, &separators);
+        assert_eq!(generic.kids.len(), 1);
+        assert_eq!(generic.kids[0].text.as_deref(), Some("middle"));
+
+        let nested = component_node("CX.4", Some("HD"), &component, &separators);
+        assert_eq!(nested.kids.len(), 1);
+
+        let positional = repeat_node(
+            "ZED.1",
+            None,
+            &Repetition {
+                components: vec![Component::default(), component],
+            },
+            &separators,
+        );
+        assert_eq!(positional.kids.len(), 1);
+        assert_eq!(positional.kids[0].name, "ZED.1.2");
+    }
+
+    #[test]
+    fn blank_field_repetitions_are_skipped() {
+        let message = er7::parse("MSH|^~\\&|APP\rZED|one~~two").unwrap();
+        let node = segment_to_node(&message.segments[1], &message.separators);
+        assert_eq!(node.kids.len(), 2);
     }
 }

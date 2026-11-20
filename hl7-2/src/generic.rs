@@ -505,4 +505,15 @@ mod tests {
         assert_eq!(node.children()[0].name(), "XPN.1");
         assert!(node.children()[0].is_null());
     }
+
+    #[test]
+    fn empty_repetitions_components_and_subcomponents_are_not_nodes() {
+        let tree = tree(&format!("{HEADER}\rPID|1||~A\rZPD|a^^b|a&&b"));
+        let pid = tree.find("PID").unwrap();
+        assert_eq!(pid.children_named("PID.3").count(), 1);
+        let zpd = tree.find("ZPD").unwrap();
+        assert_eq!(zpd.child("ZPD.1").unwrap().children().len(), 2);
+        let component = &zpd.child("ZPD.2").unwrap().children()[0];
+        assert_eq!(component.children().len(), 2);
+    }
 }

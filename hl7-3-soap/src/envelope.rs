@@ -130,6 +130,7 @@ mod tests {
     #[test]
     fn reads_the_payload_out_of_the_body() {
         let envelope = parse(ENVELOPE).unwrap();
+        assert_eq!(envelope.root().local_name(), "Envelope");
         assert_eq!(
             envelope.payload().unwrap().local_name(),
             "PRPA_IN201305UV02"

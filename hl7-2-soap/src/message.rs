@@ -212,6 +212,11 @@ mod tests {
             payload_of("<Envelope><Body><Anything>MSH|^~\\&amp;|A|B</Anything></Body></Envelope>");
         assert_eq!(er7(&bare), Some("MSH|^~\\&|A|B"));
 
+        let empty_wrapper = payload_of(
+            "<Envelope><Body><sendMessage><hl7Message/>MSH|^~\\&amp;|A|B</sendMessage></Body></Envelope>",
+        );
+        assert_eq!(er7(&empty_wrapper), Some("MSH|^~\\&|A|B"));
+
         // A v2.xml payload is not ER7 carriage.
         assert_eq!(er7(&payload_of(V2XML)), None);
     }

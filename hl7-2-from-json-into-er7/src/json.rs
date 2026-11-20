@@ -359,27 +359,26 @@ mod tests {
 
     #[test]
     fn parses_objects_preserving_key_order() {
-        let Value::Object(entries) = parse_document(r#"{"b": 1, "a": 2}"#).unwrap() else {
-            panic!("expected object")
-        };
-        assert_eq!(entries[0].0, "b");
-        assert_eq!(entries[1].0, "a");
+        assert!(matches!(
+            parse_document(r#"{"b": 1, "a": 2}"#),
+            Ok(Value::Object(entries)) if entries[0].0 == "b" && entries[1].0 == "a"
+        ));
     }
 
     #[test]
     fn parses_arrays() {
-        let Value::Array(items) = parse_document("[1, \"two\", null]").unwrap() else {
-            panic!("expected array")
-        };
-        assert_eq!(items.len(), 3);
+        assert!(matches!(
+            parse_document("[1, \"two\", null]"),
+            Ok(Value::Array(items)) if items.len() == 3
+        ));
     }
 
     #[test]
     fn decodes_string_escapes() {
-        let Value::String(s) = parse_document(r#""a\tb\"c\\d&e""#).unwrap() else {
-            panic!("expected string")
-        };
-        assert_eq!(s, "a\tb\"c\\d&e");
+        assert!(matches!(
+            parse_document(r#""a\tb\"c\\d&e""#),
+            Ok(Value::String(s)) if s == "a\tb\"c\\d&e"
+        ));
     }
 
     #[test]
@@ -388,18 +387,53 @@ mod tests {
         // writer represents a character outside the Basic Multilingual
         // Plane.
         let input = "\"\\uD83D\\uDE00\"";
-        let Value::String(s) = parse_document(input).unwrap() else {
-            panic!("expected string")
-        };
-        assert_eq!(s, "\u{1F600}");
+        assert!(matches!(
+            parse_document(input),
+            Ok(Value::String(s)) if s == "\u{1F600}"
+        ));
     }
 
     #[test]
     fn passes_through_literal_non_ascii_utf8() {
-        let Value::String(s) = parse_document(r#""😀""#).unwrap() else {
-            panic!("expected string")
+        assert!(matches!(
+            parse_document(r#""😀""#),
+            Ok(Value::String(s)) if s == "\u{1F600}"
+        ));
+    }
+
+    #[test]
+    fn covers_empty_containers_false_and_every_string_escape() {
+        assert!(matches!(parse_document("[]"), Ok(Value::Array(items)) if items.is_empty()));
+        assert!(matches!(parse_document("false"), Ok(Value::Bool(false))));
+        assert!(matches!(
+            parse_document(r#""\/\b\f\n\r""#),
+            Ok(Value::String(s)) if s == "/\u{8}\u{c}\n\r"
+        ));
+    }
+
+    #[test]
+    fn reports_every_remaining_malformed_route() {
+        assert_eq!(JsonError::Empty.to_string(), "no JSON value found");
+        for text in [
+            r#"{"a" 1}"#,
+            "[1 2]",
+            r#""unterminated"#,
+            r#""\q""#,
+            r#""\u12""#,
+        ] {
+            assert!(
+                matches!(parse_document(text), Err(JsonError::Malformed(..))),
+                "{text:?}"
+            );
+        }
+
+        let mut empty = Cursor {
+            s: "",
+            pos: 0,
+            depth: 0,
         };
-        assert_eq!(s, "\u{1F600}");
+        empty.advance_char();
+        assert_eq!(empty.pos, 0);
     }
 
     #[test]

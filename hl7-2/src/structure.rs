@@ -121,12 +121,10 @@ mod tests {
     fn groups_a_message_that_fits() {
         let found = layout("ORU_R01", &["MSH", "PID", "OBR", "OBX", "OBX"]).unwrap();
         assert_eq!(found[0], Layout::Segment(0));
-        let Layout::Group { name, items } = &found[1] else {
-            panic!("expected a group, got {:?}", found[1]);
-        };
-        assert_eq!(name, "PATIENT_RESULT");
+        assert!(
+            matches!(&found[1], Layout::Group { name, items } if name == "PATIENT_RESULT" && items.len() == 2)
+        );
         // PATIENT wraps the PID; ORDER_OBSERVATION wraps OBR and both OBXs.
-        assert_eq!(items.len(), 2);
         let mut indices = Vec::new();
         found[1].segment_indices(&mut indices);
         assert_eq!(indices, [1, 2, 3, 4]);
@@ -135,11 +133,8 @@ mod tests {
     #[test]
     fn repeats_a_group_once_per_occurrence() {
         let found = layout("ORU_R01", &["MSH", "PID", "OBR", "OBX", "OBR", "OBX"]).unwrap();
-        let Layout::Group { items, .. } = &found[1] else {
-            panic!("expected PATIENT_RESULT");
-        };
         // One PATIENT group, then two ORDER_OBSERVATION groups.
-        assert_eq!(items.len(), 3);
+        assert!(matches!(&found[1], Layout::Group { items, .. } if items.len() == 3));
     }
 
     #[test]

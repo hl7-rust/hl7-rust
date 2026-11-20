@@ -962,4 +962,18 @@ mod tests {
             "2.5 must not have been pulled in"
         );
     }
+
+    #[test]
+    fn a_delta_can_remove_an_alias_and_nested_optional_groups_may_not_start() {
+        let base = Dictionary::from_json(
+            r#"{"structures":{"B":[{"group":"OUTER","items":[{"group":"INNER","items":["AAA"]}]}]},"aliases":{"A_Z01":"B"}}"#,
+            "base",
+        )
+        .unwrap();
+        let dictionary =
+            Dictionary::from_json_over(r#"{"aliases":{"A_Z01":null}}"#, "delta", &base).unwrap();
+        assert_eq!(dictionary.structure_id("A", "Z01"), "A_Z01");
+        assert!(!dictionary.structure("B").unwrap()[0].can_start("BBB"));
+        assert!(Error::UnknownBase("9.9".into()).to_string().contains("9.9"));
+    }
 }

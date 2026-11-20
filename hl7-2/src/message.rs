@@ -299,11 +299,12 @@ impl Message {
             {
                 continue;
             }
-            if let Some(field) = segment.field(number) {
-                for repetition in &field.repetitions {
-                    values.push(repetition.to_text(&self.raw.separators));
-                }
-            }
+            values.extend(segment.field(number).into_iter().flat_map(|field| {
+                field
+                    .repetitions
+                    .iter()
+                    .map(|repetition| repetition.to_text(&self.raw.separators))
+            }));
         }
         Ok(values)
     }

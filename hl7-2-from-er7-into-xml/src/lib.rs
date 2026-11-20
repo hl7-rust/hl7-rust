@@ -280,9 +280,14 @@ mod tests {
     fn maps_er7_errors_onto_this_crates_type() {
         assert!(matches!(convert(""), Err(Hl7Error::Empty)));
         assert!(matches!(convert("PID|1"), Err(Hl7Error::MissingMsh)));
-        match convert("MSH") {
-            Err(Hl7Error::BadMshHeader(detail)) => assert_ne!(detail, ""),
-            other => panic!("expected a bad-header error, got {other:?}"),
+        let error = convert("MSH").unwrap_err();
+        assert!(matches!(&error, Hl7Error::BadMshHeader(detail) if !detail.is_empty()));
+        for (error, fragment) in [
+            (Hl7Error::Empty, "no HL7 segments"),
+            (Hl7Error::MissingMsh, "does not start"),
+            (Hl7Error::BadMshHeader("bad".into()), "bad"),
+        ] {
+            assert!(error.to_string().contains(fragment), "{error}");
         }
     }
 }

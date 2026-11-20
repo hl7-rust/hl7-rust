@@ -3,7 +3,7 @@
 
 use hl7_2_from_xsd_into_json_dictionary::{Item, Options, convert_directory};
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 fn samples() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("samples/example")
@@ -11,6 +11,15 @@ fn samples() -> PathBuf {
 
 fn document() -> hl7_2_from_xsd_into_json_dictionary::Document {
     convert_directory(&samples(), &Options::default()).expect("the sample schemas convert")
+}
+
+fn temporary_directory(label: &str) -> PathBuf {
+    let path = std::env::temp_dir().join(format!("hl7-xsd-json-{label}-{}", std::process::id()));
+    if path.exists() {
+        std::fs::remove_dir_all(&path).unwrap();
+    }
+    std::fs::create_dir_all(&path).unwrap();
+    path
 }
 
 #[test]
@@ -158,6 +167,69 @@ fn reports_a_directory_it_cannot_read_as_a_dictionary() {
 }
 
 #[test]
+fn reports_each_schema_directory_failure_with_context() {
+    use hl7_2_from_xsd_into_json_dictionary::{Error, xml};
+
+    let io_error = std::io::Error::new(std::io::ErrorKind::NotFound, "gone");
+    let xml_error = xml::parse("<").unwrap_err();
+    for (error, fragment) in [
+        (
+            Error::Io(PathBuf::from("missing.xsd"), io_error),
+            "missing.xsd",
+        ),
+        (
+            Error::Xml(PathBuf::from("broken.xsd"), xml_error),
+            "broken.xsd",
+        ),
+        (
+            Error::NoPrefix(PathBuf::from("schemas")),
+            "no structure schema includes",
+        ),
+        (
+            Error::NoStructure(PathBuf::from("ADT_A01.xsd"), "ADT_A01".into()),
+            "ADT_A01.CONTENT",
+        ),
+        (
+            Error::UnknownStructure("ADT_A99".into()),
+            "no schema for structure ADT_A99",
+        ),
+    ] {
+        assert!(error.to_string().contains(fragment), "{error}");
+    }
+
+    let no_prefix = temporary_directory("no-prefix");
+    std::fs::write(no_prefix.join("ADT_A01.xsd"), "<schema/>").unwrap();
+    assert!(matches!(
+        convert_directory(&no_prefix, &Options::default()),
+        Err(Error::NoPrefix(_))
+    ));
+    std::fs::remove_dir_all(no_prefix).unwrap();
+
+    let malformed = temporary_directory("malformed");
+    std::fs::write(malformed.join("ADT_A01.xsd"), "<").unwrap();
+    assert!(matches!(
+        convert_directory(&malformed, &Options::default()),
+        Err(Error::Xml(_, _))
+    ));
+    std::fs::remove_dir_all(malformed).unwrap();
+
+    let missing_structure = temporary_directory("missing-structure");
+    std::fs::write(
+        missing_structure.join("ADT_A01.xsd"),
+        r#"<schema><include schemaLocation="2_5_segments.xsd"/></schema>"#,
+    )
+    .unwrap();
+    for suffix in ["_types.xsd", "_fields.xsd", "_segments.xsd"] {
+        std::fs::write(missing_structure.join(format!("2_5{suffix}")), "<schema/>").unwrap();
+    }
+    assert!(matches!(
+        convert_directory(&missing_structure, &Options::default()),
+        Err(Error::NoStructure(_, id)) if id == "ADT_A01"
+    ));
+    std::fs::remove_dir_all(missing_structure).unwrap();
+}
+
+#[test]
 fn cli_contract_covers_conversion_and_argument_errors() {
     let binary = env!("CARGO_BIN_EXE_hl7-2-from-xsd-into-json-dictionary");
     let samples = samples();
@@ -222,6 +294,25 @@ fn cli_contract_covers_conversion_and_argument_errors() {
             .unwrap()
             .status
             .success()
+    );
+
+    let output = Command::new(binary)
+        .arg(&samples)
+        .arg("--output")
+        .arg(&directory)
+        .output()
+        .unwrap();
+    assert!(!output.status.success(), "writing to a directory must fail");
+
+    let mut child = Command::new(binary)
+        .arg(&samples)
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    drop(child.stdout.take());
+    assert!(
+        !child.wait().unwrap().success(),
+        "a closed stdout must fail"
     );
 
     std::fs::remove_dir_all(directory).unwrap();

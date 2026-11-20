@@ -164,9 +164,8 @@ impl Builder {
     /// [`Message::set_er7`].
     #[must_use]
     pub fn set_er7(mut self, path: &str, er7_text: &str) -> Builder {
-        if let Err(error) = self.message.set_er7(path, er7_text) {
-            self.failures.push(error);
-        }
+        self.failures
+            .extend(self.message.set_er7(path, er7_text).err());
         self
     }
 
@@ -222,6 +221,12 @@ impl Builder {
 /// received control ID so the sender can match the reply to the request.
 /// The caller supplies the reply's own control ID and timestamp.
 ///
+/// # Panics
+///
+/// Only if the crate's `Message` invariant is broken internally and the
+/// message no longer contains its required MSH header. Public constructors
+/// and parsers preserve that invariant.
+///
 /// ```
 /// let message = hl7_2::parse("MSH|^~\\&|LAB|L|EPIC|E|20240101||ORU^R01|99|P|2.5\rPID|1")?;
 /// let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20240101093900").build()?;
@@ -235,16 +240,18 @@ pub fn acknowledge(message: &Message, code: &str, control_id: &str, timestamp: &
     let value = |path: &str| message.get(path).ok().flatten().unwrap_or_default();
     let version = message.version();
     let mut builder = Builder::new(version);
-    if let Some(received) = message.raw().header() {
-        let reply = builder.message.raw_mut();
-        reply.separators = *message.separators();
-        // Copy the delimiter declaration and the swapped routing fields as
-        // parsed ER7, preserving component boundaries and escapes.
-        for (index, field) in [1, 2, 5, 6, 3, 4].into_iter().enumerate() {
-            reply.segments[0].fields[index] = received.field(field).cloned().unwrap_or_default();
-        }
-        builder = builder.set("MSH-12", &version.to_string());
+    let received = message
+        .raw()
+        .header()
+        .expect("Message invariant guarantees an MSH header");
+    let reply = builder.message.raw_mut();
+    reply.separators = *message.separators();
+    // Copy the delimiter declaration and the swapped routing fields as
+    // parsed ER7, preserving component boundaries and escapes.
+    for (index, field) in [1, 2, 5, 6, 3, 4].into_iter().enumerate() {
+        reply.segments[0].fields[index] = received.field(field).cloned().unwrap_or_default();
     }
+    builder = builder.set("MSH-12", &version.to_string());
     builder
         .message_type("ACK", &value("MSH-9.2"))
         .control_id(control_id)
@@ -325,7 +332,7 @@ mod tests {
         );
         assert!(
             Builder::new(Version::V2_5)
-                .set_er7("PID-1", "already\\F\\encoded")
+                .set_er7("PID-0", "already\\F\\encoded")
                 .build()
                 .is_err()
         );
@@ -335,10 +342,7 @@ mod tests {
     fn build_valid_rejects_an_incomplete_message() {
         // No message type and no control ID: not something to send.
         let error = Builder::new(Version::V2_5).build_valid().unwrap_err();
-        match error {
-            Error::Invalid(diagnostics) => assert_eq!(diagnostics.len(), 2, "{diagnostics:?}"),
-            other => panic!("expected a validation failure, got {other}"),
-        }
+        assert!(matches!(&error, Error::Invalid(diagnostics) if diagnostics.len() == 2));
     }
 
     #[test]

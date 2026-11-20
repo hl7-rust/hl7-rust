@@ -227,9 +227,26 @@ mod tests {
     fn maps_er7_errors_onto_this_crates_type() {
         assert!(matches!(convert(""), Err(Hl7Error::Empty)));
         assert!(matches!(convert("PID|1"), Err(Hl7Error::MissingMsh)));
-        match convert("MSH") {
-            Err(Hl7Error::BadMshHeader(detail)) => assert_ne!(detail, ""),
-            other => panic!("expected a bad-header error, got {other:?}"),
+        let error = convert("MSH").unwrap_err();
+        assert!(matches!(&error, Hl7Error::BadMshHeader(detail) if !detail.is_empty()));
+        for (error, fragment) in [
+            (Hl7Error::Empty, "no HL7 segments"),
+            (Hl7Error::MissingMsh, "does not start"),
+            (Hl7Error::BadMshHeader("bad".into()), "bad"),
+        ] {
+            assert!(error.to_string().contains(fragment), "{error}");
+        }
+    }
+
+    #[test]
+    fn root_name_covers_empty_aliased_and_code_only_headers() {
+        for (header, expected) in [
+            ("MSH|^~\\&|A||||1||||1|P|2.5", "HL7Message"),
+            ("MSH|^~\\&|A||||1||ADT^A08|1|P|2.5", "ADT_A01"),
+            ("MSH|^~\\&|A||||1||ZZZ|1|P|2.5", "ZZZ"),
+        ] {
+            let message = er7::parse(header).unwrap();
+            assert_eq!(root_name(&message), expected);
         }
     }
 }

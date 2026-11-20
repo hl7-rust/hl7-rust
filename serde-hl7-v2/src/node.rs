@@ -349,9 +349,11 @@ mod tests {
     #[test]
     fn deref_and_display_reach_the_inner_node() {
         let message = hl7_2::parse(&format!("{HEADER}\rPID|1||241900")).unwrap();
-        let node = Node(message.tree());
+        let node = Node::from(message.tree());
         assert!(node.find("PID").is_some());
         assert!(node.to_string().starts_with("MSH|"));
+        let inner: hl7_2::Node = node.into();
+        assert!(inner.find("PID").is_some());
     }
 
     #[test]

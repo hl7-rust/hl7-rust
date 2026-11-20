@@ -169,6 +169,7 @@ mod tests {
 
     #[test]
     fn it_is_well_formed_and_describes_the_operation() {
+        assert_eq!(envelope_namespace(), SOAP_NS);
         let wsdl = for_address("http://localhost/soap");
         let root = xml::parse(&wsdl).unwrap();
         assert_eq!(root.local_name(), "definitions");
