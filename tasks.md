@@ -631,11 +631,11 @@ Per `spec/free-open-source-funding/index.md`.
       `Cargo.toml`, `src/lib.rs`, and `README.md` byte-identical to each
       commit's.
 
-## Test coverage
+## Work in progress (handoff 2026-11-20)
 
-- [x] **Enforce at least 95% workspace line coverage** (2026-11-19).
-      Current clean gate: 8,737/9,173 lines (95.25%); CI floor: 95%.
-      [Coverage specification](spec/test-coverage/index.md)
+- [x] Coverage backlog complete: 9,540/9,540 lines (100%); CI requires 100%.
+- [ ] No local code work remains. External/deferred: Trusted Publishing,
+      HL7 reply/outreach, Zenodo DOI, and Open Collective (details above).
 
 ## Trademarks
 
