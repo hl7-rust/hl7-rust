@@ -30,7 +30,7 @@ retiring the token once, for good.
 
 ## Where each forge stands
 
-Re-checked 2026-09-01 (previously 2026-08-28), so this is against current
+Re-checked 2026-11-20 (previously 2026-09-01), so this is against current
 fact rather than an old assumption — and the re-check found the Codeberg
 wait got no closer, not further along as the previous check's wording
 might have implied:

@@ -57,8 +57,8 @@ Grouped by `plan.md` workstream. Order within a group is priority order.
 - [ ] Adopt Trusted Publishing for crates.io releases, in place of the
       long-lived API token, once it is production-ready across GitHub,
       GitLab, and Codeberg — the policy in
-      `spec/trusted-publishing/index.md`. Re-checked 2026-09-01 (previously
-      2026-08-28), so this is against current fact, not a stale one: GitHub
+      `spec/trusted-publishing/index.md`. Re-checked 2026-11-20 (previously
+      2026-09-01), so this is against current fact, not a stale one: GitHub
       Actions has been GA since July 2025; GitLab CI/CD support is still
       GitLab.com-only beta (self-hosted GitLab unsupported, per the Rust
       blog's 2026-01-21 development update); Codeberg/Forgejo still has no
@@ -634,7 +634,7 @@ Per `spec/free-open-source-funding/index.md`.
 ## Work in progress (handoff 2026-11-20)
 
 - [x] Coverage backlog complete: 9,540/9,540 lines (100%); CI requires 100%.
-- [ ] No local code work remains. External/deferred: Trusted Publishing,
+- No local code work remains. External/deferred: Trusted Publishing,
       HL7 reply/outreach, Zenodo DOI, and Open Collective (details above).
 
 ## Trademarks
