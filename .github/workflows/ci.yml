@@ -8,7 +8,7 @@
 #   cargo fmt --check                         # formatting
 #   cargo rustdoc --lib -- -W missing-docs    # every public item documented
 #   cargo +1.98 check --workspace --all-targets   # the MSRV floor
-#   ./bin/coverage                         # workspace source line coverage
+#   ./bin/test-coverage                         # workspace source line coverage
 #
 # The MSRV toolchain below moves with the policy in
 # spec/rust-msrv-n-minus-2/index.md: current stable minus two releases,
@@ -130,7 +130,7 @@ jobs:
       - name: Install cargo-llvm-cov 0.9.1
         run: cargo install cargo-llvm-cov --version 0.9.1 --locked
       - name: Enforce 100% workspace line coverage
-        run: ./bin/coverage
+        run: ./bin/test-coverage
 
   interoperability:
     name: interoperability (${{ matrix.os }}, Rust 1.100.0, default features)

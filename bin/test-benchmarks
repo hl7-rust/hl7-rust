@@ -1,0 +1,5 @@
+#!/bin/sh
+# Run every criterion benchmark in the workspace.
+set -eu
+cd "$(dirname "$0")/.."
+cargo bench --workspace

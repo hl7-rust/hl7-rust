@@ -68,7 +68,7 @@ started requiring a newer toolchain than the policy allows.
 ## Local verification
 
 For a local check across both supported older minors, run
-`make test-minimum-supported-rust-version`. It reads the floor from the
+`make ci-minimum-supported-rust-version`. It reads the floor from the
 root manifest, picks an installed native toolchain for each minor, and
 checks all workspace targets and runs the workspace tests on both. It
 also compile-checks the separate fuzz crates. Running fuzz campaigns

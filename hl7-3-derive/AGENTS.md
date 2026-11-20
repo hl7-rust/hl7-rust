@@ -33,7 +33,7 @@ source of truth for what the attributes mean and how field types convert.
 ```
 src/lib.rs        The derive: attribute parsing (Mapping) and the one
                   code generator (from_element).
-tests/derive.rs   Tests, which compile real structs against the real
+tests/main.rs   Tests, which compile real structs against the real
                   hl7-3 crate — the only way to test a proc macro.
 ```
 

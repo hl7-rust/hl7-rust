@@ -70,7 +70,7 @@ src/builder.rs     Builder and acknowledge(), including routing field swaps.
 src/main.rs        CLI: tree / query / check / er7, edits, schema, strict.
 schemas/*.json     Bundled dictionaries. v2.5 is complete; the rest are
                    deltas of it (spec/index.md §3.4).
-tests/integration.rs  Black-box tests through the public API and the CLI.
+tests/main.rs  Black-box tests through the public API and the CLI.
 tests/spec.rs      The specification checking itself: every test named in
                    spec/index.md §13 must still exist.
 tests/scratch_nhs.rs  Loads dictionaries from a private NHS Wales corpus;
@@ -89,7 +89,7 @@ dependency.
 
 Each module has unit tests in a trailing `#[cfg(test)] mod tests` block;
 anything crossing module boundaries — the three modes over one message,
-round trips, the CLI contract — goes in `tests/integration.rs` instead.
+round trips, the CLI contract — goes in `tests/main.rs` instead.
 
 ## Working conventions
 
@@ -172,7 +172,7 @@ When adding to it:
 - Update the coverage table in `spec/index.md` §3.4 in the same change.
 - Add a test that the difference actually shows up — see
   `a_release_difference_changes_how_a_field_reads` in
-  `tests/integration.rs`.
+  `tests/main.rs`.
 
 ## Non-goals (don't "fix" these without discussion)
 

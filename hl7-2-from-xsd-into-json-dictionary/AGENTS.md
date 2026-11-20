@@ -51,7 +51,7 @@ samples/example/   A small schema set used by the integration test.
 ```
 
 Each module has unit tests in a trailing `#[cfg(test)] mod tests` block;
-the end-to-end conversion-then-load check lives in `tests/integration.rs`
+the end-to-end conversion-then-load check lives in `tests/main.rs`
 (spec/index.md §7).
 
 ## Dependencies
@@ -100,7 +100,7 @@ and not worth a dependency, per spec/index.md §5–§6.
 1. **Update `spec/index.md` first** so it states the new behavior precisely.
 2. Implement it, matching the module boundaries above.
 3. Add or update the tests that pin it (unit test next to the code, or
-   extend `samples/example/` and `tests/integration.rs` for an end-to-end
+   extend `samples/example/` and `tests/main.rs` for an end-to-end
    case).
 4. Update `README.md` only if the user-facing summary or examples change.
 5. Run the checks above.

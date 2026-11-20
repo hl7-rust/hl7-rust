@@ -46,7 +46,7 @@ src/diagnostic.rs   Diagnostic: four-key object, round-trips.
 src/kind.rs         NodeKind, Severity, DiagnosticKind via variant_string!.
 src/version.rs      Version: the MSH-12 release string.
 src/strict.rs       Strict<T> for Message, Node, and Diagnostic.
-tests/integration.rs  Black-box tests over hl7-2's samples/*.hl7, plus the
+tests/main.rs  Black-box tests over hl7-2's samples/*.hl7, plus the
                     manifest and spec self-checks.
 examples/           Runnable programs, one concept each (see its README).
 spec/               Normative specification, one directory per section,
@@ -56,7 +56,7 @@ spec/               Normative specification, one directory per section,
 
 Each module has unit tests in a trailing `#[cfg(test)] mod tests` block;
 anything crossing module boundaries or using a real sample goes in
-`tests/integration.rs`.
+`tests/main.rs`.
 
 ## Working conventions
 

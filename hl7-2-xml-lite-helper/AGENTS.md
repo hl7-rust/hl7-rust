@@ -38,7 +38,7 @@ behavior.**
 src/lib.rs          parse, Element, Error, escape, and the crate
                      documentation. The whole crate lives in this one file —
                      small enough to read in one sitting is the point.
-tests/integration.rs  Black-box tests exercising every rule in spec/index.md.
+tests/main.rs  Black-box tests exercising every rule in spec/index.md.
 spec/index.md        Normative specification (source of truth).
 ```
 
@@ -93,7 +93,7 @@ at zero.
 
 1. **Update `spec/index.md` first** so it states the new behavior precisely.
 2. Implement it in `src/lib.rs`.
-3. Add or update the tests in `tests/integration.rs` that pin it.
+3. Add or update the tests in `tests/main.rs` that pin it.
 4. Update `README.md` only if the user-facing summary or examples change.
 5. Run the checks above, including the five-caller build check.
 

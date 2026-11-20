@@ -53,7 +53,7 @@ src/structure.rs   Message-structure grammars (ACK, ADT_A01, ORM_O01,
 src/xml.rs         The Node tree, element-name sanitizing, XML rendering.
 src/main.rs        CLI: argument parsing, stdin/file I/O,
                    --flat/--dictionary/--schema-shape/-o.
-tests/integration.rs  Black-box tests through the public API, incl. one
+tests/main.rs  Black-box tests through the public API, incl. one
                    golden full-document comparison.
 spec/index.md      Normative specification (source of truth).
 samples/*.hl7      Example ER7 input files used by README examples and
@@ -62,7 +62,7 @@ samples/*.hl7      Example ER7 input files used by README examples and
 
 Each module has unit tests in a trailing `#[cfg(test)] mod tests` block;
 cross-cutting behavior (message-structure grouping, batch splitting, CLI
-contract) is covered in `tests/integration.rs` instead.
+contract) is covered in `tests/main.rs` instead.
 
 ## Working conventions
 
@@ -109,7 +109,7 @@ contract) is covered in `tests/integration.rs` instead.
   All four are clean on `main`; keep them that way.
 - New behavior needs a test. Prefer a unit test next to the code it tests
   for parsing/naming rules, and an integration test in
-  `tests/integration.rs` for anything that touches the public API surface
+  `tests/main.rs` for anything that touches the public API surface
   or the CLI contract.
 - Fallback-first design: this crate never fails on unrecognized input below
   the MSH header (unknown segments, unknown types, non-matching structures

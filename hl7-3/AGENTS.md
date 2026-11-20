@@ -51,7 +51,7 @@ spec/index.md          Normative specification (source of truth).
 ```
 
 Each module has unit tests in a trailing `#[cfg(test)] mod tests` block —
-this crate has no `tests/integration.rs` yet; add one if a test needs more
+this crate has no `tests/main.rs` yet; add one if a test needs more
 than one module's types together (nothing has, so far).
 
 ## Working conventions

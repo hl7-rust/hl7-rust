@@ -29,7 +29,7 @@ write the code a caller would otherwise write by hand.
 ```
 src/lib.rs        Both derives: attribute parsing (Mapping) and the two
                   code generators (from_hl7, to_hl7).
-tests/derive.rs   Tests, which compile real structs against the real
+tests/main.rs   Tests, which compile real structs against the real
                   hl7-2 crate — the only way to test a proc macro.
 ```
 

@@ -45,7 +45,7 @@ target so profiles or objects produced under a different path mapping cannot
 be merged into the report:
 
 ```sh
-./bin/coverage
+./bin/test-coverage
 ```
 
 The script starts from a clean instrumented target, produces LCOV with
@@ -55,7 +55,7 @@ count.
 
 An environment that sets a compiler cache wrapper MUST disable that wrapper
 unless the wrapper is known to preserve coverage source paths. This workspace's
-`kache` wrapper remaps cached source paths, so `bin/coverage` disables
+`kache` wrapper remaps cached source paths, so `bin/test-coverage` disables
 `RUSTC_WRAPPER` for the clean measurement.
 
 CI runs the same clean build and threshold on every push and pull request.

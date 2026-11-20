@@ -8,7 +8,7 @@ wins and the README should be corrected to match.
 
 Status: describes the behavior of `hl7_2_from_xml_into_er7` as implemented. Every rule
 below is exercised by a unit test (next to the code that implements it) or an
-integration test (`tests/integration.rs`). A change to this document that
+integration test (`tests/main.rs`). A change to this document that
 isn't backed by a test, or a code change that isn't reflected here, is a bug.
 
 ## 1. Scope

@@ -60,7 +60,7 @@ so the raw form survives too.
 
 ## 4.5 Testing this guarantee
 
-Every fixture in `tests/integration.rs` follows the same shape: build or
+Every fixture in `tests/main.rs` follows the same shape: build or
 parse a value, serialize, deserialize, assert equality. New fixtures added
 for a bug fix should follow the same pattern rather than asserting on the
 JSON's own shape, which is already covered by

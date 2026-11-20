@@ -23,11 +23,11 @@ change that completes them, with the evidence named.
 - [x] Decided the names, the umbrella-with-features shape, and the
       sub-crate split — the maintainer's, in session.
 - [x] Wrote `serde-hl7-v2`: `src/{lib,message,node,diagnostic,kind,version,strict}.rs`,
-      `tests/integration.rs`, three examples, `spec/` with index and
+      `tests/main.rs`, three examples, `spec/` with index and
       eleven sections, README, AGENTS.md, CLAUDE.md, LICENSE.md.
       41 unit + 12 integration + 10 doc tests pass.
 - [x] Wrote `serde-hl7-v3`: `src/{lib,object,element,message,vocabulary,null_flavor,rim,strict}.rs`,
-      `tests/integration.rs`, three examples, `spec/` with index and
+      `tests/main.rs`, three examples, `spec/` with index and
       eleven sections, README, AGENTS.md, CLAUDE.md, LICENSE.md.
       32 unit + 9 integration + 17 doc tests pass.
 - [x] Wrote `serde-hl7`: `Cargo.toml` with `v2`/`v3` features (both

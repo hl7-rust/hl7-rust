@@ -10,7 +10,7 @@ Status: describes the behavior of `hl7-2` (reached as `hl7_2::...` directly,
 or `hl7::v2::...` through the `hl7` umbrella crate) as implemented. Every rule below
 is exercised by a unit test (next to the code that implements it, in that
 module's `#[cfg(test)]` block) or an integration test
-(`tests/integration.rs`, `../hl7-2-derive/tests/derive.rs`). A change to
+(`tests/main.rs`, `../hl7-2-derive/tests/main.rs`). A change to
 this document that isn't backed by a test, or a code change that isn't
 reflected here, is a bug.
 
@@ -592,8 +592,8 @@ nobody is holding, and a test whose name no longer describes what it checks
 is a rule that has quietly changed.
 
 Unit tests live in their module's `#[cfg(test)] mod tests`; integration
-tests in `tests/integration.rs`; derive tests in
-`../hl7-2-derive/tests/derive.rs`.
+tests in `tests/main.rs`; derive tests in
+`../hl7-2-derive/tests/main.rs`.
 
 | § | rule | test |
 |---|---|---|

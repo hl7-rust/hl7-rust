@@ -9,16 +9,16 @@ enforces it. A rule with no test is a bug in this table.
 
 | Rule | Test | File |
 | ---- | ---- | ---- |
-| S1 | `the_crate_has_exactly_two_runtime_dependencies` | `tests/integration.rs` |
-| S2 | `no_format_crate_is_a_runtime_dependency` | `tests/integration.rs` |
+| S1 | `the_crate_has_exactly_two_runtime_dependencies` | `tests/main.rs` |
+| S2 | `no_format_crate_is_a_runtime_dependency` | `tests/main.rs` |
 | S3 | `serializes_version_and_er7_only`, `round_trips_a_full_message_through_json`, `a_forced_version_survives_the_round_trip` | `src/message.rs` |
-| S4 | `serializes_six_fields_on_every_node`, `names_paths_and_kinds_come_from_the_dictionary`, `round_trips_a_tree_as_detached_nodes`, `rejects_a_missing_node_field`, `rejects_every_duplicate_node_field`, `rejects_wrong_node_container_shapes` | `src/node.rs`, `tests/integration.rs` |
+| S4 | `serializes_six_fields_on_every_node`, `names_paths_and_kinds_come_from_the_dictionary`, `round_trips_a_tree_as_detached_nodes`, `rejects_a_missing_node_field`, `rejects_every_duplicate_node_field`, `rejects_wrong_node_container_shapes` | `src/node.rs`, `tests/main.rs` |
 | S5 | `round_trips_a_diagnostic`, `round_trips_real_findings`, `rejects_a_missing_field` | `src/diagnostic.rs` |
 | S6 | `round_trips_every_release`, `rejects_an_unknown_release` | `src/version.rs` |
 | S7 | `node_kind_round_trips_every_variant`, `a_variant_is_written_as_a_string_not_an_index`, `rejects_an_unknown_variant` | `src/kind.rs` |
 | S8 | `ignores_unknown_fields`, `ignores_an_unknown_node_field_by_default` | `src/message.rs`, `src/node.rs`, `src/diagnostic.rs` |
-| S9 | `rejects_a_message_missing_er7`, `rejects_a_missing_field`, `error_messages_still_name_the_missing_field` | `src/message.rs`, `src/diagnostic.rs`, `tests/integration.rs` |
-| S10 | `round_trips_every_sample_from_the_hl7_2_crate`, `serializes_version_and_er7_only`, and every shape test above | `tests/integration.rs`, `src/message.rs` |
+| S9 | `rejects_a_message_missing_er7`, `rejects_a_missing_field`, `error_messages_still_name_the_missing_field` | `src/message.rs`, `src/diagnostic.rs`, `tests/main.rs` |
+| S10 | `round_trips_every_sample_from_the_hl7_2_crate`, `serializes_version_and_er7_only`, and every shape test above | `tests/main.rs`, `src/message.rs` |
 | S11 | `deref_reaches_the_inner_api`, `deref_and_display_reach_the_inner_node`, `deref_and_display_reach_the_inner_value` | `src/message.rs`, `src/node.rs`, `src/diagnostic.rs`, `src/version.rs` |
 | S12 | *by `cargo rustdoc --lib -- -W missing-docs`*, one of the four checks (§7.4) | — |
 | S13 | `strict_rejects_an_unknown_field`, `strict_still_requires_er7`, `strict_still_requires_every_field_the_plain_type_does`, `plain_deserialize_is_unaffected_by_strict_existing`, `strict_accepts_a_real_message_with_no_typos`, `strict_node_rejects_an_unknown_field_at_any_depth` | `src/message.rs`, `src/node.rs`, `src/diagnostic.rs` |
@@ -39,7 +39,7 @@ for the section directories and [`index.md`](../index.md).
 2. **Doctests** (the `Example:` section on every public type, per rule
    S12; `MessageSeed`'s is on `Message::seed`, which builds it) — one
    realistic, runnable use of that item.
-3. **Integration tests** (`tests/integration.rs`) — black-box, through the
+3. **Integration tests** (`tests/main.rs`) — black-box, through the
    public API only, exercising real message shapes: `hl7-2`'s own
    `samples/*.hl7` files, read via `include_str!` from the sibling
    workspace member, plus the guarantees in

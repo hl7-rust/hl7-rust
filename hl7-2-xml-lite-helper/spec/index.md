@@ -4,7 +4,7 @@ This is the single source of truth for what this crate does and how. It
 describes observable behavior, not implementation details. `README.md`
 summarizes this document — if the two disagree, this document wins.
 
-Every rule below is exercised by a test in `tests/integration.rs`. A change
+Every rule below is exercised by a test in `tests/main.rs`. A change
 to this document that isn't backed by a test, or a code change that isn't
 reflected here, is a bug.
 

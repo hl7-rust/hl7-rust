@@ -47,7 +47,7 @@ src/vocabulary.rs   Ii, Cd, Ivl, Pq, Ed.
 src/null_flavor.rs  NullFlavor: a bare string, hand-written, never fails.
 src/rim.rs          Act, Entity, Role, Participation, ActRelationship, RoleLink.
 src/strict.rs       Strict<T>; the per-type From impls live in the macro.
-tests/integration.rs  One realistic interaction through every type, the §4
+tests/main.rs  One realistic interaction through every type, the §4
                     guarantees, the manifest and spec self-checks.
 examples/           Runnable programs, one concept each (see its README).
 spec/               Normative specification, one directory per section,

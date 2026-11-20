@@ -52,7 +52,7 @@ src/lib.rs         Constants, encode/decode, Tolerance-aware decode_with,
 src/framer.rs      Framer: bytes in, whole frames out. Tolerance lives here.
 src/transport.rs   The Transport trait and IoTransport over Read + Write.
 src/ack.rs         AckCode and acknowledgement generation (feature `ack`).
-tests/integration.rs  Black-box tests, including real TCP connections.
+tests/main.rs  Black-box tests, including real TCP connections.
 examples/tcp_listener.rs  A working listener that acknowledges.
 examples/tcp_sender.rs    The other end, which checks the echoed control ID.
 examples/latin1_ack.rs    Caller-managed ISO-8859-1 acknowledgement exchange.
@@ -61,7 +61,7 @@ spec/index.md      Normative specification (source of truth).
 
 Each module has unit tests in a trailing `#[cfg(test)] mod tests` block;
 anything needing a real socket, or crossing module boundaries, goes in
-`tests/integration.rs`.
+`tests/main.rs`.
 
 ## Working conventions
 

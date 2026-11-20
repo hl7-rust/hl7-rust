@@ -72,6 +72,16 @@ github-pages: github-pages-remote
 	bin/make-github-pages $(WEBSITE_PREFIX) $(GITHUB_PAGES_REMOTE) $(WEBSITE_BRANCH)
 
 # Check and test on the minimum supported Rust version (N-2) and on N-1.
-.PHONY: test-minimum-supported-rust-version
-test-minimum-supported-rust-version:
-	bin/test-minimum-supported-rust-version
+.PHONY: ci-minimum-supported-rust-version
+ci-minimum-supported-rust-version:
+	bin/make-ci-minimum-supported-rust-version
+
+# Enforce the workspace coverage floor with cargo-llvm-cov.
+.PHONY: test-coverage
+test-coverage:
+	bin/test-coverage
+
+# Run every criterion benchmark in the workspace.
+.PHONY: test-benchmarks
+test-benchmarks:
+	bin/test-benchmarks

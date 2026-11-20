@@ -469,7 +469,7 @@ Per `spec/free-open-source-funding/index.md`.
       and a bare minus before the fix. Valid cases cover CJK, Arabic, a
       decomposed accent, a supplementary character, a literal replacement
       character, and exact decimal and exponent spellings.
-      [Converter integration tests](hl7-2-from-json-into-er7/tests/integration.rs)
+      [Converter integration tests](hl7-2-from-json-into-er7/tests/main.rs)
 - [x] **Restore the local compiler compatibility check** (2026-11-19).
       The Make target now invokes the existing script and accepts installed
       patch releases. On Apple Silicon, the target ran the workspace suite
@@ -479,7 +479,7 @@ Per `spec/free-open-source-funding/index.md`.
       The framed regression first failed on a missing universal ID. It now
       verifies all four composite fields, an empty namespace, nondefault
       separators, escaped data, and the exact echoed control ID.
-      [MLLP integration tests](hl7-2-mllp/tests/integration.rs)
+      [MLLP integration tests](hl7-2-mllp/tests/main.rs)
 - [x] **Demonstrate a legacy-encoded MLLP exchange** (2026-11-19).
       The runnable example verified byte preservation, the UTF-8 helper's
       `NotText` error, and the exact Latin-1 reply frame with MSH-18 set

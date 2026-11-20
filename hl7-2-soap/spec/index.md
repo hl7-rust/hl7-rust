@@ -8,7 +8,7 @@ wins and the README should be corrected to match.
 
 Every rule below is exercised by a unit test (next to the code that
 implements it, in that module's `#[cfg(test)]` block) or an integration test
-(`tests/integration.rs`, against `samples/`). A change to this document that
+(`tests/main.rs`, against `samples/`). A change to this document that
 isn't backed by a test, or a code change that isn't reflected here, is a bug.
 
 ## 0. Relationship to the rest of the family

@@ -8,7 +8,7 @@ wins and the README should be corrected to match.
 
 Every rule below is exercised by a unit test (next to the code that
 implements it, in that module's `#[cfg(test)]` block) or an integration test
-(`tests/integration.rs`, against `samples/example/`). A change to this
+(`tests/main.rs`, against `samples/example/`). A change to this
 document that isn't backed by a test, or a code change that isn't reflected
 here, is a bug.
 
@@ -187,7 +187,7 @@ not needed to build this crate.
 
 ## 7. Testing
 
-Beyond the per-module unit tests, `tests/integration.rs` converts
+Beyond the per-module unit tests, `tests/main.rs` converts
 `samples/example/` — a small schema set shaped like a real one, exercising
 primitive components, a nested composite, a skipped field number, an empty
 placeholder segment, and a group — and then **loads the result with

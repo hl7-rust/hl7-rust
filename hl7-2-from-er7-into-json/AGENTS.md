@@ -57,7 +57,7 @@ src/json.rs        The Node tree (segment/field/component -> keyed tree,
                    conversion that collapses same-named siblings into JSON
                    arrays, and pretty/compact rendering.
 src/main.rs        CLI: argument parsing, stdin/file I/O, --flat/--compact/-o.
-tests/integration.rs  Black-box tests through the public API, incl. one
+tests/main.rs  Black-box tests through the public API, incl. one
                    golden full-document comparison.
 spec/index.md      Normative specification (source of truth).
 samples/*.hl7      Example ER7 input files used by README examples and
@@ -67,7 +67,7 @@ samples/*.hl7      Example ER7 input files used by README examples and
 
 Each module has unit tests in a trailing `#[cfg(test)] mod tests` block;
 cross-cutting behavior (message-structure grouping, array collapsing, batch
-splitting, the CLI contract) is covered in `tests/integration.rs` instead.
+splitting, the CLI contract) is covered in `tests/main.rs` instead.
 
 ## Working conventions
 
@@ -104,7 +104,7 @@ splitting, the CLI contract) is covered in `tests/integration.rs` instead.
   All four are clean on `main`; keep them that way.
 - New behavior needs a test. Prefer a unit test next to the code it tests
   for parsing/naming rules, and an integration test in
-  `tests/integration.rs` for anything that touches the public API surface
+  `tests/main.rs` for anything that touches the public API surface
   or the CLI contract. When adding a golden full-document test, generate
   the expected string by running the CLI and reading the output back
   (`cargo run -- <input> > /tmp/x.json`, then read the file) rather than

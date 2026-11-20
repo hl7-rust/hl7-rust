@@ -69,7 +69,7 @@ and back compares equal. Nothing is derived on the way in.
 
 ## 4.6 Testing this guarantee
 
-Every fixture in `tests/integration.rs` follows the same shape: parse,
+Every fixture in `tests/main.rs` follows the same shape: parse,
 serialize, deserialize, assert the ER7 text and the version are
 unchanged, and — for the sample files — that the tree serializes
 identically on both sides. New fixtures added for a bug fix should follow

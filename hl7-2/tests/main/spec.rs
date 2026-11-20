@@ -22,7 +22,7 @@ fn defined_tests() -> BTreeSet<String> {
     let sources = [
         ("src", Some("")),
         ("src/v2", Some("v2::")),
-        ("tests", None),
+        ("tests/main", None),
         ("../hl7-2-derive/src", Some("")),
         ("../hl7-2-derive/tests", None),
     ];

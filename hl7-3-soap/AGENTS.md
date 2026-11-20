@@ -52,13 +52,13 @@ src/response.rs    Building the real HL7 v3 acknowledgement
                    receives (Outcome::Accepted / Rejected).
 src/wsdl.rs        for_address(): the service description served from the
                    endpoint, with soap:address rebuilt from the request.
-tests/integration.rs  Black-box tests, against samples/.
+tests/main.rs  Black-box tests, against samples/.
 samples/           Example payloads used by the integration tests.
 spec/index.md      Normative specification (source of truth).
 ```
 
 Each module has unit tests in a trailing `#[cfg(test)] mod tests` block;
-anything crossing module boundaries goes in `tests/integration.rs`.
+anything crossing module boundaries goes in `tests/main.rs`.
 
 ## Working conventions
 
