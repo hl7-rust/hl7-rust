@@ -120,5 +120,5 @@ the README disagree, the spec wins.
 
 ## License
 
-Licensed under any of MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, or
-GPL-3.0-only, at your option.
+Licensed under any of MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or
+CC-BY-NC-SA-4.0, at your option.

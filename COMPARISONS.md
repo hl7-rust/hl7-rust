@@ -72,7 +72,7 @@ Where this project differs, stated as trade-offs rather than wins:
 | Runtime | A JVM, a CLR, or a Python interpreter | A static binary: no runtime, no GC |
 | Dependency tree | Substantial, and audited as such | One crate, itself dependency-free |
 | Track record | Two decades of production traffic | Published in 2026. New. |
-| License | MPL 1.1 or GPL 2.0, for HAPI | MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, or GPL-3.0-only, at your option |
+| License | MPL 1.1 or GPL 2.0, for HAPI | MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-NC-SA-4.0, at your option |
 
 The license row decides some evaluations outright. A permissive option
 matters if you are linking into a closed-source product; a copyleft option
@@ -155,7 +155,7 @@ Stated without adjectives, so each one can be checked:
   where a value can escape into a log.
 - **An MSRV of current stable minus two**, because hospital toolchains
   are approved on a cycle measured in quarters.
-- **Five licenses, at your option**, so licensing is not a conversation.
+- **Seven licenses, at your option**, so licensing is not a conversation.
 - **A vendor dialect is one JSON file**, or generated from your own XSDs.
 
 ## When this project is the wrong answer

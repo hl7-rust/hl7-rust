@@ -1,7 +1,7 @@
 # License
 
 ```
-SPDX-License-Identifier: MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only
+SPDX-License-Identifier: MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-NC-SA-4.0
 ```
 
 That single line is the machine-readable answer, and it is what every
@@ -11,17 +11,18 @@ that one.
 
 This project is multi-licensed. You may use it under **any one** of the
 following licenses, at your option. The full text of every option is
-committed in [`LICENSES/`](LICENSES/), one file per SPDX identifier — the
-[REUSE](https://reuse.software/) convention, which exists for repositories
-that offer more than one license:
+committed in [`LICENSES/`](LICENSES/), one directory per license, named by the
+lowercase SPDX identifier, each holding the full text in `index.md`:
 
 | License | SPDX identifier | Full text |
 | ------- | --------------- | --------- |
-| MIT License | `MIT` | [`LICENSES/MIT.txt`](LICENSES/MIT.txt) · <https://opensource.org/license/mit/> |
-| Apache License 2.0 | `Apache-2.0` | [`LICENSES/Apache-2.0.txt`](LICENSES/Apache-2.0.txt) · <https://www.apache.org/licenses/LICENSE-2.0> |
-| BSD 3-Clause License | `BSD-3-Clause` | [`LICENSES/BSD-3-Clause.txt`](LICENSES/BSD-3-Clause.txt) · <https://opensource.org/license/bsd-3-clause/> |
-| GNU General Public License v2.0 only | `GPL-2.0-only` | [`LICENSES/GPL-2.0-only.txt`](LICENSES/GPL-2.0-only.txt) · <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html> |
-| GNU General Public License v3.0 only | `GPL-3.0-only` | [`LICENSES/GPL-3.0-only.txt`](LICENSES/GPL-3.0-only.txt) · <https://www.gnu.org/licenses/gpl-3.0.html> |
+| MIT License | `MIT` | [`LICENSES/mit/index.md`](LICENSES/mit/index.md) · <https://opensource.org/license/mit/> |
+| Apache License 2.0 | `Apache-2.0` | [`LICENSES/apache-2.0/index.md`](LICENSES/apache-2.0/index.md) · <https://www.apache.org/licenses/LICENSE-2.0> |
+| BSD 3-Clause License | `BSD-3-Clause` | [`LICENSES/bsd-3-clause/index.md`](LICENSES/bsd-3-clause/index.md) · <https://opensource.org/license/bsd-3-clause/> |
+| GNU General Public License v2.0 only | `GPL-2.0-only` | [`LICENSES/gpl-2.0-only/index.md`](LICENSES/gpl-2.0-only/index.md) · <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html> |
+| GNU General Public License v3.0 only | `GPL-3.0-only` | [`LICENSES/gpl-3.0-only/index.md`](LICENSES/gpl-3.0-only/index.md) · <https://www.gnu.org/licenses/gpl-3.0.html> |
+| UK Open Government Licence v3.0 | `OGL-UK-3.0` | [`LICENSES/ogl-uk-3.0/index.md`](LICENSES/ogl-uk-3.0/index.md) · <https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/> |
+| Creative Commons Attribution Non Commercial Share Alike 4.0 International | `CC-BY-NC-SA-4.0` | [`LICENSES/cc-by-nc-sa-4.0/index.md`](LICENSES/cc-by-nc-sa-4.0/index.md) · <https://creativecommons.org/licenses/by-nc-sa/4.0/> |
 
 Each identifier above is the SPDX short identifier from the
 [SPDX License List](https://spdx.org/licenses/), which is the vocabulary
@@ -30,7 +31,7 @@ reads. So a scanner run against these crates resolves the expression
 without a human having to interpret this file.
 
 Pick the one that fits your project and comply with that one. You do not
-need to comply with all five, and you do not need to tell anyone which you
+need to comply with all seven, and you do not need to tell anyone which you
 chose.
 
 ## Marking a file
@@ -41,10 +42,10 @@ package. If your organisation requires per-file marking on vendored code,
 the line to add at the top of a file is:
 
 ```
-// SPDX-License-Identifier: MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only
+// SPDX-License-Identifier: MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-NC-SA-4.0
 ```
 
-or, if you have chosen one of the five for your own distribution, that one
+or, if you have chosen one of the seven for your own distribution, that one
 alone.
 
 ## What this covers, and what it does not
@@ -63,7 +64,7 @@ a license to use either mark.
 
 Copyright © Joel Parker Henderson <joel@joelparkerhenderson.com>
 
-## Why five
+## Why seven
 
 Healthcare integration code ends up inside organisations with very
 different legal constraints: a permissive license suits a vendor

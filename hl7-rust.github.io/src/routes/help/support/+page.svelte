@@ -42,7 +42,7 @@ spec/                workspace-wide specs (the MSRV policy)
   spec/index.md      the normative specification, where behavior is normative
   AGENTS.md          conventions and required checks for changing this crate
   CLAUDE.md          points at AGENTS.md
-  LICENSE.md         the same five-way boilerplate, byte for byte
+  LICENSE.md         the same seven-way boilerplate, byte for byte
   samples/           example inputs, where the crate has them`;
 </script>
 
@@ -233,8 +233,8 @@ spec/                workspace-wide specs (the MSRV policy)
 
   <h2 id="license">Licensing your contribution</h2>
   <p>
-    Everything in the workspace is offered under MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, or
-    GPL-3.0-only, at the user's option. A contribution is offered on the same terms, so that the
+    Everything in the workspace is offered under MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or
+    CC-BY-NC-SA-4.0, at the user's option. A contribution is offered on the same terms, so that the
     choice stays available to everyone downstream.
   </p>
   <p>Contact: <a href="mailto:joel@joelparkerhenderson.com">joel@joelparkerhenderson.com</a>.</p>

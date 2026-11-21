@@ -221,7 +221,7 @@ grep -rn "^log = \\|^tracing" --include=Cargo.toml .  # nothing`;
     Then read the <code>Error</code> enum in <code>hl7-2</code>'s <code>src/lib.rs</code> and
     <code>Diagnostic</code> in <code>src/validate.rs</code> against
     <a href="#escape">Where a value can escape</a> above, and check the licensing: MIT, Apache-2.0,
-    BSD-3-Clause, GPL-2.0-only, or GPL-3.0-only at your option, the same five in every crate, byte
+    BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-NC-SA-4.0 at your option, the same seven in every crate, byte
     for byte.
   </p>
 </DocPage>

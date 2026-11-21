@@ -222,7 +222,7 @@ let message = hl7_2::parse_with_options(text, &options)?;`;
     expected, not a breaking change to be avoided. See <a href="/docs/versions/#msrv">Versions and compatibility</a>.
   </p>
 
-  <h3>Why five licenses?</h3>
+  <h3>Why seven licenses?</h3>
   <p>
     So you can pick the one your organization has already cleared. <code>OR</code> means exactly
     that: comply with one, and you do not have to say which.

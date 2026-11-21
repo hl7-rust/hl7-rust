@@ -111,7 +111,7 @@ exists.
 Anyone may contribute; see [`CONTRIBUTING.md`](CONTRIBUTING.md), which
 covers time, code, reports from a real feed, and money. No contributor
 licence agreement, no copyright assignment. A contribution is offered under
-the same five licences as everything else, so the choice stays available
+the same seven licences as everything else, so the choice stays available
 downstream.
 
 **A pull request is accepted when** it passes the gates in
@@ -150,7 +150,7 @@ the code contradicts its spec, or that a spec contradicts the standard, is
 settleable by reading. A claim that a decision is *unwise* is not settleable
 that way, and the maintainer decides, in public, with reasons.
 
-If a decision is one you cannot live with, the licence is five-way and the
+If a decision is one you cannot live with, the licence is seven-way and the
 history is public and mirrored on three hosts. A fork is a legitimate
 outcome and not a hostile one; the specs exist substantially so that a fork
 is maintainable by someone who never spoke to the author.

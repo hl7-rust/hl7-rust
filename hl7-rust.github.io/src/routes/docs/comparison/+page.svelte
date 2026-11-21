@@ -142,7 +142,7 @@ let name = fields[5];`;
         <tr>
           <td>Licence</td>
           <td>MPL 1.1 or GPL 2.0 for HAPI</td>
-          <td>MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, or GPL-3.0-only, at your option</td>
+          <td>MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-NC-SA-4.0, at your option</td>
         </tr>
       </tbody>
     </table>
@@ -255,7 +255,7 @@ let name = fields[5];`;
       approved on a cycle measured in quarters.
     </li>
     <li>
-      <strong>Five licences, at your option</strong>, so licensing is not a conversation.
+      <strong>Seven licences, at your option</strong>, so licensing is not a conversation.
     </li>
     <li>
       <strong>A vendor dialect is one JSON file</strong>, or generated from your own XSDs.

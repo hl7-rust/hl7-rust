@@ -68,7 +68,7 @@
     </dd>
     <dt>Can I use these commercially?</dt>
     <dd>
-      Yes. Every crate is offered under MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, or GPL-3.0-only,
+      Yes. Every crate is offered under MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-NC-SA-4.0,
       at your option. See <a href="/docs/versions/#license">Licensing</a>.
     </dd>
     <dt>Is the HL7® FHIR® standard supported?</dt>

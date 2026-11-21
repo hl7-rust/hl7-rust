@@ -31,7 +31,7 @@ assert_eq!(Version::nearest("2.5.2"), Some(Version::V2_5_1));`;
   const msrv = `# Check a change against the floor
 cargo +1.98 check --workspace --all-targets`;
 
-  const licenseText = `MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only`;
+  const licenseText = `MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-NC-SA-4.0`;
 
   /** From hl7-2's spec/index.md §3.4 — the differences from v2.5 it models. */
   const deltas = [
@@ -58,7 +58,7 @@ cargo +1.98 check --workspace --all-targets`;
 </script>
 
 <DocPage
-  lede="Which HL7 releases are supported and what “supported” means for each; which crate versions are current; the Rust version floor; and what the five-way license actually gives you."
+  lede="Which HL7 releases are supported and what “supported” means for each; which crate versions are current; the Rust version floor; and what the seven-way license actually gives you."
   {contents}
 >
   <h2 id="hl7-releases">HL7 v2 releases 2.1 through 2.9</h2>
@@ -171,13 +171,13 @@ cargo +1.98 check --workspace --all-targets`;
   </p>
 
   <h2 id="license">Licensing</h2>
-  <p>Every crate, and the workspace root, carries the same five-way choice:</p>
+  <p>Every crate, and the workspace root, carries the same seven-way choice:</p>
   <CodeSample language="text" code={licenseText} label="SPDX license expression" />
   <p>
     <code>OR</code> means you pick. Take MIT if you want the simplest permissive terms; Apache-2.0
     if you want its explicit patent grant; BSD-3-Clause if that is what your organization has
     already cleared; or either GPL if you are integrating into a copyleft project that requires
-    it. You do not have to comply with all five, and you do not have to tell anyone which you
+    it. You do not have to comply with all seven, and you do not have to tell anyone which you
     chose.
   </p>
   <p>

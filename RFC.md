@@ -24,7 +24,7 @@ you can say is "we send that segment too", that is still an answer.
 - [4. Vendor dialects: is JSON the right shape?](#4-vendor-dialects-is-json-the-right-shape)
 - [5. Is the HL7® v3 foundation worth keeping?](#5-is-the-hl7-v3-foundation-worth-keeping)
 - [6. Should the HL7® FHIR® standard be implemented here at all?](#6-should-the-hl7-fhir-standard-be-implemented-here-at-all)
-- [7. Does five-way licensing help or confuse?](#7-does-five-way-licensing-help-or-confuse)
+- [7. Does seven-way licensing help or confuse?](#7-does-seven-way-licensing-help-or-confuse)
 - [8. What would make a one-maintainer project adoptable?](#8-what-would-make-a-one-maintainer-project-adoptable)
 - [9. Is the tree worth optimising?](#9-is-the-tree-worth-optimising)
 - [10. What is missing that nobody has mentioned?](#10-what-is-missing-that-nobody-has-mentioned)
@@ -147,10 +147,10 @@ crate, say why — particularly if the reason is v2-to-FHIR conversion, which
 would sit naturally next to the existing conversion crates and is a much
 smaller thing to build than the whole standard.
 
-## 7. Does five-way licensing help or confuse?
+## 7. Does seven-way licensing help or confuse?
 
 **The question.** Every crate is MIT, Apache-2.0, BSD-3-Clause,
-GPL-2.0-only, or GPL-3.0-only, at your option, so that a proprietary vendor
+GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-NC-SA-4.0, at your option, so that a proprietary vendor
 and a public-sector project can both adopt without asking.
 
 **Why it is open.** The intent is to remove a conversation. The risk is
