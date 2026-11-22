@@ -426,21 +426,14 @@ impl Message {
                 });
             }
         };
-        if segment.fields.len() < number {
-            if create == Create::No {
-                return Ok(());
-            }
-            segment.fields.resize_with(number, Default::default);
-        }
-        let field = &mut segment.fields[number - 1];
+        let Some(field) = grow(&mut segment.fields, number, create, "field")? else {
+            return Ok(());
+        };
         let repetition = path.repetition.unwrap_or(1);
-        if field.repetitions.len() < repetition {
-            if create == Create::No {
-                return Ok(());
-            }
-            field.repetitions.resize_with(repetition, Default::default);
-        }
-        let repetition = &mut field.repetitions[repetition - 1];
+        let Some(repetition) = grow(&mut field.repetitions, repetition, create, "repetition")?
+        else {
+            return Ok(());
+        };
         // Each level below the one the path names is filled by splitting
         // the text on that level's delimiter, so `set_er7("PID-5",
         // "SMITH^JOHN")` writes two components while `set` — which escaped
@@ -453,20 +446,28 @@ impl Message {
                     .collect();
             }
             (Some(component), None) => {
-                if !grow(&mut repetition.components, component, create) {
+                let Some(slot) = grow(&mut repetition.components, component, create, "component")?
+                else {
                     return Ok(());
-                }
-                repetition.components[component - 1] = component_from(encoded, &separators);
+                };
+                *slot = component_from(encoded, &separators);
             }
             (Some(component), Some(subcomponent)) => {
-                if !grow(&mut repetition.components, component, create) {
+                let Some(component) =
+                    grow(&mut repetition.components, component, create, "component")?
+                else {
                     return Ok(());
-                }
-                let component = &mut repetition.components[component - 1];
-                if !grow(&mut component.subcomponents, subcomponent, create) {
+                };
+                let Some(slot) = grow(
+                    &mut component.subcomponents,
+                    subcomponent,
+                    create,
+                    "subcomponent",
+                )?
+                else {
                     return Ok(());
-                }
-                component.subcomponents[subcomponent - 1] = er7::Subcomponent::new(encoded);
+                };
+                *slot = er7::Subcomponent::new(encoded);
             }
         }
         Ok(())
@@ -525,7 +526,8 @@ impl Message {
             index += 1;
             index == 1 || segment.name != name
         });
-        before - self.raw.segments.len()
+        // Retaining never grows the list, so the difference is the count removed.
+        before.abs_diff(self.raw.segments.len())
     }
 
     // ---- validation and struct mode -------------------------------------
@@ -589,14 +591,24 @@ enum Create {
 
 /// Grow `list` so that `position` (1-based) exists, reporting whether the
 /// caller may go on to write there.
-fn grow<T: Default>(list: &mut Vec<T>, position: usize, create: Create) -> bool {
-    if list.len() < position {
+fn grow<'a, T: Default>(
+    list: &'a mut Vec<T>,
+    position: usize,
+    create: Create,
+    level: &'static str,
+) -> Result<Option<&'a mut T>, Error> {
+    // Positions are 1-based; zero names nothing, and there is no declared
+    // fallback for it (RCA-DECL-5), so it is a refusal rather than slot 0.
+    let index = position
+        .checked_sub(1)
+        .ok_or_else(|| Error::UnwritablePath(format!("{level} positions start at 1, not 0")))?;
+    if list.len() <= index {
         if create == Create::No {
-            return false;
+            return Ok(None);
         }
         list.resize_with(position, Default::default);
     }
-    true
+    Ok(list.get_mut(index))
 }
 
 /// Split already-encoded text into one component's subcomponents.
@@ -631,6 +643,31 @@ mod tests {
 
     fn message() -> Message {
         crate::parse(&format!("{HEADER}\rPID|1||241900||TEST^FOUAZ\rNK1|1")).unwrap()
+    }
+
+    #[test]
+    fn grow_refuses_position_zero_and_creates_or_skips_the_rest() {
+        let mut list: Vec<u8> = Vec::new();
+        // First failing input: position 0 has no slot, and no fallback is declared.
+        match grow(&mut list, 0, Create::Yes, "field") {
+            Err(Error::UnwritablePath(reason)) => {
+                assert_eq!(reason, "field positions start at 1, not 0");
+            }
+            other => panic!(
+                "expected UnwritablePath, got {:?}",
+                other.map(|slot| slot.is_some())
+            ),
+        }
+        assert_eq!(list.len(), 0);
+        // Absent and not to be created.
+        assert!(matches!(grow(&mut list, 2, Create::No, "field"), Ok(None)));
+        assert_eq!(list.len(), 0);
+        // Absent and created: the list grows to exactly the position.
+        assert!(matches!(
+            grow(&mut list, 2, Create::Yes, "field"),
+            Ok(Some(_))
+        ));
+        assert_eq!(list.len(), 2);
     }
 
     #[test]

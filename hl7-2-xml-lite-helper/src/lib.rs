@@ -293,7 +293,8 @@ impl<'a> Cursor<'a> {
 
     fn skip_whitespace(&mut self) {
         let trimmed = self.rest().trim_start();
-        self.position = self.text.len() - trimmed.len();
+        // `trimmed` is a suffix of `text`, so the difference is the bytes skipped.
+        self.position = self.text.len().abs_diff(trimmed.len());
     }
 
     fn skip_prolog(&mut self) -> Result<(), Error> {

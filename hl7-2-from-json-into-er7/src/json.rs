@@ -128,7 +128,8 @@ impl<'a> Cursor<'a> {
 
     fn skip_ws(&mut self) {
         let trimmed = self.rest().trim_start_matches([' ', '\t', '\n', '\r']);
-        self.pos = self.s.len() - trimmed.len();
+        // `trimmed` is a suffix of `s`, so the difference is the bytes skipped.
+        self.pos = self.s.len().abs_diff(trimmed.len());
     }
 
     fn err(&self, reason: &str) -> JsonError {

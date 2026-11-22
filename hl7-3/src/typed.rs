@@ -107,17 +107,24 @@ impl FromElementValue for bool {
     }
 }
 
-/// Numbers parse with their own `FromStr`; absent or unparseable is `0`,
-/// per this module's "total" rule.
+/// Numbers parse with their own `FromStr`; absent, unparseable or out of the
+/// type's range is `0`, per this module's "total" rule.
+///
+/// Fallback: the type's zero — the hl7-3 spec (`FromElementValue`, "the integer
+/// and floating-point types (unparseable or absent is `0`)") declares it, and
+/// zero is a valid value of every one of these types.
 macro_rules! numbers {
     ($($type:ty),*) => {$(
         impl FromElementValue for $type {
             fn from_attribute(value: Option<&str>) -> $type {
-                value.and_then(|v| v.trim().parse().ok()).unwrap_or_default()
+                value
+                    .and_then(|v| v.trim().parse().ok())
+                    .unwrap_or(<$type as Default>::default()) // spec: unparseable or absent is 0
             }
 
             fn from_child_text(text: Option<&str>) -> $type {
-                text.and_then(|v| v.trim().parse().ok()).unwrap_or_default()
+                text.and_then(|v| v.trim().parse().ok())
+                    .unwrap_or(<$type as Default>::default()) // spec: unparseable or absent is 0
             }
         }
     )*};
@@ -259,6 +266,11 @@ mod tests {
         assert_eq!(u32::from_attribute(Some("7")), 7);
         assert_eq!(u32::from_attribute(Some("not a number")), 0);
         assert_eq!(u32::from_attribute(None), 0);
+        // First out-of-range input for each width: the declared fallback is 0, not a wrap or a clamp.
+        assert_eq!(u8::from_attribute(Some("255")), 255);
+        assert_eq!(u8::from_attribute(Some("256")), 0);
+        assert_eq!(i8::from_child_text(Some("-129")), 0);
+        assert_eq!(u8::from_child_text(Some("-1")), 0);
         assert!(bool::from_attribute(Some("true")));
         assert!(!bool::from_attribute(Some("yes")));
         assert!(!bool::from_attribute(None));

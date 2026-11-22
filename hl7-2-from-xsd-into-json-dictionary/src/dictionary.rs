@@ -209,8 +209,19 @@ fn object(depth: usize, entries: impl Iterator<Item = (String, String)>) -> Stri
     if rendered.is_empty() {
         return "{}".to_string();
     }
-    format!("{{\n{}\n{}}}", rendered.join(",\n"), "  ".repeat(depth - 1))
+    format!("{{\n{}\n{}}}", rendered.join(",\n"), closing_pad(depth))
 }
+
+/// Indentation of the line that closes an object or array opened at `depth`.
+///
+/// Fallback: `ROOT_CLOSING_LEVEL` (0) — depth 0 is the document root, which
+/// has nothing to close at a shallower level, so its closer sits at the margin.
+fn closing_pad(depth: usize) -> String {
+    "  ".repeat(depth.checked_sub(1).unwrap_or(ROOT_CLOSING_LEVEL))
+}
+
+/// Indentation levels of a closer when there is no level above it.
+const ROOT_CLOSING_LEVEL: usize = 0;
 
 fn array(depth: usize, items: &[String]) -> String {
     if items.is_empty() {
@@ -220,7 +231,7 @@ fn array(depth: usize, items: &[String]) -> String {
     format!(
         "[\n{pad}{}\n{}]",
         items.join(&format!(",\n{pad}")),
-        "  ".repeat(depth - 1)
+        closing_pad(depth)
     )
 }
 
@@ -236,8 +247,8 @@ fn quote(text: &str) -> String {
             '\n' => out.push_str("\\n"),
             '\r' => out.push_str("\\r"),
             '\t' => out.push_str("\\t"),
-            c if (c as u32) < 0x20 => {
-                let _ = write!(out, "\\u{:04x}", c as u32);
+            c if u32::from(c) < 0x20 => {
+                let _ = write!(out, "\\u{:04x}", u32::from(c));
             }
             c => out.push(c),
         }
@@ -275,6 +286,18 @@ mod tests {
                 repeats: true
             }),
             "{\"type\": \"CX\", \"required\": true, \"repeats\": true}"
+        );
+    }
+
+    #[test]
+    fn a_closer_with_no_level_above_it_sits_at_the_margin() {
+        // First failing input: depth 0, where `0 - 1` has no result.
+        assert_eq!(closing_pad(0), "");
+        assert_eq!(closing_pad(1), "");
+        assert_eq!(closing_pad(2), "  ");
+        assert_eq!(
+            object(0, [("k".to_string(), "1".to_string())].into_iter()),
+            "{\n\"k\": 1\n}"
         );
     }
 

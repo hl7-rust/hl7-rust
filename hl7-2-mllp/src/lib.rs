@@ -129,6 +129,9 @@ pub const CARRIAGE_RETURN: u8 = 0x0D;
 /// is kilobytes; megabytes only when it carries a document in OBX-5.
 pub const DEFAULT_LIMIT: usize = 16 * 1024 * 1024;
 
+/// Bytes a frame adds to its payload: `<VT>`, `<FS>` and `<CR>`.
+const FRAME_OVERHEAD: usize = 3;
+
 /// Wrap a payload in a frame: `<VT>` + payload + `<FS><CR>`.
 ///
 /// The payload is neither inspected nor modified. MLLP has no escaping — it
@@ -137,7 +140,13 @@ pub const DEFAULT_LIMIT: usize = 16 * 1024 * 1024;
 /// check; HL7 v2 text never contains either byte.
 #[must_use]
 pub fn encode(payload: &[u8]) -> Vec<u8> {
-    let mut frame = Vec::with_capacity(payload.len() + 3);
+    // Fallback: `payload.len()` — the capacity is only a hint, so when
+    // `len + 3` does not fit `usize` the vector grows on demand instead.
+    let capacity = payload
+        .len()
+        .checked_add(FRAME_OVERHEAD)
+        .unwrap_or(payload.len());
+    let mut frame = Vec::with_capacity(capacity);
     frame.push(START_BLOCK);
     frame.extend_from_slice(payload);
     frame.push(END_BLOCK);
@@ -185,11 +194,17 @@ pub fn decode_with(frame: &[u8], tolerance: Tolerance) -> Result<&[u8], Error> {
     let Some(end) = rest.iter().position(|&byte| byte == END_BLOCK) else {
         return Err(Error::Incomplete);
     };
-    let payload = &rest[..end];
+    // `end` indexes `rest`, so the split and the skip past `<FS>` always succeed.
+    let Some((payload, from_end)) = rest.split_at_checked(end) else {
+        return Err(Error::Incomplete);
+    };
+    let Some(after_end) = from_end.get(1..) else {
+        return Err(Error::Incomplete);
+    };
     if payload.contains(&START_BLOCK) {
         return Err(Error::EmbeddedStartBlock);
     }
-    match &rest[end + 1..] {
+    match after_end {
         [CARRIAGE_RETURN] => Ok(payload),
         [] if tolerance.allows_missing_carriage_return() => Ok(payload),
         [] => Err(Error::Incomplete),
