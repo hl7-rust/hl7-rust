@@ -36,6 +36,13 @@ default or clamped (`spec/rust-checked-arithmetic`, RCA-IN-2, RCA-IN-3).
 - **`hl7-2`**: `Message::insert_segment` returns `Result<&mut Segment, Error>`
   and fails with `Error::UnwritablePath` for index `0` or past the end of the
   segment list; it used to clamp to the end.
+- **`hl7-2`**: a message whose MSH-12 is absent, empty, unreadable, or older
+  than 2.1 is now rejected by `parse` / `parse_with_options` instead of being
+  read as v2.5. New `Error::MissingVersion` and `Error::BadVersion(String)`
+  (the `Error` enum is not `#[non_exhaustive]`, so exhaustive matches must
+  add them). `Options::version` still overrides MSH-12 and lets such a
+  message parse. Callers that relied on the v2.5 default must set it
+  explicitly.
 
 ## 2026-11-19, tenth release
 

@@ -33,10 +33,17 @@ impl Message {
     /// which is the same call under the name callers reach for.
     pub(crate) fn parse(text: &str, options: &Options) -> Result<Message, Error> {
         let raw = er7::parse(&crate::normalize(text))?;
-        let version = options
-            .version
-            .or_else(|| Version::from_message(&raw))
-            .unwrap_or_default();
+        let version = if let Some(version) = options.version {
+            version
+        } else {
+            // RCA-IN-2, RCA-IN-6: a received message that does not say what
+            // release it speaks is rejected, not read as a default.
+            let declared = raw.version().unwrap_or_default();
+            if declared.trim().is_empty() {
+                return Err(Error::MissingVersion);
+            }
+            Version::nearest(&declared).ok_or(Error::BadVersion(declared))?
+        };
         let dictionary = match &options.dictionary {
             Some(dictionary) => Arc::clone(dictionary),
             None => version.dictionary(),
@@ -702,14 +709,49 @@ mod tests {
     }
 
     #[test]
-    fn defaults_the_version_when_msh_12_is_missing_or_odd() {
-        let message = crate::parse("MSH|^~\\&|A||||1||ACK|1|P|\rMSA|AA|1").unwrap();
-        assert_eq!(message.version(), Version::V2_5);
+    fn reads_the_version_from_msh_12() {
         let message = crate::parse("MSH|^~\\&|A||||1||ACK|1|P|2.3.1\rMSA|AA|1").unwrap();
         assert_eq!(message.version(), Version::V2_3_1);
         // An unmodelled point release reads as the nearest older one.
         let message = crate::parse("MSH|^~\\&|A||||1||ACK|1|P|2.5.2\rMSA|AA|1").unwrap();
         assert_eq!(message.version(), Version::V2_5_1);
+    }
+
+    #[test]
+    fn rejects_an_absent_empty_or_unreadable_msh_12() {
+        // RCA-TEST-8: exact errors, not just "is_err".
+        let absent = "MSH|^~\\&|A||||1||ACK|1|P\rMSA|AA|1";
+        let empty = "MSH|^~\\&|A||||1||ACK|1|P|\rMSA|AA|1";
+        let unreadable = "MSH|^~\\&|A||||1||ACK|1|P|HL7\rMSA|AA|1";
+        let too_old = "MSH|^~\\&|A||||1||ACK|1|P|2.0\rMSA|AA|1";
+        for text in [absent, empty] {
+            assert_eq!(crate::parse(text).unwrap_err(), Error::MissingVersion);
+        }
+        assert_eq!(
+            crate::parse(unreadable).unwrap_err(),
+            Error::BadVersion("HL7".to_string())
+        );
+        assert_eq!(
+            crate::parse(too_old).unwrap_err(),
+            Error::BadVersion("2.0".to_string())
+        );
+        assert_eq!(
+            Error::MissingVersion.to_string(),
+            "MSH-12 (version ID) is missing or empty, and no version was forced"
+        );
+        // Strict mode reports the same error, before validation runs.
+        assert_eq!(
+            crate::parse_with_options(absent, &Options::new().strict()).unwrap_err(),
+            Error::MissingVersion
+        );
+        // A forced version is an explicit decision and is honoured.
+        let forced = Options::new().with_version(Version::V2_3);
+        assert_eq!(
+            crate::parse_with_options(absent, &forced)
+                .unwrap()
+                .version(),
+            Version::V2_3
+        );
     }
 
     #[test]

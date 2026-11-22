@@ -37,8 +37,8 @@ use crate::{Diagnostic, Message, Node};
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// use serde_hl7_v2::{Message, Strict};
 ///
-/// let good = r#"{"version":"2.5","er7":"MSH|^~\\&|LAB"}"#;
-/// let typo = r#"{"verison":"2.5","er7":"MSH|^~\\&|LAB"}"#;
+/// let good = r#"{"version":"2.5","er7":"MSH|^~\\&|LAB|||||||||2.5"}"#;
+/// let typo = r#"{"verison":"2.5","er7":"MSH|^~\\&|LAB|||||||||2.5"}"#;
 ///
 /// // The plain type ignores the mistyped optional key — and silently
 /// // falls back to MSH-12 for the version. `Strict<Message>` reports it:
@@ -108,15 +108,15 @@ mod tests {
 
     #[test]
     fn deref_reaches_the_inner_value() {
-        let mut strict = Strict(Message::parse("MSH|^~\\&|LAB").unwrap());
-        assert_eq!(strict.to_er7(), "MSH|^~\\&|LAB");
+        let mut strict = Strict(Message::parse("MSH|^~\\&|LAB|||||||||2.5").unwrap());
+        assert_eq!(strict.to_er7(), "MSH|^~\\&|LAB|||||||||2.5");
         strict.set("MSH-3", "APP").unwrap();
         assert_eq!(strict.get("MSH-3").unwrap().as_deref(), Some("APP"));
     }
 
     #[test]
     fn from_and_back_round_trip() {
-        let message = Message::parse("MSH|^~\\&|LAB").unwrap();
+        let message = Message::parse("MSH|^~\\&|LAB|||||||||2.5").unwrap();
         let strict: Strict<Message> = message.clone().into();
         let back: Message = strict.into();
         assert_eq!(back.to_er7(), message.to_er7());
@@ -129,13 +129,13 @@ mod tests {
         });
         let _: Diagnostic = Strict::from(diagnostic).into();
 
-        let node = Node(Message::parse("MSH|^~\\&|LAB").unwrap().tree());
+        let node = Node(Message::parse("MSH|^~\\&|LAB|||||||||2.5").unwrap().tree());
         let _: Node = Strict::from(node).into();
     }
 
     #[test]
     fn serialize_delegates_to_the_inner_type() {
-        let message = Message::parse("MSH|^~\\&|LAB").unwrap();
+        let message = Message::parse("MSH|^~\\&|LAB|||||||||2.5").unwrap();
         let plain = serde_json::to_string(&message).unwrap();
         let wrapped = serde_json::to_string(&Strict(message)).unwrap();
         assert_eq!(plain, wrapped);

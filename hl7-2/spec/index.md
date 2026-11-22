@@ -251,8 +251,10 @@ speculatively.
 `Options::version`, when set, wins outright. Otherwise MSH-12.1 is resolved
 by `Version::nearest`: an exact match if there is one, otherwise the newest
 known release no newer than what was declared (so `2.5.2` reads as `2.5.1`
-and `3.0` as `2.9`). A version older than 2.1, an unreadable one, or an
-absent MSH-12 falls back to the default, v2.5, and §8 reports a warning.
+and `3.0` as `2.9`). A version older than 2.1 or an unreadable one fails
+parsing with `Error::BadVersion`, and an absent or empty MSH-12 fails with
+`Error::MissingVersion`; there is no default release (RCA-IN-2, RCA-IN-6).
+Only an explicit `Options::version` lets such a message parse.
 
 ## 4. Generic mode (`src/generic.rs`, `src/structure.rs`)
 
@@ -478,7 +480,7 @@ diagnostics. It never fails and never changes the message.
 
 | kind | when |
 |---|---|
-| `Header` | MSH-12 is empty or names an unmodelled release |
+| `Header` | MSH-12 names an unmodelled release, or is empty under a forced `Options::version` |
 | `StructureUnknown` | no grammar for this structure ID |
 | `StructureMismatch` | the standard segments fit, but local Z-segments do not (§8.1) |
 | `SegmentUnknown` | a segment the dictionary does not define |
@@ -605,7 +607,7 @@ tests in `tests/main.rs`; derive tests in
 | 3.2 | list replaces, object overrides positions | `dictionary::tests::a_sparse_delta_restates_one_position_and_keeps_the_rest` |
 | 3.3 | `inherits`: replace, remove, inherit | `dictionary::tests::a_delta_adds_removes_and_inherits`, `dictionary::tests::layering_over_an_explicit_base_ignores_inherits` |
 | 3.4 | every bundled release loads and reads | `version::tests::bundled_dictionaries_all_load`, `integration::every_bundled_release_reads_a_message_that_declares_it`, `integration::a_release_difference_changes_how_a_field_reads` |
-| 3.5 | release choice and nearest-older fallback | `version::tests::falls_back_to_the_nearest_older_release`, `message::tests::defaults_the_version_when_msh_12_is_missing_or_odd`, `tests::forcing_a_version_overrides_the_header` |
+| 3.5 | release choice and nearest-older fallback | `version::tests::falls_back_to_the_nearest_older_release`, `message::tests::reads_the_version_from_msh_12`, `message::tests::rejects_an_absent_empty_or_unreadable_msh_12`, `tests::forcing_a_version_overrides_the_header` |
 | 4.1 | structure ID, aliases, MSH-9.3 | `message::tests::reads_version_and_structure_off_the_header` |
 | 4.2 | node names, typed and positional | `generic::tests::names_known_types_after_the_type_and_the_rest_positionally` |
 | 4.2 | every node carries its path | `generic::tests::every_node_carries_the_path_that_reads_it_back` |

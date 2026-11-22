@@ -185,8 +185,9 @@ The following rules apply to ER7 parsing and rendering.
 MSH-10 empty; a required segment or group absent; segments that do not fit
 the structure; an `SI`, `NM`, `DT`, `TM`, or `DTM` value that is not one.
 
-**Warnings — the dictionary does not cover the message:** MSH-12 empty or
-naming an unmodelled release; no grammar for the structure; standard
+**Warnings — the dictionary does not cover the message:** MSH-12 naming an
+unmodelled release, or empty under a forced `Options::version` (otherwise an
+empty or unreadable MSH-12 fails parsing); no grammar for the structure; standard
 segments fit but Z-segments do not; an unknown segment, field, or
 component.
 

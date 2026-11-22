@@ -585,7 +585,12 @@ mod tests {
 
     #[test]
     fn missing_header_values_unknown_segments_and_extra_components_are_reported() {
-        let found = diagnostics("MSH|^~\\&|A||||20240101|||1|P|\rABC|x");
+        // MSH-12 is empty, so parsing needs a forced release (an empty
+        // MSH-12 is otherwise rejected); validation still reports it.
+        let options = crate::Options::new().with_version(crate::Version::V2_5);
+        let found = crate::parse_with_options("MSH|^~\\&|A||||20240101|||1|P|\rABC|x", &options)
+            .unwrap()
+            .validate();
         assert!(
             found
                 .iter()
