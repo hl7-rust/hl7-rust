@@ -63,7 +63,10 @@ than one module's types together (nothing has, so far).
   small as `hl7-2-soap`'s or `hl7-2-from-xml-into-er7`'s. The derive macro
   lives in the sibling crate `hl7-3-derive`, behind this crate's optional
   `derive` feature, so the default build is unaffected.
-- **Every `from_element` reader is infallible and total.** A missing
+- **Every `rim`/`vocabulary` `from_element` reader is infallible and total.
+  (The struct-mode `FromElement`/`FromElementValue` traits are the exception:
+  they return `Result`, because a present but malformed number or boolean is
+  `Error::InvalidValue`, never a default.)** A missing
   optional attribute or child reads as `None` or an empty `Vec`, never a
   panic and never an error — matching `hl7-2` generic mode's "degrade,
   don't reject" philosophy. Only [`message::parse`] returns a `Result`,

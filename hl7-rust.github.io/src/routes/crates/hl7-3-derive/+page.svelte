@@ -32,7 +32,7 @@ struct Observation {
 }
 
 let element = hl7_3::xml::parse(xml)?;
-let observation = Observation::from_element(&element);
+let observation = Observation::from_element(&element)?;
 assert_eq!(observation.class_code, "OBS");
 
 // The one attribute no struct field models — same object, no second parse.

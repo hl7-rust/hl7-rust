@@ -36,7 +36,7 @@ struct Observation {
 fn reads_each_annotated_field_from_the_element() {
     use hl7_3::typed::FromElement;
     let element = hl7_3::xml::parse(XML).unwrap();
-    let observation = Observation::from_element(&element);
+    let observation = Observation::from_element(&element).unwrap();
     assert_eq!(observation.class_code, "OBS");
     assert_eq!(observation.mood_code, "EVN");
     assert_eq!(observation.note.as_deref(), Some("elevated"));
@@ -64,7 +64,7 @@ struct Required {
 fn a_missing_attribute_degrades_to_the_default_not_an_error() {
     use hl7_3::typed::FromElement;
     let element = hl7_3::xml::parse("<empty/>").unwrap();
-    let required = Required::from_element(&element);
+    let required = Required::from_element(&element).unwrap();
     assert_eq!(required.class_code, "");
 }
 
@@ -81,8 +81,23 @@ where
 fn generic_structs_carry_their_bounds_through() {
     use hl7_3::typed::FromElement;
     let element = hl7_3::xml::parse(r#"<act classCode="42"/>"#).unwrap();
-    let typed: Generic<u32> = Generic::from_element(&element);
+    let typed: Generic<u32> = Generic::from_element(&element).unwrap();
     assert_eq!(typed.value, 42);
-    let text: Generic<String> = Generic::from_element(&element);
+    let text: Generic<String> = Generic::from_element(&element).unwrap();
     assert_eq!(text.value, "42");
+}
+
+#[test]
+fn a_malformed_value_is_an_error_naming_the_field() {
+    use hl7_3::typed::FromElement;
+    let element = hl7_3::xml::parse(r#"<act classCode="4294967296"/>"#).unwrap();
+    let error = Generic::<u32>::from_element(&element).unwrap_err();
+    assert_eq!(
+        error,
+        hl7_3::Error::InvalidValue {
+            name: "classCode".to_string(),
+            value: "4294967296".to_string(),
+            expected: "u32",
+        }
+    );
 }

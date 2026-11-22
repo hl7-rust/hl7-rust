@@ -483,14 +483,30 @@ impl Message {
     /// # Ok::<(), hl7_2::Error>(())
     /// ```
     pub fn append_segment(&mut self, name: &str) -> &mut Segment {
-        self.insert_segment(self.raw.segments.len(), name)
+        self.raw.segments.push(Segment {
+            name: name.to_string(),
+            fields: Vec::new(),
+        });
+        let last = self.raw.segments.len() - 1;
+        &mut self.raw.segments[last]
     }
 
-    /// Insert an empty segment named `name` at `index` in the segment list,
-    /// clamped to the end. Inserting is how a segment lands in the place
-    /// its structure expects rather than after everything else.
-    pub fn insert_segment(&mut self, index: usize, name: &str) -> &mut Segment {
-        let index = index.min(self.raw.segments.len());
+    /// Insert an empty segment named `name` at `index` in the segment list.
+    /// Inserting is how a segment lands in the place its structure expects
+    /// rather than after everything else.
+    ///
+    /// # Errors
+    ///
+    /// [`Error::UnwritablePath`] when `index` is `0` (the MSH header stays
+    /// first) or past the end of the segment list; the index is never
+    /// clamped.
+    pub fn insert_segment(&mut self, index: usize, name: &str) -> Result<&mut Segment, Error> {
+        let count = self.raw.segments.len();
+        if index == 0 || index > count {
+            return Err(Error::UnwritablePath(format!(
+                "segment index {index} is outside 1..={count}"
+            )));
+        }
         self.raw.segments.insert(
             index,
             Segment {
@@ -498,7 +514,7 @@ impl Message {
                 fields: Vec::new(),
             },
         );
-        &mut self.raw.segments[index]
+        Ok(&mut self.raw.segments[index])
     }
 
     /// Remove the `occurrence`-th (1-based) segment named `name`, returning
@@ -775,8 +791,21 @@ mod tests {
         message.append_segment("OBX");
         message.set("OBX-3.1", "GLU").unwrap();
         assert!(message.to_er7().ends_with("OBX|||GLU"));
-        message.insert_segment(1, "EVN");
+        message.insert_segment(1, "EVN").unwrap();
         assert_eq!(message.raw().segments[1].name, "EVN");
+        // An index past the end or before the header is rejected, not clamped.
+        let count = message.raw().segments.len();
+        for index in [0, count + 1, usize::MAX] {
+            assert!(
+                matches!(
+                    message.insert_segment(index, "NTE"),
+                    Err(Error::UnwritablePath(_))
+                ),
+                "index {index}"
+            );
+        }
+        assert_eq!(message.raw().segments.len(), count);
+        message.insert_segment(count, "NTE").unwrap();
         assert_eq!(message.remove_segments("NK1"), 1);
         assert!(message.segment("NK1").is_none());
         // The header stays put whatever is asked.

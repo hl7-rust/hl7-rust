@@ -105,12 +105,27 @@ pub use hl7_2_xml_lite_helper as xml;
 pub enum Error {
     /// The input is not well-formed XML.
     Xml(hl7_2_xml_lite_helper::Error),
+    /// A value was present but not the type the field reads as (a number
+    /// that is not a number or is out of range, a malformed boolean).
+    InvalidValue {
+        /// The attribute or child the value came from.
+        name: String,
+        /// The value as received.
+        value: String,
+        /// What the field expected.
+        expected: &'static str,
+    },
 }
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Error::Xml(error) => write!(f, "not well-formed XML: {error}"),
+            Error::InvalidValue {
+                name,
+                value,
+                expected,
+            } => write!(f, "invalid value {value:?} for {name}: expected {expected}"),
         }
     }
 }

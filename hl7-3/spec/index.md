@@ -280,22 +280,20 @@ crate's one dependency, unchanged.
 ### 8.1 The traits
 
 [`FromElement`] reads a whole type from an `&xml::Element`:
-`fn from_element(element: &Element) -> Self`. It returns `Self` directly,
-never a `Result` — unlike `hl7-2`'s struct mode
-(`FromHl7`), which fails on a field a v2 dictionary says is required.
-`hl7-3` has no dictionary to consult, so struct mode matches how §3–§5
-already read: a missing attribute or child degrades to a default,
-everywhere, never an error. A struct mapped onto the wrong element just
-reads defaults throughout, the same way `Act::from_element` on an
-unrelated element reads empty `class_code`/`mood_code` rather than
-failing.
+`fn from_element(element: &Element) -> Result<Self, Error>`. It returns a `Result`.
+`hl7-2`'s struct mode (`FromHl7`) fails on a field a v2 dictionary says is
+required; `hl7-3` has no dictionary to consult, so an *absent* attribute or
+child degrades to a default (RCA-IN-3), as in §3–§5. A value that is present
+but malformed is never replaced: it is `Error::InvalidValue`, naming the
+field, the value and the expected type (RCA-IN-2).
 
 [`FromElementValue`] reads one field's value from an attribute or a
-child's text: `from_attribute(Option<&str>) -> Self` and
-`from_child_text(Option<&str>) -> Self`. Implemented for `String`,
-`Option<String>`, `bool` (`"true"` and nothing else is `true`, matching
-`ActRelationship::inversion_ind`, §4), the integer and floating-point
-types (unparseable or absent is `0`), and `Option<NullFlavor>` (an
+child's text: `from_attribute(name, Option<&str>) -> Result<Self, Error>` and
+`from_child_text(name, Option<&str>) -> Result<Self, Error>`. Implemented for `String`,
+`Option<String>`, `bool` (`true`/`1` and `false`/`0` after trimming; absent is `false`; anything
+else is `Error::InvalidValue`), the integer and floating-point
+types (absent is `0`; unparseable or out of the type's range is
+`Error::InvalidValue`), and `Option<NullFlavor>` (an
 unrecognized or absent code is `None` — call `NullFlavor::of` directly
 when the code itself, not just whether it parsed, is needed).
 

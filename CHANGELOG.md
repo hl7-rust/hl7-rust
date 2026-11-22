@@ -18,6 +18,25 @@ The full release runbook — the inter-crate version-requirement check, the
 tag-and-sign step, and who may decide a release is warranted — is
 [`spec/release-process/index.md`](spec/release-process/index.md).
 
+## Unreleased
+
+### Changed (breaking)
+
+Input that is supplied but malformed is now rejected instead of replaced by a
+default or clamped (`spec/rust-checked-arithmetic`, RCA-IN-2, RCA-IN-3).
+
+- **`hl7-3`**: `FromElement::from_element` now returns
+  `Result<Self, Error>`, and `FromElementValue::from_attribute` /
+  `from_child_text` take the field name and return `Result<Self, Error>`.
+  A number that is unparseable or out of range, and a boolean that is not
+  `true`/`false`/`1`/`0`, are the new `Error::InvalidValue`; they used to read
+  as `0` / `false`. An absent value still reads as the type's default.
+  `bool` now also accepts `1`/`0`. `#[derive(FromElement)]` (`hl7-3-derive`)
+  generates the fallible form.
+- **`hl7-2`**: `Message::insert_segment` returns `Result<&mut Segment, Error>`
+  and fails with `Error::UnwritablePath` for index `0` or past the end of the
+  segment list; it used to clamp to the end.
+
 ## 2026-11-19, tenth release
 
 Two additive patch releases complete generic-tree round trips without changing

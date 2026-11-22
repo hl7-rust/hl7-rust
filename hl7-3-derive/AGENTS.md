@@ -52,11 +52,10 @@ behind the `derive` feature, only the macro re-export is (see
 - Generated code names everything absolutely (`::hl7_3::typed::FromElement`,
   `::core::default::Default`) so it compiles in a module that has imported
   none of it, or has shadowed the names.
-- **No `Result` in generated code.** `hl7-3`'s struct mode is total —
-  `FromElement::from_element` returns `Self` directly, never
-  `Result<Self, E>`, matching the "degrade, don't reject" choice
-  `hl7-3::rim` already makes. Don't add fallibility here without changing
-  that decision in `hl7-3` first, and updating both crates' docs together.
+- **Generated code returns `Result<Self, hl7_3::Error>`.** An absent
+  attribute or child reads as a default; a present but malformed value is
+  `Error::InvalidValue` (the spec's RCA-IN-3 / RCA-IN-2 split). Never swallow
+  that error in generated code.
 - The generated code names `hl7-3` through the path `crate_path` returns —
   `::hl7_3` by default, or whatever the struct's `#[element(crate = ...)]`
   says. Never hard-code `::hl7_3` in a `quote!` again: a caller who renamed

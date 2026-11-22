@@ -116,18 +116,22 @@ fn from_element(input: &DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
         reads.push(match mapping(field)? {
             Mapping::Attribute(name) => quote! {
                 #ident: <#ty as #krate::typed::FromElementValue>::from_attribute(
-                    element.attribute(#name)
-                )
+                    #name,
+                    element.attribute(#name),
+                )?
             },
             Mapping::ChildText(name) => quote! {
                 #ident: <#ty as #krate::typed::FromElementValue>::from_child_text(
-                    element.child(#name).and_then(#krate::xml::Element::text_opt)
-                )
+                    #name,
+                    element.child(#name).and_then(#krate::xml::Element::text_opt),
+                )?
             },
             Mapping::Nested(name) => quote! {
                 #ident: element
                     .child(#name)
                     .map(<#ty as #krate::typed::FromElement>::from_element)
+                    .transpose()?
+                    // RCA-IN-3: absent only; a present but malformed child was an error above.
                     .unwrap_or_default()
             },
             Mapping::Raw => quote! {
@@ -141,8 +145,10 @@ fn from_element(input: &DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
     Ok(quote! {
         #[automatically_derived]
         impl #impl_generics #krate::typed::FromElement for #name #type_generics #where_clause {
-            fn from_element(element: &#krate::xml::Element) -> Self {
-                #name { #(#reads),* }
+            fn from_element(
+                element: &#krate::xml::Element,
+            ) -> ::core::result::Result<Self, #krate::Error> {
+                ::core::result::Result::Ok(#name { #(#reads),* })
             }
         }
     })

@@ -440,6 +440,8 @@ is worth knowing before a caller reads `Some("")` as "nothing was sent".
 ### 7.3 Segments
 
 `append_segment`, `insert_segment`, `remove_segment`, `remove_segments`.
+`insert_segment` returns `Err(Error::UnwritablePath)` for an index of `0` or
+past the end of the segment list; it never clamps.
 The MSH header is never removed: it carries the delimiters, so a message
 without it is not a message.
 

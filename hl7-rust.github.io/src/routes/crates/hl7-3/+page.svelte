@@ -95,7 +95,7 @@ struct Observation {
     #[element(raw)]            raw: hl7_3::xml::Element,
 }
 
-let observation = Observation::from_element(&hl7_3::xml::parse(xml)?);   // no Result`;
+let observation = Observation::from_element(&hl7_3::xml::parse(xml)?)?;   // Err on a present but malformed value`;
 
   const install = `cargo add hl7-3
 cargo add hl7-3 --features derive   # adds #[derive(FromElement)]`;
