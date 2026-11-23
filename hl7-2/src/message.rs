@@ -33,17 +33,15 @@ impl Message {
     /// which is the same call under the name callers reach for.
     pub(crate) fn parse(text: &str, options: &Options) -> Result<Message, Error> {
         let raw = er7::parse(&crate::normalize(text))?;
-        let version = if let Some(version) = options.version {
-            version
-        } else {
-            // RCA-IN-2, RCA-IN-6: a received message that does not say what
-            // release it speaks is rejected, not read as a default.
-            let declared = raw.version().unwrap_or_default();
-            if declared.trim().is_empty() {
-                return Err(Error::MissingVersion);
-            }
-            Version::nearest(&declared).ok_or(Error::BadVersion(declared))?
-        };
+        // RCA-IN-2, RCA-IN-6: a message must say what release it speaks.
+        // MSH-12 is required even when `Options::version` is set; the
+        // option only chooses which release reads a message that has one.
+        let declared = raw.version().unwrap_or_default();
+        if declared.trim().is_empty() {
+            return Err(Error::MissingVersion);
+        }
+        let nearest = Version::nearest(&declared).ok_or(Error::BadVersion(declared))?;
+        let version = options.version.unwrap_or(nearest);
         let dictionary = match &options.dictionary {
             Some(dictionary) => Arc::clone(dictionary),
             None => version.dictionary(),
@@ -737,17 +735,29 @@ mod tests {
         );
         assert_eq!(
             Error::MissingVersion.to_string(),
-            "MSH-12 (version ID) is missing or empty, and no version was forced"
+            "MSH-12 (version ID) is missing or empty"
         );
         // Strict mode reports the same error, before validation runs.
         assert_eq!(
             crate::parse_with_options(absent, &Options::new().strict()).unwrap_err(),
             Error::MissingVersion
         );
-        // A forced version is an explicit decision and is honoured.
+        // A forced version only overrides how a present, readable MSH-12
+        // is interpreted; it never stands in for a missing one.
         let forced = Options::new().with_version(Version::V2_3);
+        for text in [absent, empty] {
+            assert_eq!(
+                crate::parse_with_options(text, &forced).unwrap_err(),
+                Error::MissingVersion
+            );
+        }
         assert_eq!(
-            crate::parse_with_options(absent, &forced)
+            crate::parse_with_options(unreadable, &forced).unwrap_err(),
+            Error::BadVersion("HL7".to_string())
+        );
+        let present = "MSH|^~\\&|A||||1||ACK|1|P|2.5\rMSA|AA|1";
+        assert_eq!(
+            crate::parse_with_options(present, &forced)
                 .unwrap()
                 .version(),
             Version::V2_3

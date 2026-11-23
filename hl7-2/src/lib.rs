@@ -127,9 +127,9 @@ use std::sync::Arc;
 /// unknown data types, and structure mismatches are never errors — they
 /// degrade to positional names and a flat reading, and are reported by
 /// [`Message::validate`] if the caller wants to know. Only a message with
-/// no usable header, a missing or unreadable MSH-12 (unless
-/// [`Options::version`] forces a release), a path that is not a path, a dictionary that will not
-/// load, and (in struct mode) a value that does not fit its Rust type will
+/// no usable header, a missing or unreadable MSH-12 (even when
+/// [`Options::version`] is set), a path that is not a path, a dictionary
+/// that will not load, and (in struct mode) a value that does not fit its Rust type will
 /// fail a call.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Error {
@@ -140,9 +140,9 @@ pub enum Error {
     MissingMsh,
     /// The MSH header is malformed: no delimiters, or an unusable set.
     BadMshHeader(String),
-    /// MSH-12 (the version ID) is absent or empty, and [`Options::version`]
-    /// did not force a release, so the message never said what it speaks.
-    /// There is no default: a sender that omits MSH-12 is rejected.
+    /// MSH-12 (the version ID) is absent or empty, so the message never said
+    /// what it speaks. There is no default, and [`Options::version`] does
+    /// not stand in for it: a sender that omits MSH-12 is rejected.
     MissingVersion,
     /// MSH-12 is present but names no release this crate can read as: not
     /// a version number at all, or older than the oldest bundled release
@@ -189,10 +189,7 @@ impl fmt::Display for Error {
             Error::Empty => write!(f, "input contains no HL7 segments"),
             Error::MissingMsh => write!(f, "message does not start with an MSH segment"),
             Error::BadMshHeader(detail) => write!(f, "malformed MSH header: {detail}"),
-            Error::MissingVersion => write!(
-                f,
-                "MSH-12 (version ID) is missing or empty, and no version was forced"
-            ),
+            Error::MissingVersion => write!(f, "MSH-12 (version ID) is missing or empty"),
             Error::BadVersion(found) => write!(
                 f,
                 "MSH-12 (version ID) {found:?} is not a readable HL7 v2 release (2.1 or later)"
@@ -247,14 +244,16 @@ impl From<dictionary::Error> for Error {
 ///
 /// ```
 /// let options = hl7_2::Options::new()
-///     .with_version(hl7_2::Version::V2_3_1)  // ignore what MSH-12 says
+///     .with_version(hl7_2::Version::V2_3_1)  // read as 2.3.1 whatever MSH-12 says
 ///     .strict();                              // reject what does not conform
 /// # let _ = options;
 /// ```
 #[derive(Debug, Clone, Default)]
 pub struct Options {
     /// Read every message as this release, whatever MSH-12 declares. Use
-    /// it for a sender known to mislabel its version.
+    /// it for a sender known to mislabel its version. MSH-12 must still be
+    /// present and readable (2.1 or later); this only overrides which
+    /// release it is read as, never whether it is required.
     pub version: Option<Version>,
     /// Read through this dictionary instead of the bundled one for the
     /// release — schema mode.
@@ -271,7 +270,9 @@ impl Options {
         Options::default()
     }
 
-    /// Read as `version` whatever MSH-12 says.
+    /// Read as `version` whatever MSH-12 says. MSH-12 must still be present
+    /// and readable, or parsing fails with [`Error::MissingVersion`] /
+    /// [`Error::BadVersion`].
     #[must_use]
     pub fn with_version(mut self, version: Version) -> Options {
         self.version = Some(version);

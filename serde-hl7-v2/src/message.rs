@@ -390,14 +390,14 @@ mod tests {
 
     #[test]
     fn ignores_unknown_fields() {
-        let json = r#"{"version":"2.5","er7":"MSH|^~\\&|LAB","extra":true}"#;
+        let json = r#"{"version":"2.5","er7":"MSH|^~\\&|LAB|||||||||2.5","extra":true}"#;
         let back: Message = serde_json::from_str(json).unwrap();
-        assert_eq!(back.to_er7(), "MSH|^~\\&|LAB");
+        assert_eq!(back.to_er7(), "MSH|^~\\&|LAB|||||||||2.5");
     }
 
     #[test]
     fn strict_rejects_an_unknown_field() {
-        let json = r#"{"version":"2.5","er7":"MSH|^~\\&|LAB","verison":"2.5"}"#;
+        let json = r#"{"version":"2.5","er7":"MSH|^~\\&|LAB|||||||||2.5","verison":"2.5"}"#;
         let err = serde_json::from_str::<Strict<Message>>(json).unwrap_err();
         assert!(err.to_string().contains("verison"), "{err}");
     }
@@ -418,7 +418,7 @@ mod tests {
 
     #[test]
     fn plain_deserialize_is_unaffected_by_strict_existing() {
-        let json = r#"{"version":"2.5","er7":"MSH|^~\\&|LAB","extra":true}"#;
+        let json = r#"{"version":"2.5","er7":"MSH|^~\\&|LAB|||||||||2.5","extra":true}"#;
         assert!(serde_json::from_str::<Message>(json).is_ok());
     }
 
@@ -450,7 +450,7 @@ mod tests {
     #[test]
     fn seed_version_option_wins_over_the_wire() {
         let options = hl7_2::Options::new().with_version(hl7_2::Version::V2_3);
-        let json = r#"{"version":"2.5","er7":"MSH|^~\\&|LAB"}"#;
+        let json = r#"{"version":"2.5","er7":"MSH|^~\\&|LAB|||||||||2.5"}"#;
         let mut deserializer = serde_json::Deserializer::from_str(json);
         let message = Message::seed(&options)
             .deserialize(&mut deserializer)
@@ -461,7 +461,7 @@ mod tests {
     #[test]
     fn seed_can_be_strict() {
         let options = hl7_2::Options::new();
-        let json = r#"{"er7":"MSH|^~\\&|LAB","extra":1}"#;
+        let json = r#"{"er7":"MSH|^~\\&|LAB|||||||||2.5","extra":1}"#;
         let mut deserializer = serde_json::Deserializer::from_str(json);
         let err = Message::seed(&options)
             .strict()

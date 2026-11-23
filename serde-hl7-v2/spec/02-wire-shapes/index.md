@@ -24,7 +24,8 @@ change (see [§8](../08-versioning-and-compatibility/index.md), rule S10).
   through `Version`) and its ER7 text (`hl7_2::Message::to_er7`).
   Deserializing reads `"er7"` and parses it with
   `hl7_2::parse_with_options`, the version from `"version"` pinned
-  through `Options::version`, so the value that comes back has resolved
+  through `Options::version` (the `"er7"` text must still carry a readable
+  MSH-12, which a pinned version never replaces), so the value that comes back has resolved
   its dictionary exactly as a freshly parsed message would. The dictionary
   is never on the wire: it is derived state, large, and — when it is a
   caller's own — not something a JSON document should be able to swap

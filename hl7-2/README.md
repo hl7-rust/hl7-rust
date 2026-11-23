@@ -264,7 +264,10 @@ interfaces carry one.
 Releases 2.1 through 2.9, chosen from MSH-12 or forced with
 `Options::with_version`. A release string this crate has no dictionary for
 resolves to the nearest older one (`2.5.2` reads as `2.5.1`) rather than
-failing.
+failing. MSH-12 is always required: a message without a readable one fails
+with `Error::MissingVersion` or `Error::BadVersion`, even when
+`Options::with_version` is set, which only changes how a present MSH-12 is
+read.
 
 v2.5 is the complete base dictionary; every other release is a delta of it
 covering the differences this crate models today — MSH-9 without a

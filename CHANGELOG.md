@@ -40,9 +40,10 @@ default or clamped (`spec/rust-checked-arithmetic`, RCA-IN-2, RCA-IN-3).
   than 2.1 is now rejected by `parse` / `parse_with_options` instead of being
   read as v2.5. New `Error::MissingVersion` and `Error::BadVersion(String)`
   (the `Error` enum is not `#[non_exhaustive]`, so exhaustive matches must
-  add them). `Options::version` still overrides MSH-12 and lets such a
-  message parse. Callers that relied on the v2.5 default must set it
-  explicitly.
+  add them). MSH-12 is required even when `Options::version` is set:
+  the option only overrides which release a present, readable MSH-12 is read
+  as, and never lets a message without one parse. Callers that relied on the
+  v2.5 default must add MSH-12 to the message.
 
 ## 2026-11-19, tenth release
 

@@ -82,10 +82,11 @@ All fourteen published releases resolve: **2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5,
   resolve to their base release.
 - A release string with no dictionary resolves to the nearest *older*
   known release: `2.5.2` reads as `2.5.1`, `3.0` reads as `2.9`. A version
-  older than 2.1, unreadable, or absent falls back to v2.5 and raises a
-  validation warning.
-- `Options::version` overrides MSH-12 outright, for the common case of a
-  sender that mislabels what it actually sends.
+  older than 2.1, unreadable, or absent is rejected at parse time
+  (`Error::BadVersion` / `Error::MissingVersion`); there is no default.
+- `Options::version` overrides which release a present, readable MSH-12 is
+  read as, for a sender that mislabels what it sends. It never waives
+  MSH-12: a message without one still fails.
 
 **What each release actually claims**, from `hl7-2`'s `spec/index.md` §3.4:
 
@@ -186,8 +187,8 @@ MSH-10 empty; a required segment or group absent; segments that do not fit
 the structure; an `SI`, `NM`, `DT`, `TM`, or `DTM` value that is not one.
 
 **Warnings — the dictionary does not cover the message:** MSH-12 naming an
-unmodelled release, or empty under a forced `Options::version` (otherwise an
-empty or unreadable MSH-12 fails parsing); no grammar for the structure; standard
+unmodelled release, or emptied by hand after parsing (an empty or unreadable
+MSH-12 fails parsing, whatever `Options::version` says); no grammar for the structure; standard
 segments fit but Z-segments do not; an unknown segment, field, or
 component.
 
