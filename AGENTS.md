@@ -61,6 +61,8 @@ workspace root, each self-contained in its own `SKILL.md`:
 
 - `cargo build` / `cargo test` from the workspace root builds and tests
   every member in one pass. Use `-p <crate>` to scope to one.
+- Faster local runs, optional: `cargo nextest run` plus `cargo test --doc`
+  (nextest skips doctests). Config is `.config/nextest.toml`; retries are off.
 - Each crate keeps its own edition, feature set, and dependency list. The
   one deliberate exception is `rust-version`, below — everything else
   stays per-crate; there is still no shared `[workspace.dependencies]`
