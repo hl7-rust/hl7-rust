@@ -670,15 +670,10 @@ mod tests {
     fn grow_refuses_position_zero_and_creates_or_skips_the_rest() {
         let mut list: Vec<u8> = Vec::new();
         // First failing input: position 0 has no slot, and no fallback is declared.
-        match grow(&mut list, 0, Create::Yes, "field") {
-            Err(Error::UnwritablePath(reason)) => {
-                assert_eq!(reason, "field positions start at 1, not 0");
-            }
-            other => panic!(
-                "expected UnwritablePath, got {:?}",
-                other.map(|slot| slot.is_some())
-            ),
-        }
+        assert!(matches!(
+            grow(&mut list, 0, Create::Yes, "field"),
+            Err(Error::UnwritablePath(reason)) if reason == "field positions start at 1, not 0"
+        ));
         assert_eq!(list.len(), 0);
         // Absent and not to be created.
         assert!(matches!(grow(&mut list, 2, Create::No, "field"), Ok(None)));
@@ -736,6 +731,10 @@ mod tests {
         assert_eq!(
             Error::MissingVersion.to_string(),
             "MSH-12 (version ID) is missing or empty"
+        );
+        assert_eq!(
+            Error::BadVersion("2.0".to_string()).to_string(),
+            "MSH-12 (version ID) \"2.0\" is not a readable HL7 v2 release (2.1 or later)"
         );
         // Strict mode reports the same error, before validation runs.
         assert_eq!(

@@ -195,12 +195,8 @@ pub fn decode_with(frame: &[u8], tolerance: Tolerance) -> Result<&[u8], Error> {
         return Err(Error::Incomplete);
     };
     // `end` indexes `rest`, so the split and the skip past `<FS>` always succeed.
-    let Some((payload, from_end)) = rest.split_at_checked(end) else {
-        return Err(Error::Incomplete);
-    };
-    let Some(after_end) = from_end.get(1..) else {
-        return Err(Error::Incomplete);
-    };
+    let (payload, from_end) = rest.split_at_checked(end).ok_or(Error::Incomplete)?;
+    let after_end = from_end.get(1..).ok_or(Error::Incomplete)?;
     if payload.contains(&START_BLOCK) {
         return Err(Error::EmbeddedStartBlock);
     }

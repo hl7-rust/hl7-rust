@@ -253,6 +253,11 @@ mod tests {
     use super::*;
 
     #[test]
+    fn default_is_the_documented_default_release() {
+        assert_eq!(Version::default(), DEFAULT);
+    }
+
+    #[test]
     fn round_trips_every_release_string() {
         for &version in ALL {
             assert_eq!(Version::parse(version.as_str()), Some(version));
