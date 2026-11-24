@@ -143,6 +143,19 @@ mod tests {
     use super::*;
 
     #[test]
+    fn invalid_values_name_the_field_value_and_expectation() {
+        let error = Error::InvalidValue {
+            name: "count".into(),
+            value: "x".into(),
+            expected: "an integer",
+        };
+        assert_eq!(
+            error.to_string(),
+            "invalid value \"x\" for count: expected an integer"
+        );
+    }
+
+    #[test]
     fn xml_errors_keep_the_parser_detail() {
         let parser_error = xml::parse("<").unwrap_err();
         let error = Error::from(parser_error);
