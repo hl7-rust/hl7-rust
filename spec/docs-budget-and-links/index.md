@@ -21,7 +21,14 @@ root document.
    binding close to the edge, not with room to spare. When a document
    outgrows it, split it by topic with any rule numbers kept in one file,
    or archive the older entries verbatim — never meet the budget by
-   deleting the record.
+   deleting the record. **One exception class:** specs rsynced verbatim
+   from an external source (currently only
+   `spec/rust-checked-arithmetic/index.md`, from the sixarm
+   `ai-agents-tips` rules) are exempt from the size check via the
+   `SYNCED_EXTERNAL` allowlist in `bin/check-docs`, because their size is
+   owned by the source and a local edit or split would be overwritten by
+   the next sync. Their links are still checked. Add to the allowlist only
+   with a comment naming the source.
 2. **Every relative link in a tracked markdown document resolves** to a
    file or directory that exists in the repository. External URLs
    (`http:`, `https:`, `mailto:`) are out of scope — availability of other
