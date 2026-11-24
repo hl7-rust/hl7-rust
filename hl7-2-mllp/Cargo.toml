@@ -19,7 +19,7 @@ hl7-2 = { version = "0.3.0", path = "../hl7-2", optional = true }
 # Wall-clock timestamps for generated acknowledgements. Off by default: a
 # message that invents its own timestamp is untestable, so the clock is
 # opt-in and the explicit-timestamp call is always there.
-jiff = { version = "0.2", optional = true, default-features = false, features = ["std", "tz-system"] }
+jiff = { version = "1.0", optional = true, default-features = false, features = ["std", "tz-system"] }
 
 # These examples need acknowledgement generation.
 [[example]]
