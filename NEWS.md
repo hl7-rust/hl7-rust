@@ -19,7 +19,7 @@ readers rather than for a repository, is at
 | HL7® v2 coverage | Releases 2.1–2.9; 24 segments, 42 composite types, 4 structures, extensible in JSON — [`spec/conformance/index.md`](spec/conformance/index.md) |
 | HL7 v3 | A foundation, not an implementation. No Clinical Document Architecture. |
 | HL7® FHIR® standard | Not implemented |
-| License | MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-NC-SA-4.0 |
+| License | MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-SA-4.0 |
 
 ## 2026-09-10 — Serde support, as three opt-in crates
 
@@ -142,7 +142,7 @@ decision in the project, all of which is written down in the specs.
 > encoding, transports for MLLP over TCP and SOAP over HTTP, conversions
 > between ER7 and both v2.xml and JSON, opt-in Serde support, and a
 > foundation for HL7 v3. It is multi-licensed under MIT, Apache-2.0,
-> BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-NC-SA-4.0, at the user's option, and
+> BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-SA-4.0, at the user's option, and
 > is maintained by Joel Parker Henderson. <https://hl7-rust.github.io>
 
 ### Facts a story might need, all checkable

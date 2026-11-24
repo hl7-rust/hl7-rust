@@ -227,7 +227,7 @@ The five things a review usually wants, with where to check each:
    [Where a value can escape](#where-a-value-can-escape) above, then
    `hl7-2`'s `src/lib.rs` `Error` enum and `src/validate.rs` `Diagnostic`.
 5. **Licensing.** MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or
-   CC-BY-NC-SA-4.0, at your option — the same seven in every crate, byte for
+   CC-BY-SA-4.0, at your option — the same seven in every crate, byte for
    byte.
 
 What this project cannot give you is a HIPAA, GDPR, or MDR attestation. A

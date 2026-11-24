@@ -63,7 +63,7 @@
         { "title": "Patient data", "url": "https://hl7-rust.github.io/docs/patient-data/", "description": "Plain-language answers about patient data, for a privacy officer or reviewer" },
         { "title": "TRADEMARKS.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/TRADEMARKS.md", "description": "The consolidated HL7/FHIR trademark position" },
         { "title": "AI_STATEMENT.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/AI_STATEMENT.md", "description": "How AI tools are used to build this, and who is accountable" },
-        { "title": "LICENSE.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/LICENSE.md", "description": "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-NC-SA-4.0" }
+        { "title": "LICENSE.md", "url": "https://github.com/hl7-rust/hl7-rust/blob/main/LICENSE.md", "description": "MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-SA-4.0" }
       ]
     },
     {

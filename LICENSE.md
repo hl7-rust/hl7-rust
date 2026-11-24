@@ -1,7 +1,7 @@
 # License
 
 ```
-SPDX-License-Identifier: MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-NC-SA-4.0
+SPDX-License-Identifier: MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-SA-4.0
 ```
 
 That single line is the machine-readable answer, and it is what every
@@ -22,7 +22,7 @@ lowercase SPDX identifier, each holding the full text in `index.md`:
 | GNU General Public License v2.0 only | `GPL-2.0-only` | [`LICENSES/gpl-2.0-only/index.md`](LICENSES/gpl-2.0-only/index.md) · <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html> |
 | GNU General Public License v3.0 only | `GPL-3.0-only` | [`LICENSES/gpl-3.0-only/index.md`](LICENSES/gpl-3.0-only/index.md) · <https://www.gnu.org/licenses/gpl-3.0.html> |
 | UK Open Government Licence v3.0 | `OGL-UK-3.0` | [`LICENSES/ogl-uk-3.0/index.md`](LICENSES/ogl-uk-3.0/index.md) · <https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/> |
-| Creative Commons Attribution Non Commercial Share Alike 4.0 International | `CC-BY-NC-SA-4.0` | [`LICENSES/cc-by-nc-sa-4.0/index.md`](LICENSES/cc-by-nc-sa-4.0/index.md) · <https://creativecommons.org/licenses/by-nc-sa/4.0/> |
+| Creative Commons Attribution Share Alike 4.0 International | `CC-BY-SA-4.0` | [`LICENSES/cc-by-sa-4.0/index.md`](LICENSES/cc-by-sa-4.0/index.md) · <https://creativecommons.org/licenses/by-sa/4.0/> |
 
 Each identifier above is the SPDX short identifier from the
 [SPDX License List](https://spdx.org/licenses/), which is the vocabulary
@@ -42,7 +42,7 @@ package. If your organisation requires per-file marking on vendored code,
 the line to add at the top of a file is:
 
 ```
-// SPDX-License-Identifier: MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-NC-SA-4.0
+// SPDX-License-Identifier: MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-SA-4.0
 ```
 
 or, if you have chosen one of the seven for your own distribution, that one

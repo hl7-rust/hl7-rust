@@ -20,6 +20,13 @@ tag-and-sign step, and who may decide a release is warranted — is
 
 ## Unreleased
 
+### Changed
+
+- **License**: the license option `CC-BY-NC-SA-4.0` is replaced by
+  `CC-BY-SA-4.0` in every crate, the workspace `LICENSE.md`, and
+  `LICENSES/` (now `LICENSES/cc-by-sa-4.0/`). The other six licenses are
+  unchanged.
+
 ### Changed (breaking)
 
 Input that is supplied but malformed is now rejected instead of replaced by a

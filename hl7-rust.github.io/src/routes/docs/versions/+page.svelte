@@ -31,7 +31,7 @@ assert_eq!(Version::nearest("2.5.2"), Some(Version::V2_5_1));`;
   const msrv = `# Check a change against the floor
 cargo +1.98 check --workspace --all-targets`;
 
-  const licenseText = `MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-NC-SA-4.0`;
+  const licenseText = `MIT OR Apache-2.0 OR BSD-3-Clause OR GPL-2.0-only OR GPL-3.0-only OR OGL-UK-3.0 OR CC-BY-SA-4.0`;
 
   /** From hl7-2's spec/index.md §3.4 — the differences from v2.5 it models. */
   const deltas = [

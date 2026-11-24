@@ -81,7 +81,7 @@
     <div>
       <p class="site-footer-title">HL7 Rust</p>
       <p>
-        Free and open source, licensed under any of MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-NC-SA-4.0, at your option.
+        Free and open source, licensed under any of MIT, Apache-2.0, BSD-3-Clause, GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-SA-4.0, at your option.
       </p>
     </div>
     <nav class="site-footer-columns" aria-label="Footer">

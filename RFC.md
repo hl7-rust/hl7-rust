@@ -150,7 +150,7 @@ smaller thing to build than the whole standard.
 ## 7. Does seven-way licensing help or confuse?
 
 **The question.** Every crate is MIT, Apache-2.0, BSD-3-Clause,
-GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-NC-SA-4.0, at your option, so that a proprietary vendor
+GPL-2.0-only, GPL-3.0-only, OGL-UK-3.0, or CC-BY-SA-4.0, at your option, so that a proprietary vendor
 and a public-sector project can both adopt without asking.
 
 **Why it is open.** The intent is to remove a conversation. The risk is
