@@ -145,11 +145,11 @@ jobs:
       - name: Record Rust toolchain
         run: rustc --version --verbose
       - name: CLI file and stdin conversion
-        run: cargo test -p hl7-2-from-xml-into-er7 --test integration cli_converts_the_same_sample_from_a_file_and_stdin
+        run: cargo test -p hl7-2-from-xml-into-er7 --test main cli_converts_the_same_sample_from_a_file_and_stdin
       - name: CR and CRLF rendering
-        run: cargo test -p hl7-2-from-xml-into-er7 --test integration render_options_choose_the_terminator
+        run: cargo test -p hl7-2-from-xml-into-er7 --test main render_options_choose_the_terminator
       - name: Loopback MLLP exchange
-        run: cargo test -p hl7-2-mllp --test integration a_conversation_over_a_real_socket
+        run: cargo test -p hl7-2-mllp --test main a_conversation_over_a_real_socket
 
   sbom:
     name: CycloneDX SBOM
