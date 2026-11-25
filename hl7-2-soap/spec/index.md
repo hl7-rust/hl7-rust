@@ -164,6 +164,23 @@ endpoint that speaks the other. The Python services this crate was
 generalised from had exactly that split: the receiver answered `Success`
 and the sender accepted only `AA`/`CA`.
 
+### 6.1 Correlated acknowledgement
+
+`evaluate` is the compatibility reader: a bare 2xx is believed (rule 4), so a
+sender that clears an outbound queue on its answer cannot tell "the receiver
+has this message" from "something answered 200". `evaluate_correlated(status,
+body, expected)` accepts only when `evaluate` accepts **and** the body holds a
+positive acknowledgement **and** names `expected` as the message it answers;
+an empty, unparseable or unrecognised body, an acknowledgement for another
+message, or one that names none is a rejection. Its reasons never quote the
+message's own text (`spec/phi/index.md`). `evidence(body)` exposes what was
+found — `AckCode::Application` (`AA`) or `AckCode::Commit` (`CA`) or the word `Success` —
+and the control ID, so a caller can tell commit from application acceptance.
+Persisting before replying, and answering a redelivery with the same reply
+without a second clinical write, are the receiver's, not this crate's, and
+belong in the interface's own tests. Tests: the `correlated_tests` module in
+`src/response.rs`.
+
 ## 7. WSDL (`src/wsdl.rs`)
 
 `for_address` returns the service description with `soap:address` set to the

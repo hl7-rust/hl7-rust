@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug the synthetic vendor query (CodeLLDB; macOS/Linux)",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": ["build", "--locked", "-p", "hl7-2", "--bin", "hl7-v2"],
+        "env": { "CARGO_PROFILE_DEV_DEBUG": "2" },
+        "filter": { "name": "hl7-v2", "kind": "bin" }
+      },
+      "cwd": "${workspaceFolder}",
+      "args": ["--query", "ZAC-2.1", "hl7-2/samples/vendor.hl7"]
+    }
+  ]
+}

@@ -20,17 +20,7 @@ tag-and-sign step, and who may decide a release is warranted — is
 
 ## Unreleased
 
-### Changed
-
-- **License**: the license option `CC-BY-NC-SA-4.0` is replaced by
-  `CC-BY-SA-4.0` in every crate, the workspace `LICENSE.md`, and
-  `LICENSES/` (now `LICENSES/cc-by-sa-4.0/`). The other six licenses are
-  unchanged.
-
 ### Changed (breaking)
-
-Input that is supplied but malformed is now rejected instead of replaced by a
-default or clamped (`spec/rust-checked-arithmetic`, RCA-IN-2, RCA-IN-3).
 
 - **`hl7-3`**: `FromElement::from_element` now returns
   `Result<Self, Error>`, and `FromElementValue::from_attribute` /
@@ -40,6 +30,70 @@ default or clamped (`spec/rust-checked-arithmetic`, RCA-IN-2, RCA-IN-3).
   as `0` / `false`. An absent value still reads as the type's default.
   `bool` now also accepts `1`/`0`. `#[derive(FromElement)]` (`hl7-3-derive`)
   generates the fallible form.
+
+## 2026-11-25, eleventh release
+
+Nine crates release. `hl7-2` takes a minor bump to 0.4.0 because it carries
+the breaking changes listed below; the four crates that depend on it by
+version, and `serde-hl7-v2`, raise their `hl7-2` requirement to 0.4.0 and
+take patch bumps. The remaining additive work ships as patch bumps.
+
+| Crate | Version |
+|---|---|
+| `hl7-2` | 0.4.0 |
+| `serde-hl7-v2` | 0.1.3 |
+| `hl7-2-soap` | 0.2.2 |
+| `hl7-3-soap` | 0.2.2 |
+| `hl7-2-from-er7-into-json` | 0.5.3 |
+| `hl7` | 0.2.4 |
+| `hl7-2-mllp` | 0.2.2 |
+| `hl7-2-from-er7-into-xml` | 0.7.3 |
+| `hl7-2-from-xsd-into-json-dictionary` | 0.2.2 |
+
+`hl7-3` and its breaking `FromElement` change are not part of this release.
+
+### Changed
+
+- **License**: the license option `CC-BY-NC-SA-4.0` is replaced by
+  `CC-BY-SA-4.0` in every crate, the workspace `LICENSE.md`, and
+  `LICENSES/` (now `LICENSES/cc-by-sa-4.0/`). The other six licenses are
+  unchanged.
+
+### Fixed
+
+- **`hl7-2`**: validation is stricter, so a message that passed `--strict`
+  before can now fail it.
+  - OBX-5 is checked when OBX-2 names `SI`, `NM`, `DT`, `TM` or `DTM`; an `NM`
+    result holding `NOT_NUMERIC` used to pass.
+  - `DT`, `TM` and `DTM` values are checked for calendar and clock validity
+    (`20250230`, month 13, hour 24, and a fraction without seconds such as
+    `2025.1` are errors).
+
+### Added
+
+- **`serde-hl7-v2`**: `RedactedDiagnostic`, a serialize-only log-safe view of a
+  finding (`severity`, `kind`, masked `path`, no `detail`; rule S16). It needs
+  the new `hl7_2::Diagnostic::redacted_path`, so its `hl7-2` requirement is
+  now 0.4.0.
+- **`hl7-2`**: `hl7-v2 --redact` (`-R`) keeps message text out of `--check`
+  output, `--strict` failures and other parse errors.
+- **`hl7-2-soap`, `hl7-3-soap`**: `response::evaluate_correlated()`, `evidence()`,
+  `AckCode` and `Evidence`. A sender can require a positive acknowledgement
+  that names the control ID it sent, and tell `CA` from `AA`; `evaluate` is
+  unchanged and still believes a bare 2xx.
+- **`hl7-2-from-er7-into-json`**: `preserves_segment_order()` and the CLI's
+  `--require-order` report, or refuse, a conversion whose JSON cannot keep
+  segments in their original order (flat output, or a message with a local
+  segment, where an `NTE` can move to the wrong `OBX`).
+- **`hl7-2`**: `Diagnostic::redacted()` and `Kind::as_str()`, a log-safe form
+  of a diagnostic that never contains text from the message
+  (`spec/phi/index.md`).
+
+### Changed (breaking)
+
+Input that is supplied but malformed is now rejected instead of replaced by a
+default or clamped (`spec/rust-checked-arithmetic`, RCA-IN-2, RCA-IN-3).
+
 - **`hl7-2`**: `Message::insert_segment` returns `Result<&mut Segment, Error>`
   and fails with `Error::UnwritablePath` for index `0` or past the end of the
   segment list; it used to clamp to the end.

@@ -30,17 +30,15 @@ hl7-2         this crate (`hl7_2::...` directly, or `hl7::v2::...` via
 ```
 
 Anything about *how ER7 is written* belongs in `er7`, not here. Anything
-about *what a segment or field means* belongs here and not in three of the
-four conversion crates — `hl7-2-from-er7-into-json`,
-`hl7-2-from-json-into-er7`, and `hl7-2-from-xml-into-er7` — which today
-still carry their own copies of the v2.5 tables. (The fourth,
-`hl7-2-from-er7-into-xml`, has depended on this crate for those tables
-since 0.5.0.) `schemas/v2.5.json` was generated from those copies and is
-table-for-table identical, so the remaining three conversion crates can
-eventually depend on this crate instead of duplicating it. **If you change
-the v2.5 tables or the node-naming rules, check those crates**: their key
-and element names follow the same rules on purpose, and a divergence is a
-bug in whichever moved.
+about *what a segment or field means* belongs here and not in the
+conversion crates. Only `hl7-2-from-er7-into-json` still carries its own
+copy of the v2.5 type lookup; `hl7-2-from-er7-into-xml` has depended on this
+crate for those tables since 0.5.0, and the two reverse converters
+(`hl7-2-from-json-into-er7`, `hl7-2-from-xml-into-er7`) carry no tables,
+rebuilding ER7 from the numeric suffix of each key or element name.
+**If you change the v2.5 tables or the node-naming rules, check those
+crates**: their key and element names follow the same rules on purpose, and
+a divergence is a bug in whichever moved.
 
 See `README.md` for the user-facing pitch and `spec/index.md` for the exact,
 normative rules — **`spec/index.md` is the single source of truth for
@@ -71,9 +69,9 @@ src/main.rs        CLI: tree / query / check / er7, edits, schema, strict.
 schemas/*.json     Bundled dictionaries. v2.5 is complete; the rest are
                    deltas of it (spec/index.md §3.4).
 tests/main.rs  Black-box tests through the public API and the CLI.
-tests/spec.rs      The specification checking itself: every test named in
+tests/main/spec.rs The specification checking itself: every test named in
                    spec/index.md §13 must still exist.
-tests/scratch_nhs.rs  Loads dictionaries from a private NHS Wales corpus;
+tests/main/scratch_nhs.rs  Loads dictionaries from a private NHS Wales corpus;
                    skips (does not fail) when HL7_2_NHS_DICTIONARIES is unset
                    or not a directory, which is the case everywhere but the
                    maintainer's own machine.
@@ -133,7 +131,7 @@ round trips, the CLI contract — goes in `tests/main.rs` instead.
 ## Making a spec-affecting change
 
 The spec is not documentation that trails the code; it is the artifact the
-code implements, and `tests/spec.rs` enforces part of that mechanically.
+code implements, and `tests/main/spec.rs` enforces part of that mechanically.
 
 1. **Update `spec/index.md` first** so it states the new intended behavior
    precisely. If you cannot write the rule down, you do not yet know what
@@ -141,7 +139,7 @@ code implements, and `tests/spec.rs` enforces part of that mechanically.
 2. Implement it, matching the module boundaries above.
 3. Add or update the tests that pin it.
 4. **Add the rule to the §13 traceability table**, naming those tests.
-   `tests/spec.rs` fails if the table names a test that does not exist, so
+   `tests/main/spec.rs` fails if the table names a test that does not exist, so
    a rename or a deletion cannot quietly hollow the spec out. It cannot
    check the other direction — that a test still tests what its name says —
    so that part is on you.

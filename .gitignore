@@ -1,5 +1,9 @@
 /target
 
+# Shared editor configuration (extensions, tasks, debug launch) is tracked,
+# even where a contributor's global gitignore hides .vscode.
+!/.vscode/
+
 # cargo-fuzz working state: the built fuzzers, the corpus they grow, and
 # the inputs they save when a target fails. The targets themselves and
 # their Cargo.toml are tracked; none of this is.

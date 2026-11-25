@@ -75,20 +75,42 @@ are the bug.
 
 ```sh
 cargo test                                # unit and integration tests
-cargo clippy --all-targets -- -D warnings # lint-clean
+cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
 cargo fmt --check                         # formatting
-cargo rustdoc --lib -- -W missing-docs    # every public item documented
+RUSTDOCFLAGS="-W missing-docs -D warnings" \
+  cargo doc --locked --workspace --all-features --no-deps --lib
+                                          # every public item documented
 cargo +1.98 check --workspace --all-targets   # the MSRV floor
-cargo llvm-cov --workspace --all-features --summary-only \
-  --ignore-filename-regex '/(tests|benches|examples)/' \
-  --fail-under-lines 95                   # workspace line coverage
+./bin/test-coverage                       # 100% of distinct source lines
 ```
 
 The MSRV floor is current stable minus two releases, so the exact
-toolchain in that last line moves; the rule is in
+toolchain in the `+1.98` line moves; the rule is in
 [`spec/rust-msrv-n-minus-2/index.md`](spec/rust-msrv-n-minus-2/index.md).
-The coverage denominator and clean-run requirement are defined in
+`./bin/test-coverage` starts a clean instrumented build, so it is slow. The
+coverage denominator and clean-run requirement are defined in
 [`spec/test-coverage/index.md`](spec/test-coverage/index.md).
+
+### Working in VS Code
+
+Open the repository root (**File → Open Folder**) and accept the recommended
+extensions: rust-analyzer, and CodeLLDB for debugging on macOS and Linux (on
+Windows use the Microsoft C++ extension and write a matching `cppvsdbg`
+launch entry). The shared `.vscode/` folder gives you tasks for Clippy, the
+workspace tests, and the website check, and one launch entry.
+
+- **A first test.** Open `hl7-2/tests/main/integration.rs` and click *Run
+  Test* above `a_release_difference_changes_how_a_field_reads`. The
+  terminal equivalent, which also tells an editor discovery problem from a
+  failing assertion, is
+  `cargo test --locked -p hl7-2 --test main integration::a_release_difference_changes_how_a_field_reads -- --exact`.
+- **A first breakpoint.** Set one on
+  `let messages = hl7_2::split_messages(&input);` in `hl7-2/src/main.rs`
+  and press F5 on *Debug the synthetic vendor query*. The launch entry
+  builds with `CARGO_PROFILE_DEV_DEBUG=2`, because the dev profile's
+  `line-tables-only` would otherwise hide local variables. It runs the
+  synthetic sample `hl7-2/samples/vendor.hl7`; never debug against real
+  patient data.
 
 Touching `hl7-rust.github.io/`? Run its own two gates from inside that
 directory before opening the pull request:

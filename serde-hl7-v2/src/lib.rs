@@ -60,6 +60,7 @@
 //! | [`hl7_2::Node`] | [`Node`] | object: `{"name", "path", "kind", "text", "null", "children": [...]}` | yes — restored recursively as a detached snapshot |
 //! | [`hl7_2::generic::Kind`] | [`NodeKind`] | one of the strings `"Group"`, `"Segment"`, `"Field"`, `"Component"`, `"Subcomponent"` | yes |
 //! | [`hl7_2::Diagnostic`] | [`Diagnostic`] | object: `{"severity", "kind", "path", "detail"}` | yes |
+//! | [`hl7_2::Diagnostic`] | [`RedactedDiagnostic`] | object: `{"severity", "kind", "path"}`, no `"detail"`, segment names masked | no — serialize-only, safe to log |
 //! | [`hl7_2::Severity`] | [`Severity`] | `"Error"` or `"Warning"` | yes |
 //! | [`hl7_2::validate::Kind`] | [`DiagnosticKind`] | the variant name, e.g. `"SegmentMissing"` | yes |
 //! | [`hl7_2::Version`] | [`Version`] | the release as MSH-12 spells it: `"2.5.1"` | yes |
@@ -111,7 +112,7 @@ mod node;
 mod strict;
 mod version;
 
-pub use diagnostic::Diagnostic;
+pub use diagnostic::{Diagnostic, RedactedDiagnostic};
 pub use kind::{DiagnosticKind, NodeKind, Severity};
 pub use message::{Message, MessageSeed};
 pub use node::Node;

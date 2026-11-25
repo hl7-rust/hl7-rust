@@ -88,7 +88,58 @@ impl fmt::Display for Diagnostic {
     }
 }
 
+impl Kind {
+    /// A fixed, kebab-case name for this kind, safe to log.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Kind::Header => "header",
+            Kind::StructureUnknown => "structure-unknown",
+            Kind::StructureMismatch => "structure-mismatch",
+            Kind::SegmentMissing => "segment-missing",
+            Kind::SegmentUnknown => "segment-unknown",
+            Kind::FieldUnknown => "field-unknown",
+            Kind::ComponentUnknown => "component-unknown",
+            Kind::ValueFormat => "value-format",
+        }
+    }
+}
+
 impl Diagnostic {
+    /// A one-line form that never contains text taken from the message.
+    ///
+    /// `"{severity} {kind} {path}"`: the severity, the fixed [`Kind::as_str`]
+    /// name, and the numeric position. [`Diagnostic::detail`] is left out
+    /// because `ValueFormat`, `StructureUnknown` and `SegmentUnknown` quote
+    /// the message, and the MSH-12 `Header` warning quotes a version string. A `SegmentUnknown` path
+    /// starts with the sender's segment name, so that name is replaced by `?`.
+    /// Every other path names a location the dictionary defines.
+    #[must_use]
+    pub fn redacted(&self) -> String {
+        format!(
+            "{} {} {}",
+            self.severity,
+            self.kind.as_str(),
+            self.redacted_path()
+        )
+        .trim_end()
+        .to_string()
+    }
+
+    /// [`Diagnostic::path`] with any segment name taken from the message
+    /// replaced by `?`: the part of [`Diagnostic::redacted`] that locates the
+    /// finding.
+    #[must_use]
+    pub fn redacted_path(&self) -> String {
+        match self.kind {
+            Kind::SegmentUnknown => {
+                let position = self.path.find('[').map_or("", |at| &self.path[at..]);
+                format!("?{position}")
+            }
+            _ => self.path.clone(),
+        }
+    }
+
     fn error(kind: Kind, path: impl Into<String>, detail: impl Into<String>) -> Diagnostic {
         Diagnostic {
             severity: Severity::Error,
@@ -281,7 +332,8 @@ fn check_segment(
     };
     let variable = dictionary
         .variable_type(segment, separators)
-        .map(str::to_string);
+        .map(str::to_string)
+        .or_else(|| checkable_primitive(segment, separators));
     let defined = fields.len();
     for (index, field) in segment.fields.iter().enumerate() {
         if field.is_empty() {
@@ -370,6 +422,16 @@ fn check_segment(
     }
 }
 
+/// OBX-2 when it names a primitive whose format `check_value` can check.
+///
+/// `Dictionary::variable_type` only knows composites, so an `NM` result
+/// would otherwise skip validation entirely (spec §4.4).
+fn checkable_primitive(segment: &Segment, separators: &Separators) -> Option<String> {
+    let named = segment.first_value(2, 1, separators)?;
+    let named = named.trim();
+    matches!(named, "SI" | "NM" | "DT" | "TM" | "DTM").then(|| named.to_string())
+}
+
 /// Does `text` look like a `data_type` value?
 ///
 /// Only the types with a machine-checkable shape are checked. `ST`, `TX`,
@@ -410,41 +472,85 @@ fn is_number(value: &str) -> bool {
         && fraction.is_none_or(|f| f.bytes().all(|b| b.is_ascii_digit()))
 }
 
-/// `DT`: `YYYY`, `YYYYMM`, or `YYYYMMDD`.
+/// `DT`: `YYYY`, `YYYYMM`, or `YYYYMMDD`, naming a real calendar date.
 fn is_date(value: &str) -> bool {
-    matches!(value.len(), 4 | 6 | 8) && value.bytes().all(|b| b.is_ascii_digit())
+    matches!(value.len(), 4 | 6 | 8)
+        && value.bytes().all(|b| b.is_ascii_digit())
+        && calendar_ok(value)
 }
 
 /// `TM`: `HH[MM[SS[.S[S[S[S]]]]]]` with an optional `+/-ZZZZ` offset.
+/// A fraction needs the seconds it is a fraction of.
 fn is_time(value: &str) -> bool {
     let (value, offset) = split_offset(value);
     if !offset {
         return false;
     }
-    let (whole, fraction) = match value.split_once('.') {
-        Some((whole, fraction)) => (whole, Some(fraction)),
-        None => (value, None),
-    };
+    let (whole, fraction) = split_fraction(value);
     matches!(whole.len(), 2 | 4 | 6)
         && whole.bytes().all(|b| b.is_ascii_digit())
-        && fraction
-            .is_none_or(|f| (1..=4).contains(&f.len()) && f.bytes().all(|b| b.is_ascii_digit()))
+        && (fraction.is_none() || whole.len() == 6)
+        && fraction_ok(fraction)
+        && clock_ok(whole)
 }
 
-/// `DTM`: a date, then optionally a time, then optionally an offset.
+/// `DTM`: a date, then optionally a time, then optionally an offset. A
+/// fraction needs the seconds it is a fraction of, so `2025.1` is not one.
 fn is_datetime(value: &str) -> bool {
     let (value, offset) = split_offset(value);
     if !offset {
         return false;
     }
-    let (whole, fraction) = match value.split_once('.') {
-        Some((whole, fraction)) => (whole, Some(fraction)),
-        None => (value, None),
-    };
+    let (whole, fraction) = split_fraction(value);
     matches!(whole.len(), 4 | 6 | 8 | 10 | 12 | 14)
         && whole.bytes().all(|b| b.is_ascii_digit())
-        && fraction
-            .is_none_or(|f| (1..=4).contains(&f.len()) && f.bytes().all(|b| b.is_ascii_digit()))
+        && (fraction.is_none() || whole.len() == 14)
+        && fraction_ok(fraction)
+        && calendar_ok(&whole[..whole.len().min(8)])
+        && whole.get(8..).is_none_or(clock_ok)
+}
+
+fn split_fraction(value: &str) -> (&str, Option<&str>) {
+    match value.split_once('.') {
+        Some((whole, fraction)) => (whole, Some(fraction)),
+        None => (value, None),
+    }
+}
+
+fn fraction_ok(fraction: Option<&str>) -> bool {
+    fraction.is_none_or(|f| (1..=4).contains(&f.len()) && f.bytes().all(|b| b.is_ascii_digit()))
+}
+
+/// Month 01-12 and a day that exists in that month, for the digits of a
+/// `YYYY[MM[DD]]` prefix whose length is already known to be 4, 6 or 8.
+fn calendar_ok(digits: &str) -> bool {
+    let number = |range: std::ops::Range<usize>| {
+        digits
+            .get(range)
+            .map(|part| part.bytes().fold(0u32, |n, b| n * 10 + u32::from(b - b'0')))
+    };
+    let year = number(0..4).unwrap_or(0);
+    let Some(month) = number(4..6) else {
+        return true;
+    };
+    let leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+    let longest = match month {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        2 if leap => 29,
+        2 => 28,
+        _ => return false,
+    };
+    number(6..8).is_none_or(|day| (1..=longest).contains(&day))
+}
+
+/// Hour 00-23, minute 00-59, second 00-59, for `HH[MM[SS]]` digits.
+fn clock_ok(digits: &str) -> bool {
+    [(0, 24), (2, 60), (4, 60)].iter().all(|&(start, below)| {
+        digits
+            .get(start..start + 2)
+            .is_none_or(|part| part.bytes().fold(0u32, |n, b| n * 10 + u32::from(b - b'0')) < below)
+    })
 }
 
 /// Split a trailing `+ZZZZ` / `-ZZZZ` offset off a time, reporting whether
@@ -455,7 +561,7 @@ fn split_offset(value: &str) -> (&str, bool) {
             let offset = &value[index + 1..];
             (
                 &value[..index],
-                offset.len() == 4 && offset.bytes().all(|b| b.is_ascii_digit()),
+                offset.len() == 4 && offset.bytes().all(|b| b.is_ascii_digit()) && clock_ok(offset),
             )
         }
         _ => (value, true),
@@ -535,6 +641,114 @@ mod tests {
         assert!(formats.iter().all(|d| d.severity == Severity::Error));
         assert_eq!(formats[0].path, "MSH[1]-7[1].1");
         assert_eq!(formats[1].path, "MSA[1]-4[1]");
+    }
+
+    #[test]
+    fn checks_obx_5_against_a_primitive_named_by_obx_2() {
+        let message = |obx: &str| {
+            diagnostics(&format!(
+                "MSH|^~\\&|A||||20240101||ORU^R01|1|P|2.5\rOBX|1|{obx}"
+            ))
+        };
+        let bad = message("NM|X^Y||NOT_NUMERIC");
+        let bad: Vec<_> = bad.iter().filter(|d| d.kind == Kind::ValueFormat).collect();
+        assert_eq!(bad.len(), 1);
+        assert_eq!(bad[0].path, "OBX[1]-5[1]");
+        let bad = message("NM|X^Y||1~2~x");
+        let bad: Vec<_> = bad.iter().filter(|d| d.kind == Kind::ValueFormat).collect();
+        assert_eq!(bad.len(), 1);
+        assert_eq!(bad[0].path, "OBX[1]-5[3]");
+        for fine in [
+            "NM|X^Y||-1.5",
+            "NM|X^Y||\"\"",
+            "NM|X^Y|",
+            "ZZ|X^Y||whatever",
+            "ST|X^Y||text",
+        ] {
+            let found = message(fine);
+            assert!(
+                found.iter().all(|d| d.kind != Kind::ValueFormat),
+                "{fine}: {found:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn rejects_impossible_dates_and_times_and_orphan_fractions() {
+        for bad in [
+            "20250230",
+            "20250100x",
+            "20251301",
+            "20250001",
+            "20250132",
+            "20230229",
+            "19000229",
+            "2025.1",
+            "202501.5",
+            "20250101.5",
+            "2025010124",
+            "202501010960",
+            "20250101093860",
+            "20250101093851.5+0960",
+            "20250101093851.5+2400",
+        ] {
+            assert!(!is_datetime(bad), "{bad}");
+        }
+        for good in [
+            "20240229",
+            "20000229",
+            "202412",
+            "2025",
+            "20251231235959.9999-0500",
+        ] {
+            assert!(is_datetime(good), "{good}");
+        }
+        assert!(!is_date("20250230") && is_date("20240229") && !is_date("202513"));
+        assert!(!is_time("2500") && !is_time("0960") && !is_time("0938.5"));
+        assert!(is_time("235959.5") && is_time("00"));
+    }
+
+    #[test]
+    fn redacted_diagnostics_never_carry_message_text() {
+        let found = diagnostics(
+            "MSH|^~\\&|A||||MARKERDATE||ZMARK^Q01|1|P|2.5\rZZQ|x\rQQMARKSEG|y\rPID|1||||MARKERNAME",
+        );
+        assert!(
+            found.iter().any(|d| d.detail.contains("MARK")),
+            "the unredacted detail should quote: {found:?}"
+        );
+        let kinds: Vec<Kind> = found.iter().map(|d| d.kind).collect();
+        for kind in [
+            Kind::ValueFormat,
+            Kind::StructureUnknown,
+            Kind::SegmentUnknown,
+        ] {
+            assert!(kinds.contains(&kind), "{kind:?} in {found:?}");
+        }
+        for diagnostic in &found {
+            let line = diagnostic.redacted();
+            assert!(!line.contains("MARK"), "{line}");
+            assert!(!line.contains('\n'));
+        }
+        let unknown = found
+            .iter()
+            .find(|d| d.kind == Kind::SegmentUnknown)
+            .unwrap();
+        assert_eq!(unknown.redacted(), "warning segment-unknown ?[1]");
+        let whole = Diagnostic::error(Kind::StructureMismatch, "", "x");
+        assert_eq!(whole.redacted(), "error structure-mismatch");
+        let kinds = [
+            Kind::Header,
+            Kind::StructureUnknown,
+            Kind::StructureMismatch,
+            Kind::SegmentMissing,
+            Kind::SegmentUnknown,
+            Kind::FieldUnknown,
+            Kind::ComponentUnknown,
+            Kind::ValueFormat,
+        ];
+        let names: std::collections::BTreeSet<_> = kinds.iter().map(|k| k.as_str()).collect();
+        assert_eq!(names.len(), kinds.len());
     }
 
     #[test]

@@ -133,6 +133,30 @@ pub fn convert(er7_text: &str) -> Result<String, Hl7Error> {
 /// cannot be read. Everything below the header degrades rather than
 /// failing.
 pub fn convert_with_options(er7_text: &str, options: Options) -> Result<String, Hl7Error> {
+    render(er7_text, options).map(|(json, _)| json)
+}
+
+/// Whether converting `er7_text` with `options` keeps every segment in its
+/// original order, so that a consumer (or the reverse converter) can rebuild
+/// the same sequence from the JSON.
+///
+/// JSON objects collapse same-named siblings into one array at the position
+/// of the first, so a rendering that is not grouped loses the order of
+/// segments whenever a segment name reappears after a different one — for
+/// example `OBX`, `NTE`, `OBX`, `NTE` flattened to all `OBX` then all `NTE`,
+/// which moves a comment from one observation to the next. A grouped
+/// rendering keeps each segment inside its group and is always order
+/// preserving.
+///
+/// # Errors
+///
+/// The same [`Hl7Error`] as [`convert_with_options`].
+pub fn preserves_segment_order(er7_text: &str, options: Options) -> Result<bool, Hl7Error> {
+    render(er7_text, options).map(|(_, preserved)| preserved)
+}
+
+/// Convert, and report whether segment order survives the rendering.
+fn render(er7_text: &str, options: Options) -> Result<(String, bool), Hl7Error> {
     let message = er7::parse(&normalize(er7_text))?;
     let root_name = root_name(&message);
     let separators = &message.separators;
@@ -147,14 +171,32 @@ pub fn convert_with_options(er7_text: &str, options: Options) -> Result<String, 
         structure::structure_for(&root_name)
             .and_then(|items| structure::group_segments(&root_name, items, &seg_nodes))
     };
+    let preserved = grouped.is_some() || names_are_contiguous(&seg_nodes);
     let top_level: Vec<json::Node> =
         grouped.unwrap_or_else(|| seg_nodes.into_iter().map(|(_, n)| n).collect());
     let root = json::Value::Object(vec![(root_name, json::nodes_to_object(&top_level))]);
-    Ok(if options.compact {
+    let rendered = if options.compact {
         json::render_compact(&root)
     } else {
         json::render_pretty(&root)
-    })
+    };
+    Ok((rendered, preserved))
+}
+
+/// Does every segment name occur in one unbroken run?
+fn names_are_contiguous(segments: &[(String, json::Node)]) -> bool {
+    let mut seen: Vec<&str> = Vec::new();
+    let mut previous: Option<&str> = None;
+    for (name, _) in segments {
+        if previous != Some(name.as_str()) {
+            if seen.contains(&name.as_str()) {
+                return false;
+            }
+            seen.push(name);
+        }
+        previous = Some(name);
+    }
+    true
 }
 
 /// Tidy input into the shape `spec/index.md` §2.1 describes, before handing

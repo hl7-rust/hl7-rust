@@ -40,10 +40,14 @@ hl7-2-from-xsd-into-json-dictionary     writes the dictionaries this
 Anything about *how ER7 is written* belongs in `er7`, not here (§2).
 Anything about *what a segment or field means* belongs here.
 `hl7-2-from-er7-into-xml` reads its data types and message structures from
-this crate as of its 0.5.0; the other three conversion crates still carry
-their own copies of the v2.5 tables. This crate's `schemas/v2.5.json` was
-generated from those copies and is table-for-table identical to them, which
-is what lets each of them move across in turn. Where that content
+this crate as of its 0.5.0. Of the other three conversion crates, only
+`hl7-2-from-er7-into-json` still carries its own copy of the v2.5 type
+lookup. `hl7-2-from-json-into-er7` and `hl7-2-from-xml-into-er7` carry no
+tables at all: they rebuild ER7 from the numeric suffix of each JSON key or
+XML element name, which supplies the position. This crate's
+`schemas/v2.5.json` was generated from the forward JSON converter's copy,
+and any consolidation has to compare that converter's naming behavior
+against this crate's dictionary first. Where that content
 originally came from — no HL7® file is vendored anywhere in this workspace —
 is traced as far back as it goes in
 [`spec/schema-data-provenance/index.md`](../../spec/schema-data-provenance/index.md).
@@ -320,7 +324,11 @@ field 1 of a segment called `XPN`, which no message has.
 
 OBX-5's data type is whatever OBX-2 names. If OBX-2 names a composite the
 dictionary knows, OBX-5 expands with that type's component names; otherwise
-OBX-5 is a scalar.
+OBX-5 is a scalar. Validation (§8) additionally resolves OBX-2 when it names
+a primitive with a checkable format (`SI`, `NM`, `DT`, `TM`, `DTM`), even
+though such a type is not a composite and does not change the tree: an
+`OBX|1|NM|...||NOT_NUMERIC` is a `ValueFormat` error at `OBX[1]-5[1]`. An
+OBX-2 naming any other unknown or local type leaves OBX-5 unchecked.
 
 ### 4.5 Message-structure grouping
 
@@ -493,6 +501,31 @@ Only the value formats with a machine-checkable shape are checked. `ST`,
 which this crate does not model, so it says nothing about them rather than
 guessing. Empty values and explicit nulls are not checked.
 
+**Dates and times** (`DT`, `TM`, `DTM`) are checked for calendar and clock
+validity, not only digit count: month 01-12; a day that exists in that month,
+with 29 February valid only in a leap year (divisible by 4, except centuries
+not divisible by 400); hour 00-23; minute and second 00-59; and a `+/-HHMM`
+offset whose hour is 00-23 and minute 00-59. A fraction of a second needs the
+seconds it fractions, so `2025.1` and `20250101.5` are errors while
+`20250101093851.5` is not. Precision is as supplied: `2025` and `202501` are
+valid and are never padded. Test: `validate::tests::rejects_impossible_dates_and_times_and_orphan_fractions`.
+
+### 8.0 Logging diagnostics
+
+`Diagnostic::detail` quotes the message for `ValueFormat` (the value),
+`StructureUnknown` (the structure ID from MSH-9), `SegmentUnknown` (the
+sender's segment name, which is also in `path`); the `Header` warning about
+an unmodelled MSH-12 also quotes the declared version, which parsing limits
+to version-shaped text. `Diagnostic::redacted()` returns
+`"{severity} {kind} {path}"` using the fixed `Kind::as_str` names and the
+numeric position, with a `SegmentUnknown` segment name replaced by `?`
+(`warning segment-unknown ?[1]`). It never contains message text, so an
+operator can count and locate failures from it. Callers that log diagnostics
+should use it, or log `severity`, `kind` and a numeric position themselves;
+see `spec/phi/index.md`. The CLI's `--redact` (§12) uses it. Test:
+`validate::tests::redacted_diagnostics_never_carry_message_text`, and for the CLI
+`integration::redact_keeps_message_text_out_of_check_output_and_errors`.
+
 ### 8.1 Z-segments
 
 A segment whose name begins with `Z` is a local extension that the standard
@@ -579,7 +612,11 @@ Options: `-s, --set PATH=VALUE` (repeatable) and `-n, --null PATH` edit
 before printing; `-v, --hl7-version VER` forces a release; `-d,
 --dictionary FILE` reads through a schema (§5); `-f, --flat` suppresses
 grouping; `-p, --paths` shows each node's path; `-S, --strict` fails on a
-validation error; `-o, --output FILE` writes to a file.
+validation error; `-R, --redact` keeps message text out of what is printed:
+`--check` prints `Diagnostic::redacted()` lines (§8.0), a `--strict` failure
+lists its errors the same way, and any other parse error says only that
+parsing failed (`message N: cannot parse (details withheld by --redact)`);
+`-o, --output FILE` writes to a file.
 
 Successive trees are separated by a blank line; the value and ER7 outputs
 are not, so they can be piped into another tool.
@@ -614,7 +651,7 @@ tests in `tests/main.rs`; derive tests in
 | 4.2 | every node carries its path | `generic::tests::every_node_carries_the_path_that_reads_it_back` |
 | 4.3 | repetitions are siblings; `repetitions` vs `get_all` | `generic::tests::repetitions_are_separate_siblings`, and the doc test on `Message::repetitions` |
 | 4.3 | the explicit null survives | `generic::tests::the_explicit_null_survives` |
-| 4.4 | OBX-5 typed by OBX-2 | `generic::tests::obx_5_takes_its_type_from_obx_2`, `dictionary::tests::resolves_obx_5_through_obx_2` |
+| 4.4 | OBX-5 typed by OBX-2 | `generic::tests::obx_5_takes_its_type_from_obx_2`, `dictionary::tests::resolves_obx_5_through_obx_2`, `validate::tests::checks_obx_5_against_a_primitive_named_by_obx_2` |
 | 4.5 | grouping, and its all-or-nothing fallback | `structure::tests::*`, `generic::tests::groups_nest_under_the_structure_id`, `message::tests::falls_back_to_a_flat_tree_when_the_structure_does_not_fit` |
 | 4.6 | detached node construction preserves every public part | `generic::tests::constructs_a_detached_node_from_public_parts` |
 | 5 | schema mode end to end | `integration::schema_mode_teaches_the_parser_one_vendors_dialect` |

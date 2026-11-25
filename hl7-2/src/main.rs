@@ -41,6 +41,7 @@ Options:
   -f, --flat             do not group segments into the message structure
   -p, --paths            show each node's path in tree output
   -S, --strict           fail on any validation error
+  -R, --redact           keep message text out of diagnostics and parse errors
   -o, --output FILE      write to FILE instead of standard output
   -h, --help             print this help
   -V, --version          print the crate version
@@ -87,6 +88,7 @@ fn run() -> Result<ExitCode, String> {
     let mut output_path = None;
     let mut flat = false;
     let mut show_paths = false;
+    let mut redact = false;
 
     while let Some(argument) = arguments.next() {
         let mut want = |what: &str| {
@@ -113,6 +115,10 @@ fn run() -> Result<ExitCode, String> {
             }
             "-p" | "--paths" => {
                 show_paths = true;
+                continue;
+            }
+            "-R" | "--redact" => {
+                redact = true;
                 continue;
             }
             "-S" | "--strict" => {
@@ -193,7 +199,11 @@ fn run() -> Result<ExitCode, String> {
     for (index, one) in messages.iter().enumerate() {
         let mut message = hl7_2::parse_with_options(one, &options).map_err(|error| {
             found_problems = true;
-            format!("message {}: {error}", index + 1)
+            if redact {
+                redacted_error(index + 1, &error)
+            } else {
+                format!("message {}: {error}", index + 1)
+            }
         })?;
         for edit in &edits {
             match edit {
@@ -208,7 +218,7 @@ fn run() -> Result<ExitCode, String> {
         if index > 0 && output == Output::Tree {
             text.push('\n');
         }
-        found_problems |= render(&message, &output, flat, show_paths, &mut text)?;
+        found_problems |= render(&message, &output, flat, show_paths, redact, &mut text)?;
     }
 
     match output_path {
@@ -232,11 +242,32 @@ fn run() -> Result<ExitCode, String> {
 }
 
 /// Append one message's output, reporting whether anything was found wrong.
+/// A parse error that carries no text from the message: a strict-mode
+/// failure lists its diagnostics in redacted form, and any other error says
+/// only that parsing failed.
+fn redacted_error(number: usize, error: &hl7_2::Error) -> String {
+    match error {
+        hl7_2::Error::Invalid(diagnostics) => {
+            let lines: Vec<String> = diagnostics
+                .iter()
+                .filter(|diagnostic| diagnostic.severity == Severity::Error)
+                .map(hl7_2::Diagnostic::redacted)
+                .collect();
+            format!(
+                "message {number}: message failed validation:\n  {}",
+                lines.join("\n  ")
+            )
+        }
+        _ => format!("message {number}: cannot parse (details withheld by --redact)"),
+    }
+}
+
 fn render(
     message: &Message,
     output: &Output,
     flat: bool,
     show_paths: bool,
+    redact: bool,
     text: &mut String,
 ) -> Result<bool, String> {
     match output {
@@ -268,7 +299,11 @@ fn render(
                 text.push_str("ok\n");
             }
             for diagnostic in diagnostics {
-                text.push_str(&diagnostic.to_string());
+                if redact {
+                    text.push_str(&diagnostic.redacted());
+                } else {
+                    text.push_str(&diagnostic.to_string());
+                }
                 text.push('\n');
             }
             Ok(failed)

@@ -1,4 +1,6 @@
-use hl7_2_from_er7_into_json::{Options, convert, convert_with_options, split_messages};
+use hl7_2_from_er7_into_json::{
+    Options, convert, convert_with_options, preserves_segment_order, split_messages,
+};
 use std::io::Write;
 use std::process::{Command, Output, Stdio};
 
@@ -379,4 +381,56 @@ fn unknown_components_and_subcomponents_keep_positional_names() {
     assert!(json.contains("\"ZDS.1.1.4\": \"c\""), "{json}");
     assert!(json.contains("\"ZDS.1.2.1\": \"d\""), "{json}");
     assert!(json.contains("\"ZDS.1.2.2\": \"e\""), "{json}");
+}
+
+const TWO_OBSERVATIONS: &str = "MSH|^~\\&|LAB||||20260814||ORU^R01|1|P|2.5\r\
+PID|1||ID1\r\
+OBR|1|ORD1\r\
+OBX|1|NM|A^A||1\r\
+NTE|1||note for A\r\
+OBX|2|NM|B^B||2\r\
+NTE|1||note for B";
+
+#[test]
+fn order_loss_is_reported_for_flat_and_for_ungroupable_messages() {
+    let defaults = Options::default();
+    let flat = Options {
+        flat: true,
+        ..Options::default()
+    };
+    // Grouped: each note stays inside its observation group.
+    assert!(preserves_segment_order(TWO_OBSERVATIONS, defaults).unwrap());
+    // Flat: all OBX, then all NTE — a note moves to the wrong observation.
+    assert!(!preserves_segment_order(TWO_OBSERVATIONS, flat).unwrap());
+    // A trailing local segment defeats grouping, with default options.
+    let with_local = format!("{TWO_OBSERVATIONS}\rZXX|1");
+    assert!(!preserves_segment_order(&with_local, defaults).unwrap());
+    // Flat is harmless when every name is already one adjacent run.
+    assert!(
+        preserves_segment_order(
+            "MSH|^~\\&|A||||20260814||XXX^X01|1|P|2.5\rPID|1\rPID|2\rPV1|1",
+            flat
+        )
+        .unwrap()
+    );
+    assert!(preserves_segment_order("", defaults).is_err());
+}
+
+#[test]
+fn require_order_fails_the_cli_only_when_order_would_be_lost() {
+    assert!(
+        run_cli(&["--require-order"], TWO_OBSERVATIONS)
+            .status
+            .success()
+    );
+    let output = run_cli(&["--require-order", "--flat"], TWO_OBSERVATIONS);
+    assert!(!output.status.success());
+    assert!(output.stdout.is_empty());
+    assert!(
+        String::from_utf8(output.stderr)
+            .unwrap()
+            .contains("message 1: the JSON cannot keep its segments")
+    );
+    assert!(run_cli(&["--flat"], TWO_OBSERVATIONS).status.success());
+    assert!(!run_cli(&["--require-order"], "").status.success());
 }

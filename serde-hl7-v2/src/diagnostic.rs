@@ -87,6 +87,74 @@ impl Serialize for Diagnostic {
     }
 }
 
+/// A log-safe view of a [`hl7_2::Diagnostic`], for serializing into a log
+/// collector or a metrics pipeline.
+///
+/// Serializes as an object with three fields, `"severity"`, `"kind"` and
+/// `"path"`, and **no `"detail"`**: for a `ValueFormat`, `StructureUnknown`
+/// or `SegmentUnknown` finding the detail quotes the message. The path is
+/// [`hl7_2::Diagnostic::redacted_path`], so a sender's segment name in an
+/// unknown-segment finding becomes `?`. Serialize-only: it is a view, and a
+/// finding cannot be rebuilt from it.
+///
+/// ```
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// use serde_hl7_v2::RedactedDiagnostic;
+///
+/// let message = hl7_2::parse("MSH|^~\\&|A||||20240101||ACK^A01|1|P|2.5\rMSA|AA|1\rQQMARK|x")?;
+/// let findings: Vec<RedactedDiagnostic> = message
+///     .validate()
+///     .into_iter()
+///     .map(RedactedDiagnostic)
+///     .collect();
+/// let json = serde_json::to_string(&findings)?;
+/// assert!(json.contains(r#""path":"?[1]""#));
+/// assert!(!json.contains("MARK") && !json.contains("detail"));
+/// # Ok(())
+/// # }
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RedactedDiagnostic(pub hl7_2::Diagnostic);
+
+impl From<hl7_2::Diagnostic> for RedactedDiagnostic {
+    fn from(inner: hl7_2::Diagnostic) -> RedactedDiagnostic {
+        RedactedDiagnostic(inner)
+    }
+}
+
+impl From<RedactedDiagnostic> for hl7_2::Diagnostic {
+    fn from(outer: RedactedDiagnostic) -> hl7_2::Diagnostic {
+        outer.0
+    }
+}
+
+impl Deref for RedactedDiagnostic {
+    type Target = hl7_2::Diagnostic;
+
+    fn deref(&self) -> &hl7_2::Diagnostic {
+        &self.0
+    }
+}
+
+impl DerefMut for RedactedDiagnostic {
+    fn deref_mut(&mut self) -> &mut hl7_2::Diagnostic {
+        &mut self.0
+    }
+}
+
+impl Serialize for RedactedDiagnostic {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("RedactedDiagnostic", 3)?;
+        state.serialize_field("severity", &Severity(self.0.severity))?;
+        state.serialize_field("kind", &DiagnosticKind(self.0.kind))?;
+        state.serialize_field("path", &self.0.redacted_path())?;
+        state.end()
+    }
+}
+
 const FIELDS: &[&str] = &["severity", "kind", "path", "detail"];
 
 struct DiagnosticVisitor {
@@ -189,6 +257,31 @@ mod tests {
             path: "OBX[1]-5[1]".to_string(),
             detail: "NM holds letters".to_string(),
         })
+    }
+
+    #[test]
+    fn redacted_diagnostics_omit_the_detail_and_the_segment_name() {
+        let quoted = RedactedDiagnostic(hl7_2::Diagnostic {
+            severity: hl7_2::Severity::Error,
+            kind: hl7_2::validate::Kind::ValueFormat,
+            path: "OBX[1]-5[1]".to_string(),
+            detail: "\"MARKVALUE\" is not a valid NM value".to_string(),
+        });
+        assert_eq!(
+            serde_json::to_string(&quoted).unwrap(),
+            r#"{"severity":"Error","kind":"ValueFormat","path":"OBX[1]-5[1]"}"#
+        );
+        assert_eq!(quoted.path, "OBX[1]-5[1]"); // Deref reaches the finding
+        let mut unknown = RedactedDiagnostic::from(quoted.0.clone());
+        unknown.kind = hl7_2::validate::Kind::SegmentUnknown;
+        unknown.path = "QQMARK[2]".to_string();
+        let json = serde_json::to_string(&unknown).unwrap();
+        assert!(
+            json.contains(r#""path":"?[2]""#) && !json.contains("MARK"),
+            "{json}"
+        );
+        let back: hl7_2::Diagnostic = unknown.into();
+        assert_eq!(back.path, "QQMARK[2]");
     }
 
     #[test]

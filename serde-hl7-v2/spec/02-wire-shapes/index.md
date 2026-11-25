@@ -14,6 +14,7 @@ change (see [§8](../08-versioning-and-compatibility/index.md), rule S10).
 | `Node` | object, fields `"name"`, `"path"`, `"kind"`, `"text"`, `"null"`, `"children"` | `{"name": "PID.5", "path": "PID[1]-5[1]", "kind": "Field", "text": "SMITH^JOHN", "null": false, "children": [...]}` | yes (S4) |
 | `NodeKind` | one of the strings `"Group"`, `"Segment"`, `"Field"`, `"Component"`, `"Subcomponent"` | `"Field"` | yes |
 | `Diagnostic` | object, fields `"severity"`, `"kind"`, `"path"`, `"detail"` | `{"severity": "Error", "kind": "ValueFormat", "path": "OBX[1]-5[1]", "detail": "..."}` | yes (S5) |
+| `RedactedDiagnostic` | object, fields `"severity"`, `"kind"`, `"path"` (no `"detail"`) | `{"severity": "Warning", "kind": "SegmentUnknown", "path": "?[1]"}` | no (S16) |
 | `Severity` | `"Error"` or `"Warning"` | `"Warning"` | yes |
 | `DiagnosticKind` | the variant name: `"Header"`, `"StructureUnknown"`, `"StructureMismatch"`, `"SegmentMissing"`, `"SegmentUnknown"`, `"FieldUnknown"`, `"ComponentUnknown"`, `"ValueFormat"` | `"SegmentMissing"` | yes |
 | `Version` | the release as MSH-12.1 spells it | `"2.5.1"` | yes (S6) |
@@ -48,6 +49,14 @@ change (see [§8](../08-versioning-and-compatibility/index.md), rule S10).
   names, `severity` and `kind` through `Severity` and `DiagnosticKind`
   (S7). All four are required on deserialize: a finding with no severity
   or no kind is not a finding.
+
+- **S16**: `RedactedDiagnostic` is the log-safe view of a finding. It writes
+  `severity` and `kind` as `Diagnostic` does (S7) and `path` through
+  `hl7_2::Diagnostic::redacted_path`, and writes no `detail`, because
+  `ValueFormat`, `StructureUnknown` and `SegmentUnknown` details quote the
+  message (`spec/phi/index.md`). It has no `Deserialize`: a finding cannot be
+  rebuilt from a view that dropped its detail. Its shape is part of the SemVer
+  contract (S10) like every other.
 
 - **S6**: `Version` serializes through `hl7_2::Version::as_str` and
   deserializes through `hl7_2::Version::parse`. Only a known release is

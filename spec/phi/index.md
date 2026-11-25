@@ -85,11 +85,28 @@ a well-behaved system is a log line.
 | `Error::Path(String)`, `Error::UnwritablePath(String)` | The path, which names a location rather than a value |
 | `Error::Invalid(Vec<Diagnostic>)` | Every `Severity::Error` diagnostic, with the caveat below |
 
-**Diagnostics that carry message content:** `Diagnostic::detail` for a
-`Kind::ValueFormat` finding is formatted as `"{value:?} is not a valid
-{data_type} value"` — the value is in the string. Every other diagnostic
-kind reports a location and a description of the problem, not the content
-at that location.
+**Diagnostics that carry message content.** Three kinds interpolate text
+taken from the message:
+
+| Kind | Where the text appears |
+|---|---|
+| `Kind::ValueFormat` | `detail` is `"{value:?} is not a valid {data_type} value"` — the value itself |
+| `Kind::StructureUnknown` | `detail` names the message structure ID derived from MSH-9 (`{id}`) |
+| `Kind::SegmentUnknown` | `path` is built from the input segment name (`{name}[{n}]`), and `detail` repeats the name |
+
+`Diagnostic::redacted()` (`hl7-2` spec §8.0) is the form that is safe to
+log. The MSH-12 `Header` warning for an unmodelled release also quotes the
+declared version in `detail` (parsing limits it to version-shaped text), so
+the safe set is "kind, severity, position", not "every kind except these
+three".
+
+A sender controls all three strings, so a malformed or hostile message can
+place arbitrary text in them. Every other diagnostic kind reports a location
+and a description of the problem, not the content at that location. The
+`serde-hl7-v2` diagnostic wrapper serializes both `path` and `detail`, so
+the same three kinds reach any serialized output. Logging every warning, or
+stripping only the value from `ValueFormat`, therefore still leaves a route
+for message text into a log collector.
 
 `Display` for both types reproduces those strings, so
 `format!("{error}")`, `error.to_string()`, `{:?}`, `println!`, `panic!`,
@@ -98,7 +115,8 @@ carry a value if the error is one of the kinds above.
 
 **A path is not a value, but it is not nothing.** `OBX[200]-5` says nothing
 about a patient. `Diagnostic::path` and the path in an error are safe to log
-in a way the detail is not.
+in a way the detail is not, with one exception: a `SegmentUnknown` path
+contains the input segment name.
 
 **What to do about it.** If your logs are less trusted than your message
 store — which is usual, because logs are shipped, aggregated, and retained

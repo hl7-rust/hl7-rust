@@ -18,6 +18,7 @@ Arguments:
 Options:
   -o, --output <FILE>  Write JSON to FILE instead of stdout
       --flat           Do not group segments into message-structure groups
+      --require-order  Fail when the JSON cannot keep the segments in their original order
       --compact        Emit compact (single-line) JSON instead of pretty-printed
   -h, --help           Print help
   -V, --version        Print version";
@@ -25,6 +26,7 @@ Options:
 fn main() -> ExitCode {
     let mut flat = false;
     let mut compact = false;
+    let mut require_order = false;
     let mut input: Option<String> = None;
     let mut output: Option<String> = None;
     let mut args = std::env::args().skip(1);
@@ -40,6 +42,7 @@ fn main() -> ExitCode {
             }
             "--flat" => flat = true,
             "--compact" => compact = true,
+            "--require-order" => require_order = true,
             "-o" | "--output" => match args.next() {
                 Some(path) => output = Some(path),
                 None => return fail("missing value for --output"),
@@ -84,6 +87,21 @@ fn main() -> ExitCode {
     let options = hl7_2_from_er7_into_json::Options { flat, compact };
     let mut documents = Vec::with_capacity(messages.len());
     for (i, message) in messages.iter().enumerate() {
+        // An `Err` here would be the same error `convert_with_options` reports
+        // just below, so only a definite "order is lost" is handled here.
+        if require_order
+            && matches!(
+                hl7_2_from_er7_into_json::preserves_segment_order(message, options),
+                Ok(false)
+            )
+        {
+            return fail(&format!(
+                "message {}: the JSON cannot keep its segments in their original order \
+                 (same-named segments are not adjacent and the message is not grouped); \
+                 keep the ER7 for replay, or drop --require-order",
+                i + 1
+            ));
+        }
         match hl7_2_from_er7_into_json::convert_with_options(message, options) {
             Ok(json) => documents.push(json),
             Err(e) => return fail(&format!("message {}: {e}", i + 1)),

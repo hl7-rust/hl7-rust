@@ -2,7 +2,7 @@
 
 # Free open source funding
 
-This project is free under all five of its licences whether or not anyone
+This project is free under all seven of its licences whether or not anyone
 pays anything, and stays that way. There is no paid tier and nothing that
 unlocks with money — funding, where it exists, buys maintainer time and
 nothing else.

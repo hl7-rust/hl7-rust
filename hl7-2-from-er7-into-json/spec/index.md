@@ -119,6 +119,21 @@ Identical to the sibling crate:
   direct child of the root, in original order, with no group nesting.
   `Options { flat: true }` (`--flat`) forces this unconditionally.
 
+### 3.1 When segment order is lost
+
+A JSON object collapses same-named siblings into one array at the position of
+the first. A grouped rendering keeps each segment inside its group, so it
+preserves order. A flat rendering — forced by `--flat`, or the fallback for a
+message that does not fit its grammar, including any message with a local
+Z-segment — preserves it only when every segment name occurs in one
+adjacent run. Otherwise `OBX NTE OBX NTE` becomes all `OBX` then all `NTE`,
+and a comment attaches to the wrong observation when the JSON is turned back
+into ER7. `preserves_segment_order(er7, options)` reports this without
+changing the output, and `--require-order` (§8) turns it into a failure.
+Callers that need the exact sequence should keep the ER7 for replay. Tests:
+`order_loss_is_reported_for_flat_and_for_ungroupable_messages`,
+`require_order_fails_the_cli_only_when_order_would_be_lost`.
+
 ## 4. JSON key naming and rendering (`src/json.rs`, `src/types.rs`)
 
 ### 4.1 Two-stage build
@@ -332,6 +347,9 @@ Same scope boundaries as the XML sibling, restated for this crate:
   included, is an error rather than a silent replacement of the first.
 - `-o, --output <FILE>` writes to `FILE` instead of stdout.
 - `--flat` forces flat rendering for every message in the input (§3).
+- `--require-order` fails the run (exit code 1, naming the message) when a
+  message's JSON cannot keep its segments in their original order (§3.1).
+  Nothing is written for the failed message.
 - `--compact` emits compact JSON instead of the pretty-printed default
   (§4.7).
 - Input is split into messages per §5; each converts independently, and a

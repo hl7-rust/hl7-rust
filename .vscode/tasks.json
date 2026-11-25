@@ -1,0 +1,34 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Clippy (workspace, all features)",
+      "type": "process",
+      "command": "cargo",
+      "args": [
+        "clippy", "--locked", "--workspace", "--all-targets",
+        "--all-features", "--color", "never", "--", "-D", "warnings"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": "$rustc",
+      "group": "build"
+    },
+    {
+      "label": "Test (workspace)",
+      "type": "process",
+      "command": "cargo",
+      "args": ["test", "--locked", "--workspace", "--color", "never"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": "$rustc",
+      "group": "test"
+    },
+    {
+      "label": "Website check (pnpm)",
+      "type": "process",
+      "command": "pnpm",
+      "args": ["run", "check"],
+      "options": { "cwd": "${workspaceFolder}/hl7-rust.github.io" },
+      "group": "build"
+    }
+  ]
+}

@@ -102,7 +102,7 @@ pub use hl7_2_xml_lite_helper as xml;
 
 pub use envelope::{Envelope, parse, wrap_xml};
 pub use fault::{Fault, SOAP_NS};
-pub use response::Outcome;
+pub use response::{AckCode, Evidence, Outcome};
 
 /// The content type a SOAP 1.1 request and response are sent with.
 ///

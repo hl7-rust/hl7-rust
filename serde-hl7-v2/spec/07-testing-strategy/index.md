@@ -23,6 +23,7 @@ enforces it. A rule with no test is a bug in this table.
 | S12 | *by `cargo rustdoc --lib -- -W missing-docs`*, one of the four checks (§7.4) | — |
 | S13 | `strict_rejects_an_unknown_field`, `strict_still_requires_er7`, `strict_still_requires_every_field_the_plain_type_does`, `plain_deserialize_is_unaffected_by_strict_existing`, `strict_accepts_a_real_message_with_no_typos`, `strict_node_rejects_an_unknown_field_at_any_depth` | `src/message.rs`, `src/node.rs`, `src/diagnostic.rs` |
 | S15 | `seed_reads_through_the_callers_dictionary`, `seed_version_option_wins_over_the_wire`, `version_is_optional_and_falls_back_to_msh_12`, `seed_can_be_strict` | `src/message.rs` |
+| S16 | `redacted_diagnostics_omit_the_detail_and_the_segment_name`, and the `RedactedDiagnostic` doc test | `src/diagnostic.rs` |
 
 The table is **checked by `cargo test`**, not only by review:
 `every_rule_has_a_coverage_row` reads this file and the rule index and

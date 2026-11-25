@@ -142,7 +142,7 @@ Never delegated, regardless of session or judgment:
   [`spec/rust-msrv-n-minus-2/index.md`](../rust-msrv-n-minus-2/index.md);
   unaffected by this policy, restated here so the two documents cannot be
   read as disagreeing.
-- **Anything touching the five-way license, the trademark posture, or a
+- **Anything touching the seven-way license, the trademark posture, or a
   PHI-handling code path** ([`spec/phi/index.md`](../phi/index.md)) —
   these carry legal and clinical-safety weight beyond what a green CI run
   certifies, and need the maintainer's explicit review of that specific

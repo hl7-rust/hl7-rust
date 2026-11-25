@@ -144,7 +144,7 @@ instead:
   degrades on its own.
 - **Nothing new ships.** No release, no fix, no dictionary coverage, no
   security patch.
-- **The work is not lost.** The licence is five-way permissive-or-copyleft
+- **The work is not lost.** The licence is seven-way permissive-or-copyleft
   at your option, the history is public and mirrored on three hosts, every
   behavioral rule is written down in a numbered `spec/index.md`, and every
   claim the project makes about itself is in

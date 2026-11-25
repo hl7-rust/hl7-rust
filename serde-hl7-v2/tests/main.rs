@@ -212,13 +212,13 @@ fn every_rule_has_a_coverage_row() {
     let declared = rule_ids(include_str!("../spec/index.md"));
     let covered = rule_ids(include_str!("../spec/07-testing-strategy/index.md"));
 
-    let expected: Vec<String> = (1..=15)
+    let expected: Vec<String> = (1..=16)
         .filter(|number| *number != 14)
         .map(|number| format!("S{number}"))
         .collect();
     assert_eq!(
         declared, expected,
-        "the rule index should hold S1–S13 and S15; S14 is retired"
+        "the rule index should hold S1–S13 and S15–S16; S14 is retired"
     );
     let missing: Vec<&String> = declared.iter().filter(|s| !covered.contains(s)).collect();
     assert!(missing.is_empty(), "no row in §7.1 for {missing:?}");

@@ -4,7 +4,7 @@
 # request") names, so what a document claims is what a machine enforces:
 #
 #   cargo test                                # unit and integration tests
-#   cargo clippy --all-targets -- -D warnings # lint-clean
+#   cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
 #   cargo fmt --check                         # formatting
 #   cargo rustdoc --lib -- -W missing-docs    # every public item documented
 #   cargo +1.98 check --workspace --all-targets   # the MSRV floor
@@ -39,7 +39,7 @@
 # `target/` from ordinary development on this workspace already runs to
 # 9 GB (`du -sh target/`, checked 2026-08-28) — a workspace `target/` is one
 # shared directory across all seventeen members, not one per crate, so
-# `cargo test`, `cargo clippy --all-targets`, and seventeen sequential
+# `cargo test`, `cargo clippy --all-targets --all-features`, and seventeen sequential
 # `cargo rustdoc` passes all accumulate into the same place with nothing to
 # release it between them. A GitHub-hosted runner's free space is a few
 # times that, and it starts already spent on toolchains this workspace
@@ -69,8 +69,8 @@ jobs:
           components: rustfmt, clippy
       - name: cargo fmt --check
         run: cargo fmt --check
-      - name: cargo clippy --all-targets -- -D warnings
-        run: cargo clippy --all-targets -- -D warnings
+      - name: cargo clippy (workspace, all targets, all features)
+        run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
       - name: cargo test
         run: cargo test
       - name: cargo clean, test artifacts no longer needed

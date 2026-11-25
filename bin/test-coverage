@@ -9,6 +9,10 @@ coverage_target=target/llvm-cov-target
 report=$coverage_target/workspace.lcov
 
 unset RUSTC_WRAPPER
+# A shared target directory (CARGO_TARGET_DIR or build.target-dir in a user
+# cargo config) holds other projects' profile data, which would be reported
+# as this workspace's lines; pin everything under ./target.
+export CARGO_TARGET_DIR="$PWD/target"
 unset CARGO_TARGET_AARCH64_APPLE_DARWIN_RUNNER
 cargo clean --target-dir "$coverage_target"
 cargo llvm-cov --workspace --all-features --lcov --output-path "$report" \

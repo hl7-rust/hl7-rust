@@ -54,6 +54,7 @@ same one (S1, S2, S7–S13), so the two crates can be discussed together.
 | S12 | Every public item carries a doc comment; `cargo rustdoc --lib -- -W missing-docs` stays clean | [§7](07-testing-strategy/index.md) |
 | S13 | `Strict<T>` (`T` in `Message`, `Node`, `Diagnostic`) rejects an unknown field instead of ignoring it; `T::deserialize` alone stays tolerant (S8), and node strictness applies recursively | [§11](11-strict-mode/index.md) |
 | S15 | `Message::seed(&options)` deserializes under the caller's `hl7_2::Options`; an `Options::version` set there wins over the wire's `"version"`, and `"version"` is otherwise optional, falling back to MSH-12 | [§2](02-wire-shapes/index.md), [§4](04-round-trip-guarantee/index.md) |
+| S16 | `RedactedDiagnostic` serializes a finding as `{"severity", "kind", "path"}` with no `"detail"` and any segment name taken from the message masked as `?`; it is serialize-only | [§2](02-wire-shapes/index.md) |
 
 ## Which goal wins when two conflict
 

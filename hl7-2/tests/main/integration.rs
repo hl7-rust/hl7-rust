@@ -485,3 +485,54 @@ fn less_common_message_accessors_and_edges_are_covered() {
     assert_eq!(message.remove_segment("OBX", 2).unwrap().name, "OBX");
     assert!(message.into_raw().segment("MSH").is_some());
 }
+
+#[test]
+fn redact_keeps_message_text_out_of_check_output_and_errors() {
+    use std::io::Write;
+    use std::process::{Command, Stdio};
+
+    let run = |arguments: &[&str], input: &str| {
+        let mut child = Command::new(env!("CARGO_BIN_EXE_hl7-v2"))
+            .args(arguments)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        child
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(input.as_bytes())
+            .unwrap();
+        let output = child.wait_with_output().unwrap();
+        (
+            output.status.code().unwrap_or(-1),
+            String::from_utf8(output.stdout).unwrap(),
+            String::from_utf8(output.stderr).unwrap(),
+        )
+    };
+    let unknown = "MSH|^~\\&|A||||20240101||ZMARK^Q01|1|P|2.5\rQQMARK|x\rOBX|1|NM|X||MARKVALUE\r";
+    let (code, out, err) = run(&["--check"], unknown);
+    assert_eq!(code, 2);
+    assert!(out.contains("MARK"), "without --redact the text is quoted");
+    assert!(err.is_empty());
+
+    let (code, out, err) = run(&["--check", "--redact"], unknown);
+    assert_eq!(code, 2);
+    assert!(!out.contains("MARK") && !err.contains("MARK"), "{out}{err}");
+    assert!(out.contains("warning segment-unknown ?[1]"), "{out}");
+    assert!(out.contains("error value-format OBX[1]-5[1]"), "{out}");
+
+    let strict = "MSH|^~\\&|A||||20240101||ORU^R01|1|P|2.5\rOBX|1|NM|X||MARKVALUE\r";
+    let (code, out, err) = run(&["--strict", "-R"], strict);
+    assert_eq!(code, 1);
+    assert!(out.is_empty());
+    assert!(!err.contains("MARK"), "{err}");
+    assert!(err.contains("error value-format OBX[1]-5[1]"), "{err}");
+
+    let (code, _, err) = run(&["--redact"], "garbage MARKTEXT");
+    assert_eq!(code, 1);
+    assert!(!err.contains("MARK"), "{err}");
+    assert!(err.contains("details withheld"), "{err}");
+}

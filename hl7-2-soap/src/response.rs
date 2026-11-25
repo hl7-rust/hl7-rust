@@ -116,6 +116,83 @@ pub fn evaluate(status: u16, body: &str) -> Outcome {
     Outcome::Accepted
 }
 
+/// Which positive acknowledgement a receiver gave.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AckCode {
+    /// `AA`: the application accepted the message.
+    Application,
+    /// `CA`: the receiver committed to it (enhanced mode) but has not
+    /// necessarily processed it.
+    Commit,
+    /// The word `Success`, which [`success`] writes.
+    Success,
+}
+
+/// What a response positively says about one message, apart from whether the
+/// transport succeeded.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Evidence {
+    /// The positive acknowledgement found, if any. A negative code, a fault
+    /// or an absent `Status` is `None`; use [`evaluate`] for the reason.
+    pub code: Option<AckCode>,
+    /// The message control ID the response says it answers, if it names one.
+    pub control_id: Option<String>,
+}
+
+/// Read the acknowledgement evidence out of a response body.
+///
+/// Unlike [`evaluate`], an empty or unrecognised body is *not* accepted
+/// here: it yields no evidence.
+#[must_use]
+pub fn evidence(body: &str) -> Evidence {
+    let Ok(root) = xml::parse(body) else {
+        return Evidence::default();
+    };
+    let code = root
+        .find("Status")
+        .and_then(|element| match element.text.trim() {
+            "AA" => Some(AckCode::Application),
+            "CA" => Some(AckCode::Commit),
+            value if value.eq_ignore_ascii_case("Success") => Some(AckCode::Success),
+            _ => None,
+        });
+    let control_id = root
+        .find("MessageControlId")
+        .map(|element| element.text.trim().to_string())
+        .filter(|id| !id.is_empty());
+    Evidence { code, control_id }
+}
+
+/// Decide whether a response is a *correlated* acknowledgement of the
+/// message whose control ID is `expected`.
+///
+/// [`evaluate`] believes a bare 2xx, which suits a sender that only needs
+/// the transport to have worked. A sender that clears an outbound queue on
+/// the answer needs more, so this accepts only when all of these hold:
+///
+/// - [`evaluate`] accepts the response (no failing status, no fault);
+/// - the body carries a positive acknowledgement ([`evidence`]); and
+/// - it names `expected` as the message it answers.
+///
+/// Anything else is a rejection with a reason that never quotes the
+/// message's own text.
+#[must_use]
+pub fn evaluate_correlated(status: u16, body: &str, expected: &str) -> Outcome {
+    let outcome = evaluate(status, body);
+    if !outcome.is_accepted() {
+        return outcome;
+    }
+    let found = evidence(body);
+    if found.code.is_none() {
+        return Outcome::Rejected("no positive acknowledgement in the response".to_string());
+    }
+    match found.control_id.as_deref() {
+        None => Outcome::Rejected("the acknowledgement does not name a message".to_string()),
+        Some(id) if id == expected => Outcome::Accepted,
+        Some(_) => Outcome::Rejected("the acknowledgement answers a different message".to_string()),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -199,5 +276,75 @@ mod tests {
         assert!(evaluate(200, "").is_accepted());
         assert!(evaluate(202, "OK").is_accepted());
         assert!(evaluate(200, "<Envelope><Body/></Envelope>").is_accepted());
+    }
+}
+
+#[cfg(test)]
+mod correlated_tests {
+    use super::*;
+
+    #[test]
+    fn only_a_positive_acknowledgement_naming_the_message_is_accepted() {
+        assert_eq!(
+            evaluate_correlated(200, &success("M1"), "M1"),
+            Outcome::Accepted
+        );
+        let with = |status: &str, id: &str| {
+            format!(
+                "<Envelope><Body><Ack><Status>{status}</Status>\
+                 <MessageControlId>{id}</MessageControlId></Ack></Body></Envelope>"
+            )
+        };
+        assert_eq!(
+            evaluate_correlated(200, &with("AA", "M1"), "M1"),
+            Outcome::Accepted
+        );
+        assert_eq!(
+            evaluate_correlated(200, &with("CA", "M1"), "M1"),
+            Outcome::Accepted
+        );
+        // A reply to a different message must not retire this one, and the
+        // reason must not quote either control ID.
+        let other = evaluate_correlated(200, &with("AA", "OTHER"), "M1");
+        assert_eq!(
+            other,
+            Outcome::Rejected("the acknowledgement answers a different message".into())
+        );
+        assert_eq!(
+            evaluate_correlated(200, &with("AA", ""), "M1"),
+            Outcome::Rejected("the acknowledgement does not name a message".into())
+        );
+        assert!(!evaluate_correlated(200, &with("AE", "M1"), "M1").is_accepted());
+    }
+
+    #[test]
+    fn silence_a_fault_and_a_failing_status_are_not_correlated_acknowledgements() {
+        let none = Outcome::Rejected("no positive acknowledgement in the response".into());
+        assert_eq!(evaluate_correlated(200, "", "M1"), none);
+        assert_eq!(
+            evaluate_correlated(200, "<Envelope><Body/></Envelope>", "M1"),
+            none
+        );
+        assert_eq!(evaluate_correlated(200, "not xml <", "M1"), none);
+        // The compatibility evaluator still believes the empty 200.
+        assert!(evaluate(200, "").is_accepted());
+        let fault = crate::Fault::validation("bad").to_envelope();
+        assert!(!evaluate_correlated(200, &fault, "M1").is_accepted());
+        assert!(!evaluate_correlated(503, &success("M1"), "M1").is_accepted());
+    }
+
+    #[test]
+    fn evidence_distinguishes_commit_from_application_acceptance() {
+        let code = |status: &str| {
+            evidence(&format!(
+                "<Envelope><Body><Status>{status}</Status></Body></Envelope>"
+            ))
+            .code
+        };
+        assert_eq!(code("AA"), Some(AckCode::Application));
+        assert_eq!(code("CA"), Some(AckCode::Commit));
+        assert_eq!(code("success"), Some(AckCode::Success));
+        assert_eq!(code("AR"), None);
+        assert_eq!(evidence("").control_id, None);
     }
 }
