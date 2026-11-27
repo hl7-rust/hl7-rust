@@ -196,13 +196,13 @@ fn run() -> Result<ExitCode, String> {
     if messages.is_empty() {
         return Err("input contains no HL7 messages".to_string());
     }
-    for (index, one) in messages.iter().enumerate() {
+    for (number, one) in (1_usize..).zip(&messages) {
         let mut message = hl7_2::parse_with_options(one, &options).map_err(|error| {
             found_problems = true;
             if redact {
-                redacted_error(index + 1, &error)
+                redacted_error(number, &error)
             } else {
-                format!("message {}: {error}", index + 1)
+                format!("message {number}: {error}")
             }
         })?;
         for edit in &edits {
@@ -210,12 +210,12 @@ fn run() -> Result<ExitCode, String> {
                 Edit::Set(path, value) => message.set(path, value),
                 Edit::Null(path) => message.set_null(path),
             }
-            .map_err(|error| format!("message {}: {error}", index + 1))?;
+            .map_err(|error| format!("message {number}: {error}"))?;
         }
         // A blank line keeps successive trees apart; the line-per-value
         // and ER7 outputs are already self-delimiting, and a caller piping
         // them into another tool does not want blank lines in the stream.
-        if index > 0 && output == Output::Tree {
+        if number > 1 && output == Output::Tree {
             text.push('\n');
         }
         found_problems |= render(&message, &output, flat, show_paths, redact, &mut text)?;
@@ -272,7 +272,7 @@ fn render(
 ) -> Result<bool, String> {
     match output {
         Output::Tree => {
-            write_node(&message.tree_with_options(!flat), 0, show_paths, text);
+            write_node(&message.tree_with_options(!flat), "", show_paths, text);
             Ok(false)
         }
         Output::Er7 => {
@@ -312,8 +312,10 @@ fn render(
 }
 
 /// One node and everything under it, two spaces per level.
-fn write_node(node: &Node, depth: usize, show_paths: bool, text: &mut String) {
-    text.push_str(&"  ".repeat(depth));
+/// `indent` is the text before this node's name; each level of children
+/// adds two spaces to it, so no depth is counted.
+fn write_node(node: &Node, indent: &str, show_paths: bool, text: &mut String) {
+    text.push_str(indent);
     text.push_str(node.name());
     if node.is_leaf() {
         text.push_str(" = ");
@@ -325,7 +327,8 @@ fn write_node(node: &Node, depth: usize, show_paths: bool, text: &mut String) {
         text.push(']');
     }
     text.push('\n');
+    let child_indent = format!("{indent}  ");
     for child in node.children() {
-        write_node(child, depth + 1, show_paths, text);
+        write_node(child, &child_indent, show_paths, text);
     }
 }

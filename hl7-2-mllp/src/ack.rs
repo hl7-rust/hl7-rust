@@ -181,7 +181,7 @@ pub fn acknowledge_message(
     control_id: &str,
     timestamp: &str,
 ) -> Result<v2::Message, v2::Error> {
-    v2::builder::acknowledge(message, code.as_str(), control_id, timestamp).build()
+    v2::builder::acknowledge(message, code.as_str(), control_id, timestamp)?.build()
 }
 
 /// Build the acknowledgement for a received message, timestamped from the
@@ -288,6 +288,18 @@ mod tests {
     }
 
     #[test]
+    fn a_framed_reply_is_valid_in_every_release() {
+        for &version in v2::version::ALL {
+            let received =
+                format!("MSH|^~\\&|LAB|ACME|EHR|CLINIC|20260814||ORU^R01|99|P|{version}\rPID|1");
+            let frame = acknowledge(received.as_bytes(), AckCode::Accept, "1", "20260814").unwrap();
+            let ack = parse(crate::decode(&frame).unwrap()).unwrap();
+            assert_eq!(ack.version(), version);
+            assert_eq!(ack.validate(), [], "{version}");
+        }
+    }
+
+    #[test]
     fn a_payload_that_is_not_a_message_says_which_way_it_failed() {
         assert_eq!(
             acknowledge(&[0xff, 0xfe], AckCode::Accept, "1", "2"),
@@ -319,6 +331,21 @@ mod tests {
             acknowledge_message(&message, AckCode::Error, "N1", "20260814080100").unwrap();
         nack.set("MSA-3", "OBR-4 is required").unwrap();
         assert!(nack.to_er7().contains("MSA|AE|99|OBR-4 is required"));
+    }
+
+    #[cfg(feature = "clock")]
+    #[test]
+    fn acknowledge_now_frames_an_ack_stamped_with_the_clock() {
+        let frame = acknowledge_now(RECEIVED.as_bytes(), AckCode::Accept, "A1").unwrap();
+        let ack = parse(crate::decode(&frame).unwrap()).unwrap();
+        assert_eq!(ack.get("MSA-1").unwrap().as_deref(), Some("AA"));
+        assert_eq!(ack.get("MSA-2").unwrap().as_deref(), Some("99"));
+        let stamp = ack.get("MSH-7.1").unwrap().unwrap();
+        assert!(
+            stamp.len() == 14 && stamp.bytes().all(|b| b.is_ascii_digit()),
+            "{stamp}"
+        );
+        assert!(now().bytes().all(|b| b.is_ascii_digit()));
     }
 
     #[cfg(feature = "clock")]

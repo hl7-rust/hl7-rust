@@ -1,3 +1,15 @@
+// RCA-EXC-5: test code may use plain operators, `unwrap` and `expect`.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing,
+    clippy::string_slice,
+    clippy::arithmetic_side_effects,
+    clippy::integer_division,
+    clippy::default_numeric_fallback,
+    reason = "RCA-EXC-5: test code may use plain operators, unwrap and expect"
+)]
 use hl7_2_from_er7_into_xml::{
     Options, convert, convert_with_dictionary, convert_with_options, split_messages,
 };
@@ -35,6 +47,12 @@ fn cli_contract_covers_success_and_argument_errors() {
     for flag in ["--help", "--version"] {
         assert!(run_cli(&[flag], "").status.success());
     }
+    let unknown = run_cli(&["--unknown"], "");
+    assert!(
+        String::from_utf8(unknown.stderr)
+            .unwrap()
+            .contains("unknown option: --unknown")
+    );
     for args in [
         &["--unknown"][..],
         &["--output"][..],
@@ -445,6 +463,69 @@ fn a_field_that_cannot_repeat_keeps_its_repetition_separator_as_text() {
     let xml = schema_convert(&format!("{HEADER}PID|1||A~B"));
     assert_eq!(xml.matches("<PID.3>").count(), 2, "{xml}");
     assert!(!xml.contains("A~B"), "{xml}");
+}
+
+fn flat_convert(er7: &str) -> String {
+    convert_with_dictionary(er7, &schema_dictionary(), Options::default()).unwrap()
+}
+
+#[test]
+fn an_empty_leading_repetition_is_written_only_in_schema_mode() {
+    // PID-3 repeats; `~900001` says there are two, the first empty. The
+    // schema counts elements, so it keeps both; the message-driven reading
+    // skips the empty one.
+    let message = format!("{HEADER}PID|1||~900001");
+    assert_eq!(schema_convert(&message).matches("<PID.3>").count(), 2);
+    assert_eq!(flat_convert(&message).matches("<PID.3>").count(), 1);
+}
+
+#[test]
+fn a_field_of_only_separators_is_not_occupied() {
+    // PID-4 is optional. `^^` is three empty components, which is saying
+    // nothing, so no element is written for it in either reading.
+    let message = format!("{HEADER}PID|1||x|^^");
+    assert!(
+        !schema_convert(&message).contains("<PID.4"),
+        "{}",
+        schema_convert(&message)
+    );
+    assert!(!flat_convert(&message).contains("<PID.4"));
+}
+
+#[test]
+fn components_the_value_does_not_reach_are_written_only_in_schema_mode() {
+    // PID-5 is an XPN; only its first component is supplied.
+    let message = format!("{HEADER}PID|1||||Smith");
+    assert!(
+        schema_convert(&message).contains("<XPN.2/>"),
+        "{}",
+        schema_convert(&message)
+    );
+    assert!(
+        !flat_convert(&message).contains("<XPN.2"),
+        "{}",
+        flat_convert(&message)
+    );
+    // An empty component in the middle is not written unless the schema
+    // requires the position, and a later one is.
+    let message = format!("{HEADER}PID|1||||Smith^^Q");
+    let flat = flat_convert(&message);
+    assert!(!flat.contains("<XPN.2"), "{flat}");
+    assert!(flat.contains("<XPN.3>Q</XPN.3>"), "{flat}");
+}
+
+#[test]
+fn subcomponents_the_value_does_not_reach_are_written_only_in_schema_mode() {
+    // CX.4 is an HD with three subcomponents; only the first is supplied.
+    let message = format!("{HEADER}PID|1||700001^^^169^PI");
+    let squash = |xml: String| xml.split_whitespace().collect::<String>();
+    let schema = squash(schema_convert(&message));
+    assert!(
+        schema.contains("<CX.4><HD.1>169</HD.1><HD.2/><HD.3/></CX.4>"),
+        "{schema}"
+    );
+    let flat = squash(flat_convert(&message));
+    assert!(flat.contains("<CX.4><HD.1>169</HD.1></CX.4>"), "{flat}");
 }
 
 #[test]

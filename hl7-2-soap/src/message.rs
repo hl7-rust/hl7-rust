@@ -173,6 +173,25 @@ mod tests {
         parse(xml_text).unwrap().payload().unwrap().clone()
     }
 
+    #[test]
+    fn a_rejection_lists_the_allowed_values_in_sorted_order() {
+        let payload = payload_of(V2XML);
+        let structures = vec!["ZZZ_Z01".to_string(), "ADT_A01".to_string()];
+        let fault = check(&payload, &structures, &[]).unwrap_err();
+        assert!(
+            fault.reason.contains("Allowed values: ADT_A01, ZZZ_Z01"),
+            "{}",
+            fault.reason
+        );
+        let authorities = vec!["ZED".to_string(), "ACME".to_string()];
+        let fault = check(&payload, &[], &authorities).unwrap_err();
+        assert!(
+            fault.reason.contains("Allowed values: ACME, ZED"),
+            "{}",
+            fault.reason
+        );
+    }
+
     const V2XML: &str = r#"<Envelope><Body>
         <ADT_A05>
           <MSH><MSH.3><HD.1>252</HD.1></MSH.3><MSH.10>CTRL7</MSH.10></MSH>

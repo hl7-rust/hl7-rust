@@ -111,11 +111,13 @@ fn build_segment(node: &Element, separators: &Separators) -> Segment {
         // literally rather than escaped (`er7` spec §3.4) — the generic
         // build above cannot know that, so its guesses for these two slots
         // are replaced here.
-        while fields.len() < 2 {
-            fields.push(Field::default());
+        for (slot, number) in [(0, 1), (1, 2)] {
+            let delimiter = literal_field(field_text(node, number).unwrap_or_default());
+            match fields.get_mut(slot) {
+                Some(field) => *field = delimiter,
+                None => fields.push(delimiter),
+            }
         }
-        fields[0] = literal_field(field_text(node, 1).unwrap_or_default());
-        fields[1] = literal_field(field_text(node, 2).unwrap_or_default());
     }
     Segment {
         name: node.local_name().to_owned(),
@@ -178,7 +180,11 @@ fn build_repetition(node: &Element, separators: &Separators) -> Repetition {
 fn build_components(kids: &[Element], separators: &Separators) -> Vec<Component> {
     let groups = group_by_index(kids);
     pad(groups, |occurrences| {
-        build_component(occurrences[0], separators)
+        occurrences
+            .first()
+            .map_or_else(Component::default, |first| {
+                build_component(first, separators)
+            })
     })
 }
 
@@ -201,7 +207,11 @@ fn build_component(node: &Element, separators: &Separators) -> Component {
 fn build_subcomponents(kids: &[Element], separators: &Separators) -> Vec<Subcomponent> {
     let groups = group_by_index(kids);
     pad(groups, |occurrences| {
-        build_subcomponent(occurrences[0], separators)
+        occurrences
+            .first()
+            .map_or_else(Subcomponent::default, |first| {
+                build_subcomponent(first, separators)
+            })
     })
 }
 
@@ -255,7 +265,15 @@ fn group_by_index(kids: &[Element]) -> BTreeMap<usize, Vec<&Element>> {
         let index = trailing_index(kid.local_name())
             .filter(|&i| (1..=MAX_POSITION).contains(&i))
             .unwrap_or(next);
-        next = index + 1;
+        // RCA-EXC-2: `index` is at most `MAX_POSITION` or the previous `next`,
+        // and `next` grows by one per element of `kids`, a slice of at most
+        // `isize::MAX` elements, so `index + 1` stays far below `usize::MAX`.
+        #[expect(
+            clippy::arithmetic_side_effects,
+            reason = "RCA-EXC-2: bounded by MAX_POSITION plus the slice length, proof above"
+        )]
+        let after = index + 1;
+        next = after;
         groups.entry(index).or_default().push(kid);
     }
     groups
@@ -324,6 +342,17 @@ mod tests {
 
     fn reconstruct_er7(xml: &str) -> String {
         reconstruct(&parse(xml).unwrap()).unwrap().to_er7()
+    }
+
+    #[test]
+    fn an_element_with_no_position_lands_right_after_the_one_before() {
+        let xml = "<X><MSH><MSH.1>|</MSH.1><MSH.2>^~\\&amp;</MSH.2></MSH>\
+                   <PID><PID.2>a</PID.2><junk>b</junk><PID.5>c</PID.5></PID></X>";
+        assert!(
+            reconstruct_er7(xml).ends_with("PID||a|b||c"),
+            "{}",
+            reconstruct_er7(xml)
+        );
     }
 
     #[test]

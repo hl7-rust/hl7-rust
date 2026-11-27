@@ -1,6 +1,6 @@
 [package]
 name = "hl7-2-mllp"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 rust-version.workspace = true
@@ -45,3 +45,7 @@ clock = ["ack", "dep:jiff"]
 # return after the end block, and bytes between frames. Off by default —
 # see spec/index.md §3.3.
 noncompliance = []
+
+# RCA-ENF-1: the workspace's checked-arithmetic lint set (root Cargo.toml).
+[lints]
+workspace = true

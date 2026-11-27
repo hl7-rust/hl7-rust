@@ -1,6 +1,6 @@
 [package]
 name = "hl7-2-from-er7-into-xml"
-version = "0.7.3"
+version = "0.8.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 rust-version.workspace = true
@@ -34,3 +34,7 @@ criterion = { version = "0.8", default-features = false, features = ["cargo_benc
 [[bench]]
 name = "convert"
 harness = false
+
+# RCA-ENF-1: the workspace's checked-arithmetic lint set (root Cargo.toml).
+[lints]
+workspace = true

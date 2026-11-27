@@ -30,10 +30,6 @@
 // SECURITY.md.
 #![forbid(unsafe_code)]
 #![warn(missing_docs, clippy::pedantic)]
-// XML literals keep their `r#"..."#` delimiters even where no `"` currently
-// forces them: these are documents, and adding a quoted attribute to one
-// should not also mean changing its delimiter.
-#![allow(clippy::needless_raw_string_hashes)]
 
 pub mod structure;
 pub mod xml;
@@ -71,6 +67,10 @@ pub enum Hl7Error {
     MissingMsh,
     /// The MSH header line is malformed.
     BadMshHeader(String),
+    /// The bundled v2.5 dictionary [`convert`] and [`convert_with_options`]
+    /// use did not load (see `hl7_2::Version::dictionary`), which would
+    /// mean `hl7-2` shipped a malformed file.
+    Dictionary(hl7_2::Error),
 }
 
 impl fmt::Display for Hl7Error {
@@ -79,6 +79,7 @@ impl fmt::Display for Hl7Error {
             Hl7Error::Empty => write!(f, "input contains no HL7 segments"),
             Hl7Error::MissingMsh => write!(f, "message does not start with an MSH segment"),
             Hl7Error::BadMshHeader(detail) => write!(f, "malformed MSH header: {detail}"),
+            Hl7Error::Dictionary(error) => write!(f, "bundled dictionary: {error}"),
         }
     }
 }
@@ -154,7 +155,10 @@ pub fn convert(er7_text: &str) -> Result<String, Hl7Error> {
 /// cannot be read. Everything below the header degrades rather than
 /// failing.
 pub fn convert_with_options(er7_text: &str, options: Options) -> Result<String, Hl7Error> {
-    convert_with_dictionary(er7_text, &hl7_2::Version::V2_5.dictionary(), options)
+    let dictionary = hl7_2::Version::V2_5
+        .dictionary()
+        .map_err(Hl7Error::Dictionary)?;
+    convert_with_dictionary(er7_text, &dictionary, options)
 }
 
 /// Convert one ER7 message to a v2.xml document against a given dictionary.
@@ -167,13 +171,14 @@ pub fn convert_with_options(er7_text: &str, options: Options) -> Result<String, 
 /// against those same schemas.
 ///
 /// ```
-/// let dictionary = hl7_2::Version::V2_5.dictionary();
+/// let dictionary = hl7_2::Version::V2_5.dictionary()?;
 /// let xml = hl7_2_from_er7_into_xml::convert_with_dictionary(
 ///     "MSH|^~\\&|APP||||1||ACK|1|P|2.5\rMSA|AA|1",
 ///     &dictionary,
 ///     Default::default(),
-/// ).unwrap();
+/// )?;
 /// assert!(xml.contains("<ACK xmlns=\"urn:hl7-org:v2xml\">"));
+/// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 /// # Errors
 ///
@@ -286,6 +291,10 @@ mod tests {
             (Hl7Error::Empty, "no HL7 segments"),
             (Hl7Error::MissingMsh, "does not start"),
             (Hl7Error::BadMshHeader("bad".into()), "bad"),
+            (
+                Hl7Error::Dictionary(hl7_2::Error::MissingMsh),
+                "bundled dictionary",
+            ),
         ] {
             assert!(error.to_string().contains(fragment), "{error}");
         }

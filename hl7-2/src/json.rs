@@ -131,14 +131,14 @@ impl std::error::Error for Error {}
 /// [`Error`] when the text is not valid JSON, with where parsing gave up.
 pub fn parse(text: &str) -> Result<Value, Error> {
     let mut reader = Reader {
-        bytes: text.as_bytes(),
-        pos: 0,
+        text,
+        rest: text,
         depth: 0,
     };
     reader.skip_whitespace();
     let value = reader.value()?;
     reader.skip_whitespace();
-    if reader.pos != reader.bytes.len() {
+    if !reader.rest.is_empty() {
         return Err(reader.error("unexpected trailing content"));
     }
     Ok(value)
@@ -154,8 +154,11 @@ pub fn parse(text: &str) -> Result<Value, Error> {
 const MAX_DEPTH: usize = 256;
 
 struct Reader<'a> {
-    bytes: &'a [u8],
-    pos: usize,
+    text: &'a str,
+    /// The unread part of `text`, always a suffix of it. Holding the suffix
+    /// rather than a byte offset means reading never does offset arithmetic
+    /// or slices at an index (RCA-LEN-2).
+    rest: &'a str,
     depth: usize,
 }
 
@@ -163,24 +166,41 @@ impl Reader<'_> {
     fn error(&self, detail: &str) -> Error {
         Error {
             detail: detail.to_string(),
-            offset: self.pos,
+            // `rest` is a suffix of `text`, so the difference is the bytes read.
+            offset: self.text.len().abs_diff(self.rest.len()),
         }
     }
 
-    fn peek(&self) -> Option<u8> {
-        self.bytes.get(self.pos).copied()
+    fn peek(&self) -> Option<char> {
+        self.rest.chars().next()
+    }
+
+    /// Consume `prefix` if the unread text starts with it.
+    fn eat(&mut self, prefix: &str) -> bool {
+        match self.rest.strip_prefix(prefix) {
+            Some(tail) => {
+                self.rest = tail;
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// Consume one character, returning it.
+    fn next_char(&mut self) -> Option<char> {
+        let mut chars = self.rest.chars();
+        let next = chars.next();
+        self.rest = chars.as_str();
+        next
     }
 
     fn skip_whitespace(&mut self) {
-        while matches!(self.peek(), Some(b' ' | b'\t' | b'\r' | b'\n')) {
-            self.pos += 1;
-        }
+        self.rest = self.rest.trim_start_matches([' ', '\t', '\r', '\n']);
     }
 
     /// Consume `word` if it is next, reporting a useful error if not.
     fn literal(&mut self, word: &str, value: Value) -> Result<Value, Error> {
-        if self.bytes[self.pos..].starts_with(word.as_bytes()) {
-            self.pos += word.len();
+        if self.eat(word) {
             Ok(value)
         } else {
             Err(self.error(&format!("expected `{word}`")))
@@ -190,12 +210,12 @@ impl Reader<'_> {
     fn value(&mut self) -> Result<Value, Error> {
         match self.peek() {
             None => Err(self.error("expected a value")),
-            Some(b'{') => self.nested(Reader::object),
-            Some(b'[') => self.nested(Reader::array),
-            Some(b'"') => Ok(Value::String(self.string()?)),
-            Some(b't') => self.literal("true", Value::Bool(true)),
-            Some(b'f') => self.literal("false", Value::Bool(false)),
-            Some(b'n') => self.literal("null", Value::Null),
+            Some('{') => self.nested(Reader::object),
+            Some('[') => self.nested(Reader::array),
+            Some('"') => Ok(Value::String(self.string()?)),
+            Some('t') => self.literal("true", Value::Bool(true)),
+            Some('f') => self.literal("false", Value::Bool(false)),
+            Some('n') => self.literal("null", Value::Null),
             Some(_) => self.number(),
         }
     }
@@ -206,184 +226,168 @@ impl Reader<'_> {
         if self.depth >= MAX_DEPTH {
             return Err(self.error(&format!("nested more than {MAX_DEPTH} deep")));
         }
-        self.depth += 1;
-        let value = read(self);
-        self.depth -= 1;
+        // RCA-EXC-2: `depth < MAX_DEPTH` was checked just above, so the
+        // increment is at most `MAX_DEPTH` and the decrement undoes it.
+        #[expect(
+            clippy::arithmetic_side_effects,
+            reason = "RCA-EXC-2: depth is below MAX_DEPTH here, proof above"
+        )]
+        let value = {
+            self.depth += 1;
+            let value = read(self);
+            self.depth -= 1;
+            value
+        };
         value
     }
 
     fn object(&mut self) -> Result<Value, Error> {
-        self.pos += 1; // `{`
+        self.eat("{");
         let mut members = Vec::new();
         self.skip_whitespace();
-        if self.peek() == Some(b'}') {
-            self.pos += 1;
+        if self.eat("}") {
             return Ok(Value::Object(members));
         }
         loop {
             self.skip_whitespace();
-            if self.peek() != Some(b'"') {
+            if self.peek() != Some('"') {
                 return Err(self.error("expected a member name"));
             }
             let name = self.string()?;
             self.skip_whitespace();
-            if self.peek() != Some(b':') {
+            if !self.eat(":") {
                 return Err(self.error("expected `:` after a member name"));
             }
-            self.pos += 1;
             self.skip_whitespace();
             members.push((name, self.value()?));
             self.skip_whitespace();
-            match self.peek() {
-                Some(b',') => self.pos += 1,
-                Some(b'}') => {
-                    self.pos += 1;
-                    return Ok(Value::Object(members));
-                }
-                _ => return Err(self.error("expected `,` or `}`")),
+            if self.eat("}") {
+                return Ok(Value::Object(members));
+            }
+            if !self.eat(",") {
+                return Err(self.error("expected `,` or `}`"));
             }
         }
     }
 
     fn array(&mut self) -> Result<Value, Error> {
-        self.pos += 1; // `[`
+        self.eat("[");
         let mut items = Vec::new();
         self.skip_whitespace();
-        if self.peek() == Some(b']') {
-            self.pos += 1;
+        if self.eat("]") {
             return Ok(Value::Array(items));
         }
         loop {
             self.skip_whitespace();
             items.push(self.value()?);
             self.skip_whitespace();
-            match self.peek() {
-                Some(b',') => self.pos += 1,
-                Some(b']') => {
-                    self.pos += 1;
-                    return Ok(Value::Array(items));
-                }
-                _ => return Err(self.error("expected `,` or `]`")),
+            if self.eat("]") {
+                return Ok(Value::Array(items));
+            }
+            if !self.eat(",") {
+                return Err(self.error("expected `,` or `]`"));
             }
         }
     }
 
     fn string(&mut self) -> Result<String, Error> {
-        self.pos += 1; // opening quote
+        self.eat("\""); // opening quote
         let mut out = String::new();
         loop {
-            let Some(byte) = self.peek() else {
-                return Err(self.error("unterminated string"));
-            };
-            match byte {
-                b'"' => {
-                    self.pos += 1;
+            match self.peek() {
+                None => return Err(self.error("unterminated string")),
+                Some('"') => {
+                    self.next_char();
                     return Ok(out);
                 }
-                b'\\' => {
-                    self.pos += 1;
+                Some('\\') => {
+                    self.next_char();
                     self.escape(&mut out)?;
                 }
-                0x00..=0x1f => return Err(self.error("unescaped control character in string")),
-                _ => {
-                    // Multi-byte UTF-8 passes through whole: find the end of
-                    // this character in the original text rather than
-                    // pushing bytes one at a time.
-                    let start = self.pos;
-                    self.pos += 1;
-                    while matches!(self.peek(), Some(b) if b & 0xc0 == 0x80) {
-                        self.pos += 1;
-                    }
-                    // The input is a `str`, and the loop advances through one
-                    // complete UTF-8 scalar, so this slice is UTF-8 by construction.
-                    let text = std::str::from_utf8(&self.bytes[start..self.pos])
-                        .expect("a scalar sliced from a str remains UTF-8");
-                    out.push_str(text);
+                Some('\0'..='\u{1f}') => {
+                    return Err(self.error("unescaped control character in string"));
+                }
+                Some(c) => {
+                    self.next_char();
+                    out.push(c);
                 }
             }
         }
     }
 
     fn escape(&mut self, out: &mut String) -> Result<(), Error> {
-        let Some(byte) = self.peek() else {
+        let Some(c) = self.next_char() else {
             return Err(self.error("unterminated escape sequence"));
         };
-        self.pos += 1;
-        out.push(match byte {
-            b'"' => '"',
-            b'\\' => '\\',
-            b'/' => '/',
-            b'b' => '\u{8}',
-            b'f' => '\u{c}',
-            b'n' => '\n',
-            b'r' => '\r',
-            b't' => '\t',
-            b'u' => return self.unicode_escape(out),
+        out.push(match c {
+            '"' => '"',
+            '\\' => '\\',
+            '/' => '/',
+            'b' => '\u{8}',
+            'f' => '\u{c}',
+            'n' => '\n',
+            'r' => '\r',
+            't' => '\t',
+            'u' => return self.unicode_escape(out),
             _ => return Err(self.error("unknown escape sequence")),
         });
         Ok(())
     }
 
-    /// Resolve `\uXXXX`, joining a surrogate pair when one follows.
+    /// Resolve `\\uXXXX`, joining a surrogate pair when one follows.
     fn unicode_escape(&mut self, out: &mut String) -> Result<(), Error> {
         let high = self.hex4()?;
         let scalar = if (0xd800..0xdc00).contains(&high) {
-            if !self.bytes[self.pos..].starts_with(b"\\u") {
+            if !self.eat("\\u") {
                 return Err(self.error("lone high surrogate"));
             }
-            self.pos += 2;
             let low = self.hex4()?;
-            if !(0xdc00..0xe000).contains(&low) {
-                return Err(self.error("expected a low surrogate"));
-            }
-            0x10000 + ((high - 0xd800) << 10) + (low - 0xdc00)
-        } else if (0xdc00..0xe000).contains(&high) {
-            return Err(self.error("lone low surrogate"));
+            // UTF-16 decoding joins the pair without any arithmetic here, and
+            // rejects a second unit that is not a low surrogate.
+            char::decode_utf16([high, low])
+                .next()
+                .and_then(Result::ok)
+                .ok_or_else(|| self.error("expected a low surrogate"))?
         } else {
-            high
+            char::from_u32(u32::from(high)).ok_or_else(|| self.error("lone low surrogate"))?
         };
-        // `hex4` is at most 0xffff, while the pair calculation is at most
-        // 0x10ffff; the surrogate ranges were rejected above.
-        out.push(char::from_u32(scalar).expect("validated JSON escape is a Unicode scalar"));
+        out.push(scalar);
         Ok(())
     }
 
-    fn hex4(&mut self) -> Result<u32, Error> {
-        let end = self.pos + 4;
-        if end > self.bytes.len() {
+    fn hex4(&mut self) -> Result<u16, Error> {
+        let Some((digits, tail)) = self.rest.split_at_checked(4) else {
             return Err(self.error("truncated `\\u` escape"));
-        }
-        let mut value = 0;
-        for &byte in &self.bytes[self.pos..end] {
-            let digit = match byte {
-                b'0'..=b'9' => u32::from(byte - b'0'),
-                b'a'..=b'f' => u32::from(byte - b'a') + 10,
-                b'A'..=b'F' => u32::from(byte - b'A') + 10,
-                _ => return Err(self.error("`\\u` escape needs four hex digits")),
-            };
-            value = value * 16 + digit;
-        }
-        self.pos = end;
+        };
+        // Four hex digits, read with checked arithmetic; anything else
+        // (including a sign, which `from_str_radix` would accept) is refused.
+        let value = digits.chars().try_fold(0_u16, |value, c| {
+            let digit = u16::try_from(c.to_digit(16)?).ok()?;
+            value.checked_mul(16)?.checked_add(digit)
+        });
+        let Some(value) = value else {
+            return Err(self.error("`\\u` escape needs four hex digits"));
+        };
+        self.rest = tail;
         Ok(value)
     }
 
     fn number(&mut self) -> Result<Value, Error> {
-        let start = self.pos;
-        if self.peek() == Some(b'-') {
-            self.pos += 1;
-        }
-        while matches!(
-            self.peek(),
-            Some(b'0'..=b'9' | b'.' | b'e' | b'E' | b'+' | b'-')
-        ) {
-            self.pos += 1;
-        }
-        let text = std::str::from_utf8(&self.bytes[start..self.pos]).unwrap_or("");
-        if let Ok(number) = text.parse::<f64>() {
-            Ok(Value::Number(number))
-        } else {
-            self.pos = start;
-            Err(self.error("expected a value"))
+        let tail = self
+            .rest
+            .trim_start_matches(|c: char| matches!(c, '0'..='9' | '.' | 'e' | 'E' | '+' | '-'));
+        // The characters a number may use, up to the first that it may not.
+        // An empty run reads as "", which is not a number either.
+        let text = self
+            .rest
+            .split_at_checked(self.rest.len().abs_diff(tail.len()))
+            .map_or("", |(text, _)| text);
+        match text.parse::<f64>() {
+            Ok(number) => {
+                self.rest = tail;
+                Ok(Value::Number(number))
+            }
+            Err(_) => Err(self.error("expected a value")),
         }
     }
 }
@@ -445,6 +449,14 @@ mod tests {
         assert!(parse(r#"{"a" 1}"#).is_err());
         assert!(parse(r#""unterminated"#).is_err());
         assert!(parse("").is_err());
+    }
+
+    #[test]
+    fn many_sibling_containers_do_not_count_as_nesting() {
+        let siblings = format!("[{}]", vec!["[]"; 300].join(","));
+        assert!(parse(&siblings).is_ok());
+        let nested = format!("{}{}", "[".repeat(300), "]".repeat(300));
+        assert!(parse(&nested).is_err());
     }
 
     #[test]

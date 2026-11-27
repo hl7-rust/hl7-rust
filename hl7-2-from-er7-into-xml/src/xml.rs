@@ -119,8 +119,9 @@ pub fn segment_to_node(
         _ => seg.fields.len(),
     };
 
-    for index in 0..count {
-        let n = index + 1;
+    // `n` is the 1-based field number beside the 0-based `index`, counted
+    // by the iterator rather than by `index + 1` (RCA-INT).
+    for (index, n) in (0..count).zip(1_usize..) {
         let name = format!("{seg_name}.{n}");
         let data_type = match dictionary.field_type(&seg.name, n) {
             Some(VARIABLE) => variable.as_deref(),
@@ -246,9 +247,10 @@ fn repeat_node(
     if rep.is_null() {
         return Node::leaf(name, er7::message::NULL);
     }
-    if let Some(comps) = dt.and_then(|dt| dictionary.composite_components(dt)) {
+    if let Some((dt, comps)) =
+        dt.and_then(|dt| dictionary.composite_components(dt).map(|comps| (dt, comps)))
+    {
         // Known composite type: children named after the type's components.
-        let dt = dt.unwrap();
         let mut node = Node::group(name);
         // In schema mode the type decides how many components there are, so
         // every one it declares is written and anything past the end of the
@@ -258,8 +260,8 @@ fn repeat_node(
         } else {
             rep.components.len()
         };
-        for ci in 0..count {
-            let cname = format!("{}.{}", dt, ci + 1);
+        for (ci, number) in (0..count).zip(1_usize..) {
+            let cname = format!("{dt}.{number}");
             let cdt = comps.get(ci).map(String::as_str);
             match rep.components.get(ci) {
                 Some(comp) if !comp.is_empty() => node.kids.push(component_node(
@@ -294,11 +296,11 @@ fn repeat_node(
     }
     // Unknown structure: positional generic names SEG.n.m / SEG.n.m.k.
     let mut node = Node::group(name);
-    for (ci, comp) in rep.components.iter().enumerate() {
+    for (number, comp) in (1_usize..).zip(&rep.components) {
         if comp.is_empty() {
             continue;
         }
-        let cname = format!("{}.{}", name, ci + 1);
+        let cname = format!("{name}.{number}");
         node.kids
             .push(generic_component_node(&cname, comp, separators));
     }
@@ -323,8 +325,8 @@ fn component_node(
             comp.subcomponents.len()
         };
         let mut node = Node::group(cname);
-        for si in 0..count {
-            let sname = format!("{}.{}", cdt, si + 1);
+        for (si, number) in (0..count).zip(1_usize..) {
+            let sname = format!("{cdt}.{number}");
             match comp.subcomponents.get(si) {
                 Some(sub) if !sub.is_empty() => {
                     node.kids.push(Node::leaf(sname, &sub.value(separators)));
@@ -367,12 +369,19 @@ fn declared_empty(name: &str, dt: Option<&str>, dictionary: &Dictionary, depth: 
     let Some(components) = dictionary.composite_components(dt) else {
         return node;
     };
-    for (index, component) in components.iter().enumerate() {
+    // RCA-EXC-2: `depth < MAX_DEPTH` was checked above, so `depth + 1` is at
+    // most `MAX_DEPTH`.
+    #[expect(
+        clippy::arithmetic_side_effects,
+        reason = "RCA-EXC-2: depth is below MAX_DEPTH here, proof above"
+    )]
+    let inner = depth + 1;
+    for (number, component) in (1_usize..).zip(components) {
         node.kids.push(declared_empty(
-            &format!("{}.{}", dt, index + 1),
+            &format!("{dt}.{number}"),
             Some(component),
             dictionary,
-            depth + 1,
+            inner,
         ));
     }
     node
@@ -383,12 +392,12 @@ fn generic_component_node(cname: &str, comp: &Component, separators: &Separators
         return Node::leaf(cname, &sub.value(separators));
     }
     let mut node = Node::group(cname);
-    for (si, sub) in comp.subcomponents.iter().enumerate() {
+    for (number, sub) in (1_usize..).zip(&comp.subcomponents) {
         if sub.is_empty() {
             continue;
         }
         node.kids.push(Node::leaf(
-            format!("{}.{}", cname, si + 1),
+            format!("{cname}.{number}"),
             &sub.value(separators),
         ));
     }
@@ -400,12 +409,13 @@ fn generic_component_node(cname: &str, comp: &Component, separators: &Separators
 #[must_use]
 pub fn render_document(root: &Node) -> String {
     let mut out = String::from("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    write_node(root, 0, true, &mut out);
+    write_node(root, "", true, &mut out);
     out
 }
 
-fn write_node(node: &Node, depth: usize, is_root: bool, out: &mut String) {
-    let pad = "  ".repeat(depth);
+/// `pad` is the indentation of this node's lines; each level of children
+/// adds two spaces to it, so no depth is counted.
+fn write_node(node: &Node, pad: &str, is_root: bool, out: &mut String) {
     let attrs = if is_root {
         format!(" xmlns=\"{V2XML_NAMESPACE}\"")
     } else {
@@ -413,8 +423,9 @@ fn write_node(node: &Node, depth: usize, is_root: bool, out: &mut String) {
     };
     if !node.kids.is_empty() {
         let _ = writeln!(out, "{pad}<{}{}>", node.name, attrs);
+        let inner = format!("{pad}  ");
         for kid in &node.kids {
-            write_node(kid, depth + 1, false, out);
+            write_node(kid, &inner, false, out);
         }
         let _ = writeln!(out, "{pad}</{}>", node.name);
     } else if let Some(text) = &node.text {

@@ -1,0 +1,60 @@
+# Mutation testing, weekly and on demand: cargo-mutants rewrites one
+# expression at a time and runs each crate's own tests, so a surviving mutant
+# names behaviour no test pins down. Method, score, and the mutants accepted
+# by name: spec/mutation-testing/index.md.
+#
+# Not part of `ci.yml`: a full run is about half an hour (rule 3 of that spec),
+# which would slow every pull request. It runs on a schedule and by hand, uploads
+# every crate's `mutants.out` as an artifact, and fails if more mutants survive
+# than the spec records as accepted, so the baseline cannot drift quietly.
+
+name: mutation
+
+on:
+  schedule:
+    # Weekly, Sunday 03:00 UTC.
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  # The number of mutants spec/mutation-testing/index.md accepts by name. Lower
+  # it when one is closed; raise it only by adding the mutant and its reason
+  # to that spec in the same change.
+  ACCEPTED_MISSED: 8
+
+jobs:
+  mutants:
+    name: cargo mutants (every crate, all features)
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: cargo-mutants
+      - name: Install cargo-mutants
+        run: cargo install cargo-mutants --locked
+      - name: Run cargo mutants
+        run: ./bin/test-mutants
+      - name: Collect the survivors
+        if: always()
+        run: |
+          missed=$(cat target/mutants/*/mutants.out/missed.txt 2>/dev/null | wc -l | tr -d ' ')
+          echo "missed mutants: $missed (accepted: $ACCEPTED_MISSED)"
+          cat target/mutants/*/mutants.out/missed.txt 2>/dev/null || true
+          echo "MISSED=$missed" >> "$GITHUB_ENV"
+      - name: Upload the results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutants
+          path: target/mutants/*/mutants.out
+          retention-days: 30
+      - name: Fail if more mutants survive than the spec accepts
+        run: |
+          if [ "$MISSED" -gt "$ACCEPTED_MISSED" ]; then
+            echo "::error::$MISSED mutants survived; spec/mutation-testing/index.md accepts $ACCEPTED_MISSED"
+            exit 1
+          fi

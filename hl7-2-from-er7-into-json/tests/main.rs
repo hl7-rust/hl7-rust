@@ -1,3 +1,15 @@
+// RCA-EXC-5: test code may use plain operators, `unwrap` and `expect`.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing,
+    clippy::string_slice,
+    clippy::arithmetic_side_effects,
+    clippy::integer_division,
+    clippy::default_numeric_fallback,
+    reason = "RCA-EXC-5: test code may use plain operators, unwrap and expect"
+)]
 use hl7_2_from_er7_into_json::{
     Options, convert, convert_with_options, preserves_segment_order, split_messages,
 };
@@ -36,6 +48,12 @@ fn cli_contract_covers_success_and_argument_errors() {
     for flag in ["--help", "--version"] {
         assert!(run_cli(&[flag], "").status.success());
     }
+    let unknown = run_cli(&["--unknown"], "");
+    assert!(
+        String::from_utf8(unknown.stderr)
+            .unwrap()
+            .contains("unknown option")
+    );
     for args in [
         &["--unknown"][..],
         &["--output"][..],

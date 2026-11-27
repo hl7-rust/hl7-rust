@@ -191,8 +191,15 @@ impl Framer {
         // The frame runs from the start block to the first end block after
         // it. A second start block before that means the sender began a
         // frame without finishing the last one.
-        let body = &self.buffer[1..];
-        let Some(end) = body.iter().position(|&byte| byte == END_BLOCK) else {
+        // The buffer now starts with the start block; `body` is what follows.
+        // Splitting and slice patterns, not offsets, find the parts
+        // (RCA-LEN-2).
+        let body = self.buffer.split_first().map_or(&[][..], |(_, body)| body);
+        let Some((payload, trailer)) = body
+            .iter()
+            .position(|&byte| byte == END_BLOCK)
+            .and_then(|end| body.split_at_checked(end))
+        else {
             // No end block yet, so a second start block cannot belong to a
             // finished frame: the sender began one without ending the last.
             if body.contains(&START_BLOCK) {
@@ -201,26 +208,27 @@ impl Framer {
             self.check_limit()?;
             return Ok(None);
         };
-        if body[..end].contains(&START_BLOCK) {
+        if payload.contains(&START_BLOCK) {
             return Err(self.fail(Error::EmbeddedStartBlock));
         }
 
-        // `<FS>` at buffer index `end + 1`; its `<CR>` follows.
-        let trailer = end + 2;
-        match body.get(end + 1) {
-            Some(&CARRIAGE_RETURN) => {
-                let payload = body[..end].to_vec();
-                self.buffer.drain(..=trailer);
+        // `trailer` starts with `<FS>`; its `<CR>` follows.
+        match trailer {
+            [_, CARRIAGE_RETURN, rest @ ..] => {
+                let (payload, rest) = (payload.to_vec(), rest.to_vec());
+                self.buffer = rest;
                 Ok(Some(payload))
             }
-            Some(_) if self.tolerance.allows_missing_carriage_return() => {
-                let payload = body[..end].to_vec();
-                self.buffer.drain(..trailer);
+            [_, rest @ ..]
+                if !rest.is_empty() && self.tolerance.allows_missing_carriage_return() =>
+            {
+                let (payload, rest) = (payload.to_vec(), rest.to_vec());
+                self.buffer = rest;
                 Ok(Some(payload))
             }
-            Some(_) => Err(self.fail(Error::NoCarriageReturn)),
+            [_, _, ..] => Err(self.fail(Error::NoCarriageReturn)),
             // The end block arrived but its carriage return has not yet.
-            None => {
+            _ => {
                 self.check_limit()?;
                 Ok(None)
             }
@@ -351,6 +359,8 @@ mod tests {
     fn configuration_accessors_report_the_selected_values() {
         let framer = Framer::default().with_tolerance(Tolerance::Lenient);
         assert_eq!(framer.tolerance(), Tolerance::Lenient);
+        let framer = Framer::default().with_tolerance(Tolerance::Strict);
+        assert_eq!(framer.tolerance(), Tolerance::Strict);
         assert_eq!(Tolerance::default(), Tolerance::default_tolerance());
     }
 
@@ -380,6 +390,34 @@ mod tests {
         );
         // And the buffer is released, not held onto after the failure.
         assert!(framer.is_empty());
+    }
+
+    #[test]
+    fn the_limit_is_inclusive_and_the_default_is_sixteen_mebibytes() {
+        assert_eq!(crate::DEFAULT_LIMIT, 16_777_216);
+        // Exactly at the limit is fine (the start block counts); one more
+        // byte is not.
+        let mut framer = Framer::new().with_limit(64);
+        framer.push(b"\x0b");
+        framer.push(&[b'x'; 63]);
+        assert_eq!(framer.buffered(), 64);
+        assert_eq!(framer.next_frame(), Ok(None));
+        framer.push(b"x");
+        assert_eq!(
+            framer.next_frame(),
+            Err(Error::TooLarge {
+                buffered: 65,
+                limit: 64
+            })
+        );
+    }
+
+    #[test]
+    fn strict_and_lenient_are_what_they_say_whatever_the_features() {
+        assert_eq!(Tolerance::strict(), Tolerance::Strict);
+        assert_eq!(Tolerance::lenient(), Tolerance::Lenient);
+        assert!(!Tolerance::strict().allows_leading_bytes());
+        assert!(Tolerance::lenient().allows_leading_bytes());
     }
 
     #[test]

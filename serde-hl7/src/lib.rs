@@ -35,7 +35,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! serde-hl7 = { version = "0.1", default-features = false, features = ["v2"] }
+//! serde-hl7 = { version = "0.2", default-features = false, features = ["v2"] }
 //! ```
 //!
 //! Nothing lives at the root but the modules. Every wrapper is hand-written

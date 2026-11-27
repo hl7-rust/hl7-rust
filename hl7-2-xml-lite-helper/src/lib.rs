@@ -262,7 +262,11 @@ const MAX_DEPTH: usize = 256;
 
 struct Cursor<'a> {
     text: &'a str,
-    position: usize,
+    /// The unread part of `text`, always a suffix of it. Holding the suffix
+    /// rather than a byte offset means reading never does offset arithmetic
+    /// or slices at an index (RCA-LEN-2): every step is a `strip_prefix`,
+    /// `split_once` or `split_at_checked` on what is left.
+    rest: &'a str,
     depth: usize,
 }
 
@@ -270,72 +274,87 @@ impl<'a> Cursor<'a> {
     fn new(text: &'a str) -> Cursor<'a> {
         Cursor {
             text,
-            position: 0,
+            rest: text,
             depth: 0,
         }
     }
 
-    fn rest(&self) -> &'a str {
-        &self.text[self.position..]
+    /// The byte offset of the unread part, for error messages.
+    fn position(&self) -> usize {
+        // `rest` is a suffix of `text`, so the difference is the bytes read.
+        self.text.len().abs_diff(self.rest.len())
+    }
+
+    fn malformed(&self, what: &str) -> Error {
+        Error::Malformed(what.into(), self.position())
     }
 
     fn at_end(&self) -> bool {
-        self.position >= self.text.len()
+        self.rest.is_empty()
     }
 
     fn starts_with(&self, pattern: &str) -> bool {
-        self.rest().starts_with(pattern)
+        self.rest.starts_with(pattern)
     }
 
-    fn advance(&mut self, bytes: usize) {
-        self.position += bytes;
+    /// Consume `prefix` if the unread text starts with it.
+    fn eat(&mut self, prefix: &str) -> bool {
+        match self.rest.strip_prefix(prefix) {
+            Some(tail) => {
+                self.rest = tail;
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// Consume and return the unread text before the first character that
+    /// matches `stop`, or `None` (consuming nothing) when none does.
+    fn take_until(&mut self, stop: impl Fn(char) -> bool) -> Option<&'a str> {
+        let index = self.rest.find(stop)?;
+        // `find` returns a character boundary, so this split always succeeds.
+        let (head, tail) = self.rest.split_at_checked(index)?;
+        self.rest = tail;
+        Some(head)
+    }
+
+    /// Consume up to and including `end`, returning what came before it.
+    fn take_through(&mut self, end: &str) -> Result<&'a str, Error> {
+        let (head, tail) = self
+            .rest
+            .split_once(end)
+            .ok_or_else(|| self.malformed(&format!("unterminated {end:?}")))?;
+        self.rest = tail;
+        Ok(head)
     }
 
     fn skip_whitespace(&mut self) {
-        let trimmed = self.rest().trim_start();
-        // `trimmed` is a suffix of `text`, so the difference is the bytes skipped.
-        self.position = self.text.len().abs_diff(trimmed.len());
+        self.rest = self.rest.trim_start();
     }
 
     fn skip_prolog(&mut self) -> Result<(), Error> {
         loop {
             self.skip_whitespace();
             if self.starts_with("<?") {
-                self.skip_through("?>")?;
+                self.take_through("?>")?;
             } else if self.starts_with("<!--") {
-                self.skip_through("-->")?;
+                self.take_through("-->")?;
             } else if self.starts_with("<!") {
-                self.skip_through(">")?;
+                self.take_through(">")?;
             } else {
                 return Ok(());
             }
         }
     }
 
-    fn skip_through(&mut self, end: &str) -> Result<(), Error> {
-        match self.rest().find(end) {
-            Some(index) => {
-                self.advance(index + end.len());
-                Ok(())
-            }
-            None => Err(Error::Malformed(
-                format!("unterminated {end:?}"),
-                self.position,
-            )),
-        }
-    }
-
     fn parse_element(&mut self) -> Result<Element, Error> {
         if !self.starts_with("<") {
-            return Err(Error::Malformed("expected '<'".into(), self.position));
+            return Err(self.malformed("expected '<'"));
         }
         if self.depth >= MAX_DEPTH {
-            return Err(Error::Malformed(
-                format!("elements nested more than {MAX_DEPTH} deep"),
-                self.position,
-            ));
+            return Err(self.malformed(&format!("elements nested more than {MAX_DEPTH} deep")));
         }
-        self.advance(1);
+        self.eat("<");
         let name = self.read_name()?;
         let (attributes, self_closing) = self.read_attributes()?;
         if self_closing {
@@ -357,16 +376,13 @@ impl<'a> Cursor<'a> {
 
     /// An XML name: everything up to whitespace, `/`, or `>`.
     fn read_name(&mut self) -> Result<String, Error> {
-        let end = self
-            .rest()
-            .find(|c: char| c.is_whitespace() || c == '/' || c == '>')
-            .ok_or_else(|| Error::Malformed("unterminated tag".into(), self.position))?;
-        if end == 0 {
-            return Err(Error::Malformed("empty element name".into(), self.position));
+        let name = self
+            .take_until(|c| c.is_whitespace() || c == '/' || c == '>')
+            .ok_or_else(|| self.malformed("unterminated tag"))?;
+        if name.is_empty() {
+            return Err(self.malformed("empty element name"));
         }
-        let name = self.rest()[..end].to_string();
-        self.advance(end);
-        Ok(name)
+        Ok(name.to_string())
     }
 
     /// Read `name="value"` pairs up to the tag's close. Returns the
@@ -375,48 +391,35 @@ impl<'a> Cursor<'a> {
         let mut attributes = BTreeMap::new();
         loop {
             self.skip_whitespace();
-            if self.starts_with("/>") {
-                self.advance(2);
+            if self.eat("/>") {
                 return Ok((attributes, true));
             }
-            if self.starts_with(">") {
-                self.advance(1);
+            if self.eat(">") {
                 return Ok((attributes, false));
             }
             if self.at_end() {
-                return Err(Error::Malformed("unterminated tag".into(), self.position));
+                return Err(self.malformed("unterminated tag"));
             }
-            let name_end = self
-                .rest()
-                .find(|c: char| c.is_whitespace() || c == '=')
-                .ok_or_else(|| Error::Malformed("malformed attribute".into(), self.position))?;
-            let name = self.rest()[..name_end].to_string();
-            self.advance(name_end);
+            let name = self
+                .take_until(|c| c.is_whitespace() || c == '=')
+                .ok_or_else(|| self.malformed("malformed attribute"))?
+                .to_string();
             self.skip_whitespace();
-            if !self.starts_with("=") {
-                return Err(Error::Malformed(
-                    "attribute without a value".into(),
-                    self.position,
-                ));
+            if !self.eat("=") {
+                return Err(self.malformed("attribute without a value"));
             }
-            self.advance(1);
             self.skip_whitespace();
-            let quote = self
-                .rest()
-                .chars()
-                .next()
-                .filter(|&c| c == '"' || c == '\'')
-                .ok_or_else(|| {
-                    Error::Malformed("unquoted attribute value".into(), self.position)
-                })?;
-            self.advance(1);
-            let close = self
-                .rest()
-                .find(quote)
-                .ok_or_else(|| Error::Malformed("unterminated attribute".into(), self.position))?;
-            let value = decode(&self.rest()[..close]);
-            self.advance(close + 1);
-            attributes.insert(name, value);
+            let (quote, quoted) = ['"', '\'']
+                .into_iter()
+                .find_map(|quote| self.rest.strip_prefix(quote).map(|tail| (quote, tail)))
+                .ok_or_else(|| self.malformed("unquoted attribute value"))?;
+            self.rest = quoted;
+            let (raw, tail) = self
+                .rest
+                .split_once(quote)
+                .ok_or_else(|| self.malformed("unterminated attribute"))?;
+            self.rest = tail;
+            attributes.insert(name, decode(raw));
         }
     }
 
@@ -424,25 +427,18 @@ impl<'a> Cursor<'a> {
         let mut text = String::new();
         let mut children = Vec::new();
         loop {
-            let next = self
-                .rest()
-                .find('<')
+            let before = self
+                .take_until(|c| c == '<')
                 .ok_or_else(|| Error::Unclosed(open_name.to_string()))?;
-            if next > 0 {
-                text.push_str(&decode(&self.rest()[..next]));
-                self.advance(next);
+            if !before.is_empty() {
+                text.push_str(&decode(before));
             }
-            if self.starts_with("</") {
-                self.advance(2);
+            if self.eat("</") {
                 let close_name = self.read_name()?;
                 self.skip_whitespace();
-                if !self.starts_with(">") {
-                    return Err(Error::Malformed(
-                        "unterminated close tag".into(),
-                        self.position,
-                    ));
+                if !self.eat(">") {
+                    return Err(self.malformed("unterminated close tag"));
                 }
-                self.advance(1);
                 if close_name != open_name {
                     return Err(Error::Mismatched {
                         open: open_name.to_string(),
@@ -456,26 +452,35 @@ impl<'a> Cursor<'a> {
                 return Ok((text, children));
             }
             if self.starts_with("<!--") {
-                self.skip_through("-->")?;
+                self.take_through("-->")?;
                 continue;
             }
             if self.starts_with("<?") {
-                self.skip_through("?>")?;
+                self.take_through("?>")?;
                 continue;
             }
-            if self.starts_with("<![CDATA[") {
-                self.advance("<![CDATA[".len());
-                let end = self
-                    .rest()
-                    .find("]]>")
-                    .ok_or_else(|| Error::Malformed("unterminated CDATA".into(), self.position))?;
-                text.push_str(&self.rest()[..end]);
-                self.advance(end + "]]>".len());
+            if self.eat("<![CDATA[") {
+                let (data, tail) = self
+                    .rest
+                    .split_once("]]>")
+                    .ok_or_else(|| self.malformed("unterminated CDATA"))?;
+                self.rest = tail;
+                text.push_str(data);
                 continue;
             }
-            self.depth += 1;
-            let child = self.parse_element();
-            self.depth -= 1;
+            // RCA-EXC-2: this element passed `depth < MAX_DEPTH` in
+            // `parse_element`, so the increment is at most `MAX_DEPTH` and the
+            // decrement undoes it.
+            #[expect(
+                clippy::arithmetic_side_effects,
+                reason = "RCA-EXC-2: depth is below MAX_DEPTH here, proof above"
+            )]
+            let child = {
+                self.depth += 1;
+                let child = self.parse_element();
+                self.depth -= 1;
+                child
+            };
             children.push(child?);
         }
     }
@@ -489,14 +494,13 @@ fn decode(text: &str) -> String {
     }
     let mut out = String::with_capacity(text.len());
     let mut rest = text;
-    while let Some(index) = rest.find('&') {
-        out.push_str(&rest[..index]);
-        rest = &rest[index..];
-        let Some(end) = rest.find(';') else {
-            out.push_str(rest);
+    while let Some((before, after_ampersand)) = rest.split_once('&') {
+        out.push_str(before);
+        let Some((entity, after)) = after_ampersand.split_once(';') else {
+            out.push('&');
+            out.push_str(after_ampersand);
             return out;
         };
-        let entity = &rest[1..end];
         let decoded = match entity {
             "amp" => Some('&'),
             "lt" => Some('<'),
@@ -511,11 +515,14 @@ fn decode(text: &str) -> String {
                 })
                 .and_then(char::from_u32),
         };
-        match decoded {
-            Some(c) => out.push(c),
-            None => out.push_str(&rest[..=end]),
+        if let Some(c) = decoded {
+            out.push(c);
+        } else {
+            out.push('&');
+            out.push_str(entity);
+            out.push(';');
         }
-        rest = &rest[end + 1..];
+        rest = after;
     }
     out.push_str(rest);
     out

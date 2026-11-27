@@ -141,6 +141,16 @@ pub struct Cardinality {
     pub repeats: bool,
 }
 
+impl Cardinality {
+    /// What a field the dictionary says nothing about is taken to be:
+    /// optional and non-repeating (`spec/index.md` §3.2). The same value
+    /// as `Cardinality::default()`, named so a fallback to it is visible.
+    pub const UNSTATED: Cardinality = Cardinality {
+        required: false,
+        repeats: false,
+    };
+}
+
 impl Dictionary {
     /// An empty dictionary under which everything falls back to generic
     /// positional names. Useful as a base to build on, and as the honest
@@ -210,7 +220,7 @@ impl Dictionary {
         field
             .checked_sub(1)
             .and_then(|index| self.cardinality.get(segment)?.get(index).copied())
-            .unwrap_or_default()
+            .unwrap_or(Cardinality::UNSTATED) // the fallback declared above
     }
 
     /// Resolve a [`VARIABLE`] field's real type from the message.
@@ -312,7 +322,7 @@ impl Dictionary {
     /// no dictionary for.
     pub fn from_json(text: &str, name: impl Into<String>) -> Result<Dictionary, Error> {
         Dictionary::from_json_resolving(text, name, |version| {
-            crate::Version::parse(version).map(crate::Version::dictionary)
+            crate::Version::parse(version).and_then(|version| version.dictionary().ok())
         })
     }
 
@@ -494,29 +504,40 @@ fn positions(
     let mut cardinality = inherited_cardinality;
     for (key, entry) in members {
         let path = format!("{path}.{key}");
-        let position: usize = key
-            .parse()
+        let slot = key
+            .parse::<usize>()
             .ok()
-            .filter(|position| *position > 0)
+            .filter(|position| *position <= MAX_POSITION)
+            .and_then(|position| position.checked_sub(1))
             .ok_or_else(|| Error::Field {
                 path: path.clone(),
-                expected: "a 1-based position number".to_string(),
+                expected: format!("a 1-based position number up to {MAX_POSITION}"),
                 found: format!("{key:?}"),
             })?;
         let (name, card) = entry_of(entry, &path)?;
-        if names.len() < position {
-            names.resize(position, UNSTATED.to_string());
-        }
-        if cardinality.len() < position {
-            cardinality.resize(position, Cardinality::default());
-        }
-        names[position - 1] = name;
-        cardinality[position - 1] = card;
+        set_slot(&mut names, slot, name, || UNSTATED.to_string());
+        set_slot(&mut cardinality, slot, card, Cardinality::default);
     }
     // A sparse delta may state a position past the end of what it inherited,
     // and the two tables are indexed together, so they stay the same length.
     cardinality.resize(names.len(), Cardinality::default());
     Ok((names, cardinality))
+}
+
+/// The highest 1-based position a sparse override may name (spec §3.2). The
+/// tables are sized by it, so a position such as `"99999999999"` in a
+/// caller's dictionary must be an error rather than an allocation; no HL7
+/// segment or composite comes near it.
+pub const MAX_POSITION: usize = 10_000;
+
+/// Put `value` at `slot`, growing `table` with `fill` up to it first.
+fn set_slot<T>(table: &mut Vec<T>, slot: usize, value: T, fill: impl FnMut() -> T) {
+    if let Some(existing) = table.get_mut(slot) {
+        *existing = value;
+    } else {
+        table.resize_with(slot, fill);
+        table.push(value);
+    }
 }
 
 /// Read one position: a bare data type name, or an object that also carries
@@ -683,7 +704,7 @@ mod tests {
 
     #[test]
     fn reads_the_base_release() {
-        let dictionary = Version::V2_5.dictionary();
+        let dictionary = Version::V2_5.dictionary().unwrap();
         assert_eq!(dictionary.field_type("PID", 5), Some("XPN"));
         assert_eq!(dictionary.field_type("MSH", 9), Some("MSG"));
         assert_eq!(dictionary.field_type("OBX", 5), Some(VARIABLE));
@@ -721,6 +742,30 @@ mod tests {
     }
 
     #[test]
+    fn accessors_report_what_the_dictionary_holds() {
+        let empty = Dictionary::empty("vendor");
+        assert_eq!(empty.name(), "vendor");
+        assert_eq!(empty.version(), None);
+        assert!(!empty.is_composite("XPN"));
+        let bundled = Version::V2_3.dictionary().unwrap();
+        assert_eq!(bundled.version(), Some("2.3"));
+        assert!(bundled.is_composite("XPN"));
+        assert!(!bundled.is_composite("ST"));
+        let segment = Item::Segment {
+            name: "PID".into(),
+            required: true,
+            repeats: false,
+        };
+        let group = Item::Group {
+            name: "G".into(),
+            required: false,
+            repeats: true,
+            items: vec![],
+        };
+        assert!(!segment.repeats() && group.repeats());
+    }
+
+    #[test]
     fn a_sparse_delta_restates_one_position_and_keeps_the_rest() {
         let dictionary = Dictionary::from_json(
             r#"{"inherits": "2.5", "segments": {"MSH": {"12": "ID"}}}"#,
@@ -739,6 +784,20 @@ mod tests {
         let error =
             Dictionary::from_json(r#"{"segments": {"ZZZ": {"0": "CX"}}}"#, "test").unwrap_err();
         assert!(error.to_string().contains("1-based position"), "{error}");
+        assert_eq!(Cardinality::UNSTATED, Cardinality::default());
+        // The bound is inclusive, and one past it is an error, not a resize.
+        let at = format!(r#"{{"segments": {{"ZZZ": {{"{MAX_POSITION}": "CX"}}}}}}"#);
+        assert_eq!(
+            Dictionary::from_json(&at, "test")
+                .unwrap()
+                .field_type("ZZZ", MAX_POSITION),
+            Some("CX")
+        );
+        for key in ["10001", "99999999999999999999"] {
+            let past = format!(r#"{{"segments": {{"ZZZ": {{"{key}": "CX"}}}}}}"#);
+            let error = Dictionary::from_json(&past, "test").unwrap_err();
+            assert!(error.to_string().contains("up to 10000"), "{error}");
+        }
     }
 
     #[test]
@@ -771,7 +830,7 @@ mod tests {
     fn a_group_can_start_at_any_leading_optional_segment() {
         // ORU_R01's PATIENT_RESULT starts at PID (optional PATIENT group)
         // or at ORC/OBR (the required ORDER_OBSERVATION group).
-        let dictionary = Version::V2_5.dictionary();
+        let dictionary = Version::V2_5.dictionary().unwrap();
         let items = dictionary.structure("ORU_R01").unwrap();
         let patient_result = &items[2];
         assert_eq!(patient_result.name(), "PATIENT_RESULT");
@@ -782,7 +841,7 @@ mod tests {
 
     #[test]
     fn resolves_obx_5_through_obx_2() {
-        let dictionary = Version::V2_5.dictionary();
+        let dictionary = Version::V2_5.dictionary().unwrap();
         let message = er7::parse("MSH|^~\\&|A||||1||ORU^R01|1|P|2.5\rOBX|1|CE|X||a^b").unwrap();
         let obx = message.segment("OBX").unwrap();
         assert_eq!(

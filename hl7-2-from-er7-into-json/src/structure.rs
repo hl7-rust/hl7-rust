@@ -264,14 +264,21 @@ fn match_items(
     out: &mut Vec<Node>,
 ) -> bool {
     for item in items {
-        let mut count = 0;
+        let mut matched = false;
         loop {
             let before = *pos;
-            if *pos < segs.len() && item.can_start(&segs[*pos].0) {
+            if let Some((_, node)) = segs.get(*pos).filter(|(name, _)| item.can_start(name)) {
                 match item {
                     Seg(_, _, _) => {
-                        out.push(segs[*pos].1.clone());
-                        *pos += 1;
+                        out.push(node.clone());
+                        // RCA-EXC-2: `segs.get(*pos)` just succeeded, so
+                        // `*pos < segs.len()` and `*pos + 1 <= segs.len()`.
+                        #[expect(
+                            clippy::arithmetic_side_effects,
+                            reason = "RCA-EXC-2: pos indexes segs, proof above"
+                        )]
+                        let after = *pos + 1;
+                        *pos = after;
                     }
                     Grp(name, _, _, kids) => {
                         let mut group_kids = Vec::new();
@@ -283,13 +290,13 @@ fn match_items(
                         out.push(node);
                     }
                 }
-                count += 1;
+                matched = true;
             }
             if *pos == before || !item.repeating() {
                 break;
             }
         }
-        if count == 0 && item.required() {
+        if !matched && item.required() {
             return false;
         }
     }
@@ -299,6 +306,17 @@ fn match_items(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn every_bundled_structure_has_a_grammar_and_an_unknown_one_does_not() {
+        for id in ["ACK", "ADT_A01", "ORM_O01", "ORU_R01"] {
+            assert!(
+                structure_for(id).is_some_and(|items| !items.is_empty()),
+                "{id}"
+            );
+        }
+        assert!(structure_for("ZZZ_Z01").is_none());
+    }
 
     #[test]
     fn matcher_reports_missing_required_items_and_partly_started_groups() {

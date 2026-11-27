@@ -1,0 +1,8 @@
+# Security contact for HL7® for Rust (RFC 9116). The policy, what counts as a
+# vulnerability, and the response commitments are in SECURITY.md.
+Contact: https://github.com/hl7-rust/hl7-rust/security/advisories/new
+Contact: mailto:joel@joelparkerhenderson.com
+Expires: 2027-05-27T00:00:00.000Z
+Preferred-Languages: en
+Policy: https://github.com/hl7-rust/hl7-rust/blob/main/SECURITY.md
+Canonical: https://hl7-rust.github.io/.well-known/security.txt

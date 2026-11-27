@@ -484,33 +484,6 @@ on the audited revision.
 
 #### Clinical interoperability (high priority)
 
-- [x] **Validate primitive OBX-5 by OBX-2** (2026-11-25: spec §4.4, fix in
-      `validate.rs`, test `checks_obx_5_against_a_primitive_named_by_obx_2`;
-      the CLI now exits 1 on the audit's example. `CHANGELOG.md` entry written; `./bin/test-coverage`
-      9,878/9,878 lines, 100%.) — `hl7-v2 --strict --check` exits 0
-      with `NOT_NUMERIC` in an OBX-5 whose OBX-2 is `NM`: the validator
-      resolves the type through the composite-type lookup, which has no entry
-      for primitives. Resolve OBX-2 independently of composite expansion;
-      test valid decimal, invalid second repetition, coded result, `SN`,
-      explicit null, and local type; require a `ValueFormat` finding at the
-      exact repetition. Update `hl7-2/spec/index.md` §§4.4 and 8 first.
-- [x] **Calendar and clock validity for DT/DTM/TM** (2026-11-25: spec §8,
-      `validate.rs`, test
-      `rejects_impossible_dates_and_times_and_orphan_fractions`; changelog written;
-      coverage 100% as above) — `20250230` and the
-      fractional year `2025.1` pass validation (digits are counted, not
-      interpreted). Define validity in `hl7-2/spec/index.md` §8 (leap days,
-      precision, fractional seconds, offsets), keep year-only and month-only
-      at supplied precision, and test 29 vs 30 February.
-- [x] **Typed JSON loses OBX/NTE association** (2026-11-25: spec §3.1, `preserves_segment_order`,
-      `--require-order`, two tests, changelog; coverage 9,911/9,911, 100%. Default output is
-      unchanged, so existing consumers keep their wire shape.) — with `--flat`, or with a
-      trailing local `ZXX` segment under default options, the reverse
-      conversion reorders to OBX A, OBX B, note A, note B. Add a conversion
-      option that reports or rejects unrepresentable interleaving before
-      emitting JSON; test reconstructed observation–comment pairs for
-      grouped, flat, and trailing-local-segment cases. Spec:
-      `hl7-2-from-er7-into-json/spec/index.md` §§3–4.
 - [ ] **Fix the lab example that teaches what `ok` means** — the quickstart
       and `hl7-2/samples/oru_r01.hl7` put total cholesterol and Rh type under
       one lipid-panel order, with `D^Rh positive^LN` presenting `D` as a
@@ -519,31 +492,6 @@ on the audited revision.
       next to the observation it qualifies; regenerate the quickstart output
       from the fixture; assert order/observation association and code/system
       pairs in the fixture test. Needs review by a laboratory informatician.
-- [x] **Acknowledgement evidence in SOAP evaluators** (2026-11-25: both crates,
-      spec §6.1, `evaluate_correlated`/`evidence`, tests incl. matching reply,
-      different message, empty/unparseable 200, fault under 200, failing
-      status; the lost-reply redelivery case is the receiver's and stays an
-      interface test; coverage 10,064/10,064, 100%) — `hl7-2-soap` and
-      `hl7-3-soap` map any 2xx with an empty, unparseable, or unrecognized
-      body to `Accepted`, and take no expected message ID. Add a
-      policy-aware evaluator beside the compatibility API (transport success
-      vs correlated application acknowledgement; expose `CA` vs `AA`
-      evidence). Test matching reply, reply to a different message, empty
-      200, fault under 200, and lost reply followed by redelivery.
-- [x] **Diagnostics can carry message text** (2026-11-25: `spec/phi/index.md`
-      inventory corrected; `Diagnostic::redacted()` and `Kind::as_str` added in `hl7-2`,
-      test `redacted_diagnostics_never_carry_message_text`; CLI `--redact`
-      added with a test;
-      `RedactedDiagnostic` in `serde-hl7-v2` (S16) added with tests; coverage
-      10,131/10,131, 100%; changelog written. Remaining:
-      bump `serde-hl7-v2`'s `hl7-2` requirement at release time) — `spec/phi/index.md` names only
-      `ValueFormat`, but `StructureUnknown` interpolates a message-derived
-      structure ID (MSH-9) and `SegmentUnknown` builds its path from the
-      input segment name; the Serde wrapper serializes both. Correct the
-      PHI inventory and add an operational formatter (fixed kind, severity,
-      numeric positions, allowlisted segment labels). Test with synthetic
-      markers in a value, a header, and an unknown segment name; none may
-      appear in the collected output.
 - [ ] **Qualify one clinical interface end to end** — start with a lab-result
       feed and a patient-identity feed: A40 merge (MRG-1/PID-3, same local
       number from two authorities), A08 omit/null/replace, preliminary →
@@ -557,49 +505,22 @@ on the audited revision.
       (version-matched, independently sourced); publish checked subset and
       discrepancies per `spec/schema-data-provenance/index.md`.
 
+#### Release-readiness audit (2026-11-26, findings verified against the code)
+
+Taken from a third-party audit of `e63ec51` (the eleventh-release prep,
+not yet published: crates.io still serves `hl7-2` 0.3.3). Each finding
+below was re-checked against the source before being listed here; the
+audit file itself was removed once its content lived here.
+
+- [ ] **Release evidence gaps the audit could not close** — record
+      hosted-CI status and `cargo package --workspace` verification (offline
+      verification hit a temporary-registry hash error) in the release
+      record before publishing.
+
 #### Contributor checks and editor support
 
-- [x] **Repair the pre-PR checklist** in `CONTRIBUTING.md` (2026-11-25; CI's
-      rustdoc loop left as is pending the disk-use check): replace the
-      `cargo llvm-cov --fail-under-lines 95` recipe with `./bin/test-coverage`
-      (spec and CI require 100% of distinct instrumented lines), and replace
-      `cargo rustdoc --lib -- -W missing-docs` (exits 101 at a virtual
-      manifest) with
-      `RUSTDOCFLAGS="-W missing-docs -D warnings" cargo doc --locked --workspace --all-features --no-deps --lib`.
-      Check CI runner disk use before retiring the per-crate cleanup loop.
-- [ ] **Close the checked-arithmetic gap** (2026-11-25: CI Clippy now runs
-      `--workspace --all-targets --all-features`, clean locally; the
-      `[workspace.lints]` table and module migration remain) — `spec/rust-checked-arithmetic`
-      RCA-ENF-1 calls for workspace lint levels and an all-target,
-      all-feature Clippy run; the root manifest has no `[workspace.lints]`
-      table and CI's Clippy omits `--all-features`. Adopt
-      `cargo clippy --locked --workspace --all-targets --all-features -- -D warnings`
-      in CI. Then migrate module by module (RCA-ENF-3): enabling
-      `clippy::arithmetic_side_effects` on `hl7-2` lib yields 67 diagnostics;
-      review each, test boundaries, and prove a temporary violation fails
-      both CI and the local task.
-- [x] **VS Code path through the parser** (2026-11-25: `.vscode/` files, a
-      `.gitignore` exception for them, `CONTRIBUTING.md` walkthrough,
-      `hl7-2/AGENTS.md` paths fixed; the first test and the CLI invocation
-      ran from the terminal. Still unverified: fresh-profile F5 and CodeLens
-      in the editor, Problems-panel click-through, a Windows launch entry.) — add `.vscode/extensions.json`
-      (rust-analyzer), a Clippy `tasks.json`, a CodeLLDB `launch.json` for
-      `hl7-v2 --query ZAC-2.1 hl7-2/samples/vendor.hl7` with
-      `CARGO_PROFILE_DEV_DEBUG=2` in `cargo.env` (the dev profile's
-      `line-tables-only` hides locals), and a short walkthrough naming the
-      first test
-      (`cargo test --locked -p hl7-2 --test main integration::a_release_difference_changes_how_a_field_reads -- --exact`).
-      Update `hl7-2/AGENTS.md`, which still cites `tests/spec.rs` (now
-      `tests/main/`). Remaining acceptance: fresh-profile F5 and CodeLens
-      run, Problems-panel click-through, Windows debugger adapter.
-- [x] **Correct the dictionary ownership map** (2026-11-25; §0 and AGENTS.md
-      corrected, forward-JSON comparison still open) — `hl7-2/spec/index.md` §0
-      says three converter crates carry copies of the v2.5 tables; only the
-      forward JSON converter has its own type lookup, while both reverse
-      converters use the numeric key/element suffix. Fix §0 and the crate
-      guide together; keep the reverse round-trip goldens; compare forward
-      JSON naming against the parser dictionary before proposing any
-      consolidation.
+All done; the entries are in
+[`tasks-archive-2026-11.md`](tasks-archive-2026-11.md).
 
 #### Generic quality list (condensed; skip anything already done)
 
@@ -607,13 +528,46 @@ The third audit predates current state in places (it cites 95.25% coverage;
 coverage is 100%, and fuzzing, Dependabot, and the threat model already
 exist). Items not already covered above or elsewhere in this file:
 
-- [ ] Property-based round-trip tests (proptest) for the v2 parser.
-- [ ] Mutation testing (`cargo-mutants`) baseline and score tracking.
+- [x] Property-based round-trip tests (proptest) for the v2 parser
+      (2026-11-26: `hl7-2/tests/main/properties.rs`, `proptest` as a
+      dev-dependency with default features off, cargo-deny and MSRV 1.98 clean;
+      four properties in spec §13 — set/get returns the text written, rendered
+      ER7 is a fixed point, reading arbitrary text never panics, redacted
+      diagnostics carry no message text. The first run found the item below.)
+- [x] **Decide whether parsing should keep a segment's trailing spaces**
+      (decided 2026-11-27 by the maintainer: keep trimming each line of
+      leading and trailing whitespace, all Unicode `White_Space`, after
+      research found HL7 v2 treats trailing blanks as insignificant — ST/ID/IS
+      "trailing blanks optional", TX "Trailing spaces should be removed", v2.5
+      2.A.74/2.A.78. Spec §2.1 states the rule and the mid-segment asymmetry;
+      `normalizes_before_parsing` covers non-ASCII whitespace; the
+      round-trip properties now generate tab, no-break and ideographic spaces
+      and assert equality up to trailing whitespace.)
+- [x] Mutation testing (`cargo-mutants`) baseline and score tracking
+      (2026-11-26: `.cargo/mutants.toml`, `bin/test-mutants`,
+      `make test-mutants`; method, score definition, and the baseline —
+      1,247 caught, 81 missed, **93.9%** — in
+      [`spec/mutation-testing/index.md`](spec/mutation-testing/index.md)).
+- [x] **Close or accept the 81 surviving mutants** (2026-11-27: 73 closed with
+      tests — CLI unknown-option messages, pretty-printer and boundary
+      cases, `clock`-feature paths, schema-mode shapes, validator date and
+      value checks, sibling-depth tests for every reader — and the other 8
+      accepted by name, with reasons, in `spec/mutation-testing/index.md`.
+      Workspace score 99.4% (1,322 caught, 8 missed). `--all-features` is now
+      part of the mutation run so feature-gated code is measured.)
+- [x] **Add mutation testing to CI as a non-blocking report, or on a schedule**
+      (2026-11-27: `.github/workflows/mutation.yml`, weekly and on demand,
+      uploads every crate's `mutants.out` and fails if more than the 8
+      accepted mutants survive. YAML parses; **not yet observed running on
+      GitHub**, like the other workflows' first run.)
 - [ ] Snapshot tests for message rendering; cross-version compatibility tests.
 - [ ] Performance regression tests and memory-usage benchmarks (record in
       `spec/benchmark/`).
-- [ ] `cargo-audit`/`cargo-deny` and SBOM generation (`cargo cyclonedx`) in
-      CI/release; `security.txt`; security review checklist for new features.
+- [ ] Security review checklist for new features. (`cargo-deny` and SBOM
+      generation already run in CI; `security.txt` landed 2026-11-27 at
+      `hl7-rust.github.io/static/.well-known/security.txt`, **expiring
+      2027-05-27 — refresh it before then** — and not yet verified served
+      once the site is published.)
 - [ ] Website: in-browser "paste a message, see the parse" demo, glossary,
       "which crate do I need?" decision tree, expanded FAQ.
 - [ ] README badges (CI, crates.io, docs.rs, license) on each crate.
@@ -625,6 +579,7 @@ exist). Items not already covered above or elsewhere in this file:
 ## Work in progress (handoff 2026-11-20)
 
 - [x] Coverage backlog complete: 9,540/9,540 lines (100%); CI requires 100%.
+      Re-verified 2026-11-26 after the audit fixes: 10,358/10,358 (100%).
 - No local code work remains. External/deferred: Trusted Publishing,
       HL7 reply/outreach, Zenodo DOI, and Open Collective (details above).
 

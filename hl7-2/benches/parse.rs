@@ -12,6 +12,24 @@
 //! message written back out. A single "messages per second" figure hides which
 //! of those a given interface is actually paying for.
 
+// RCA-EXC-5: benchmark code, like test code, may use plain operators, `unwrap` and `expect`.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing,
+    clippy::string_slice,
+    clippy::arithmetic_side_effects,
+    clippy::integer_division,
+    clippy::default_numeric_fallback,
+    clippy::as_conversions,
+    clippy::cast_precision_loss,
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    clippy::float_arithmetic,
+    reason = "RCA-EXC-5: test code may use plain operators, unwrap and expect"
+)]
+
 use criterion::{Criterion, Throughput, criterion_group, criterion_main};
 use std::hint::black_box;
 

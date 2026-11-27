@@ -1,6 +1,6 @@
 [package]
 name = "serde-hl7-v2"
-version = "0.1.3"
+version = "0.2.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 rust-version.workspace = true
@@ -14,14 +14,22 @@ categories = ["encoding", "parser-implementations"]
 # the trait vocabulary this crate implements against, and `hl7-2` is the
 # value tree it wraps. See spec/03-dependencies-and-format-agnosticism/index.md.
 # `default-features = false` keeps `hl7-2`'s opt-in `derive` feature off, so
-# no proc-macro crate is pulled in through this one. 0.3.3 introduced
-# Node::new, required to restore the detached tree during deserialization.
+# no proc-macro crate is pulled in through this one. 0.4.0 introduced
+# Diagnostic::redacted_path, required by RedactedDiagnostic (rule S16); it
+# also carries Node::new (0.3.3), required to restore a detached tree.
 [dependencies]
 serde = "1"
 hl7-2 = { version = "0.4.0", path = "../hl7-2", default-features = false }
 
 # serde_json is not a runtime dependency of this crate — it is deliberately
 # format-agnostic — but it is the natural format to exercise in tests,
-# doctests, and examples, so it appears only here.
+# doctests, and examples, so it appears only here. postcard is here for the
+# same reason: a non-self-describing format, so the positional (visit_seq)
+# path is tested too (rule S17).
 [dev-dependencies]
+postcard = { version = "1.2.0", default-features = false, features = ["alloc"] }
 serde_json = "1"
+
+# RCA-ENF-1: the workspace's checked-arithmetic lint set (root Cargo.toml).
+[lints]
+workspace = true

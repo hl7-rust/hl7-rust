@@ -4,6 +4,19 @@
 //! whole argument for this crate is that three readers wanted the same
 //! subset and only differed in which half of it they threw away.
 
+// RCA-EXC-5: test code may use plain operators, `unwrap` and `expect`.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing,
+    clippy::string_slice,
+    clippy::arithmetic_side_effects,
+    clippy::integer_division,
+    clippy::default_numeric_fallback,
+    reason = "RCA-EXC-5: test code may use plain operators, unwrap and expect"
+)]
+
 use hl7_2_xml_lite_helper::{Element, Error, escape, local_name, parse};
 
 // --------------------------------------------------------------------
@@ -26,6 +39,31 @@ fn a_self_closing_element_is_empty_not_absent() {
     assert_eq!(b.text, "");
     assert_eq!(b.text_opt(), None);
     assert!(b.children.is_empty());
+}
+
+#[test]
+fn text_is_kept_where_it_is_content_and_dropped_where_it_is_layout() {
+    // Text with nothing but a leaf around it is content, even all spaces...
+    let root = parse("<a>   </a>").unwrap();
+    assert_eq!(root.text, "   ");
+    assert_eq!(root.text_opt(), Some("   "));
+    // ...mixed content keeps its text beside the children...
+    let root = parse("<a>hello<b/></a>").unwrap();
+    assert_eq!(root.text, "hello");
+    assert_eq!(root.text_opt(), Some("hello"));
+    // ...and whitespace that only separates children is layout.
+    let root = parse("<a>\n  <b/>\n  <c/>\n</a>").unwrap();
+    assert_eq!(root.text, "");
+}
+
+#[test]
+fn many_sibling_elements_do_not_count_as_nesting() {
+    // The depth comes back down after each child, so 300 siblings (more than
+    // the 256-level nesting limit) are fine, and 300 nested are not.
+    let siblings = format!("<a>{}</a>", "<b/>".repeat(300));
+    assert_eq!(parse(&siblings).unwrap().children.len(), 300);
+    let nested = format!("{}{}", "<a>".repeat(300), "</a>".repeat(300));
+    assert!(parse(&nested).is_err());
 }
 
 #[test]
@@ -255,4 +293,22 @@ fn ordinary_nesting_depth_still_reads() {
     }
     assert_eq!(seen, depth);
     assert_eq!(node.text, "x");
+}
+
+#[test]
+fn empty_and_entity_only_attribute_values_survive_the_suffix_cursor() {
+    let root = hl7_2_xml_lite_helper::parse(
+        "<a x=\"\" y='&amp;' z = \"&#x41;&#66;\"><![CDATA[<raw>]]>&unknown;&amp</a>",
+    )
+    .unwrap();
+    assert_eq!(root.attribute("x"), Some(""));
+    assert_eq!(root.attribute("y"), Some("&"));
+    assert_eq!(root.attribute("z"), Some("AB"));
+    assert_eq!(root.text, "<raw>&unknown;&amp");
+}
+
+#[test]
+fn errors_still_report_the_byte_offset_they_stopped_at() {
+    let error = hl7_2_xml_lite_helper::parse("<a b=c/>").unwrap_err();
+    assert_eq!(error.to_string(), "unquoted attribute value at byte 5");
 }

@@ -25,7 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .control_act
         .as_ref()
         .and_then(|act| act.domain.as_ref())
-        .expect("the sample carries a payload");
+        .ok_or("the sample carries no payload")?;
 
     // The payload's shape is the interaction's business, not this crate's:
     // `hl7-3` reads it into whichever RIM class the caller says it is.

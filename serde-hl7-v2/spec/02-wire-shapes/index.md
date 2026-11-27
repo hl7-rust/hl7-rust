@@ -56,7 +56,18 @@ change (see [§8](../08-versioning-and-compatibility/index.md), rule S10).
   `ValueFormat`, `StructureUnknown` and `SegmentUnknown` details quote the
   message (`spec/phi/index.md`). It has no `Deserialize`: a finding cannot be
   rebuilt from a view that dropped its detail. Its shape is part of the SemVer
-  contract (S10) like every other.
+  contract (S10) like every other. Its `Debug` writes the same three fields
+  (redacted path, no detail), and its `Display` is
+  `hl7_2::Diagnostic::redacted`, so formatting it for a log is as safe as
+  serializing it.
+
+- **S17**: every wire shape above is a struct with a fixed field list, and
+  every struct visitor accepts it two ways: by name (`visit_map`, what JSON
+  and YAML call) and by position (`visit_seq`, what `bincode`, `postcard`,
+  and other non-self-describing formats call), positionally in the
+  serialization order given above. A positional record that ends early is an
+  `invalid_length` error. `Strict<T>` has nothing to reject positionally,
+  since a positional record carries no field names.
 
 - **S6**: `Version` serializes through `hl7_2::Version::as_str` and
   deserializes through `hl7_2::Version::parse`. Only a known release is

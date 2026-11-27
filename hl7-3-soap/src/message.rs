@@ -124,6 +124,27 @@ mod tests {
         </PRPA_IN201305UV02></Body></Envelope>"#;
 
     #[test]
+    fn a_rejection_lists_the_allowed_values_in_sorted_order() {
+        let payload = payload_of(V3_MESSAGE);
+        let interactions = vec!["ZZZ_IN000001".to_string(), "MCCI_IN000002".to_string()];
+        let fault = check(&payload, &interactions, &[]).unwrap_err();
+        assert!(
+            fault
+                .reason
+                .contains("Allowed values: MCCI_IN000002, ZZZ_IN000001"),
+            "{}",
+            fault.reason
+        );
+        let authorities = vec!["9.9".to_string(), "1.1".to_string()];
+        let fault = check(&payload, &[], &authorities).unwrap_err();
+        assert!(
+            fault.reason.contains("Allowed values: 1.1, 9.9"),
+            "{}",
+            fault.reason
+        );
+    }
+
+    #[test]
     fn reads_a_v3_payload() {
         let payload = payload_of(V3_MESSAGE);
         assert_eq!(interaction_id(&payload), "PRPA_IN201305UV02");

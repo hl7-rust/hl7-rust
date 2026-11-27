@@ -36,7 +36,7 @@ cargo add serde-hl7 --no-default-features --features v2
 cargo add serde-hl7-v2`;
 
   const manifest = `[dependencies]
-hl7 = { version = "0.2", features = ["derive"] }
+hl7 = { version = "0.3", features = ["derive"] }
 
 # Or, taking v2 directly:
 hl7-2 = { version = "0.3", features = ["derive"] }`;

@@ -72,6 +72,10 @@ pub struct IoTransport<S> {
 /// message arrives in one read, small enough to be nothing on a heap.
 const CHUNK: usize = 8 * 1024;
 
+/// The error for a `Read` that reports more bytes than the buffer it was
+/// given, which its contract forbids.
+const OVERREAD: &str = "the stream reported reading more bytes than its buffer holds";
+
 impl<S> IoTransport<S> {
     /// Wrap a stream, with the default [`Framer`].
     pub fn new(stream: S) -> IoTransport<S> {
@@ -134,7 +138,13 @@ impl<S: Read + Write> Transport for IoTransport<S> {
                     Err(io::Error::from(Error::Incomplete))
                 };
             }
-            self.framer.push(&self.chunk[..read]);
+            // `Read` promises `read <= chunk.len()`; a reader that breaks the
+            // promise gets an error rather than a panic.
+            let bytes = self
+                .chunk
+                .get(..read)
+                .ok_or_else(|| io::Error::other(OVERREAD))?;
+            self.framer.push(bytes);
         }
     }
 }
@@ -166,6 +176,10 @@ mod tests {
     }
 
     impl Read for Pipe {
+        #[expect(
+            clippy::arithmetic_side_effects,
+            reason = "RCA-EXC-5: a test double may use plain operators"
+        )]
         fn read(&mut self, out: &mut [u8]) -> io::Result<usize> {
             let remaining = self.incoming.len() - self.position;
             let count = remaining.min(self.bite).min(out.len());
@@ -230,6 +244,39 @@ mod tests {
         assert_eq!(transport.receive().unwrap(), None);
         // And staying closed is not an error either.
         assert_eq!(transport.receive().unwrap(), None);
+    }
+
+    #[test]
+    fn a_reader_that_overstates_its_read_is_an_error_not_a_panic() {
+        struct Liar;
+        impl Read for Liar {
+            fn read(&mut self, out: &mut [u8]) -> io::Result<usize> {
+                Ok(out.len().checked_add(1).unwrap())
+            }
+        }
+        impl Write for Liar {
+            fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+                Ok(bytes.len())
+            }
+            fn flush(&mut self) -> io::Result<()> {
+                Ok(())
+            }
+        }
+        let mut transport = IoTransport::new(Liar);
+        transport.send(b"MSH|^~\\&|").unwrap();
+        let error = transport.receive().unwrap_err();
+        assert_eq!(error.to_string(), OVERREAD);
+    }
+
+    #[test]
+    fn the_transport_exposes_the_framer_it_reads_through() {
+        let framer = Framer::new().with_tolerance(crate::Tolerance::Lenient);
+        // One whole frame and the start of another: the second is buffered.
+        let mut transport = IoTransport::with_framer(Pipe::new(b"\x0bone\x1c\r\x0btw", 64), framer);
+        assert_eq!(transport.framer().tolerance(), crate::Tolerance::Lenient);
+        assert_eq!(transport.receive().unwrap().as_deref(), Some(&b"one"[..]));
+        assert_eq!(transport.framer().buffered(), 3);
+        assert_eq!(CHUNK, 8 * 1024);
     }
 
     #[test]

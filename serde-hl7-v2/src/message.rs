@@ -4,7 +4,7 @@
 use std::fmt;
 use std::ops::{Deref, DerefMut};
 
-use serde::de::{self, DeserializeSeed, MapAccess, Visitor};
+use serde::de::{self, DeserializeSeed, MapAccess, SeqAccess, Visitor};
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -267,11 +267,28 @@ impl<'de> Visitor<'de> for MessageVisitor<'_> {
         }
 
         let er7 = er7.ok_or_else(|| de::Error::missing_field("er7"))?;
+        self.finish(version, &er7)
+    }
+
+    /// A non-self-describing format (`bincode`, `postcard`) hands a struct
+    /// over as its fields in declaration order: `version`, then `er7`.
+    fn visit_seq<A>(self, mut sequence: A) -> Result<Message, A::Error>
+    where
+        A: SeqAccess<'de>,
+    {
+        let version: Version = crate::diagnostic::next_field(&mut sequence, 0, &self)?;
+        let er7: String = crate::diagnostic::next_field(&mut sequence, 1, &self)?;
+        self.finish(Some(version), &er7)
+    }
+}
+
+impl MessageVisitor<'_> {
+    fn finish<E: de::Error>(self, version: Option<Version>, er7: &str) -> Result<Message, E> {
         let mut options = self.options.cloned().unwrap_or_default();
         if options.version.is_none() {
             options.version = version.map(|v| v.0);
         }
-        hl7_2::parse_with_options(&er7, &options)
+        hl7_2::parse_with_options(er7, &options)
             .map(Message)
             .map_err(de::Error::custom)
     }

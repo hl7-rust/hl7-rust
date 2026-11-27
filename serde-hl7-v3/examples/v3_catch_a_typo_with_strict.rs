@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     match serde_json::from_str::<Strict<Message>>(&wrong_key) {
-        Ok(_) => unreachable!("Strict<Message> reports the typo"),
+        Ok(_) => return Err("Strict<Message> should have reported the typo".into()),
         Err(error) => println!("Strict<Message>::deserialize: {error}"),
     }
 

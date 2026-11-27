@@ -133,8 +133,11 @@ impl Diagnostic {
     pub fn redacted_path(&self) -> String {
         match self.kind {
             Kind::SegmentUnknown => {
-                let position = self.path.find('[').map_or("", |at| &self.path[at..]);
-                format!("?{position}")
+                // Everything from the first `[` on is the position; before it
+                // is the sender's segment name, which is what is masked.
+                self.path
+                    .split_once('[')
+                    .map_or_else(|| "?".to_string(), |(_, position)| format!("?[{position}"))
             }
             _ => self.path.clone(),
         }
@@ -169,11 +172,18 @@ pub fn validate(message: &Message) -> Vec<Diagnostic> {
     let mut occurrences: std::collections::BTreeMap<&str, usize> =
         std::collections::BTreeMap::default();
     for segment in message.segments() {
-        let occurrence = occurrences.entry(segment.name.as_str()).or_default();
-        *occurrence += 1;
+        let count = occurrences.entry(segment.name.as_str()).or_default();
+        // RCA-EXC-2: a count of the message's segments, so at most the
+        // length of a slice, which is at most `isize::MAX`.
+        #[expect(
+            clippy::arithmetic_side_effects,
+            reason = "RCA-EXC-2: counts elements of a slice, proof above"
+        )]
+        let occurrence = *count + 1;
+        *count = occurrence;
         check_segment(
             segment,
-            *occurrence,
+            occurrence,
             dictionary,
             message.separators(),
             &mut found,
@@ -301,11 +311,10 @@ fn starts_present(item: &Item, message: &Message) -> bool {
 }
 
 /// One segment's fields, components, and values.
-// Already at the edge of the line-count lint; threading a `&Separators`
-// through to `variable_type` (er7 R26) tipped it over without adding real
-// complexity. Splitting this walk up would cost more clarity than the
-// count buys back.
-#[allow(clippy::too_many_lines)]
+// At the edge of the line-count lint: one walk over a segment's fields,
+// repetitions, components and subcomponents, which splitting would make
+// harder to follow rather than easier.
+#[expect(clippy::too_many_lines, reason = "one walk over a segment, as above")]
 fn check_segment(
     segment: &Segment,
     occurrence: usize,
@@ -335,11 +344,10 @@ fn check_segment(
         .map(str::to_string)
         .or_else(|| checkable_primitive(segment, separators));
     let defined = fields.len();
-    for (index, field) in segment.fields.iter().enumerate() {
+    for (number, field) in (1_usize..).zip(&segment.fields) {
         if field.is_empty() {
             continue;
         }
-        let number = index + 1;
         if number > defined {
             found.push(Diagnostic::warning(
                 Kind::FieldUnknown,
@@ -360,27 +368,28 @@ fn check_segment(
         let Some(data_type) = data_type else {
             continue;
         };
-        for (repeat, repetition) in field.repetitions.iter().enumerate() {
+        for (repeat, repetition) in (1_usize..).zip(&field.repetitions) {
             if repetition.is_empty() || repetition.is_null() {
                 continue;
             }
-            let path = format!("{base}-{number}[{}]", repeat + 1);
+            let path = format!("{base}-{number}[{repeat}]");
             match dictionary.composite_components(data_type) {
                 None => check_value(data_type, &repetition.to_text(separators), &path, found),
                 Some(components) => {
-                    for (index, component) in repetition.components.iter().enumerate() {
+                    for (number, (index, component)) in
+                        (1_usize..).zip(repetition.components.iter().enumerate())
+                    {
                         if component.is_empty() || component.is_null() {
                             continue;
                         }
-                        let path = format!("{path}.{}", index + 1);
+                        let path = format!("{path}.{number}");
                         let Some(component_type) = components.get(index) else {
                             found.push(Diagnostic::warning(
                                 Kind::ComponentUnknown,
                                 &path,
                                 format!(
-                                    "component {} is past the {} components dictionary {} \
+                                    "component {number} is past the {} components dictionary {} \
                                      defines for {data_type}",
-                                    index + 1,
                                     components.len(),
                                     dictionary.name()
                                 ),
@@ -397,19 +406,19 @@ fn check_segment(
                                 found,
                             ),
                             Some(subtypes) => {
-                                for (index, subcomponent, subtype) in component
+                                // `zip` with `subtypes` stops where the type does,
+                                // so a subcomponent past its declaration is skipped.
+                                for ((subcomponent, number), subtype) in component
                                     .subcomponents
                                     .iter()
-                                    .enumerate()
-                                    .filter(|(_, value)| !value.is_empty() && !value.is_null())
-                                    .filter_map(|(index, value)| {
-                                        subtypes.get(index).map(|subtype| (index, value, subtype))
-                                    })
+                                    .zip(1_usize..)
+                                    .zip(subtypes)
+                                    .filter(|((value, _), _)| !value.is_empty() && !value.is_null())
                                 {
                                     check_value(
                                         subtype,
                                         &subcomponent.value(separators),
-                                        &format!("{path}.{}", index + 1),
+                                        &format!("{path}.{number}"),
                                         found,
                                     );
                                 }
@@ -506,8 +515,12 @@ fn is_datetime(value: &str) -> bool {
         && whole.bytes().all(|b| b.is_ascii_digit())
         && (fraction.is_none() || whole.len() == 14)
         && fraction_ok(fraction)
-        && calendar_ok(&whole[..whole.len().min(8)])
-        && whole.get(8..).is_none_or(clock_ok)
+        && {
+            // The first eight digits are the date and the rest the time; a
+            // value of eight digits or fewer is all date.
+            let (date, time) = whole.split_at_checked(8).unwrap_or((whole, ""));
+            calendar_ok(date) && clock_ok(time)
+        }
 }
 
 fn split_fraction(value: &str) -> (&str, Option<&str>) {
@@ -524,14 +537,16 @@ fn fraction_ok(fraction: Option<&str>) -> bool {
 /// Month 01-12 and a day that exists in that month, for the digits of a
 /// `YYYY[MM[DD]]` prefix whose length is already known to be 4, 6 or 8.
 fn calendar_ok(digits: &str) -> bool {
-    let number = |range: std::ops::Range<usize>| {
-        digits
-            .get(range)
-            .map(|part| part.bytes().fold(0u32, |n, b| n * 10 + u32::from(b - b'0')))
+    let (Some(year), month) = (
+        digits.get(0..4).and_then(digit_value),
+        digits.get(4..6).map(digit_value),
+    ) else {
+        return false;
     };
-    let year = number(0..4).unwrap_or(0);
-    let Some(month) = number(4..6) else {
-        return true;
+    let month = match month {
+        None => return true,
+        Some(Some(month)) => month,
+        Some(None) => return false,
     };
     let leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
     let longest = match month {
@@ -541,29 +556,42 @@ fn calendar_ok(digits: &str) -> bool {
         2 => 28,
         _ => return false,
     };
-    number(6..8).is_none_or(|day| (1..=longest).contains(&day))
+    digits
+        .get(6..8)
+        .is_none_or(|day| digit_value(day).is_some_and(|day| (1..=longest).contains(&day)))
+}
+
+/// The value of a run of ASCII digits, with checked arithmetic, or `None` for
+/// anything that is not one (or does not fit a `u32`).
+fn digit_value(digits: &str) -> Option<u32> {
+    digits.chars().try_fold(0_u32, |value, c| {
+        value.checked_mul(10)?.checked_add(c.to_digit(10)?)
+    })
 }
 
 /// Hour 00-23, minute 00-59, second 00-59, for `HH[MM[SS]]` digits.
 fn clock_ok(digits: &str) -> bool {
-    [(0, 24), (2, 60), (4, 60)].iter().all(|&(start, below)| {
-        digits
-            .get(start..start + 2)
-            .is_none_or(|part| part.bytes().fold(0u32, |n, b| n * 10 + u32::from(b - b'0')) < below)
-    })
+    let mut rest = digits;
+    for below in [24, 60, 60] {
+        let Some((part, tail)) = rest.split_at_checked(2) else {
+            return true;
+        };
+        if digit_value(part).is_none_or(|value| value >= below) {
+            return false;
+        }
+        rest = tail;
+    }
+    true
 }
 
 /// Split a trailing `+ZZZZ` / `-ZZZZ` offset off a time, reporting whether
 /// what was there (if anything) was well formed.
 fn split_offset(value: &str) -> (&str, bool) {
-    match value.rfind(['+', '-']) {
-        Some(index) if index > 0 => {
-            let offset = &value[index + 1..];
-            (
-                &value[..index],
-                offset.len() == 4 && offset.bytes().all(|b| b.is_ascii_digit()) && clock_ok(offset),
-            )
-        }
+    match value.rsplit_once(['+', '-']) {
+        Some((time, offset)) if !time.is_empty() => (
+            time,
+            offset.len() == 4 && offset.bytes().all(|b| b.is_ascii_digit()) && clock_ok(offset),
+        ),
         _ => (value, true),
     }
 }
@@ -571,6 +599,88 @@ fn split_offset(value: &str) -> (&str, bool) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn value_findings(dictionary: &str, text: &str) -> Vec<Diagnostic> {
+        let dictionary = crate::Dictionary::from_json(dictionary, "test").unwrap();
+        let options = crate::Options::new().with_dictionary(std::sync::Arc::new(dictionary));
+        let message = crate::parse_with_options(text, &options).unwrap();
+        message
+            .validate()
+            .into_iter()
+            .filter(|finding| finding.kind == Kind::ValueFormat)
+            .collect()
+    }
+
+    const NUMBERS: &str = r#"{"types": {"PAIR": ["NM", "NM"], "NEST": ["PAIR"]},
+        "segments": {"ZZZ": ["NM", "PAIR", "NEST"]}}"#;
+    const ZHEAD: &str = "MSH|^~\\&|A||||20260101||ZZZ^Z01|1|P|2.5\r";
+
+    #[test]
+    fn an_explicit_null_is_not_checked_as_a_value_at_any_level() {
+        // A field, a component and a subcomponent each written as `""`.
+        for body in ["ZZZ|\"\"", "ZZZ||\"\"^5", "ZZZ|||1&\"\""] {
+            let findings = value_findings(NUMBERS, &format!("{ZHEAD}{body}"));
+            assert_eq!(findings, [], "{body}");
+        }
+        // ...while a real bad value at the same places is found.
+        for body in ["ZZZ|x", "ZZZ||x^5", "ZZZ|||1&x"] {
+            let findings = value_findings(NUMBERS, &format!("{ZHEAD}{body}"));
+            assert_eq!(findings.len(), 1, "{body}: {findings:?}");
+        }
+        // An empty subcomponent is nothing to check either.
+        assert_eq!(value_findings(NUMBERS, &format!("{ZHEAD}ZZZ|||1&")), []);
+    }
+
+    #[test]
+    fn local_z_segments_are_a_warning_only_when_the_standard_segments_fit() {
+        let head = "MSH|^~\\&|A||||20260101||ADT^A01^ADT_A01|1|P|2.5\r";
+        let kinds = |body: &str| {
+            let message = crate::parse(&format!("{head}{body}")).unwrap();
+            message
+                .validate()
+                .into_iter()
+                .filter(|finding| finding.kind == Kind::StructureMismatch)
+                .map(|finding| finding.severity)
+                .collect::<Vec<_>>()
+        };
+        // In order, with a local segment: grouped flat, a warning.
+        assert_eq!(kinds("EVN|A01\rPID|1\rPV1|1\rZXX|1"), [Severity::Warning]);
+        // Out of order, with a local segment: still an error.
+        assert_eq!(kinds("EVN|A01\rPV1|1\rPID|1\rZXX|1"), [Severity::Error]);
+        // Out of order, no local segment: an error.
+        assert_eq!(kinds("EVN|A01\rPV1|1\rPID|1"), [Severity::Error]);
+        // In order and clean: nothing.
+        assert_eq!(kinds("EVN|A01\rPID|1\rPV1|1"), []);
+    }
+
+    #[test]
+    fn fractions_and_calendars_are_checked_exactly() {
+        assert!(fraction_ok(None));
+        assert!(fraction_ok(Some("1")) && fraction_ok(Some("1234")));
+        assert!(!fraction_ok(Some("")) && !fraction_ok(Some("12345")));
+        assert!(!fraction_ok(Some("1a")) && !fraction_ok(Some("a1")));
+        assert!(calendar_ok("20250228") && !calendar_ok("20250229"));
+        assert!(calendar_ok("20250430") && !calendar_ok("20250431"));
+        assert!(calendar_ok("20250630") && !calendar_ok("20250631"));
+        assert!(calendar_ok("20250930") && !calendar_ok("20250931"));
+        assert!(calendar_ok("20251130") && !calendar_ok("20251131"));
+        assert!(calendar_ok("20250131") && !calendar_ok("20250132"));
+        assert!(!calendar_ok("20251301") && !calendar_ok("20250001"));
+    }
+
+    #[test]
+    fn date_and_time_parts_that_are_not_digits_are_invalid() {
+        // Callers check the shape first; these helpers still refuse rather
+        // than compute a number from a non-digit.
+        assert!(!calendar_ok("20x5"));
+        assert!(!calendar_ok("2025x1"));
+        assert!(!calendar_ok("202501x1"));
+        assert!(!clock_ok("1x"));
+        assert!(calendar_ok("2024"));
+        assert!(calendar_ok("20240229"));
+        assert!(!calendar_ok("20230229"));
+        assert_eq!(digit_value("4294967296"), None);
+    }
 
     fn diagnostics(text: &str) -> Vec<Diagnostic> {
         crate::parse(text).unwrap().validate()

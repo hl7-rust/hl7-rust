@@ -231,6 +231,25 @@ macro_rules! field {
         $map.next_value_seed($crate::object::VecSeed::<$ty>::new($strict))?
     };
 
+    (@next $seq:ident, $strict:expr, req $ty:ty) => {
+        $seq.next_element::<$ty>()?
+    };
+    (@next $seq:ident, $strict:expr, opt $ty:ty) => {
+        $seq.next_element::<Option<$ty>>()?
+    };
+    (@next $seq:ident, $strict:expr, dflt $ty:ty) => {
+        $seq.next_element::<$ty>()?
+    };
+    (@next $seq:ident, $strict:expr, reqw $ty:ty) => {
+        $seq.next_element_seed($crate::object::Seed::<$ty>::new($strict))?
+    };
+    (@next $seq:ident, $strict:expr, optw $ty:ty) => {
+        $seq.next_element_seed($crate::object::OptionSeed::<$ty>::new($strict))?
+    };
+    (@next $seq:ident, $strict:expr, vecw $ty:ty) => {
+        $seq.next_element_seed($crate::object::VecSeed::<$ty>::new($strict))?
+    };
+
     (@finish $slot:ident, $key:literal, req $ty:ty) => {
         $slot.ok_or_else(|| serde::de::Error::missing_field($key))?
     };
@@ -349,6 +368,26 @@ macro_rules! object_wrapper {
                     // A `path` fragment cannot open a struct literal, so
                     // the value is built from its `Default` and assigned
                     // field by field; every wrapped type derives `Default`.
+                    let mut inner = <$inner>::default();
+                    $( inner.$field = field!(@finish $field, $key, $mode $ty); )+
+                    Ok($name(inner))
+                }
+
+                /// A non-self-describing format (`bincode`, `postcard`)
+                /// hands the fields over in the order they are serialized
+                /// (rule S17); every one must be there, whatever its mode.
+                fn visit_seq<A>(self, mut seq: A) -> Result<$name, A::Error>
+                where
+                    A: serde::de::SeqAccess<'de>,
+                {
+                    $(
+                        let Some(value) = field!(@next seq, self.strict, $mode $ty) else {
+                            // The field's position, counted without arithmetic.
+                            let index = FIELDS.iter().take_while(|key| **key != $key).count();
+                            return Err(serde::de::Error::invalid_length(index, &self));
+                        };
+                        let $field: Option<field!(@slot $mode $ty)> = Some(value);
+                    )+
                     let mut inner = <$inner>::default();
                     $( inner.$field = field!(@finish $field, $key, $mode $ty); )+
                     Ok($name(inner))

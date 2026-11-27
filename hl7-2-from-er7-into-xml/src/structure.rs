@@ -34,12 +34,14 @@ pub fn group_segments(root: &str, items: &[Item], segs: &[(String, Node)]) -> Op
 fn to_nodes(root: &str, layouts: &[Layout], segs: &[(String, Node)]) -> Vec<Node> {
     layouts
         .iter()
-        .map(|layout| match layout {
-            Layout::Segment(index) => segs[*index].1.clone(),
+        // A layout index always names one of `segs` (the matcher built it
+        // from them); `get` keeps that a fact about the data, not a panic.
+        .filter_map(|layout| match layout {
+            Layout::Segment(index) => segs.get(*index).map(|(_, node)| node.clone()),
             Layout::Group { name, items } => {
                 let mut node = Node::group(format!("{root}.{name}"));
                 node.kids = to_nodes(root, items, segs);
-                node
+                Some(node)
             }
         })
         .collect()
@@ -59,7 +61,7 @@ mod tests {
 
     #[test]
     fn nests_matched_groups_under_prefixed_names() {
-        let dictionary = Version::V2_5.dictionary();
+        let dictionary = Version::V2_5.dictionary().unwrap();
         let items = dictionary.structure("ORU_R01").unwrap();
         let nodes = group_segments("ORU_R01", items, &segs(&["MSH", "PID", "OBR", "OBX"]))
             .expect("a conforming message groups");
@@ -71,7 +73,7 @@ mod tests {
 
     #[test]
     fn a_message_that_does_not_fit_reports_none_so_the_caller_stays_flat() {
-        let dictionary = Version::V2_5.dictionary();
+        let dictionary = Version::V2_5.dictionary().unwrap();
         let items = dictionary.structure("ORU_R01").unwrap();
         assert!(group_segments("ORU_R01", items, &segs(&["MSH", "ZZZ"])).is_none());
     }

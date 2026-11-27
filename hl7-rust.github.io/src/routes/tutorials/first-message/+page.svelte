@@ -82,7 +82,7 @@ let has_errors = diagnostics
 
   const answer = `let code = if has_errors { "AE" } else { "AA" };
 
-let mut ack = v2::builder::acknowledge(&message, code, "ACK00001", "20260814080100")
+let mut ack = v2::builder::acknowledge(&message, code, "ACK00001", "20260814080100")?
     .build_valid()?;
 
 if has_errors {
@@ -123,7 +123,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // What we say back
     let code = if has_errors { "AE" } else { "AA" };
-    let mut ack = v2::builder::acknowledge(&message, code, "ACK00001", "20260814080100")
+    let mut ack = v2::builder::acknowledge(&message, code, "ACK00001", "20260814080100")?
         .build_valid()?;
     if has_errors {
         ack.set("MSA-3", "message did not validate")?;

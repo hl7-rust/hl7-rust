@@ -122,7 +122,10 @@ Every `<SEG>.CONTENT` complexType in the segments schema becomes one entry.
 A field's position is **its field number**, taken from the ref's numeric
 suffix, not its position in the sequence — so a schema that declares `PID.1`,
 `PID.3` and `PID.5` produces a five-entry list whose second and fourth
-entries are unstated.
+entries are unstated. A field number outside 1–10,000 (`MAX_FIELD_POSITION`)
+is skipped like a ref with no numeric suffix: the list is sized by the field
+number, so a malformed ref must not decide how much is allocated, and no
+HL7 segment comes near the bound.
 
 A `.CONTENT` name that still contains a dot is not a segment and is skipped.
 A segment whose sequence is empty is left out entirely: `Hxx.CONTENT` is

@@ -3,7 +3,7 @@
 use std::fmt;
 use std::ops::{Deref, DerefMut};
 
-use serde::de::{self, MapAccess, Visitor};
+use serde::de::{self, MapAccess, SeqAccess, Visitor};
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -113,8 +113,29 @@ impl Serialize for Diagnostic {
 /// # Ok(())
 /// # }
 /// ```
-#[derive(Debug, Clone, PartialEq, Eq)]
+///
+/// `Debug` and `Display` write the same redacted projection, so `{:?}`,
+/// `{}` and a logging macro's `?field` are as log-safe as serializing. The
+/// wrapped finding is still reachable through `.0` and `Deref`; reaching
+/// for it there is a deliberate choice, not an accident of formatting.
+#[derive(Clone, PartialEq, Eq)]
 pub struct RedactedDiagnostic(pub hl7_2::Diagnostic);
+
+impl std::fmt::Debug for RedactedDiagnostic {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("RedactedDiagnostic")
+            .field("severity", &self.0.severity)
+            .field("kind", &self.0.kind)
+            .field("path", &self.0.redacted_path())
+            .finish()
+    }
+}
+
+impl std::fmt::Display for RedactedDiagnostic {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0.redacted())
+    }
+}
 
 impl From<hl7_2::Diagnostic> for RedactedDiagnostic {
     fn from(inner: hl7_2::Diagnostic) -> RedactedDiagnostic {
@@ -222,6 +243,40 @@ impl<'de> Visitor<'de> for DiagnosticVisitor {
             detail: detail.ok_or_else(|| de::Error::missing_field("detail"))?,
         }))
     }
+
+    /// A non-self-describing format hands the fields over in declaration
+    /// order: `severity`, `kind`, `path`, `detail`.
+    fn visit_seq<A>(self, mut sequence: A) -> Result<Diagnostic, A::Error>
+    where
+        A: SeqAccess<'de>,
+    {
+        let severity: Severity = next_field(&mut sequence, 0, &self)?;
+        let kind: DiagnosticKind = next_field(&mut sequence, 1, &self)?;
+        let path: String = next_field(&mut sequence, 2, &self)?;
+        let detail: String = next_field(&mut sequence, 3, &self)?;
+        Ok(Diagnostic(hl7_2::Diagnostic {
+            severity: severity.0,
+            kind: kind.0,
+            path,
+            detail,
+        }))
+    }
+}
+
+/// The field at `index` of a positional struct, or an `invalid_length` error
+/// naming what was expected.
+pub(crate) fn next_field<'de, T, A>(
+    sequence: &mut A,
+    index: usize,
+    expected: &dyn de::Expected,
+) -> Result<T, A::Error>
+where
+    T: Deserialize<'de>,
+    A: SeqAccess<'de>,
+{
+    sequence
+        .next_element()?
+        .ok_or_else(|| de::Error::invalid_length(index, expected))
 }
 
 impl<'de> Deserialize<'de> for Diagnostic {
@@ -282,6 +337,25 @@ mod tests {
         );
         let back: hl7_2::Diagnostic = unknown.into();
         assert_eq!(back.path, "QQMARK[2]");
+    }
+
+    #[test]
+    fn redacted_diagnostics_format_without_message_text() {
+        let finding = RedactedDiagnostic(hl7_2::Diagnostic {
+            severity: hl7_2::Severity::Warning,
+            kind: hl7_2::validate::Kind::SegmentUnknown,
+            path: "QQMARK[2]".to_string(),
+            detail: "MARKVALUE".to_string(),
+        });
+        for written in [
+            format!("{finding:?}"),
+            format!("{finding:#?}"),
+            finding.to_string(),
+        ] {
+            assert!(!written.contains("MARK"), "{written}");
+            assert!(written.contains("?[2]"), "{written}");
+        }
+        assert_eq!(finding.to_string(), "warning segment-unknown ?[2]");
     }
 
     #[test]

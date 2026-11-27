@@ -1,6 +1,19 @@
 //! End-to-end: the sample schemas in `samples/example/` in, a dictionary
 //! out, and that dictionary loaded by the crate that has to read it.
 
+// RCA-EXC-5: test code may use plain operators, `unwrap` and `expect`.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing,
+    clippy::string_slice,
+    clippy::arithmetic_side_effects,
+    clippy::integer_division,
+    clippy::default_numeric_fallback,
+    reason = "RCA-EXC-5: test code may use plain operators, unwrap and expect"
+)]
+
 use hl7_2_from_xsd_into_json_dictionary::{Item, Options, convert_directory};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
@@ -316,4 +329,36 @@ fn cli_contract_covers_conversion_and_argument_errors() {
     );
 
     std::fs::remove_dir_all(directory).unwrap();
+}
+
+fn run_xsd(args: &[&str]) -> std::process::Output {
+    Command::new(env!("CARGO_BIN_EXE_hl7-2-from-xsd-into-json-dictionary"))
+        .args(args)
+        .stdin(Stdio::null())
+        .output()
+        .unwrap()
+}
+
+#[test]
+fn the_command_line_names_what_is_wrong_with_an_argument() {
+    let stderr = |args: &[&str]| String::from_utf8(run_xsd(args).stderr).unwrap();
+    let samples = samples();
+    let directory = samples.to_str().unwrap();
+    // An option it does not know is an unknown option, not a directory.
+    assert!(stderr(&["--unknown", directory]).contains("unknown option: --unknown"));
+    // A lone dash is a directory name, not an option.
+    assert!(!stderr(&["-"]).contains("unknown option"));
+    // An alias needs both sides.
+    for alias in ["=STRUCTURE", "CODE_TRIGGER=", "no-equals"] {
+        let message = stderr(&["--alias", alias, directory]);
+        assert!(
+            message.contains("expected CODE_TRIGGER=STRUCTURE"),
+            "{alias}: {message}"
+        );
+    }
+    assert!(
+        run_xsd(&["--alias", "ADT_A04=ADT_A01", directory])
+            .status
+            .success()
+    );
 }

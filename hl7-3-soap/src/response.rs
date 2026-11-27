@@ -154,7 +154,13 @@ pub fn evidence(body: &str) -> Evidence {
     let Ok(root) = xml::parse(body) else {
         return Evidence::default();
     };
-    let Some(acknowledgement) = root.find("acknowledgement") else {
+    // Exactly one `acknowledgement` inside the SOAP `Body`: the code and the
+    // target message must come from the same one, and several would leave it
+    // open which of them answers the message.
+    let scope = root.find("Body").unwrap_or(&root);
+    let mut found = Vec::new();
+    acknowledgements(scope, &mut found);
+    let [acknowledgement] = found.as_slice() else {
         return Evidence::default();
     };
     let code = match acknowledgement
@@ -175,6 +181,16 @@ pub fn evidence(body: &str) -> Evidence {
     Evidence { code, control_id }
 }
 
+/// Every `acknowledgement` element under `element`, itself included.
+fn acknowledgements<'a>(element: &'a xml::Element, found: &mut Vec<&'a xml::Element>) {
+    if element.local_name() == "acknowledgement" {
+        found.push(element);
+    }
+    for child in &element.children {
+        acknowledgements(child, found);
+    }
+}
+
 /// Decide whether a response is a *correlated* acknowledgement of the
 /// message whose control ID is `expected`.
 ///
@@ -190,9 +206,16 @@ pub fn evidence(body: &str) -> Evidence {
 /// message's own text.
 #[must_use]
 pub fn evaluate_correlated(status: u16, body: &str, expected: &str) -> Outcome {
-    let outcome = evaluate(status, body);
-    if !outcome.is_accepted() {
-        return outcome;
+    if !(200..300).contains(&status) {
+        return Outcome::Rejected(format!("HTTP {status}"));
+    }
+    // `evaluate`'s reasons quote the peer's fault and status text, which can
+    // echo the message; this API's reasons are fixed strings.
+    if xml::parse(body).is_ok_and(|root| root.find("Fault").is_some()) {
+        return Outcome::Rejected("SOAP fault".to_string());
+    }
+    if !evaluate(status, body).is_accepted() {
+        return Outcome::Rejected("negative acknowledgement in the response".to_string());
     }
     let found = evidence(body);
     if found.code.is_none() {
@@ -358,5 +381,43 @@ mod correlated_tests {
         assert_eq!(evidence(&ack("AR", "M1")).code, None);
         assert_eq!(evidence(&ack("AA", "M1")).control_id.as_deref(), Some("M1"));
         assert_eq!(evidence("").control_id, None);
+    }
+
+    #[test]
+    fn evidence_comes_from_one_acknowledgement_in_the_body() {
+        let none = Outcome::Rejected("no positive acknowledgement in the response".into());
+        let one = "<acknowledgement><typeCode code=\"AA\"/>\
+                   <targetMessage><id extension=\"M1\"/></targetMessage></acknowledgement>";
+        let other = "<acknowledgement><typeCode code=\"AA\"/>\
+                     <targetMessage><id extension=\"M2\"/></targetMessage></acknowledgement>";
+        // Two acknowledgements, so neither is the answer.
+        let two = format!(
+            "<Envelope><Body><MCCI_IN000002UV01>{one}{other}</MCCI_IN000002UV01></Body></Envelope>"
+        );
+        assert_eq!(evaluate_correlated(200, &two, "M1"), none);
+        // An acknowledgement outside the body is no evidence.
+        let outside = format!("<Envelope><Header>{one}</Header><Body/></Envelope>");
+        assert_eq!(evaluate_correlated(200, &outside, "M1"), none);
+        assert_eq!(evidence(one).control_id.as_deref(), Some("M1"));
+    }
+
+    #[test]
+    fn correlated_reasons_never_quote_the_peer() {
+        let fault = crate::Fault::validation("PATIENTMARK is wrong").to_envelope();
+        assert!(
+            matches!(evaluate(200, &fault), Outcome::Rejected(reason) if reason.contains("MARK"))
+        );
+        assert_eq!(
+            evaluate_correlated(200, &fault, "M1"),
+            Outcome::Rejected("SOAP fault".into())
+        );
+        assert_eq!(
+            evaluate_correlated(200, &ack("MARK", "M1"), "M1"),
+            Outcome::Rejected("negative acknowledgement in the response".into())
+        );
+        assert_eq!(
+            evaluate_correlated(503, "", "M1"),
+            Outcome::Rejected("HTTP 503".into())
+        );
     }
 }

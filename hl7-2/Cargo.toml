@@ -37,9 +37,17 @@ derive = ["dep:hl7-2-derive"]
 # and never linked into the library or the binary, so the runtime dependency
 # list above is unchanged. The same version and feature set as the conversion
 # crates, so one `cargo bench` at the workspace root builds one Criterion.
+# proptest is development-only for the same reason: it drives the property
+# tests in `tests/main/properties.rs` (spec §13), with default features off so
+# it brings no fork, timeout or regex machinery.
 [dev-dependencies]
 criterion = { version = "0.8", default-features = false, features = ["cargo_bench_support"] }
+proptest = { version = "1.12.0", default-features = false, features = ["std"] }
 
 [[bench]]
 name = "parse"
 harness = false
+
+# RCA-ENF-1: the workspace's checked-arithmetic lint set (root Cargo.toml).
+[lints]
+workspace = true

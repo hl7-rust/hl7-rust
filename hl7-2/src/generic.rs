@@ -237,23 +237,22 @@ pub(crate) fn segment(
         .variable_type(seg, separators)
         .map(str::to_string);
     let mut children = Vec::new();
-    for (index, field) in seg.fields.iter().enumerate() {
+    for (number, field) in (1_usize..).zip(&seg.fields) {
         if field.is_empty() {
             continue;
         }
-        let number = index + 1;
         let name = format!("{}.{number}", seg.name);
         let data_type = match dictionary.field_type(&seg.name, number) {
             Some(VARIABLE) => variable.as_deref(),
             other => other,
         };
-        for (repetition, occurrence) in field.repetitions.iter().enumerate() {
+        for (repetition, occurrence) in (1_usize..).zip(&field.repetitions) {
             if occurrence.is_empty() {
                 continue;
             }
             children.push(field_node(
                 &name,
-                &format!("{base}-{number}[{}]", repetition + 1),
+                &format!("{base}-{number}[{repetition}]"),
                 data_type,
                 occurrence,
                 dictionary,
@@ -294,16 +293,24 @@ fn field_node(
     if repetition.is_null() {
         return node;
     }
-    if let Some(components) = data_type.and_then(|dt| dictionary.composite_components(dt)) {
-        let data_type = data_type.unwrap_or_default();
-        for (index, component) in repetition.components.iter().enumerate() {
+    if let Some((data_type, components)) = data_type.and_then(|dt| {
+        dictionary
+            .composite_components(dt)
+            .map(|components| (dt, components))
+    }) {
+        for (number, (component, declared)) in (1_usize..).zip(
+            repetition
+                .components
+                .iter()
+                .zip(components.iter().map(Some).chain(std::iter::repeat(None))),
+        ) {
             if component.is_empty() {
                 continue;
             }
             node.children.push(component_node(
-                &format!("{data_type}.{}", index + 1),
-                &format!("{path}.{}", index + 1),
-                components.get(index).map(String::as_str),
+                &format!("{data_type}.{number}"),
+                &format!("{path}.{number}"),
+                declared.map(String::as_str),
                 component,
                 dictionary,
                 separators,
@@ -318,13 +325,13 @@ fn field_node(
     {
         return node;
     }
-    for (index, component) in repetition.components.iter().enumerate() {
+    for (number, component) in (1_usize..).zip(&repetition.components) {
         if component.is_empty() {
             continue;
         }
         node.children.push(component_node(
-            &format!("{name}.{}", index + 1),
-            &format!("{path}.{}", index + 1),
+            &format!("{name}.{number}"),
+            &format!("{path}.{number}"),
             None,
             component,
             dictionary,
@@ -357,11 +364,10 @@ fn component_node(
         return node;
     }
     let composite = data_type.filter(|dt| dictionary.is_composite(dt));
-    for (index, subcomponent) in component.subcomponents.iter().enumerate() {
+    for (number, subcomponent) in (1_usize..).zip(&component.subcomponents) {
         if subcomponent.is_empty() {
             continue;
         }
-        let number = index + 1;
         node.children.push(Node {
             name: match composite {
                 Some(data_type) => format!("{data_type}.{number}"),

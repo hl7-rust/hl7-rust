@@ -93,25 +93,16 @@ fn main() -> ExitCode {
     if messages.is_empty() {
         return fail("no HL7 message found in input");
     }
-    let dictionary = match dictionary_path.as_deref() {
-        None => hl7_2::Version::V2_5.dictionary().as_ref().clone(),
-        Some(path) => {
-            let text = match std::fs::read_to_string(path) {
-                Ok(text) => text,
-                Err(e) => return fail(&format!("reading {path}: {e}")),
-            };
-            match hl7_2::Dictionary::from_json(&text, path) {
-                Ok(dictionary) => dictionary,
-                Err(e) => return fail(&format!("{path}: {e}")),
-            }
-        }
+    let dictionary = match load_dictionary(dictionary_path.as_deref()) {
+        Ok(dictionary) => dictionary,
+        Err(reason) => return fail(&reason),
     };
     let options = hl7_2_from_er7_into_xml::Options { flat, schema_shape };
     let mut documents = Vec::with_capacity(messages.len());
-    for (i, message) in messages.iter().enumerate() {
+    for (number, message) in (1_usize..).zip(&messages) {
         match hl7_2_from_er7_into_xml::convert_with_dictionary(message, &dictionary, options) {
             Ok(xml) => documents.push(xml),
-            Err(e) => return fail(&format!("message {}: {e}", i + 1)),
+            Err(e) => return fail(&format!("message {number}: {e}")),
         }
     }
     let out_text = documents.join("\n");
@@ -129,6 +120,21 @@ fn main() -> ExitCode {
         }
     }
     ExitCode::SUCCESS
+}
+
+/// The dictionary to convert against: the file at `path`, or the bundled
+/// v2.5 one. Every failure is the message the CLI prints.
+fn load_dictionary(path: Option<&str>) -> Result<hl7_2::Dictionary, String> {
+    let Some(path) = path else {
+        // The error names the bundled file it failed to load (`v2.5`).
+        let bundled = hl7_2::Version::V2_5.dictionary();
+        return bundled
+            .as_ref()
+            .map(|d| d.as_ref().clone())
+            .map_err(ToString::to_string);
+    };
+    let text = std::fs::read_to_string(path).map_err(|e| format!("reading {path}: {e}"))?;
+    hl7_2::Dictionary::from_json(&text, path).map_err(|e| format!("{path}: {e}"))
 }
 
 fn fail(message: &str) -> ExitCode {

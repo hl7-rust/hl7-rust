@@ -75,7 +75,7 @@ message.append_segment("NTE");
 message.set("NTE[2]-3", "Amended.")?;
 let er7 = message.to_er7();             // valid ER7, ready to send`;
 
-  const ack = `let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")
+  const ack = `let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")?
     .build_valid()?;
 assert_eq!(ack.get("MSA-2")?.as_deref(), Some("MSG00042"));`;
 

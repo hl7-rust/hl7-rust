@@ -2,6 +2,19 @@
 //! parsed from XML and pushed through every type in the crate, the
 //! guarantees in spec §4, and the manifest and spec self-checks.
 
+// RCA-EXC-5: test code may use plain operators, `unwrap` and `expect`.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing,
+    clippy::string_slice,
+    clippy::arithmetic_side_effects,
+    clippy::integer_division,
+    clippy::default_numeric_fallback,
+    reason = "RCA-EXC-5: test code may use plain operators, unwrap and expect"
+)]
+
 use serde_hl7_v3::{
     Act, ActRelationship, Cd, ControlAct, Ed, Element, Entity, Ii, Ivl, Message, NullFlavor,
     Participation, Pq, Role, RoleLink,
@@ -41,7 +54,33 @@ where
     T: serde::Serialize + serde::de::DeserializeOwned,
 {
     let json = serde_json::to_string(value).expect("serializes");
-    serde_json::from_str(&json).expect("deserializes")
+    let back: T = serde_json::from_str(&json).expect("deserializes");
+    // S14 says *any* Serde format, so a non-self-describing one too:
+    // postcard reads a struct positionally, through `visit_seq`.
+    let bytes = postcard::to_allocvec(value).expect("serializes positionally");
+    let positional: T = postcard::from_bytes(&bytes).expect("deserializes positionally");
+    assert_eq!(
+        serde_json::to_string(&positional).unwrap(),
+        json,
+        "the positional round trip changed the value"
+    );
+    back
+}
+
+#[test]
+fn a_whole_message_round_trips_through_a_non_self_describing_format() {
+    let message = Message::parse(QUERY).unwrap();
+    let bytes = postcard::to_allocvec(&message).unwrap();
+    let back: Message = postcard::from_bytes(&bytes).unwrap();
+    assert_eq!(back, message);
+    let strict: serde_hl7_v3::Strict<Message> = postcard::from_bytes(&bytes).unwrap();
+    assert_eq!(strict.0, message);
+    // A positional record that ends early is an invalid_length error, even
+    // where the missing field is optional on the named (map) path.
+    let error = serde_json::from_str::<Ii>(r#"["1"]"#).unwrap_err();
+    assert!(error.to_string().contains("invalid length 1"), "{error}");
+    // A truncated record is an error, not a default-filled value.
+    assert!(postcard::from_bytes::<Message>(&bytes[..bytes.len() / 2]).is_err());
 }
 
 #[test]

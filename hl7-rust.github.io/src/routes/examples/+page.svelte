@@ -56,7 +56,7 @@ message.set("NTE[2]-1", "2")?;
 message.set("NTE[2]-3", "Amended after review.")?;
 let er7 = message.to_er7();`;
 
-  const buildMessage = `let message = hl7_2::Builder::new(hl7_2::Version::V2_5)
+  const buildMessage = `let message = hl7_2::Builder::new(hl7_2::Version::V2_5)?
     .message_type("ADT", "A01")
     .control_id("MSG00042")
     .timestamp("20260814080000")
@@ -67,7 +67,7 @@ let er7 = message.to_er7();`;
     .set("PID-5.1", "EVERYWOMAN")
     .build_valid()?;`;
 
-  const ackExample = `let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")
+  const ackExample = `let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")?
     .build_valid()?;
 assert_eq!(ack.get("MSA-2")?.as_deref(), Some("MSG00042"));`;
 
@@ -129,7 +129,7 @@ struct Patient {
     #[hl7("PID-8")]   sex: Option<String>,
 }
 
-let message = hl7_2::Builder::new(hl7_2::Version::V2_5)
+let message = hl7_2::Builder::new(hl7_2::Version::V2_5)?
     .message_type("ADT", "A01")
     .control_id("1")
     .segment("PID")

@@ -184,6 +184,7 @@ fn escaped_text_survives_the_whole_trip() {
 fn building_a_reply_to_a_message() {
     let message = hl7_2::parse(ORU).unwrap();
     let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")
+        .unwrap()
         .build_valid()
         .unwrap();
     assert_eq!(ack.structure_id(), "ACK");
@@ -244,6 +245,7 @@ fn the_samples_parse_and_report_what_they_should() {
 #[test]
 fn a_builder_makes_a_message_from_nothing_that_parses_back() {
     let message = Builder::new(Version::V2_5)
+        .unwrap()
         .message_type("ORU", "R01")
         .control_id("MSG1")
         .timestamp("20260814080000")
@@ -364,6 +366,31 @@ fn the_cli_reports_bad_usage_without_a_stack_trace() {
     let (status, out) = cli(&["--help"], "");
     assert_eq!(status, 0);
     assert!(out.contains("Usage: hl7-v2"), "{out}");
+}
+
+#[test]
+fn the_cli_reports_an_unknown_option_and_hides_paths_unless_asked() {
+    use std::process::{Command, Stdio};
+
+    let run = |arguments: &[&str]| {
+        Command::new(env!("CARGO_BIN_EXE_hl7-v2"))
+            .args(arguments)
+            .stdin(Stdio::null())
+            .output()
+            .unwrap()
+    };
+    // A dash and a letter is an unknown option, even a two-character one.
+    for option in ["-x", "--nope"] {
+        let output = run(&[option]);
+        assert!(!output.status.success());
+        let stderr = String::from_utf8(output.stderr).unwrap();
+        assert!(stderr.contains("unknown option"), "{option}: {stderr}");
+    }
+    // The tree shows paths only on request.
+    let (_, tree) = cli(&[], ORU);
+    assert!(!tree.contains("  ["), "{tree}");
+    let (_, with_paths) = cli(&["--paths"], ORU);
+    assert!(with_paths.contains("  ["), "{with_paths}");
 }
 
 #[test]

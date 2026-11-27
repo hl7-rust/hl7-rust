@@ -180,11 +180,19 @@ fn items_json(items: &[Item], depth: usize) -> String {
                 repeats,
                 items,
             } => {
-                let pad = "  ".repeat(depth + 1);
+                // RCA-EXC-2: `depth` counts nested groups of a tree already in
+                // memory, one recursive call per level, so it is bounded by the
+                // number of items and the stack long before `usize::MAX`.
+                #[expect(
+                    clippy::arithmetic_side_effects,
+                    reason = "RCA-EXC-2: nesting depth of an in-memory tree, proof above"
+                )]
+                let inner = depth + 1;
+                let pad = "  ".repeat(inner);
                 format!(
                     "{{\n{pad}\"group\": {}, \"required\": {required}, \"repeats\": {repeats},\n{pad}\"items\": {}\n{}}}",
                     quote(name),
-                    items_json(items, depth + 1),
+                    items_json(items, inner),
                     "  ".repeat(depth)
                 )
             }
@@ -238,7 +246,8 @@ fn array(depth: usize, items: &[String]) -> String {
 /// A JSON string literal. Control characters are escaped as `\uXXXX`; the
 /// rest is written through, so a description keeps whatever it says.
 fn quote(text: &str) -> String {
-    let mut out = String::with_capacity(text.len() + 2);
+    // The two quotes make it grow once at most; no size is computed here.
+    let mut out = String::with_capacity(text.len());
     out.push('"');
     for c in text.chars() {
         match c {
@@ -260,6 +269,41 @@ fn quote(text: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_space_is_written_as_is_and_the_last_control_character_is_escaped() {
+        assert_eq!(quote(" "), "\" \"");
+        assert_eq!(quote("\u{1f}"), "\"\\u001f\"");
+        assert_eq!(quote("\u{0}"), "\"\\u0000\"");
+    }
+
+    #[test]
+    fn a_nested_group_indents_one_level_deeper_than_its_parent() {
+        let items = vec![Item::Group {
+            name: "ORDER".into(),
+            required: true,
+            repeats: false,
+            items: vec![Item::Segment {
+                name: "ORC".into(),
+                required: true,
+                repeats: false,
+            }],
+        }];
+        assert_eq!(
+            items_json(&items, 1),
+            [
+                "[",
+                "  {",
+                "    \"group\": \"ORDER\", \"required\": true, \"repeats\": false,",
+                "    \"items\": [",
+                "    {\"segment\": \"ORC\", \"required\": true, \"repeats\": false}",
+                "  ]",
+                "  }",
+                "]",
+            ]
+            .join("\n")
+        );
+    }
 
     #[test]
     fn writes_a_bare_name_when_the_schema_said_nothing_more() {

@@ -19,7 +19,7 @@
 hl7-2 = { version = "0.3", features = ["derive"] }
 
 # Or through the umbrella crate, which forwards the feature:
-hl7 = { version = "0.2", features = ["derive"] }`;
+hl7 = { version = "0.3", features = ["derive"] }`;
 
   const reading = `use hl7_2::{FromHl7, Raw};
 
@@ -48,7 +48,7 @@ struct Admission {
 }
 
 // Writing needs the segments to exist already.
-let message = hl7_2::Builder::new(hl7_2::Version::V2_5)
+let message = hl7_2::Builder::new(hl7_2::Version::V2_5)?
     .message_type("ADT", "A01")
     .control_id("MSG00042")
     .segment("PID")

@@ -44,7 +44,7 @@ match hl7_2::parse_with_options(text, &options) {
     Err(other) => { /* not a message at all */ }
 }`;
 
-  const nack = `let mut nack = hl7_2::builder::acknowledge(&message, "AE", "N1", "20260814080100")
+  const nack = `let mut nack = hl7_2::builder::acknowledge(&message, "AE", "N1", "20260814080100")?
     .build_valid()?;
 nack.set("MSA-3", &reason)?;`;
 

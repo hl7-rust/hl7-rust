@@ -21,7 +21,14 @@ each time.
    break — including a raised MSRV, which is always breaking
    ([`spec/rust-msrv-n-minus-2/index.md`](../rust-msrv-n-minus-2/index.md)).
    A patch bump never carries a breaking change; if it would, it is a minor
-   bump instead, full stop.
+   bump instead, full stop. **Raising a dependency's requirement across its
+   own breaking boundary is a breaking change** for any crate whose public
+   API exposes that dependency's types (a re-export, a parameter, a return
+   type, a public field): after a patch update, a downstream crate's own
+   `hl7_2::Message` is no longer the type this crate takes, per Cargo's
+   [version-incompatibility hazards](https://doc.rust-lang.org/cargo/reference/resolver.html#version-incompatibility-hazards).
+   Such a crate takes a minor bump, and so does any crate that re-exports
+   *it*. A crate that uses the dependency only internally may stay a patch.
 2. **Check every inter-crate version requirement a bump could break.** A
    `0.x` minor bump fails Cargo's caret-compatibility rule for any sibling
    crate's `path = ".."` dependency that named the old version — the fifth

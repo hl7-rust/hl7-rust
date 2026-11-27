@@ -22,6 +22,15 @@ tag-and-sign step, and who may decide a release is warranted — is
 
 ### Changed (breaking)
 
+- **`hl7-2`, `hl7-2-from-er7-into-json`, `hl7-2-from-er7-into-xml`,
+  `hl7-2-from-json-into-er7`, `hl7-2-from-xml-into-er7`**: the `er7`
+  requirement moves from 0.2.2 to 0.3.0, which is across `er7`'s own breaking
+  boundary. Each crate re-exports `er7` or exposes its types
+  (`er7::Message`, `er7::RenderOptions`), so each takes a minor bump at
+  release, as does any crate that re-exports one of them (`hl7`,
+  `hl7-2-mllp`, `serde-hl7-v2`). `er7` 0.3.0 has no API or behavior change;
+  it raises its MSRV to Rust 1.98, which this workspace already requires.
+
 - **`hl7-3`**: `FromElement::from_element` now returns
   `Result<Self, Error>`, and `FromElementValue::from_attribute` /
   `from_child_text` take the field name and return `Result<Self, Error>`.
@@ -31,28 +40,59 @@ tag-and-sign step, and who may decide a release is warranted — is
   `bool` now also accepts `1`/`0`. `#[derive(FromElement)]` (`hl7-3-derive`)
   generates the fallible form.
 
+### Changed
+
+- **`hl7-2-mllp`**: the optional `jiff` dependency (feature `clock`) moves from
+  0.2 to 1.0; `now()` uses the renamed `jiff::ZonedDateTime`. No `jiff` type is
+  in the public API and output is unchanged, so this is a patch-level change.
+
 ## 2026-11-25, eleventh release
 
-Nine crates release. `hl7-2` takes a minor bump to 0.4.0 because it carries
-the breaking changes listed below; the four crates that depend on it by
-version, and `serde-hl7-v2`, raise their `hl7-2` requirement to 0.4.0 and
-take patch bumps. The remaining additive work ships as patch bumps.
+Eleven crates release. `hl7-2` takes a minor bump to 0.4.0 because it carries
+the breaking changes listed below. Every crate that raises its `hl7-2`
+requirement to 0.4.0 *and* exposes an `hl7_2` type in its public API
+(`hl7-2-mllp`'s re-export and `v2::Message` returns,
+`hl7-2-from-er7-into-xml`'s `&hl7_2::Dictionary` parameter,
+`serde-hl7-v2`'s public wrapper fields, `hl7`'s `v2` re-export) takes a
+minor bump too: a downstream crate still on `hl7-2` 0.3 would otherwise stop
+compiling on a `cargo update`, because its `hl7_2::Message` is no longer the
+type these crates take and return. `serde-hl7` re-exports `serde-hl7-v2` and
+follows it to a minor bump. `hl7-2-from-xsd-into-json-dictionary` exposes no
+`hl7_2` type and stays a patch. The remaining additive work ships as patch
+bumps.
 
 | Crate | Version |
 |---|---|
 | `hl7-2` | 0.4.0 |
-| `serde-hl7-v2` | 0.1.3 |
+| `serde-hl7-v2` | 0.2.0 |
+| `serde-hl7-v3` | 0.1.2 |
+| `serde-hl7` | 0.2.0 |
 | `hl7-2-soap` | 0.2.2 |
 | `hl7-3-soap` | 0.2.2 |
 | `hl7-2-from-er7-into-json` | 0.5.3 |
-| `hl7` | 0.2.4 |
-| `hl7-2-mllp` | 0.2.2 |
-| `hl7-2-from-er7-into-xml` | 0.7.3 |
+| `hl7` | 0.3.0 |
+| `hl7-2-mllp` | 0.3.0 |
+| `hl7-2-from-er7-into-xml` | 0.8.0 |
 | `hl7-2-from-xsd-into-json-dictionary` | 0.2.2 |
 
 `hl7-3` and its breaking `FromElement` change are not part of this release.
 
 ### Changed
+
+- **`hl7-2` (breaking)**: `Builder::new`, `Builder::with_dictionary`,
+  `builder::acknowledge` and `Version::dictionary` now return `Result` instead
+  of panicking if the builder's own header, a bundled dictionary file, or a
+  message's MSH header were ever unusable. A caller adds `?`:
+  `Builder::new(Version::V2_5)?`, `acknowledge(&message, "AA", id, ts)?.build()?`,
+  `Version::V2_5.dictionary()?`. These failures cannot happen with the shipped
+  files (tests load every one), but a library for clinical traffic reports
+  them rather than aborting the caller (`spec/rust-checked-arithmetic` RCA-P-1).
+- **`hl7-2-from-er7-into-xml` (breaking)**: `Hl7Error` gains a `Dictionary`
+  variant for the bundled-dictionary failure above.
+- **Workspace**: every crate now inherits the checked-arithmetic Clippy lint set
+  in the root `Cargo.toml` (`[workspace.lints]`, RCA-ENF-1). Byte-offset
+  arithmetic in the XML and JSON readers was replaced by reading from the
+  unread remainder of the text; behaviour is unchanged.
 
 - **License**: the license option `CC-BY-NC-SA-4.0` is replaced by
   `CC-BY-SA-4.0` in every crate, the workspace `LICENSE.md`, and
@@ -68,6 +108,34 @@ take patch bumps. The remaining additive work ships as patch bumps.
   - `DT`, `TM` and `DTM` values are checked for calendar and clock validity
     (`20250230`, month 13, hour 24, and a fraction without seconds such as
     `2025.1` are errors).
+- **`hl7-2`**: `Builder::message_type`, and so `builder::acknowledge` and
+  `hl7-2-mllp`'s ACKs, no longer write MSH-9.3 for 2.1, 2.2, and 2.3, whose
+  MSH-9 has no structure component; those replies used to fail the crate's
+  own validation.
+- **`serde-hl7-v2`**: `RedactedDiagnostic`'s `Debug` no longer prints the
+  wrapped finding's detail and segment name; it writes the redacted fields, and
+  a new `Display` writes `hl7_2::Diagnostic::redacted`.
+- **`hl7-2-soap`, `hl7-3-soap`**: `evidence()` and `evaluate_correlated()`
+  read the code and the control ID from one acknowledgement inside the SOAP
+  `Body`; a split, header-only, or duplicated acknowledgement is no evidence.
+  `evaluate_correlated()`'s rejection reasons are fixed strings and no longer
+  quote the peer's fault or status text.
+- **`serde-hl7-v2`, `serde-hl7-v3`**: every struct wrapper now deserializes
+  from a non-self-describing format (`bincode`, `postcard`) as well as from
+  JSON; before, such a format serialized successfully and failed to read back
+  (`serde-hl7-v2` rule S17; `serde-hl7-v3` rule S14).
+- **`hl7-2-from-xsd-into-json-dictionary`**: a segment field reference whose
+  number is above 10,000 (`PID.99999999999`) is skipped like one with no
+  number, instead of sizing the field list from it (spec §3.3).
+- **`hl7-2`**: `Cardinality::UNSTATED`, the named fallback for a field the
+  dictionary says nothing about (equal to `Cardinality::default()`).
+- **`hl7-2`**: a dictionary's sparse position override must be a number from
+  1 to 10,000 (`dictionary::MAX_POSITION`); a larger one is a
+  `dictionary::Error`, where it used to size the field table from the number
+  (spec §3.2).
+- **`hl7-2-mllp`**: `IoTransport::receive` returns an `io::Error` instead of
+  panicking when the stream's `Read` reports more bytes than the buffer it
+  was given.
 
 ### Added
 

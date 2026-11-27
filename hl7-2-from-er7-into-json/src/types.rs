@@ -14,7 +14,10 @@
 // A data table, not logic: every HL7 type gets its own line even where two
 // happen to share a component list, because the table is read against the
 // standard type by type.
-#[allow(clippy::match_same_arms)]
+#[expect(
+    clippy::match_same_arms,
+    reason = "a data table read against the standard type by type, as above"
+)]
 pub fn composite_components(dt: &str) -> Option<&'static [&'static str]> {
     let v: &'static [&'static str] = match dt {
         "AD" => &["ST", "ST", "ST", "ST", "ST", "ID", "ST", "ST"],
@@ -79,7 +82,6 @@ pub fn composite_components(dt: &str) -> Option<&'static [&'static str]> {
 /// not in the table (including Z-segments), which then use generic names.
 /// The sentinel `"VAR"` marks OBX-5, whose type is given by OBX-2.
 #[must_use]
-#[allow(clippy::match_same_arms)]
 pub fn segment_fields(seg: &str) -> Option<&'static [&'static str]> {
     let v: &'static [&'static str] = match seg {
         "AL1" => &["SI", "CE", "CE", "CE", "ST", "TS"],

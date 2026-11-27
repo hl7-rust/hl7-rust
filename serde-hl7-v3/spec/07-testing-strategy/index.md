@@ -22,7 +22,7 @@ enforces it. A rule with no test is a bug in this table.
 | S11 | `deref_reaches_the_inner_api`, `deref_and_from_work_both_ways`, `display_is_the_code` | `src/element.rs`, `src/message.rs`, `src/null_flavor.rs` |
 | S12 | *by `cargo rustdoc --lib -- -W missing-docs`*, one of the four checks (§7.4) | — |
 | S13 | `strict_reaches_every_nested_level`, `strict_rejects_an_unknown_field_at_any_depth`, `strict_reaches_into_ids_and_codes`, `strict_accepts_a_real_message_with_no_typos` | `src/message.rs`, `src/element.rs`, `src/rim.rs` |
-| S14 | `round_trips_a_full_message`, `every_class_round_trips_from_default`, `every_type_round_trips_through_pretty_json` | `src/message.rs`, `src/rim.rs`, `tests/main.rs` |
+| S14 | `round_trips_a_full_message`, `every_class_round_trips_from_default`, `every_type_round_trips_through_pretty_json`, `a_whole_message_round_trips_through_a_non_self_describing_format` | `src/message.rs`, `src/rim.rs`, `tests/main.rs` |
 | S15 | `every_object_wrapper_is_written_by_the_macro` | `tests/main.rs` |
 
 The table is **checked by `cargo test`**, not only by review:

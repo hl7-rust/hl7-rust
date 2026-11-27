@@ -72,14 +72,24 @@ fn match_items(
     out: &mut Vec<Layout>,
 ) -> bool {
     for item in items {
-        let mut occurrences = 0;
+        let mut matched = false;
         loop {
             let before = *position;
-            if *position < segments.len() && item.can_start(segments[*position]) {
+            if segments
+                .get(*position)
+                .is_some_and(|segment| item.can_start(segment))
+            {
                 match item {
                     Item::Segment { .. } => {
                         out.push(Layout::Segment(*position));
-                        *position += 1;
+                        // RCA-EXC-2: `segments.get(*position)` just succeeded, so
+                        // `*position < segments.len() <= isize::MAX`.
+                        #[expect(
+                            clippy::arithmetic_side_effects,
+                            reason = "RCA-EXC-2: position indexes segments, proof above"
+                        )]
+                        let after = *position + 1;
+                        *position = after;
                     }
                     Item::Group { name, items, .. } => {
                         let mut contents = Vec::new();
@@ -92,7 +102,7 @@ fn match_items(
                         });
                     }
                 }
-                occurrences += 1;
+                matched = true;
             }
             // A group whose leading items are all optional can match while
             // consuming nothing; stop rather than loop forever on it.
@@ -100,7 +110,7 @@ fn match_items(
                 break;
             }
         }
-        if occurrences == 0 && item.required() {
+        if !matched && item.required() {
             return false;
         }
     }
@@ -113,7 +123,7 @@ mod tests {
     use crate::Version;
 
     fn layout(structure: &str, segments: &[&str]) -> Option<Vec<Layout>> {
-        let dictionary = Version::V2_5.dictionary();
+        let dictionary = Version::V2_5.dictionary().unwrap();
         group(dictionary.structure(structure).unwrap(), segments)
     }
 

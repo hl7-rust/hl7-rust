@@ -45,13 +45,13 @@ message.set("NTE[2]-3", "Amended after review.")?;`;
 // and hl7-2 does not weaken it — so a read-modify-write touches only what
 // you actually changed.`;
 
-  const builder = `let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")
+  const builder = `let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")?
     .build_valid()?;
 
 assert_eq!(ack.get("MSA-1")?.as_deref(), Some("AA"));
 assert_eq!(ack.get("MSA-2")?.as_deref(), Some("MSG00042"));`;
 
-  const nack = `let mut nack = hl7_2::builder::acknowledge(&message, "AE", "N1", "20260814080100")
+  const nack = `let mut nack = hl7_2::builder::acknowledge(&message, "AE", "N1", "20260814080100")?
     .build_valid()?;
 nack.set("MSA-3", "OBR-4 is required")?;`;
 

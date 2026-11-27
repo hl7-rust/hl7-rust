@@ -75,7 +75,7 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::spanned::Spanned;
-use syn::{Data, DeriveInput, Field, Fields, LitStr, Path, Token, parse_macro_input};
+use syn::{Data, DeriveInput, Field, Fields, Ident, LitStr, Path, Token, parse_macro_input};
 
 /// Derive `FromElement`: read each annotated field from an XML element's
 /// attributes or children.
@@ -110,8 +110,7 @@ fn from_element(input: &DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
     let krate = crate_path(input)?;
     let (impl_generics, type_generics, where_clause) = input.generics.split_for_impl();
     let mut reads = Vec::new();
-    for field in named_fields(input)? {
-        let ident = field.ident.as_ref().expect("named fields");
+    for (ident, field) in named_fields(input)? {
         let ty = &field.ty;
         reads.push(match mapping(field)? {
             Mapping::Attribute(name) => quote! {
@@ -155,10 +154,15 @@ fn from_element(input: &DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
 }
 
 /// The struct's named fields, or an error explaining what this macro maps.
-fn named_fields(input: &DeriveInput) -> syn::Result<impl Iterator<Item = &Field>> {
+/// The struct's fields, each with its name: a `Fields::Named` field always
+/// has one, so the pairing leaves no `Option` for a caller to unwrap.
+fn named_fields(input: &DeriveInput) -> syn::Result<impl Iterator<Item = (&Ident, &Field)>> {
     match &input.data {
         Data::Struct(data) => match &data.fields {
-            Fields::Named(named) => Ok(named.named.iter()),
+            Fields::Named(named) => Ok(named
+                .named
+                .iter()
+                .filter_map(|field| field.ident.as_ref().map(|ident| (ident, field)))),
             other => Err(syn::Error::new(
                 other.span(),
                 "hl7-3 derives map field names to element attributes and children, so the struct needs named fields",
@@ -308,7 +312,7 @@ mod tests {
             r"struct S { #[element(other)] f: u32 }",
         ] {
             let input: DeriveInput = syn::parse_str(source).unwrap();
-            let field = named_fields(&input).unwrap().next().unwrap();
+            let (_, field) = named_fields(&input).unwrap().next().unwrap();
             assert!(mapping(field).is_err(), "accepted {source}");
         }
     }

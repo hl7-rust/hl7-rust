@@ -26,6 +26,19 @@
 //!   persistence before acknowledging (an `AA` promises the message is
 //!   safe), and a real logger.
 
+// RCA-EXC-5: test code may use plain operators, `unwrap` and `expect`.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing,
+    clippy::string_slice,
+    clippy::arithmetic_side_effects,
+    clippy::integer_division,
+    clippy::default_numeric_fallback,
+    reason = "RCA-EXC-5: test code may use plain operators, unwrap and expect"
+)]
+
 use hl7_2_mllp::{AckCode, IoTransport, Transport, ack};
 use std::io;
 use std::net::{TcpListener, TcpStream};
@@ -132,12 +145,17 @@ fn nack(control_id: &str, timestamp: &str, reason: &str) -> String {
 fn timestamp() -> String {
     let seconds = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|elapsed| elapsed.as_secs())
+        .ok()
+        .and_then(|elapsed| i64::try_from(elapsed.as_secs()).ok())
         .unwrap_or(0);
     // Civil-from-days, so the example stays dependency-free.
-    let (days, rest) = (seconds / 86_400, seconds % 86_400);
-    let (hour, minute, second) = (rest / 3600, (rest % 3600) / 60, rest % 60);
-    let z = days as i64 + 719_468;
+    let (days, rest) = (seconds.div_euclid(86_400), seconds.rem_euclid(86_400));
+    let (hour, minute, second) = (
+        rest.div_euclid(3600),
+        rest.rem_euclid(3600).div_euclid(60),
+        rest.rem_euclid(60),
+    );
+    let z = days + 719_468;
     let era = z.div_euclid(146_097);
     let day_of_era = z.rem_euclid(146_097);
     let year_of_era =

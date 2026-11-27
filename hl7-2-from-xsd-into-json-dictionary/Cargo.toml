@@ -34,3 +34,7 @@ hl7-2 = { version = "0.4.0", path = "../hl7-2", default-features = false }
 [[bin]]
 name = "hl7-2-from-xsd-into-json-dictionary"
 path = "src/main.rs"
+
+# RCA-ENF-1: the workspace's checked-arithmetic lint set (root Cargo.toml).
+[lints]
+workspace = true

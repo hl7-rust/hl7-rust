@@ -1,0 +1,26 @@
+#!/bin/sh
+set -eu
+
+# Run cargo-mutants over every workspace crate, one crate at a time, per
+# spec/mutation-testing/index.md. Each crate's mutants are tested against that
+# crate's own tests (.cargo/mutants.toml), and results land in
+# target/mutants/<crate>/mutants.out. Pass crate names to run only those.
+
+unset RUSTC_WRAPPER
+export CARGO_BUILD_RUSTC_WRAPPER=
+
+crates=${*:-"hl7-2-derive hl7-3-derive serde-hl7-v3 hl7-3 hl7-2-from-xml-into-er7 hl7-3-soap hl7-2-soap hl7-2-from-er7-into-xml hl7-2-xml-lite-helper serde-hl7-v2 hl7-2-mllp hl7-2-from-xsd-into-json-dictionary hl7-2-from-json-into-er7 hl7-2-from-er7-into-json hl7-2"}
+
+for crate in $crates; do
+  mkdir -p "target/mutants/$crate"
+  # cargo-mutants exits non-zero when any mutant is missed; the baseline is a
+  # measurement, not a gate, so keep going and summarise at the end.
+  cargo mutants -p "$crate" -j 4 --no-shuffle --output "target/mutants/$crate" || true
+done
+
+for crate in $crates; do
+  out="target/mutants/$crate/mutants.out"
+  printf '%s caught=%s missed=%s timeout=%s unviable=%s\n' "$crate" \
+    "$(wc -l < "$out/caught.txt" | tr -d ' ')" "$(wc -l < "$out/missed.txt" | tr -d ' ')" \
+    "$(wc -l < "$out/timeout.txt" | tr -d ' ')" "$(wc -l < "$out/unviable.txt" | tr -d ' ')"
+done

@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let strict: Result<Strict<Message>, _> = serde_json::from_str(typo);
     match strict {
-        Ok(_) => unreachable!("Strict<Message> reports the typo"),
+        Ok(_) => return Err("Strict<Message> should have reported the typo".into()),
         Err(error) => println!("Strict<Message>::deserialize: {error}"),
     }
 

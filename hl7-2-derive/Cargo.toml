@@ -30,3 +30,7 @@ syn = { version = "3", features = ["derive", "parsing", "printing", "proc-macro"
 # stripped when publishing, which is what stops the cycle from making
 # either crate unpublishable.
 hl7-2 = { path = "../hl7-2" }
+
+# RCA-ENF-1: the workspace's checked-arithmetic lint set (root Cargo.toml).
+[lints]
+workspace = true

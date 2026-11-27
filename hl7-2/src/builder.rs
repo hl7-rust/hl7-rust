@@ -19,7 +19,7 @@ use std::sync::Arc;
 /// ```
 /// use hl7_2::{Builder, Version};
 ///
-/// let message = Builder::new(Version::V2_5)
+/// let message = Builder::new(Version::V2_5)?
 ///     .message_type("ADT", "A01")
 ///     .control_id("MSG00001")
 ///     .timestamp("20240101093851")
@@ -51,41 +51,41 @@ impl Builder {
     /// receiver — is empty until set, and MSH-9 and MSH-10 being empty is
     /// exactly what [`Message::validate`] reports, so a half-built message
     /// says so rather than looking finished.
-    #[must_use]
-    /// # Panics
+    /// # Errors
     ///
-    /// Never in practice: the bundled dictionaries are embedded at compile
-    /// time and parsed on first use, so a failure here would mean this
-    /// crate shipped a malformed one.
-    pub fn new(version: Version) -> Builder {
+    /// [`Error::Dictionary`] when the release's bundled dictionary does not
+    /// load (see [`Version::dictionary`]), or the error parsing the
+    /// builder's own header, which a test proves well formed for every
+    /// release. Either would mean the crate shipped a defect; it is
+    /// reported, never a panic.
+    pub fn new(version: Version) -> Result<Builder, Error> {
         let header = format!("MSH|^~\\&|||||||||P|{version}");
-        let message = crate::parse_with_options(&header, &Options::new().with_version(version))
-            .expect("a builder's own header is always well formed");
-        Builder {
+        let message = crate::parse_with_options(&header, &Options::new().with_version(version))?;
+        Ok(Builder {
             message,
             failures: Vec::new(),
-        }
+        })
     }
 
     /// Start a message for `version`, read through `dictionary` — the
     /// schema-mode counterpart of [`Builder::new`].
-    #[must_use]
-    /// # Panics
+    /// # Errors
     ///
-    /// Never in practice: the bundled dictionaries are embedded at compile
-    /// time and parsed on first use, so a failure here would mean this
-    /// crate shipped a malformed one.
-    pub fn with_dictionary(version: Version, dictionary: Arc<crate::Dictionary>) -> Builder {
+    /// The error parsing the builder's own header through `dictionary`, as
+    /// for [`Builder::new`].
+    pub fn with_dictionary(
+        version: Version,
+        dictionary: Arc<crate::Dictionary>,
+    ) -> Result<Builder, Error> {
         let header = format!("MSH|^~\\&|||||||||P|{version}");
         let options = Options::new()
             .with_version(version)
             .with_dictionary(dictionary);
-        let message = crate::parse_with_options(&header, &options)
-            .expect("a builder's own header is always well formed");
-        Builder {
+        let message = crate::parse_with_options(&header, &options)?;
+        Ok(Builder {
             message,
             failures: Vec::new(),
-        }
+        })
     }
 
     /// Start from an existing message, to add to it or answer it.
@@ -99,13 +99,23 @@ impl Builder {
 
     /// Set MSH-9: the message code and trigger event, e.g. `("ADT",
     /// "A01")`. The structure ID (MSH-9.3) is filled in from the
-    /// dictionary, so `ADT^A04` correctly declares `ADT_A01`.
+    /// dictionary, so `ADT^A04` correctly declares `ADT_A01` — but only
+    /// for a release whose MSH-9 has a third component (2.3.1 onwards);
+    /// 2.1, 2.2, and 2.3 get the two-component form they define.
     #[must_use]
     pub fn message_type(mut self, code: &str, trigger: &str) -> Builder {
-        let structure = self.message.dictionary().structure_id(code, trigger);
+        let dictionary = self.message.dictionary();
+        let has_structure = dictionary
+            .field_type("MSH", 9)
+            .and_then(|data_type| dictionary.composite_components(data_type))
+            .is_some_and(|components| components.len() >= 3);
+        let structure = has_structure.then(|| dictionary.structure_id(code, trigger));
         self = self.set("MSH-9.1", code);
         self = self.set("MSH-9.2", trigger);
-        self.set("MSH-9.3", &structure)
+        match structure {
+            Some(structure) => self.set("MSH-9.3", &structure),
+            None => self,
+        }
     }
 
     /// Set MSH-10, the message control ID: the sender's own identifier for
@@ -221,45 +231,50 @@ impl Builder {
 /// received control ID so the sender can match the reply to the request.
 /// The caller supplies the reply's own control ID and timestamp.
 ///
-/// # Panics
+/// # Errors
 ///
-/// Only if the crate's `Message` invariant is broken internally and the
-/// message no longer contains its required MSH header. Public constructors
-/// and parsers preserve that invariant.
+/// [`Error::MissingMsh`] if `message` has no MSH header, which a parsed
+/// message always has; and the errors of [`Builder::new`].
 ///
 /// ```
 /// let message = hl7_2::parse("MSH|^~\\&|LAB|L|EPIC|E|20240101||ORU^R01|99|P|2.5\rPID|1")?;
-/// let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20240101093900").build()?;
+/// let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20240101093900")?.build()?;
 /// assert_eq!(ack.get("MSA-2")?.as_deref(), Some("99"));
 /// // The answer goes back where it came from.
 /// assert_eq!(ack.get("MSH-5.1")?.as_deref(), Some("LAB"));
 /// # Ok::<(), hl7_2::Error>(())
 /// ```
-#[must_use]
-pub fn acknowledge(message: &Message, code: &str, control_id: &str, timestamp: &str) -> Builder {
+pub fn acknowledge(
+    message: &Message,
+    code: &str,
+    control_id: &str,
+    timestamp: &str,
+) -> Result<Builder, Error> {
     let value = |path: &str| message.get(path).ok().flatten().unwrap_or_default();
     let version = message.version();
-    let mut builder = Builder::new(version);
-    let received = message
-        .raw()
-        .header()
-        .expect("Message invariant guarantees an MSH header");
+    let mut builder = Builder::new(version)?;
+    let received = message.raw().header().ok_or(Error::MissingMsh)?;
     let reply = builder.message.raw_mut();
     reply.separators = *message.separators();
     // Copy the delimiter declaration and the swapped routing fields as
     // parsed ER7, preserving component boundaries and escapes.
-    for (index, field) in [1, 2, 5, 6, 3, 4].into_iter().enumerate() {
-        reply.segments[0].fields[index] = received.field(field).cloned().unwrap_or_default();
+    let header = reply
+        .segments
+        .first_mut()
+        .into_iter()
+        .flat_map(|header| header.fields.iter_mut());
+    for (slot, field) in header.zip([1, 2, 5, 6, 3, 4]) {
+        *slot = received.field(field).cloned().unwrap_or_default();
     }
     builder = builder.set("MSH-12", &version.to_string());
-    builder
+    Ok(builder
         .message_type("ACK", &value("MSH-9.2"))
         .control_id(control_id)
         .timestamp(timestamp)
         .processing_id(&value("MSH-11.1"))
         .segment("MSA")
         .set("MSA-1", code)
-        .set("MSA-2", &value("MSH-10"))
+        .set("MSA-2", &value("MSH-10")))
 }
 
 #[cfg(test)]
@@ -269,6 +284,7 @@ mod tests {
     #[test]
     fn builds_a_message_from_nothing() {
         let message = Builder::new(Version::V2_5)
+            .unwrap()
             .message_type("ADT", "A01")
             .control_id("1")
             .timestamp("20240101093851")
@@ -293,6 +309,7 @@ mod tests {
     #[test]
     fn resolves_the_structure_id_through_the_dictionary() {
         let message = Builder::new(Version::V2_5)
+            .unwrap()
             .message_type("ADT", "A08")
             .build()
             .unwrap();
@@ -300,8 +317,30 @@ mod tests {
     }
 
     #[test]
+    fn writes_the_structure_component_only_where_the_release_has_one() {
+        for &version in crate::version::ALL {
+            let received =
+                format!("MSH|^~\\&|LAB|ACME|EHR|CLINIC|20260814||ORU^R01|99|P|{version}\rPID|1");
+            let message = crate::parse(&received).unwrap();
+            let ack = acknowledge(&message, "AA", "A1", "20260814080100")
+                .unwrap()
+                .build()
+                .unwrap();
+            let structure = ack.get("MSH-9.3").unwrap();
+            if version < Version::V2_3_1 {
+                assert_eq!(structure, None, "{version}");
+                assert!(ack.to_er7().contains("|ACK^R01|"), "{version}");
+            } else {
+                assert_eq!(structure.as_deref(), Some("ACK"), "{version}");
+            }
+            assert_eq!(ack.validate(), [], "{version}");
+        }
+    }
+
+    #[test]
     fn reports_the_first_failure_at_build_time() {
         let error = Builder::new(Version::V2_5)
+            .unwrap()
             .set("PID-3.1", "241900") // no PID segment yet
             .build()
             .unwrap_err();
@@ -317,7 +356,8 @@ mod tests {
             }
         }
 
-        let message = Builder::with_dictionary(Version::V2_5, Version::V2_5.dictionary())
+        let message = Builder::with_dictionary(Version::V2_5, Version::V2_5.dictionary().unwrap())
+            .unwrap()
             .message_type("ACK", "A01")
             .control_id("1")
             .build()
@@ -326,12 +366,14 @@ mod tests {
         assert!(Builder::from_message(message).build().is_ok());
         assert!(
             Builder::new(Version::V2_5)
+                .unwrap()
                 .encode(&Invalid)
                 .build()
                 .is_err()
         );
         assert!(
             Builder::new(Version::V2_5)
+                .unwrap()
                 .set_er7("PID-0", "already\\F\\encoded")
                 .build()
                 .is_err()
@@ -341,7 +383,10 @@ mod tests {
     #[test]
     fn build_valid_rejects_an_incomplete_message() {
         // No message type and no control ID: not something to send.
-        let error = Builder::new(Version::V2_5).build_valid().unwrap_err();
+        let error = Builder::new(Version::V2_5)
+            .unwrap()
+            .build_valid()
+            .unwrap_err();
         assert!(matches!(&error, Error::Invalid(diagnostics) if diagnostics.len() == 2));
     }
 
@@ -352,6 +397,7 @@ mod tests {
         )
         .unwrap();
         let ack = acknowledge(&message, "AA", "ACK1", "20240101093900")
+            .unwrap()
             .build_valid()
             .unwrap();
         assert_eq!(ack.structure_id(), "ACK");
@@ -370,6 +416,7 @@ mod tests {
         ))
         .unwrap();
         let ack = acknowledge(&message, "AA", "ACK1", "20260814")
+            .unwrap()
             .build_valid()
             .unwrap();
         let received = message.segment("MSH").unwrap();
@@ -384,6 +431,7 @@ mod tests {
         let message =
             crate::parse("MSH|^~\\&|LAB|L|EPIC|E|20240101||ORU^R01|99|P|2.3\rPID|1").unwrap();
         let ack = acknowledge(&message, "AE", "1", "20240101")
+            .unwrap()
             .build()
             .unwrap();
         assert_eq!(ack.version(), Version::V2_3);

@@ -3,6 +3,19 @@
 //! from the sibling checkout, so a round trip through this crate is checked
 //! against real message shapes, not just literals written for this crate.
 
+// RCA-EXC-5: test code may use plain operators, `unwrap` and `expect`.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing,
+    clippy::string_slice,
+    clippy::arithmetic_side_effects,
+    clippy::integer_division,
+    clippy::default_numeric_fallback,
+    reason = "RCA-EXC-5: test code may use plain operators, unwrap and expect"
+)]
+
 use serde_hl7_v2::{
     Diagnostic, DiagnosticKind, Message, Node, NodeKind, Severity, Strict, Version,
 };
@@ -52,6 +65,47 @@ fn round_trips_a_tree_as_detached_nodes() {
         assert_eq!(back, tree);
         assert_eq!(serde_json::to_string(&back).unwrap(), json);
     }
+}
+
+#[test]
+fn round_trips_through_a_non_self_describing_format() {
+    // S17: postcard, like bincode, writes a struct as its fields in order and
+    // reads it back through `visit_seq`, never `visit_map`.
+    for sample in [ADT, ORU, ORM, VENDOR] {
+        let message = Message::parse(sample).unwrap();
+        let bytes = postcard::to_allocvec(&message).unwrap();
+        let back: Message = postcard::from_bytes(&bytes).unwrap();
+        assert_eq!(back.to_er7(), message.to_er7());
+        assert_eq!(back.version(), message.version());
+        let strict: Strict<Message> = postcard::from_bytes(&bytes).unwrap();
+        assert_eq!(strict.to_er7(), message.to_er7());
+
+        let tree = Node(message.tree());
+        let bytes = postcard::to_allocvec(&tree).unwrap();
+        assert_eq!(postcard::from_bytes::<Node>(&bytes).unwrap(), tree);
+        assert_eq!(*postcard::from_bytes::<Strict<Node>>(&bytes).unwrap(), tree);
+
+        let findings: Vec<Diagnostic> = message.validate().into_iter().map(Diagnostic).collect();
+        let bytes = postcard::to_allocvec(&findings).unwrap();
+        assert_eq!(
+            postcard::from_bytes::<Vec<Diagnostic>>(&bytes).unwrap(),
+            findings
+        );
+    }
+    // A positional record missing its last field is an invalid_length error;
+    // serde_json hands a JSON array to the same visit_seq path.
+    let tree = serde_json::to_value(Node(Message::parse(ADT).unwrap().tree())).unwrap();
+    let fields: Vec<serde_json::Value> = ["name", "path", "kind", "text", "null"]
+        .iter()
+        .map(|key| tree[key].clone())
+        .collect();
+    let error = serde_json::from_value::<Node>(fields.into()).unwrap_err();
+    assert!(error.to_string().contains("invalid length 5"), "{error}");
+    let error = serde_json::from_str::<Diagnostic>(r#"["Error"]"#).unwrap_err();
+    assert!(error.to_string().contains("invalid length 1"), "{error}");
+    // A truncated record is an error, not a default.
+    let bytes = postcard::to_allocvec(&Message::parse(ADT).unwrap()).unwrap();
+    assert!(postcard::from_bytes::<Message>(&bytes[..1]).is_err());
 }
 
 #[test]
@@ -168,7 +222,7 @@ fn the_crate_has_exactly_two_runtime_dependencies() {
         manifest_dependencies("[dependencies]"),
         [
             r#"serde = "1""#,
-            r#"hl7-2 = { version = "0.3.3", path = "../hl7-2", default-features = false }"#
+            r#"hl7-2 = { version = "0.4.0", path = "../hl7-2", default-features = false }"#
         ]
     );
 }
@@ -212,13 +266,13 @@ fn every_rule_has_a_coverage_row() {
     let declared = rule_ids(include_str!("../spec/index.md"));
     let covered = rule_ids(include_str!("../spec/07-testing-strategy/index.md"));
 
-    let expected: Vec<String> = (1..=16)
+    let expected: Vec<String> = (1..=17)
         .filter(|number| *number != 14)
         .map(|number| format!("S{number}"))
         .collect();
     assert_eq!(
         declared, expected,
-        "the rule index should hold S1–S13 and S15–S16; S14 is retired"
+        "the rule index should hold S1–S13 and S15–S17; S14 is retired"
     );
     let missing: Vec<&String> = declared.iter().filter(|s| !covered.contains(s)).collect();
     assert!(missing.is_empty(), "no row in §7.1 for {missing:?}");

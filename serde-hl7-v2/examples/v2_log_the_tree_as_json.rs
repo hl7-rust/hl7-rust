@@ -20,10 +20,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // and children. Serialize-only — a tree is a view of the message, and
     // the message is what round-trips (see `v2_round_trip_via_json`).
     let tree = serde_json::to_value(Node(message.tree()))?;
-    let pid = tree["children"]
-        .as_array()
+    let pid = tree
+        .get("children")
+        .and_then(serde_json::Value::as_array)
         .and_then(|groups| groups.iter().find_map(|g| find(g, "PID")))
-        .expect("PID is in the tree");
+        .ok_or("PID is not in the tree")?;
     println!("PID, as JSON:\n{}\n", serde_json::to_string_pretty(pid)?);
 
     // The findings: what validation thought of the message, as an array
@@ -39,10 +40,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 /// Depth-first search of a serialized tree for a node by name.
 fn find<'a>(node: &'a serde_json::Value, name: &str) -> Option<&'a serde_json::Value> {
-    if node["name"] == name {
+    if node.get("name")? == name {
         return Some(node);
     }
-    node["children"]
+    node.get("children")?
         .as_array()?
         .iter()
         .find_map(|child| find(child, name))

@@ -29,6 +29,43 @@ members = [
 [workspace.package]
 rust-version = "1.98"
 
+# RCA-ENF-1: the checked-arithmetic lint set of spec/rust-checked-arithmetic.
+# A member opts in with `[lints] workspace = true` once every module in it is
+# converted (RCA-ENF-3); `tasks.md` tracks which members have. Test code may
+# use plain operators, unwrap and expect (RCA-EXC-5): an integration-test,
+# example or bench root, or a `#[cfg(test)]` module, that needs to says so
+# with an `allow` carrying an "RCA-EXC-5" reason.
+[workspace.lints.clippy]
+# Arithmetic (RCA-INT, RCA-AGG, RCA-WIDE)
+arithmetic_side_effects = "deny"
+integer_division = "deny"
+modulo_arithmetic = "deny"
+default_numeric_fallback = "deny"
+# Conversions (RCA-CONV)
+as_conversions = "deny"
+cast_lossless = "deny"
+cast_possible_truncation = "deny"
+cast_possible_wrap = "deny"
+cast_precision_loss = "deny"
+cast_sign_loss = "deny"
+checked_conversions = "deny"
+# Floats (RCA-FLT)
+float_arithmetic = "deny"
+float_cmp = "deny"
+lossy_float_literal = "deny"
+# Panics (RCA-P-1, RCA-NONE, RCA-LEN)
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+indexing_slicing = "deny"
+string_slice = "deny"
+unreachable = "deny"
+todo = "deny"
+unimplemented = "deny"
+# Exceptions must be expected, with a reason (RCA-EXC-6)
+allow_attributes = "deny"
+allow_attributes_without_reason = "deny"
+
 # RCA-ENF-4: a backstop. Any operator the lints miss panics, which is detectable,
 # instead of wrapping, which is not. RCA-P-1 still forbids the panic.
 [profile.release]

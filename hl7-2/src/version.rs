@@ -23,7 +23,6 @@ use std::sync::{Arc, OnceLock};
 /// which is what makes "nearest older release" a comparison rather than a
 /// table.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[allow(non_camel_case_types)]
 pub enum Version {
     /// HL7 v2.1 (1990).
     V2_1,
@@ -69,27 +68,75 @@ pub const ALL: &[Version] = &[
 /// release the installed base clusters around.
 pub const DEFAULT: Version = V2_5;
 
-/// The bundled dictionary files, in the same order as [`FILES`]' contents.
-/// Several releases can share one file: a point release that changed
-/// nothing this crate models does not need a dictionary of its own.
-const FILES: &[(&str, &str)] = &[
-    ("2.1", include_str!("../schemas/v2.1.json")),
-    ("2.2", include_str!("../schemas/v2.2.json")),
-    ("2.3", include_str!("../schemas/v2.3.json")),
-    ("2.3.1", include_str!("../schemas/v2.3.1.json")),
-    ("2.4", include_str!("../schemas/v2.4.json")),
-    ("2.5", include_str!("../schemas/v2.5.json")),
-    ("2.5.1", include_str!("../schemas/v2.5.1.json")),
-    ("2.6", include_str!("../schemas/v2.6.json")),
-    ("2.7", include_str!("../schemas/v2.7.json")),
-    ("2.8", include_str!("../schemas/v2.8.json")),
-    ("2.9", include_str!("../schemas/v2.9.json")),
-];
+/// One bundled dictionary file and its lazily parsed form. Parsing v2.5
+/// takes long enough (it is the largest file) that doing it once per
+/// process, not once per message, is worth the `OnceLock`.
+struct Bundled {
+    name: &'static str,
+    text: &'static str,
+    loaded: OnceLock<Result<Arc<Dictionary>, crate::dictionary::Error>>,
+}
 
-/// One lazily parsed dictionary per bundled file. Parsing v2.5 takes long
-/// enough (it is the largest file) that doing it once per process, not once
-/// per message, is worth the `OnceLock`.
-static LOADED: [OnceLock<Arc<Dictionary>>; FILES.len()] = [const { OnceLock::new() }; FILES.len()];
+/// The bundled dictionary files. Several releases can share one file: a
+/// point release that changed nothing this crate models does not need a
+/// dictionary of its own ([`Version::bundled`] says which).
+static FILES: [Bundled; 11] = [
+    Bundled {
+        name: "2.1",
+        text: include_str!("../schemas/v2.1.json"),
+        loaded: OnceLock::new(),
+    },
+    Bundled {
+        name: "2.2",
+        text: include_str!("../schemas/v2.2.json"),
+        loaded: OnceLock::new(),
+    },
+    Bundled {
+        name: "2.3",
+        text: include_str!("../schemas/v2.3.json"),
+        loaded: OnceLock::new(),
+    },
+    Bundled {
+        name: "2.3.1",
+        text: include_str!("../schemas/v2.3.1.json"),
+        loaded: OnceLock::new(),
+    },
+    Bundled {
+        name: "2.4",
+        text: include_str!("../schemas/v2.4.json"),
+        loaded: OnceLock::new(),
+    },
+    Bundled {
+        name: "2.5",
+        text: include_str!("../schemas/v2.5.json"),
+        loaded: OnceLock::new(),
+    },
+    Bundled {
+        name: "2.5.1",
+        text: include_str!("../schemas/v2.5.1.json"),
+        loaded: OnceLock::new(),
+    },
+    Bundled {
+        name: "2.6",
+        text: include_str!("../schemas/v2.6.json"),
+        loaded: OnceLock::new(),
+    },
+    Bundled {
+        name: "2.7",
+        text: include_str!("../schemas/v2.7.json"),
+        loaded: OnceLock::new(),
+    },
+    Bundled {
+        name: "2.8",
+        text: include_str!("../schemas/v2.8.json"),
+        loaded: OnceLock::new(),
+    },
+    Bundled {
+        name: "2.9",
+        text: include_str!("../schemas/v2.9.json"),
+        loaded: OnceLock::new(),
+    },
+];
 
 impl Version {
     /// The release string as MSH-12.1 spells it, e.g. `"2.5.1"`.
@@ -151,42 +198,47 @@ impl Version {
     /// The bundled dictionary for this release.
     ///
     /// Parsed on first use and shared thereafter; the returned `Arc` is
-    /// cheap to clone and is what a [`crate::Message`] holds.
-    /// # Panics
+    /// cheap to clone and is what a [`crate::Message`] holds. The outcome
+    /// is cached either way, so a file that failed to load fails the same way
+    /// on every call rather than being parsed again.
+    /// # Errors
     ///
-    /// Never in practice: the bundled dictionaries are embedded at compile
-    /// time and parsed on first use, so a failure here would mean this
-    /// crate shipped a malformed one.
-    pub fn dictionary(self) -> Arc<Dictionary> {
-        let index = self.file_index();
-        LOADED[index]
+    /// [`Error::Dictionary`](crate::Error::Dictionary) when the bundled
+    /// file does not load. The bundled files are embedded at compile time and
+    /// `bundled_dictionaries_all_load` loads every one, so this would mean
+    /// the crate shipped a malformed file; it is reported, never a panic
+    /// (`spec/rust-checked-arithmetic` RCA-P-1).
+    pub fn dictionary(self) -> Result<Arc<Dictionary>, crate::Error> {
+        let file = self.bundled();
+        file.loaded
             .get_or_init(|| {
-                let (name, text) = FILES[index];
-                // A bundled dictionary that does not parse is a bug in this
-                // crate, caught by `bundled_dictionaries_all_load` below,
-                // not something a caller can act on.
-                let dictionary =
-                    Dictionary::from_json_resolving(text, format!("v{name}"), |base| {
-                        Version::parse(base).map(Version::dictionary)
-                    })
-                    .expect("bundled dictionary must be valid");
-                Arc::new(dictionary)
+                Dictionary::from_json_resolving(file.text, format!("v{}", file.name), |base| {
+                    Version::parse(base).and_then(|base| base.dictionary().ok())
+                })
+                .map(Arc::new)
             })
             .clone()
+            .map_err(crate::Error::Dictionary)
     }
 
     /// Which bundled file backs this release. Point releases that changed
-    /// nothing this crate models share their base release's file.
-    fn file_index(self) -> usize {
-        let name = match self {
-            V2_7_1 => "2.7",
-            V2_8_1 | V2_8_2 => "2.8",
-            other => other.as_str(),
-        };
-        FILES
-            .iter()
-            .position(|(file, _)| *file == name)
-            .expect("every release maps to a bundled file")
+    /// nothing this crate models share their base release's file. Every
+    /// index is a constant inside the array, so the compiler checks it.
+    #[must_use]
+    fn bundled(self) -> &'static Bundled {
+        match self {
+            V2_1 => &FILES[0],
+            V2_2 => &FILES[1],
+            V2_3 => &FILES[2],
+            V2_3_1 => &FILES[3],
+            V2_4 => &FILES[4],
+            V2_5 => &FILES[5],
+            V2_5_1 => &FILES[6],
+            V2_6 => &FILES[7],
+            V2_7 | V2_7_1 => &FILES[8],
+            V2_8 | V2_8_1 | V2_8_2 => &FILES[9],
+            V2_9 => &FILES[10],
+        }
     }
 }
 
@@ -289,11 +341,21 @@ mod tests {
     }
 
     #[test]
+    fn an_unknown_version_names_itself_and_the_known_ones() {
+        let message = UnknownVersion("9.9".to_string()).to_string();
+        assert!(message.contains("unknown HL7 version \"9.9\""), "{message}");
+        assert!(
+            message.contains("2.5") && message.contains("2.9"),
+            "{message}"
+        );
+    }
+
+    #[test]
     fn bundled_dictionaries_all_load() {
         // Every release resolves to a dictionary that knows MSH, whether it
         // has a file of its own or shares its base release's.
         for &version in ALL {
-            let dictionary = version.dictionary();
+            let dictionary = version.dictionary().unwrap();
             assert!(
                 dictionary.segment_fields("MSH").is_some(),
                 "v{version} has no MSH"

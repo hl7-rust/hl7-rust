@@ -104,7 +104,9 @@ A sender controls all three strings, so a malformed or hostile message can
 place arbitrary text in them. Every other diagnostic kind reports a location
 and a description of the problem, not the content at that location. The
 `serde-hl7-v2` diagnostic wrapper serializes both `path` and `detail`, so
-the same three kinds reach any serialized output. Logging every warning, or
+the same three kinds reach any serialized output. Its `RedactedDiagnostic`
+is the log-safe counterpart: its `Serialize`, `Debug`, and `Display` all
+write only severity, kind, and the redacted path. Logging every warning, or
 stripping only the value from `ValueFormat`, therefore still leaves a route
 for message text into a log collector.
 
@@ -193,6 +195,12 @@ property of MLLP as specified, not a shortcut taken here.
 `hl7-2-soap` builds and parses SOAP envelopes. It contains no HTTP client
 and no HTTP server; its only dependency is the shared XML reader. You do
 the HTTP with whatever your organization has approved.
+
+A receiver's SOAP fault and status text are the peer's words, and a fault
+string often echoes the content it refused. `response::evaluate` in
+`hl7-2-soap` and `hl7-3-soap` returns that text in `Outcome::Rejected`;
+`response::evaluate_correlated` returns fixed reasons only, so its outcome
+is the one to log.
 
 The practical consequence for a deployment review: the network posture of a
 system built on these crates is decided entirely by the code around them,

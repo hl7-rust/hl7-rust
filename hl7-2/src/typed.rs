@@ -247,8 +247,8 @@ macro_rules! scalars {
             fn to_hl7_value(&self, message: &mut Message, path: &str) -> Result<(), Error> {
                 // Repetitions are written as `path[n]`, so the path must
                 // not already fix one.
-                for (index, value) in self.iter().enumerate() {
-                    let path = crate::typed::with_repetition(path, index + 1)?;
+                for (repetition, value) in (1_usize..).zip(self.iter()) {
+                    let path = crate::typed::with_repetition(path, repetition)?;
                     value.to_hl7_value(message, &path)?;
                 }
                 Ok(())

@@ -42,8 +42,8 @@ Each module is behind a Cargo feature of the same name, both on by default:
 
 ```toml
 [dependencies]
-serde-hl7 = "0.1"                                                          # v2 and v3
-serde-hl7 = { version = "0.1", default-features = false, features = ["v2"] }  # v2 only
+serde-hl7 = "0.2"                                                          # v2 and v3
+serde-hl7 = { version = "0.2", default-features = false, features = ["v2"] }  # v2 only
 ```
 
 Or depend on [`serde-hl7-v2`](../serde-hl7-v2) or

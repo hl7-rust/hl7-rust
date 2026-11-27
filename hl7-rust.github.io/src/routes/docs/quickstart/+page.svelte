@@ -89,7 +89,7 @@ match v2::parse_with_options(&text, &options) {
     Err(other) => { /* not a message at all */ }
 }`;
 
-  const answer = `let ack = v2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")
+  const answer = `let ack = v2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")?
     .build_valid()?;
 
 // MSA-2 echoes the control ID of the message being answered. That echo is

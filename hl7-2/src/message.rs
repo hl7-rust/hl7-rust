@@ -44,7 +44,7 @@ impl Message {
         let version = options.version.unwrap_or(nearest);
         let dictionary = match &options.dictionary {
             Some(dictionary) => Arc::clone(dictionary),
-            None => version.dictionary(),
+            None => version.dictionary()?,
         };
         let message = Message {
             raw,
@@ -179,8 +179,15 @@ impl Message {
             std::collections::BTreeMap::default();
         for segment in &self.raw.segments {
             let count = counts.entry(segment.name.as_str()).or_default();
-            *count += 1;
-            occurrences.push(*count);
+            // RCA-EXC-2: a count of the elements of `self.raw.segments`, so
+            // at most its length, which is at most `isize::MAX`.
+            #[expect(
+                clippy::arithmetic_side_effects,
+                reason = "RCA-EXC-2: counts elements of a slice, proof above"
+            )]
+            let next = *count + 1;
+            *count = next;
+            occurrences.push(next);
         }
         let nodes: Vec<Node> = self
             .raw
@@ -292,12 +299,12 @@ impl Message {
             return self.get_all(path);
         }
         let mut values = Vec::new();
-        let mut occurrence = 0;
-        for segment in &self.raw.segments {
-            if segment.name != parsed.segment {
-                continue;
-            }
-            occurrence += 1;
+        let named = self
+            .raw
+            .segments
+            .iter()
+            .filter(|segment| segment.name == parsed.segment);
+        for (occurrence, segment) in (1_usize..).zip(named) {
             if parsed
                 .segment_occurrence
                 .is_some_and(|wanted| wanted != occurrence)
@@ -488,12 +495,10 @@ impl Message {
     /// # Ok::<(), hl7_2::Error>(())
     /// ```
     pub fn append_segment(&mut self, name: &str) -> &mut Segment {
-        self.raw.segments.push(Segment {
+        self.raw.segments.push_mut(Segment {
             name: name.to_string(),
             fields: Vec::new(),
-        });
-        let last = self.raw.segments.len() - 1;
-        &mut self.raw.segments[last]
+        })
     }
 
     /// Insert an empty segment named `name` at `index` in the segment list.
@@ -512,26 +517,25 @@ impl Message {
                 "segment index {index} is outside 1..={count}"
             )));
         }
-        self.raw.segments.insert(
+        Ok(self.raw.segments.insert_mut(
             index,
             Segment {
                 name: name.to_string(),
                 fields: Vec::new(),
             },
-        );
-        Ok(&mut self.raw.segments[index])
+        ))
     }
 
     /// Remove the `occurrence`-th (1-based) segment named `name`, returning
     /// it. The MSH header cannot be removed.
     pub fn remove_segment(&mut self, name: &str, occurrence: usize) -> Option<Segment> {
-        let mut seen = 0;
-        let index = self.raw.segments.iter().position(|segment| {
-            if segment.name == name {
-                seen += 1;
-            }
-            seen == occurrence && segment.name == name
-        })?;
+        let (index, _) = self
+            .raw
+            .segments
+            .iter()
+            .enumerate()
+            .filter(|(_, segment)| segment.name == name)
+            .nth(occurrence.checked_sub(1)?)?;
         if index == 0 {
             return None;
         }
@@ -542,10 +546,11 @@ impl Message {
     /// header is never removed.
     pub fn remove_segments(&mut self, name: &str) -> usize {
         let before = self.raw.segments.len();
-        let mut index = 0;
+        let mut header = true;
         self.raw.segments.retain(|segment| {
-            index += 1;
-            index == 1 || segment.name != name
+            let keep = header || segment.name != name;
+            header = false;
+            keep
         });
         // Retaining never grows the list, so the difference is the count removed.
         before.abs_diff(self.raw.segments.len())
@@ -647,11 +652,15 @@ fn component_from(text: &str, separators: &Separators) -> er7::Component {
 fn build(layout: &[Layout], nodes: &[Node], root_name: &str) -> Vec<Node> {
     layout
         .iter()
-        .map(|item| match item {
-            Layout::Segment(index) => nodes[*index].clone(),
-            Layout::Group { name, items } => {
-                generic::group(root_name, name, build(items, nodes, root_name))
-            }
+        // A layout index always names one of `nodes` (the matcher built it
+        // from them); `get` keeps that a fact about the data, not a panic.
+        .filter_map(|item| match item {
+            Layout::Segment(index) => nodes.get(*index).cloned(),
+            Layout::Group { name, items } => Some(generic::group(
+                root_name,
+                name,
+                build(items, nodes, root_name),
+            )),
         })
         .collect()
 }
@@ -862,6 +871,13 @@ mod tests {
         // The header stays put whatever is asked.
         assert_eq!(message.remove_segments("MSH"), 0);
         assert!(message.remove_segment("MSH", 1).is_none());
+    }
+
+    #[test]
+    fn reports_the_delimiters_the_message_declared() {
+        let message = crate::parse("MSH#*~\\&#A#B#C#D#20260101##ADT*A01#1#P#2.5").unwrap();
+        let separators = message.separators();
+        assert_eq!((separators.field, separators.component), ('#', '*'));
     }
 
     #[test]

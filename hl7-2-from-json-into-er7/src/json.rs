@@ -65,11 +65,7 @@ impl std::error::Error for JsonError {}
 pub fn parse_document(text: &str) -> Result<Value, JsonError> {
     let mut cursor = Cursor {
         s: text,
-        pos: if text.starts_with('\u{feff}') {
-            '\u{feff}'.len_utf8()
-        } else {
-            0
-        },
+        rest: text.strip_prefix('\u{feff}').unwrap_or(text),
         depth: 0,
     };
     cursor.skip_ws();
@@ -79,10 +75,7 @@ pub fn parse_document(text: &str) -> Result<Value, JsonError> {
     let value = cursor.parse_value()?;
     cursor.skip_ws();
     if !cursor.at_end() {
-        return Err(JsonError::Malformed(
-            "trailing data after the JSON value".into(),
-            cursor.pos,
-        ));
+        return Err(cursor.err("trailing data after the JSON value"));
     }
     Ok(value)
 }
@@ -99,41 +92,60 @@ const MAX_DEPTH: usize = 256;
 
 struct Cursor<'a> {
     s: &'a str,
-    pos: usize,
+    /// The unread part of `s`, always a suffix of it. Holding the suffix
+    /// rather than a byte offset means reading never does offset arithmetic
+    /// or slices at an index (RCA-LEN-2).
+    rest: &'a str,
     depth: usize,
 }
 
-impl<'a> Cursor<'a> {
-    fn rest(&self) -> &'a str {
-        &self.s[self.pos..]
+impl Cursor<'_> {
+    /// The byte offset of the unread part, for error messages.
+    fn position(&self) -> usize {
+        // `rest` is a suffix of `s`, so the difference is the bytes read.
+        self.s.len().abs_diff(self.rest.len())
     }
 
     fn at_end(&self) -> bool {
-        self.pos >= self.s.len()
+        self.rest.is_empty()
     }
 
     fn peek(&self) -> Option<char> {
-        self.rest().chars().next()
+        self.rest.chars().next()
     }
 
     fn advance_char(&mut self) {
-        if let Some(c) = self.peek() {
-            self.pos += c.len_utf8();
+        let mut chars = self.rest.chars();
+        chars.next();
+        self.rest = chars.as_str();
+    }
+
+    /// Consume `prefix` if the unread text starts with it.
+    fn eat(&mut self, prefix: &str) -> bool {
+        match self.rest.strip_prefix(prefix) {
+            Some(tail) => {
+                self.rest = tail;
+                true
+            }
+            None => false,
         }
     }
 
-    fn starts_with(&self, pat: &str) -> bool {
-        self.rest().starts_with(pat)
+    /// [`Cursor::eat`], also appending what was consumed to `out`.
+    fn eat_into(&mut self, out: &mut String, prefix: &str) -> bool {
+        let eaten = self.eat(prefix);
+        if eaten {
+            out.push_str(prefix);
+        }
+        eaten
     }
 
     fn skip_ws(&mut self) {
-        let trimmed = self.rest().trim_start_matches([' ', '\t', '\n', '\r']);
-        // `trimmed` is a suffix of `s`, so the difference is the bytes skipped.
-        self.pos = self.s.len().abs_diff(trimmed.len());
+        self.rest = self.rest.trim_start_matches([' ', '\t', '\n', '\r']);
     }
 
     fn err(&self, reason: &str) -> JsonError {
-        JsonError::Malformed(reason.to_string(), self.pos)
+        JsonError::Malformed(reason.to_string(), self.position())
     }
 
     fn expect(&mut self, c: char) -> Result<(), JsonError> {
@@ -151,18 +163,9 @@ impl<'a> Cursor<'a> {
             Some('{') => self.nested(Cursor::parse_object),
             Some('[') => self.nested(Cursor::parse_array),
             Some('"') => self.parse_string().map(Value::String),
-            Some('t') if self.starts_with("true") => {
-                self.pos += 4;
-                Ok(Value::Bool(true))
-            }
-            Some('f') if self.starts_with("false") => {
-                self.pos += 5;
-                Ok(Value::Bool(false))
-            }
-            Some('n') if self.starts_with("null") => {
-                self.pos += 4;
-                Ok(Value::Null)
-            }
+            Some('t') if self.eat("true") => Ok(Value::Bool(true)),
+            Some('f') if self.eat("false") => Ok(Value::Bool(false)),
+            Some('n') if self.eat("null") => Ok(Value::Null),
             Some(c) if c == '-' || c.is_ascii_digit() => self.parse_number(),
             _ => Err(self.err("expected a JSON value")),
         }
@@ -177,9 +180,18 @@ impl<'a> Cursor<'a> {
         if self.depth >= MAX_DEPTH {
             return Err(self.err(&format!("nested more than {MAX_DEPTH} deep")));
         }
-        self.depth += 1;
-        let value = read(self);
-        self.depth -= 1;
+        // RCA-EXC-2: `depth < MAX_DEPTH` was checked just above, so the
+        // increment is at most `MAX_DEPTH` and the decrement undoes it.
+        #[expect(
+            clippy::arithmetic_side_effects,
+            reason = "RCA-EXC-2: depth is below MAX_DEPTH here, proof above"
+        )]
+        let value = {
+            self.depth += 1;
+            let value = read(self);
+            self.depth -= 1;
+            value
+        };
         value
     }
 
@@ -277,68 +289,64 @@ impl<'a> Cursor<'a> {
 
     fn read_unicode_escape(&mut self) -> Result<char, JsonError> {
         let first = self.read_hex4()?;
-        let scalar = if (0xD800..=0xDBFF).contains(&first) {
-            if !self.starts_with(r"\u") {
-                return Err(self.err("expected a low surrogate"));
-            }
-            self.pos += 2;
-            let low = self.read_hex4()?;
-            if !(0xDC00..=0xDFFF).contains(&low) {
-                return Err(self.err("invalid low surrogate"));
-            }
-            0x10000 + (u32::from(first - 0xD800) << 10) + u32::from(low - 0xDC00)
-        } else {
-            u32::from(first)
-        };
-        char::from_u32(scalar).ok_or_else(|| self.err("unpaired low surrogate"))
+        if !(0xD800..=0xDBFF).contains(&first) {
+            return char::from_u32(u32::from(first))
+                .ok_or_else(|| self.err("unpaired low surrogate"));
+        }
+        if !self.eat(r"\u") {
+            return Err(self.err("expected a low surrogate"));
+        }
+        let low = self.read_hex4()?;
+        // UTF-16 decoding combines the pair without any arithmetic here, and
+        // rejects a second unit that is not a low surrogate.
+        char::decode_utf16([first, low])
+            .next()
+            .and_then(Result::ok)
+            .ok_or_else(|| self.err("invalid low surrogate"))
     }
 
     /// Read exactly four hex digits (a `\u` escape's payload) and advance
     /// past them.
     fn read_hex4(&mut self) -> Result<u16, JsonError> {
-        let rest = self.rest();
-        if rest.len() < 4 || !rest.is_char_boundary(4) {
+        let Some((digits, tail)) = self.rest.split_at_checked(4) else {
             return Err(self.err("truncated \\u escape"));
-        }
-        let digits = &rest[..4];
+        };
         if !digits.bytes().all(|byte| byte.is_ascii_hexdigit()) {
             return Err(self.err("invalid \\u escape"));
         }
         let value = u16::from_str_radix(digits, 16).map_err(|_| self.err("invalid \\u escape"))?;
-        self.pos += 4;
+        self.rest = tail;
         Ok(value)
     }
 
+    /// A number, kept as the text it was written as. Each part is appended
+    /// as it is read, so the text is never sliced back out of the input.
     fn parse_number(&mut self) -> Result<Value, JsonError> {
-        let start = self.pos;
-        if self.peek() == Some('-') {
-            self.pos += 1;
+        let mut number = String::new();
+        self.eat_into(&mut number, "-");
+        if !self.eat_into(&mut number, "0") {
+            self.read_digits(&mut number)?;
         }
-        if self.peek() == Some('0') {
-            self.pos += 1;
-        } else {
-            self.read_digits()?;
+        if self.eat_into(&mut number, ".") {
+            self.read_digits(&mut number)?;
         }
-        if self.peek() == Some('.') {
-            self.pos += 1;
-            self.read_digits()?;
-        }
-        if matches!(self.peek(), Some('e' | 'E')) {
-            self.pos += 1;
-            if matches!(self.peek(), Some('+' | '-')) {
-                self.pos += 1;
+        if self.eat_into(&mut number, "e") || self.eat_into(&mut number, "E") {
+            if !self.eat_into(&mut number, "+") {
+                self.eat_into(&mut number, "-");
             }
-            self.read_digits()?;
+            self.read_digits(&mut number)?;
         }
-        Ok(Value::Number(self.s[start..self.pos].to_string()))
+        Ok(Value::Number(number))
     }
 
-    fn read_digits(&mut self) -> Result<(), JsonError> {
-        let start = self.pos;
-        while matches!(self.peek(), Some('0'..='9')) {
-            self.pos += 1;
+    fn read_digits(&mut self, out: &mut String) -> Result<(), JsonError> {
+        let mut any = false;
+        while let Some(digit) = self.peek().filter(char::is_ascii_digit) {
+            out.push(digit);
+            self.advance_char();
+            any = true;
         }
-        if self.pos == start {
+        if !any {
             return Err(self.err("expected a digit in number"));
         }
         Ok(())
@@ -348,6 +356,29 @@ impl<'a> Cursor<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn many_sibling_containers_do_not_count_as_nesting() {
+        // The depth goes back down after each container, so 300 empty arrays
+        // side by side (more than MAX_DEPTH) are fine, while 300 nested are not.
+        let siblings = format!("[{}]", vec!["[]"; 300].join(","));
+        assert!(parse_document(&siblings).is_ok());
+        let nested = format!("{}{}", "[".repeat(300), "]".repeat(300));
+        assert!(parse_document(&nested).is_err());
+    }
+
+    #[test]
+    fn a_value_that_is_not_a_number_is_not_read_as_one() {
+        for text in ["x", "+1", ".5", "tru", "nul"] {
+            assert!(
+                matches!(
+                    parse_document(text),
+                    Err(JsonError::Malformed(ref reason, _)) if reason == "expected a JSON value"
+                ),
+                "{text:?}"
+            );
+        }
+    }
 
     #[test]
     fn parses_scalars() {
@@ -430,11 +461,28 @@ mod tests {
 
         let mut empty = Cursor {
             s: "",
-            pos: 0,
+            rest: "",
             depth: 0,
         };
         empty.advance_char();
-        assert_eq!(empty.pos, 0);
+        assert_eq!(empty.position(), 0);
+    }
+
+    #[test]
+    fn numbers_keep_the_text_they_were_written_as() {
+        for text in [
+            "0", "-0", "7", "-12", "3.25", "1e9", "1E+9", "2.5e-3", "-0.0E0",
+        ] {
+            assert!(
+                matches!(parse_document(text), Ok(Value::Number(number)) if number == text),
+                "{text}"
+            );
+        }
+        for text in ["-", "1.", "1e", "1e+", "-x", ".5"] {
+            assert!(parse_document(text).is_err(), "{text:?}");
+        }
+        // A pair whose second unit is not a low surrogate is rejected.
+        assert!(parse_document(r#""\uD83D\u0041""#).is_err());
     }
 
     #[test]

@@ -1,3 +1,15 @@
+// RCA-EXC-5: test code may use plain operators, `unwrap` and `expect`.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing,
+    clippy::string_slice,
+    clippy::arithmetic_side_effects,
+    clippy::integer_division,
+    clippy::default_numeric_fallback,
+    reason = "RCA-EXC-5: test code may use plain operators, unwrap and expect"
+)]
 use hl7_2_from_xml_into_er7::{convert, convert_with_options, er7::RenderOptions, er7::Terminator};
 
 /// The exact v2.xml document the sibling `hl7-2-from-er7-into-xml`
@@ -204,6 +216,16 @@ fn cli_options_output_and_usage_errors_are_covered() {
                 .success()
         );
     }
+    let unknown = Command::new(binary)
+        .arg("--unknown")
+        .stdin(Stdio::null())
+        .output()
+        .unwrap();
+    assert!(
+        String::from_utf8(unknown.stderr)
+            .unwrap()
+            .contains("unknown option")
+    );
     for args in [
         &["--unknown"][..],
         &["--output"][..],

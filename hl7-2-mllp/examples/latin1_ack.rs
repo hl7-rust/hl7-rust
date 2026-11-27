@@ -2,6 +2,19 @@
 //!
 //! Run with: cargo run -p hl7-2-mllp --example latin1_ack
 
+// RCA-EXC-5: test code may use plain operators, `unwrap` and `expect`.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing,
+    clippy::string_slice,
+    clippy::arithmetic_side_effects,
+    clippy::integer_division,
+    clippy::default_numeric_fallback,
+    reason = "RCA-EXC-5: test code may use plain operators, unwrap and expect"
+)]
+
 use hl7_2_mllp::{AckCode, ack, decode, encode};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

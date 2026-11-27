@@ -95,11 +95,10 @@ pub fn segment_to_node(seg: &Segment, separators: &Separators) -> Node {
     } else {
         None
     };
-    for (i, field) in seg.fields.iter().enumerate() {
+    for (n, field) in (1_usize..).zip(&seg.fields) {
         if field.is_empty() {
             continue;
         }
-        let n = i + 1;
         let name = format!("{seg_name}.{n}");
         let dt = match field_type(&seg.name, n) {
             Some("VAR") => obx_type.as_deref(),
@@ -121,15 +120,14 @@ fn repeat_node(name: &str, dt: Option<&str>, rep: &Repetition, separators: &Sepa
     if rep.is_null() {
         return Node::group(name);
     }
-    if let Some(comps) = dt.and_then(composite_components) {
+    if let Some((dt, comps)) = dt.and_then(|dt| composite_components(dt).map(|comps| (dt, comps))) {
         // Known composite type: children named after the type's components.
-        let dt = dt.unwrap();
         let mut node = Node::group(name);
-        for (ci, comp) in rep.components.iter().enumerate() {
+        for ((ci, number), comp) in (0_usize..).zip(1_usize..).zip(&rep.components) {
             if comp.is_empty() {
                 continue;
             }
-            let cname = format!("{}.{}", dt, ci + 1);
+            let cname = format!("{dt}.{number}");
             node.kids.push(component_node(
                 &cname,
                 comps.get(ci).copied(),
@@ -147,11 +145,11 @@ fn repeat_node(name: &str, dt: Option<&str>, rep: &Repetition, separators: &Sepa
     }
     // Unknown structure: positional generic names SEG.n.m / SEG.n.m.k.
     let mut node = Node::group(name);
-    for (ci, comp) in rep.components.iter().enumerate() {
+    for (number, comp) in (1_usize..).zip(&rep.components) {
         if comp.is_empty() {
             continue;
         }
-        let cname = format!("{}.{}", name, ci + 1);
+        let cname = format!("{name}.{number}");
         node.kids
             .push(generic_component_node(&cname, comp, separators));
     }
@@ -168,12 +166,12 @@ fn component_node(
         // Composite component: subcomponents named after its own components,
         // e.g. XPN.1 containing FN.1, or CX.4 containing HD.1/HD.2/HD.3.
         let mut node = Node::group(cname);
-        for (si, sub) in comp.subcomponents.iter().enumerate() {
+        for (number, sub) in (1_usize..).zip(&comp.subcomponents) {
             if sub.is_empty() {
                 continue;
             }
             node.kids.push(Node::leaf(
-                format!("{}.{}", cdt, si + 1),
+                format!("{cdt}.{number}"),
                 &sub.value(separators),
             ));
         }
@@ -190,12 +188,12 @@ fn generic_component_node(cname: &str, comp: &Component, separators: &Separators
         return Node::leaf(cname, &sub.value(separators));
     }
     let mut node = Node::group(cname);
-    for (si, sub) in comp.subcomponents.iter().enumerate() {
+    for (number, sub) in (1_usize..).zip(&comp.subcomponents) {
         if sub.is_empty() {
             continue;
         }
         node.kids.push(Node::leaf(
-            format!("{}.{}", cname, si + 1),
+            format!("{cname}.{number}"),
             &sub.value(separators),
         ));
     }
@@ -247,20 +245,19 @@ pub fn node_to_value(node: &Node) -> Value {
 /// that appears once maps directly to its value, a name that appears more
 /// than once maps to a `Value::Array` of each occurrence's value, in order.
 fn group_children(nodes: &[Node]) -> Vec<(String, Value)> {
-    let mut order: Vec<&str> = Vec::new();
+    // `groups` is itself in first-appearance order: a name is pushed the
+    // first time it is seen and only extended after that.
     let mut groups: Vec<(&str, Vec<&Node>)> = Vec::new();
     for node in nodes {
         if let Some((_, kids)) = groups.iter_mut().find(|(name, _)| *name == node.name) {
             kids.push(node);
         } else {
-            order.push(&node.name);
             groups.push((&node.name, vec![node]));
         }
     }
-    order
+    groups
         .into_iter()
-        .map(|name| {
-            let occurrences = &groups.iter().find(|(n, _)| *n == name).unwrap().1;
+        .map(|(name, occurrences)| {
             let value = if let [only] = occurrences.as_slice() {
                 node_to_value(only)
             } else {
@@ -276,7 +273,7 @@ fn group_children(nodes: &[Node]) -> Vec<(String, Value)> {
 #[must_use]
 pub fn render_pretty(value: &Value) -> String {
     let mut out = String::new();
-    write_pretty(value, 0, &mut out);
+    write_pretty(value, "", &mut out);
     out.push('\n');
     out
 }
@@ -290,38 +287,39 @@ pub fn render_compact(value: &Value) -> String {
     out
 }
 
-fn write_pretty(value: &Value, depth: usize, out: &mut String) {
-    let pad = "  ".repeat(depth);
-    let inner_pad = "  ".repeat(depth + 1);
+/// `pad` is the indentation of the line this value closes on; each level
+/// of nesting adds two spaces to it, so no depth is counted.
+fn write_pretty(value: &Value, pad: &str, out: &mut String) {
+    let inner_pad = format!("{pad}  ");
     match value {
         Value::Object(entries) if entries.is_empty() => out.push_str("{}"),
         Value::Object(entries) => {
             out.push_str("{\n");
             for (i, (key, val)) in entries.iter().enumerate() {
+                if i > 0 {
+                    out.push_str(",\n");
+                }
                 out.push_str(&inner_pad);
                 write_string(key, out);
                 out.push_str(": ");
-                write_pretty(val, depth + 1, out);
-                if i + 1 < entries.len() {
-                    out.push(',');
-                }
-                out.push('\n');
+                write_pretty(val, &inner_pad, out);
             }
-            out.push_str(&pad);
+            out.push('\n');
+            out.push_str(pad);
             out.push('}');
         }
         Value::Array(items) if items.is_empty() => out.push_str("[]"),
         Value::Array(items) => {
             out.push_str("[\n");
             for (i, item) in items.iter().enumerate() {
-                out.push_str(&inner_pad);
-                write_pretty(item, depth + 1, out);
-                if i + 1 < items.len() {
-                    out.push(',');
+                if i > 0 {
+                    out.push_str(",\n");
                 }
-                out.push('\n');
+                out.push_str(&inner_pad);
+                write_pretty(item, &inner_pad, out);
             }
-            out.push_str(&pad);
+            out.push('\n');
+            out.push_str(pad);
             out.push(']');
         }
         Value::String(s) => write_string(s, out),
@@ -382,6 +380,24 @@ fn write_string(s: &str, out: &mut String) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn pretty_output_is_exact_for_empty_and_multi_item_containers() {
+        let text = |s: &str| Value::String(s.to_string());
+        assert_eq!(render_pretty(&Value::Object(vec![])), "{}\n");
+        assert_eq!(render_pretty(&Value::Array(vec![])), "[]\n");
+        assert_eq!(
+            render_pretty(&Value::Array(vec![text("a"), text("b"), text("c")])),
+            "[\n  \"a\",\n  \"b\",\n  \"c\"\n]\n"
+        );
+        assert_eq!(
+            render_pretty(&Value::Object(vec![
+                ("x".into(), text("1")),
+                ("y".into(), Value::Array(vec![])),
+            ])),
+            "{\n  \"x\": \"1\",\n  \"y\": []\n}\n"
+        );
+    }
 
     #[test]
     fn collapses_repeated_names_into_arrays() {

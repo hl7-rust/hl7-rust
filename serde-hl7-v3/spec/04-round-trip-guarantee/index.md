@@ -20,6 +20,14 @@ type, and for an `Element` tree with attributes and children at several
 depths; `src/element.rs`'s `round_trips_a_tree` adds text beside
 children.
 
+"Any format" includes non-self-describing ones (`bincode`, `postcard`),
+which hand a struct to its visitor as a sequence of fields in serialization
+order rather than as a map. Every object wrapper's visitor therefore accepts
+both (`visit_map` and `visit_seq`, both written by the one macro, S15); a
+positional record that ends early is an `invalid_length` error, whatever
+the missing field's mode. The integration tests run every JSON round trip
+through `postcard` as well (`postcard` is a dev-dependency only, S2).
+
 ## 4.2 What is not promised: XML
 
 HL7® v3's own serialization is XML, and a natural question is whether

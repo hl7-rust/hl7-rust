@@ -212,7 +212,7 @@ let er7 = message.to_er7();             // valid ER7, ready to send
 ```
 
 ```rust
-let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")
+let ack = hl7_2::builder::acknowledge(&message, "AA", "ACK00001", "20260814080100")?
     .build_valid()?;
 assert_eq!(ack.get("MSA-2")?.as_deref(), Some("MSG00042"));
 ```

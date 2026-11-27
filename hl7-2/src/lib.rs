@@ -13,7 +13,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! hl7 = "0.2"
+//! hl7 = "0.3"
 //! ```
 //!
 //! # Trademarks
@@ -328,6 +328,13 @@ pub fn split_messages(text: &str) -> Vec<String> {
 /// Tidy input before parsing: drop a byte-order mark, split on either
 /// terminator, trim each line, drop blank ones, and rejoin with `\r`.
 ///
+/// Trimming removes leading and trailing whitespace in the full Unicode
+/// sense (`char::is_whitespace`, the `White_Space` property: space, tab,
+/// no-break space, ideographic space, and the rest), so the only value it can
+/// touch is the last one in a segment. HL7 v2 permits that: ST, and so ID and
+/// IS, has "trailing blanks optional", and TX says "Trailing spaces should be
+/// removed" (v2.5 chapter 2A, 2.A.74, 2.A.35, 2.A.36, 2.A.78); spec §2.1.
+///
 /// `er7` deliberately trims nothing, because it guarantees a message it
 /// parses can be written back byte for byte and it cannot know whether a
 /// trailing space is data. This crate makes the same round-trip promise for
@@ -351,6 +358,11 @@ mod tests {
     fn normalizes_before_parsing() {
         assert_eq!(normalize("MSH|A\r\n\r\n  PID|1  \n"), "MSH|A\rPID|1");
         assert_eq!(normalize("\u{feff}MSH|A"), "MSH|A");
+        // Leading and trailing whitespace in the Unicode sense, not only ASCII.
+        assert_eq!(
+            normalize("\u{3000}\t MSH|A\rPID|1|SMITH\u{a0}\u{2003}\t"),
+            "MSH|A\rPID|1|SMITH"
+        );
         // Which means an indented message still parses, where the `er7`
         // parser alone would report a missing header.
         assert!(parse("  MSH|^~\\&|APP||||1||ACK|1|P|2.5\r  MSA|AA|1").is_ok());

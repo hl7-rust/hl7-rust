@@ -55,6 +55,7 @@ same one (S1, S2, S7–S13), so the two crates can be discussed together.
 | S13 | `Strict<T>` (`T` in `Message`, `Node`, `Diagnostic`) rejects an unknown field instead of ignoring it; `T::deserialize` alone stays tolerant (S8), and node strictness applies recursively | [§11](11-strict-mode/index.md) |
 | S15 | `Message::seed(&options)` deserializes under the caller's `hl7_2::Options`; an `Options::version` set there wins over the wire's `"version"`, and `"version"` is otherwise optional, falling back to MSH-12 | [§2](02-wire-shapes/index.md), [§4](04-round-trip-guarantee/index.md) |
 | S16 | `RedactedDiagnostic` serializes a finding as `{"severity", "kind", "path"}` with no `"detail"` and any segment name taken from the message masked as `?`; it is serialize-only | [§2](02-wire-shapes/index.md) |
+| S17 | `Message`, `Node`, and `Diagnostic` round-trip through a non-self-describing format (`bincode`, `postcard`) as well as through JSON: each struct visitor reads its fields positionally (`visit_seq`), in the order they are serialized, as well as by name (`visit_map`) | [§2](02-wire-shapes/index.md), [§4](04-round-trip-guarantee/index.md) |
 
 ## Which goal wins when two conflict
 

@@ -86,7 +86,7 @@ fn main() -> ExitCode {
     }
     let options = hl7_2_from_er7_into_json::Options { flat, compact };
     let mut documents = Vec::with_capacity(messages.len());
-    for (i, message) in messages.iter().enumerate() {
+    for (number, message) in (1_usize..).zip(messages.iter()) {
         // An `Err` here would be the same error `convert_with_options` reports
         // just below, so only a definite "order is lost" is handled here.
         if require_order
@@ -99,12 +99,12 @@ fn main() -> ExitCode {
                 "message {}: the JSON cannot keep its segments in their original order \
                  (same-named segments are not adjacent and the message is not grouped); \
                  keep the ER7 for replay, or drop --require-order",
-                i + 1
+                number
             ));
         }
         match hl7_2_from_er7_into_json::convert_with_options(message, options) {
             Ok(json) => documents.push(json),
-            Err(e) => return fail(&format!("message {}: {e}", i + 1)),
+            Err(e) => return fail(&format!("message {number}: {e}")),
         }
     }
     let out_text = documents.join("\n");

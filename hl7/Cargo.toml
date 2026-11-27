@@ -1,6 +1,6 @@
 [package]
 name = "hl7"
-version = "0.2.4"
+version = "0.3.0"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 rust-version.workspace = true
@@ -21,3 +21,7 @@ hl7-3 = { version = "0.2.0", path = "../hl7-3" }
 # Forwards to `hl7-2`'s `derive` feature, so callers don't need to know
 # the lean crate exists.
 derive = ["hl7-2/derive"]
+
+# RCA-ENF-1: the workspace's checked-arithmetic lint set (root Cargo.toml).
+[lints]
+workspace = true

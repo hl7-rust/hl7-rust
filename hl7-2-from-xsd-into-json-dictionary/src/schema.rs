@@ -188,15 +188,20 @@ pub fn segments(root: &Element, types: &Types) -> BTreeMap<String, Vec<Field>> {
         }
         let mut fields: Vec<Field> = Vec::new();
         for reference in sequence_references(complex_type) {
-            let Some(position) = field_position(&reference.name) else {
+            let Some(slot) = field_slot(&reference.name) else {
                 continue;
             };
-            fields.resize_with(position.max(fields.len()), Field::default);
-            fields[position - 1] = Field {
+            let field = Field {
                 data_type: types.data_type(&reference.name).to_string(),
                 required: reference.required,
                 repeats: reference.repeats,
             };
+            if let Some(existing) = fields.get_mut(slot) {
+                *existing = field;
+            } else {
+                fields.resize_with(slot, Field::default);
+                fields.push(field);
+            }
         }
         if !fields.is_empty() {
             out.insert(name.to_string(), fields);
@@ -205,13 +210,21 @@ pub fn segments(root: &Element, types: &Types) -> BTreeMap<String, Vec<Field>> {
     out
 }
 
-/// The 1-based field number in a `SEG.n` reference.
-fn field_position(reference: &str) -> Option<usize> {
+/// The zero-based slot of a field reference such as `PID.5` (slot 4), or
+/// `None` when the suffix is not a field number from 1 to
+/// [`MAX_FIELD_POSITION`] (spec §3.3).
+fn field_slot(reference: &str) -> Option<usize> {
     reference
         .rsplit_once('.')
         .and_then(|(_, tail)| tail.parse::<usize>().ok())
-        .filter(|position| *position > 0)
+        .filter(|position| *position <= MAX_FIELD_POSITION)
+        .and_then(|position| position.checked_sub(1))
 }
+
+/// The highest field number a segment entry may name. The list is sized by
+/// it, so a reference such as `PID.99999999999` must not decide how much is
+/// allocated; HL7's own segments stop far below this.
+const MAX_FIELD_POSITION: usize = 10_000;
 
 fn strip_content(name: &str) -> Option<&str> {
     name.strip_suffix(CONTENT)
@@ -302,6 +315,34 @@ pub fn included_prefix(root: &Element) -> Option<String> {
 mod tests {
     use super::*;
     use crate::xml::parse;
+
+    #[test]
+    fn a_field_number_outside_one_to_the_maximum_has_no_slot() {
+        assert_eq!(field_slot("PID.1"), Some(0));
+        assert_eq!(field_slot("PID.5"), Some(4));
+        assert_eq!(field_slot("PID.10000"), Some(9_999));
+        assert_eq!(field_slot("PID.10001"), None);
+        assert_eq!(field_slot("PID.99999999999999999999"), None);
+        assert_eq!(field_slot("PID.0"), None);
+        assert_eq!(field_slot("PID"), None);
+    }
+
+    #[test]
+    fn a_field_lands_at_its_number_whatever_order_it_is_declared_in() {
+        let root = parse(
+            r#"<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                 <xsd:complexType name="PID.CONTENT"><xsd:sequence>
+                   <xsd:element ref="PID.3"/>
+                   <xsd:element minOccurs="0" ref="PID.1"/>
+                 </xsd:sequence></xsd:complexType>
+               </xsd:schema>"#,
+        )
+        .unwrap();
+        let fields = &segments(&root, &types())["PID"];
+        assert_eq!(fields.len(), 3);
+        assert!(!fields[0].required, "PID.1 replaced its placeholder");
+        assert!(fields[2].required);
+    }
 
     const TYPES: &str = r#"
       <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">

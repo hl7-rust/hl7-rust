@@ -123,6 +123,20 @@ lines are dropped, and the rest are rejoined with `\r`. `er7` deliberately
 trims nothing; this crate does, because a message indented for readability
 would otherwise be a missing-header error rather than a message.
 
+**Trimming is leading and trailing, and covers all Unicode whitespace** —
+every character with the `White_Space` property (`char::is_whitespace`):
+space, tab, no-break space, ideographic space, and the rest, not only ASCII.
+Leading whitespace on a line precedes the segment name, so it is never part
+of a value. Trailing whitespace is, when the line ends in a value: the last
+value in a segment loses its trailing whitespace on parse, while the same
+value anywhere else in the segment keeps it. This is a decision (2026-11-27),
+taken knowing that asymmetry, because HL7 v2 treats trailing blanks as
+insignificant: ST, and the ID and IS types that follow its rules, is "left
+justified with trailing blanks optional" (v2.5 chapter 2A, 2.A.74, 2.A.35,
+2.A.36), and TX says "Trailing spaces should be removed" (2.A.78). A
+receiver comparing values should therefore ignore trailing whitespace, which
+is what the round-trip properties in §13 assert.
+
 ### 2.2 Errors
 
 Only a message with no usable MSH header fails to parse: `Error::Empty`,
@@ -185,7 +199,11 @@ A **list** (`["SI", "CX"]`) states the whole thing and replaces what was
 inherited. An **object** (`{"12": "ID"}`) states individual 1-based
 positions and leaves the rest inherited — which is how a release delta
 restates MSH-12 without restating MSH. A position the object leaves unstated
-and that no inherited list covers reads as unknown, not as some default.
+and that no inherited list covers reads as unknown, not as some default. A
+position key must be a number from 1 to 10,000 (`dictionary::MAX_POSITION`);
+anything else, including a larger number, is a `dictionary::Error` naming
+the key, because the tables are sized by it and a caller's dictionary must
+not be able to decide how much is allocated.
 
 ### 3.2.1 Two forms for a position
 
@@ -471,6 +489,23 @@ fields MSH-3 and MSH-4 to MSH-5 and MSH-6, and MSH-5 and MSH-6 to MSH-3
 and MSH-4. This preserves namespace IDs, universal IDs, universal ID types,
 empty components, and escape sequences. MSA-2 echoes the received control ID.
 
+`Builder::new`, `Builder::with_dictionary`, `builder::acknowledge`, and
+`Version::dictionary` return `Result`, never panic. Each depends on
+something the crate itself supplies — the builder's own header, a bundled
+dictionary file, the MSH a parsed `Message` always has — which
+`bundled_dictionaries_all_load` and the builder tests prove sound, so the
+`Err` would mean the crate shipped a defect; it is still an error the caller
+can report, not a panic (`spec/rust-checked-arithmetic`, RCA-P-1).
+`Version::dictionary` caches the outcome, so a file that failed to load
+fails the same way on every call.
+
+`Builder::message_type` writes MSH-9.3 (the structure ID) only when the
+release's dictionary gives MSH-9 a third component — 2.3.1 onwards. A 2.1,
+2.2, or 2.3 message, including an acknowledgement of one, carries
+`code^trigger` and nothing more, because those releases define no
+structure component and a reply that adds one is not in the sender's
+release.
+
 ## 8. Validation (`src/validate.rs`)
 
 `Message::validate` checks a message against its dictionary and returns
@@ -634,7 +669,8 @@ nobody is holding, and a test whose name no longer describes what it checks
 is a rule that has quietly changed.
 
 Unit tests live in their module's `#[cfg(test)] mod tests`; integration
-tests in `tests/main.rs`; derive tests in
+tests in `tests/main.rs`, property tests (proptest, generated inputs that
+shrink to a minimal failing case) in `tests/main/properties.rs`; derive tests in
 `../hl7-2-derive/tests/main.rs`.
 
 | § | rule | test |
@@ -668,7 +704,11 @@ tests in `tests/main.rs`; derive tests in
 | 8.2 | strict mode | `tests::strict_mode_turns_diagnostics_into_a_failure`, `integration::strict_mode_is_the_difference_between_reporting_and_refusing` |
 | 9 | batch splitting | `tests::splits_batches_into_messages`, `integration::a_batch_file_becomes_one_message_each` |
 | 10 | error variants | `message::tests::reads_values_by_path`, `message::tests::writes_values_creating_what_is_missing`, `dictionary::tests::reports_where_a_malformed_dictionary_is_wrong` |
-| 2, 7 | round trip after parse and after edit | `message::tests::round_trips_an_unmodified_message`, `integration::reading_modifying_and_writing_round_trips` |
+| 2, 7 | round trip after parse and after edit | `message::tests::round_trips_an_unmodified_message`, `integration::reading_modifying_and_writing_round_trips`, `properties::rendered_er7_is_a_fixed_point` |
+| 2.1 | leading and trailing Unicode whitespace is trimmed from each line | `tests::normalizes_before_parsing`, `properties::line_trimming_drops_unicode_whitespace_at_a_segment_end` |
+| 2.2, 8 | reading arbitrary text never panics | `properties::reading_arbitrary_text_never_panics` |
+| 7.1 | `set` then `get` returns the text written, for generated text | `properties::set_then_get_returns_the_text_written` |
+| 8.0 | redacted diagnostics carry no message text, for generated messages | `properties::redacted_diagnostics_never_contain_message_text` |
 | 12 | the CLI contract | `integration::the_cli_*` |
 
 ## 14. References

@@ -102,6 +102,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn a_wrong_kind_of_value_says_what_a_version_looks_like() {
+        let error = serde_json::from_str::<Version>("5")
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("an HL7 v2 release string"), "{error}");
+    }
+
+    #[test]
     fn round_trips_every_release() {
         for &release in hl7_2::version::ALL {
             let json = serde_json::to_string(&Version(release)).unwrap();

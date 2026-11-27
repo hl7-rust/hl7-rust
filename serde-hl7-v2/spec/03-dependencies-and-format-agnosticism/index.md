@@ -7,7 +7,7 @@
 ```toml
 [dependencies]
 serde = "1"
-hl7-2 = { version = "0.3.3", path = "../hl7-2", default-features = false }
+hl7-2 = { version = "0.4.0", path = "../hl7-2", default-features = false }
 ```
 
 Both are the point of the crate: `serde` is the trait vocabulary being
@@ -19,9 +19,11 @@ is the whole transitive surface. No third runtime dependency should be
 added without updating this section and explaining, here, what it buys
 that these two do not.
 
-`0.3.3` is the minimum `hl7-2` release because it introduced `Node::new`,
+`0.4.0` is the minimum `hl7-2` release because it introduced
+`Diagnostic::redacted_path`, which `RedactedDiagnostic` (rule S16) uses to
+mask a sender's segment name. It also carries `Node::new` (from `0.3.3`),
 which this crate's recursive `Node` deserializer uses to restore a detached
-tree. An earlier compatible patch cannot compile that implementation.
+tree. An earlier release cannot compile either implementation.
 
 The `path` alongside `version` is the workspace convention (root
 `AGENTS.md`): the path is what a local build uses, the version is what

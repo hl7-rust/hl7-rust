@@ -1,6 +1,6 @@
 [package]
 name = "serde-hl7-v3"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Joel Parker Henderson <joel@joelparkerhenderson.com>"]
 edition = "2024"
 rust-version.workspace = true
@@ -21,6 +21,13 @@ hl7-3 = { version = "0.2.0", path = "../hl7-3", default-features = false }
 
 # serde_json is not a runtime dependency of this crate — it is deliberately
 # format-agnostic — but it is the natural format to exercise in tests,
-# doctests, and examples, so it appears only here.
+# doctests, and examples, so it appears only here. postcard is here for the
+# same reason: a non-self-describing format, so the positional (visit_seq)
+# path of the round-trip guarantee (rule S14) is tested too.
 [dev-dependencies]
+postcard = { version = "1.2.0", default-features = false, features = ["alloc"] }
 serde_json = "1"
+
+# RCA-ENF-1: the workspace's checked-arithmetic lint set (root Cargo.toml).
+[lints]
+workspace = true

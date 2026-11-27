@@ -81,6 +81,11 @@ ci-minimum-supported-rust-version:
 test-coverage:
 	bin/test-coverage
 
+# Mutation-test every crate with cargo-mutants (spec/mutation-testing).
+.PHONY: test-mutants
+test-mutants:
+	bin/test-mutants
+
 # Run every criterion benchmark in the workspace.
 .PHONY: test-benchmarks
 test-benchmarks:

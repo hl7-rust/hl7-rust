@@ -148,11 +148,13 @@ fn build_segment(name: &str, value: &Value, separators: &Separators) -> Segment 
         // literally rather than escaped (`er7` spec §3.4) — the generic
         // build above cannot know that, so its guesses for these two slots
         // are replaced here.
-        while fields.len() < 2 {
-            fields.push(Field::default());
+        for (slot, number) in [(0, 1), (1, 2)] {
+            let delimiter = literal_field(field_text(name, value, number).unwrap_or_default());
+            match fields.get_mut(slot) {
+                Some(field) => *field = delimiter,
+                None => fields.push(delimiter),
+            }
         }
-        fields[0] = literal_field(field_text(name, value, 1).unwrap_or_default());
-        fields[1] = literal_field(field_text(name, value, 2).unwrap_or_default());
     }
     Segment {
         name: name.to_string(),
@@ -221,7 +223,15 @@ fn index_entries(entries: &[(String, Value)]) -> BTreeMap<usize, &Value> {
         let index = trailing_index(key)
             .filter(|&i| (1..=MAX_POSITION).contains(&i))
             .unwrap_or(next);
-        next = index + 1;
+        // RCA-EXC-2: `index` is at most `MAX_POSITION` or the previous `next`,
+        // and `next` grows by one per entry, a slice of at most `isize::MAX`
+        // elements, so `index + 1` stays far below `usize::MAX`.
+        #[expect(
+            clippy::arithmetic_side_effects,
+            reason = "RCA-EXC-2: bounded by MAX_POSITION plus the slice length, proof above"
+        )]
+        let after = index + 1;
+        next = after;
         map.entry(index).or_insert(value);
     }
     map
@@ -375,6 +385,18 @@ mod tests {
         reconstruct(&parse_document(json).unwrap())
             .unwrap()
             .to_er7()
+    }
+
+    #[test]
+    fn a_key_with_no_position_lands_right_after_the_one_before() {
+        // `junk` names no position, so it takes the slot after PID.2.
+        let json = r#"{"X": {"MSH": {"MSH.1": "|", "MSH.2": "^~\\&"},
+            "PID": {"PID.2": "a", "junk": "b", "PID.5": "c"}}}"#;
+        assert!(
+            reconstruct_er7(json).ends_with("PID||a|b||c"),
+            "{}",
+            reconstruct_er7(json)
+        );
     }
 
     #[test]

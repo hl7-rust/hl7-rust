@@ -164,8 +164,14 @@ body, expected)` accepts only when `evaluate` accepts **and** the body holds
 an `acknowledgement/typeCode/@code` of `AA` or `CA` **and**
 `targetMessage/id/@extension` equals `expected`; an empty, unparseable or
 unrecognised body, an acknowledgement for another message, or one that names
-none is a rejection. Its reasons never quote the message's own text
-(`spec/phi/index.md`). `evidence(body)` exposes what was found —
+none is a rejection. The code and the target message must come from the
+**one** `acknowledgement` element inside the SOAP `Body` (or the document,
+when there is no `Body`); none, several, or one only in the `Header` is no
+evidence. Its reasons are fixed strings (`HTTP <status>`, `SOAP fault`,
+`negative acknowledgement in the response`, and the three correlation
+reasons) and never quote the peer's fault or `typeCode` text, which can echo
+the message (`spec/phi/index.md`); `evaluate` still quotes them, for a caller
+that wants the receiver's own words. `evidence(body)` exposes what was found —
 `AckCode::Application` (`AA`) or `AckCode::Commit` (`CA`) — and the control
 ID, so a caller can tell commit from application acceptance. Persisting
 before replying, and answering a redelivery with the same reply without a

@@ -47,6 +47,7 @@ fn writes_each_annotated_field_back_to_its_path() {
         sex: Some("M".to_string()),
     };
     let message = hl7_2::Builder::new(Version::V2_5)
+        .unwrap()
         .message_type("ADT", "A01")
         .control_id("1")
         .timestamp("20260814080000")
@@ -94,7 +95,7 @@ fn nests_structs_and_keeps_the_raw_message() {
 #[derive(Debug, DeriveFromHl7)]
 struct Required {
     #[hl7("PID-99")]
-    #[allow(dead_code, reason = "the point of the test is that reading it fails")]
+    #[expect(dead_code, reason = "the point of the test is that reading it fails")]
     absent: String,
 }
 
@@ -154,6 +155,7 @@ fn a_renamed_dependency_is_reachable_through_the_crate_attribute() {
 
     // And the write direction, which generates its own set of paths.
     let message = hl7_2::Builder::new(Version::V2_5)
+        .unwrap()
         .message_type("ADT", "A01")
         .control_id("1")
         .timestamp("20260814080000")

@@ -100,11 +100,12 @@ fn every_test_the_specification_names_exists() {
     let mut missing = Vec::new();
 
     for reference in referenced_tests(&spec) {
-        // `integration::` and `derive::` in the table name the file a bare
-        // test name lives in; Rust does not use them.
+        // `integration::`, `properties::` and `derive::` in the table name
+        // the file a bare test name lives in; Rust does not use them.
         let candidates = [
             reference.clone(),
             reference.replace("integration::", ""),
+            reference.replace("properties::", ""),
             reference.replace("derive::", ""),
         ];
         let found = if let Some(prefix) = reference.strip_suffix('*') {
@@ -144,7 +145,7 @@ fn every_bundled_release_the_specification_lists_is_shipped() {
         "§3.4 lists the shared files"
     );
     for version in hl7_2::version::ALL {
-        let dictionary = version.dictionary();
+        let dictionary = version.dictionary().unwrap();
         assert!(
             dictionary.segment_fields("MSH").is_some(),
             "v{version} has no MSH"

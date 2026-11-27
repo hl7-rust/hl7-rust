@@ -172,8 +172,16 @@ has this message" from "something answered 200". `evaluate_correlated(status,
 body, expected)` accepts only when `evaluate` accepts **and** the body holds a
 positive acknowledgement **and** names `expected` as the message it answers;
 an empty, unparseable or unrecognised body, an acknowledgement for another
-message, or one that names none is a rejection. Its reasons never quote the
-message's own text (`spec/phi/index.md`). `evidence(body)` exposes what was
+message, or one that names none is a rejection. The code and the control ID
+must come from the **same** element — the one element inside the SOAP
+`Body` (or the document, when there is no `Body`) with a `Status` child —
+so a code in one element and an ID in another, an ID only in the `Header`,
+or two acknowledgements (or two `Status` children) are no evidence. Its
+reasons are fixed strings (`HTTP <status>`, `SOAP fault`, `negative
+acknowledgement in the response`, and the three correlation reasons) and
+never quote the peer's fault or status text, which can echo the message
+(`spec/phi/index.md`); `evaluate` still quotes them, for a caller that wants
+the receiver's own words. `evidence(body)` exposes what was
 found — `AckCode::Application` (`AA`) or `AckCode::Commit` (`CA`) or the word `Success` —
 and the control ID, so a caller can tell commit from application acceptance.
 Persisting before replying, and answering a redelivery with the same reply

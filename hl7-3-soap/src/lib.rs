@@ -86,7 +86,14 @@
 // XML literals keep their `r#"..."#` delimiters even where no `"` currently
 // forces them: these are documents, and adding a quoted attribute to one
 // should not also mean changing its delimiter.
-#![allow(clippy::needless_raw_string_hashes)]
+// Only the unit tests carry such literals, so only their build expects it.
+#![cfg_attr(
+    test,
+    expect(
+        clippy::needless_raw_string_hashes,
+        reason = "the XML fixtures keep one raw-string delimiter, as above"
+    )
+)]
 
 pub mod envelope;
 pub mod fault;

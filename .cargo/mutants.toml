@@ -1,0 +1,12 @@
+# cargo-mutants configuration for the workspace (tasks.md, "Mutation testing").
+# Builds each mutant with the lean `mutants` profile from the root Cargo.toml.
+profile = "mutants"
+# Every feature, as the coverage gate builds: code behind `clock` or
+# `noncompliance` is otherwise never compiled, so its mutants could not be
+# caught or missed, only ignored.
+additional_cargo_args = ["--all-features"]
+# Every crate's tests run against its own mutants; a mutant only another crate's
+# tests could catch is a gap in this crate's suite, which is the point.
+test_workspace = false
+# Examples, benches and the fuzz workspaces are not production code.
+exclude_globs = ["**/examples/**", "**/benches/**", "**/fuzz/**", "**/tests/**"]

@@ -153,6 +153,18 @@ mod tests {
     }
 
     #[test]
+    fn the_header_is_there_only_when_the_sender_sent_one() {
+        let with =
+            parse(r#"<Envelope><Header><Auth/></Header><Body><X/></Body></Envelope>"#).unwrap();
+        assert_eq!(
+            with.header().map(|header| header.name.as_str()),
+            Some("Header")
+        );
+        let without = parse(r#"<Envelope><Body><X/></Body></Envelope>"#).unwrap();
+        assert!(without.header().is_none());
+    }
+
+    #[test]
     fn a_missing_body_is_a_fault() {
         let envelope = parse(r#"<Envelope><Header/></Envelope>"#).unwrap();
         assert!(envelope.body().unwrap_err().reason.contains("Body"));

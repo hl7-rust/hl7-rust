@@ -8,6 +8,7 @@ use serde::de::{self, DeserializeSeed, MapAccess, SeqAccess, Visitor};
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::diagnostic::next_field;
 use crate::{NodeKind, Strict};
 
 /// A Serde-enabled [`hl7_2::Node`]: the dictionary-named tree
@@ -159,19 +160,53 @@ impl<'de> Visitor<'de> for NodeVisitor {
             }
         }
 
-        let children = children
-            .ok_or_else(|| de::Error::missing_field("children"))?
-            .into_iter()
-            .map(|child| child.0)
-            .collect();
-        Ok(Node(hl7_2::Node::new(
+        Ok(NodeVisitor::finish(
             name.ok_or_else(|| de::Error::missing_field("name"))?,
             path.ok_or_else(|| de::Error::missing_field("path"))?,
-            kind.ok_or_else(|| de::Error::missing_field("kind"))?.0,
+            kind.ok_or_else(|| de::Error::missing_field("kind"))?,
             text.ok_or_else(|| de::Error::missing_field("text"))?,
             null.ok_or_else(|| de::Error::missing_field("null"))?,
-            children,
-        )))
+            children.ok_or_else(|| de::Error::missing_field("children"))?,
+        ))
+    }
+
+    /// A non-self-describing format hands the fields over in declaration
+    /// order: `name`, `path`, `kind`, `text`, `null`, `children`.
+    fn visit_seq<A>(self, mut sequence: A) -> Result<Node, A::Error>
+    where
+        A: SeqAccess<'de>,
+    {
+        let name = next_field(&mut sequence, 0, &self)?;
+        let path = next_field(&mut sequence, 1, &self)?;
+        let kind = next_field(&mut sequence, 2, &self)?;
+        let text = next_field(&mut sequence, 3, &self)?;
+        let null = next_field(&mut sequence, 4, &self)?;
+        let children = sequence
+            .next_element_seed(ChildrenSeed {
+                strict: self.strict,
+            })?
+            .ok_or_else(|| de::Error::invalid_length(5, &self))?;
+        Ok(NodeVisitor::finish(name, path, kind, text, null, children))
+    }
+}
+
+impl NodeVisitor {
+    fn finish(
+        name: String,
+        path: String,
+        kind: NodeKind,
+        text: String,
+        null: bool,
+        children: Vec<Node>,
+    ) -> Node {
+        Node(hl7_2::Node::new(
+            name,
+            path,
+            kind.0,
+            text,
+            null,
+            children.into_iter().map(|child| child.0).collect(),
+        ))
     }
 }
 

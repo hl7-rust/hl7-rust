@@ -148,19 +148,40 @@ pub fn evidence(body: &str) -> Evidence {
     let Ok(root) = xml::parse(body) else {
         return Evidence::default();
     };
-    let code = root
-        .find("Status")
+    // Both values come from the one element that carries a `Status`, inside
+    // the SOAP `Body`: a code in one place and a control ID in another (a
+    // header, an echoed payload) is not an acknowledgement of that message.
+    let scope = root.find("Body").unwrap_or(&root);
+    let mut carriers = Vec::new();
+    status_carriers(scope, &mut carriers);
+    let [carrier] = carriers.as_slice() else {
+        return Evidence::default();
+    };
+    let code = carrier
+        .child("Status")
         .and_then(|element| match element.text.trim() {
             "AA" => Some(AckCode::Application),
             "CA" => Some(AckCode::Commit),
             value if value.eq_ignore_ascii_case("Success") => Some(AckCode::Success),
             _ => None,
         });
-    let control_id = root
-        .find("MessageControlId")
+    let control_id = carrier
+        .child("MessageControlId")
         .map(|element| element.text.trim().to_string())
         .filter(|id| !id.is_empty());
     Evidence { code, control_id }
+}
+
+/// Every element under `element`, itself included, with a `Status` child;
+/// one with several `Status` children counts once per child, so it is never
+/// mistaken for a single acknowledgement.
+fn status_carriers<'a>(element: &'a xml::Element, found: &mut Vec<&'a xml::Element>) {
+    for _ in element.children_named("Status") {
+        found.push(element);
+    }
+    for child in &element.children {
+        status_carriers(child, found);
+    }
 }
 
 /// Decide whether a response is a *correlated* acknowledgement of the
@@ -178,9 +199,16 @@ pub fn evidence(body: &str) -> Evidence {
 /// message's own text.
 #[must_use]
 pub fn evaluate_correlated(status: u16, body: &str, expected: &str) -> Outcome {
-    let outcome = evaluate(status, body);
-    if !outcome.is_accepted() {
-        return outcome;
+    if !(200..300).contains(&status) {
+        return Outcome::Rejected(format!("HTTP {status}"));
+    }
+    // `evaluate`'s reasons quote the peer's fault and status text, which can
+    // echo the message; this API's reasons are fixed strings.
+    if xml::parse(body).is_ok_and(|root| root.find("Fault").is_some()) {
+        return Outcome::Rejected("SOAP fault".to_string());
+    }
+    if !evaluate(status, body).is_accepted() {
+        return Outcome::Rejected("negative acknowledgement in the response".to_string());
     }
     let found = evidence(body);
     if found.code.is_none() {
@@ -346,5 +374,54 @@ mod correlated_tests {
         assert_eq!(code("success"), Some(AckCode::Success));
         assert_eq!(code("AR"), None);
         assert_eq!(evidence("").control_id, None);
+    }
+
+    #[test]
+    fn evidence_comes_from_one_acknowledgement_in_the_body() {
+        let none = Outcome::Rejected("no positive acknowledgement in the response".into());
+        let unnamed = Outcome::Rejected("the acknowledgement does not name a message".into());
+        // A code in one element and the control ID in another.
+        let split = "<Envelope><Body><Ack><Status>AA</Status></Ack>\
+                     <Echo><MessageControlId>M1</MessageControlId></Echo></Body></Envelope>";
+        assert_eq!(evaluate_correlated(200, split, "M1"), unnamed);
+        // The control ID only in the SOAP header.
+        let header = "<Envelope><Header><MessageControlId>M1</MessageControlId></Header>\
+                      <Body><Ack><Status>AA</Status></Ack></Body></Envelope>";
+        assert_eq!(evaluate_correlated(200, header, "M1"), unnamed);
+        // A positive acknowledgement only in the header is no evidence.
+        let outside = "<Envelope><Header><Ack><Status>AA</Status>\
+                       <MessageControlId>M1</MessageControlId></Ack></Header><Body/></Envelope>";
+        assert_eq!(evaluate_correlated(200, outside, "M1"), none);
+        // Two acknowledgements, so neither is the answer.
+        let two = "<Envelope><Body>\
+                   <Ack><Status>AA</Status><MessageControlId>M1</MessageControlId></Ack>\
+                   <Ack><Status>AA</Status><MessageControlId>M2</MessageControlId></Ack>\
+                   </Body></Envelope>";
+        assert_eq!(evaluate_correlated(200, two, "M1"), none);
+        let doubled = "<Envelope><Body><Ack><Status>AA</Status><Status>AR</Status>\
+                       <MessageControlId>M1</MessageControlId></Ack></Body></Envelope>";
+        assert_eq!(evidence(doubled), Evidence::default());
+    }
+
+    #[test]
+    fn correlated_reasons_never_quote_the_peer() {
+        let fault = crate::Fault::validation("PATIENTMARK is wrong").to_envelope();
+        assert!(
+            matches!(evaluate(200, &fault), Outcome::Rejected(reason) if reason.contains("MARK"))
+        );
+        assert_eq!(
+            evaluate_correlated(200, &fault, "M1"),
+            Outcome::Rejected("SOAP fault".into())
+        );
+        let negative = "<Envelope><Body><Ack><Status>MARK</Status>\
+                        <MessageControlId>M1</MessageControlId></Ack></Body></Envelope>";
+        assert_eq!(
+            evaluate_correlated(200, negative, "M1"),
+            Outcome::Rejected("negative acknowledgement in the response".into())
+        );
+        assert_eq!(
+            evaluate_correlated(503, "", "M1"),
+            Outcome::Rejected("HTTP 503".into())
+        );
     }
 }
